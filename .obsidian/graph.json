@@ -1,0 +1,42 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showTags": true,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "tag:#skill",
+      "color": { "a": 1, "rgb": 16738816 }
+    },
+    {
+      "query": "tag:#ui-ux-pro-max",
+      "color": { "a": 1, "rgb": 16744218 }
+    },
+    {
+      "query": "tag:#mcp",
+      "color": { "a": 1, "rgb": 3718648 }
+    },
+    {
+      "query": "tag:#claude-opus",
+      "color": { "a": 1, "rgb": 11032055 }
+    },
+    {
+      "query": "tag:#security",
+      "color": { "a": 1, "rgb": 1095973 }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1.25,
+  "lineSizeMultiplier": 1.15,
+  "collapse-forces": false,
+  "centerStrength": 0.52,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "scale": 1.2
+}

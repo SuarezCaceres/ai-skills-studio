@@ -1,0 +1,11 @@
+{
+  "legacyEditor": false,
+  "livePreview": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "skills",
+  "promptDelete": false,
+  "showLineNumber": true,
+  "foldHeading": true,
+  "foldIndent": true,
+  "attachmentFolderPath": "public"
+}

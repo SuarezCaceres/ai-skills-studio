@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+@theme {
+  --color-midnight-void: #07050e;
+  --color-midnight-deep: #0c081a;
+  --color-midnight-base: #120d24;
+  --color-midnight-card: #17112e;
+  --color-midnight-elevated: #20183e;
+  --color-midnight-surface: #2b1f54;
+
+  --color-purple-primary: #8b5cf6;
+  --color-purple-vibrant: #7c3aed;
+  --color-purple-light: #c084fc;
+  --color-purple-amethyst: #a855f7;
+
+  --color-cyan-synapse: #38bdf8;
+  --color-emerald-matrix: #10b981;
+  --color-amber-score: #f59e0b;
+}
+
+@layer base {
+  :root {
+    /* Paleta Noche Obsidiana Violeta */
+    --bg-midnight-void: #07050e;
+    --bg-midnight-deep: #0c081a;
+    --bg-midnight-slate: #120d24;
+    --panel-midnight-card: #17112e;
+    --panel-midnight-elevated: #20183e;
+    --panel-midnight-border: rgba(168, 85, 247, 0.2);
+
+    /* Acentos Morado Moderno / Amatista Eléctrico */
+    --purple-primary: #8b5cf6;
+    --purple-vibrant: #7c3aed;
+    --purple-light: #c084fc;
+    --purple-glow: rgba(139, 92, 246, 0.32);
+
+    /* Contrastes Sinápticos IA */
+    --cyan-synapse: #38bdf8;
+    --emerald-ready: #10b981;
+    --amber-score: #f59e0b;
+
+    /* Superficie de Lectura Cálida */
+    --panel-ivory-warm: #fcfbf8;
+    --panel-ivory-text: #0f172a;
+
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-midnight-void);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-midnight-void);
+    color: #f8fafc;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: #8b5cf6;
+    color: #ffffff;
+  }
+
+  /* Barra de desplazamiento elegante en tono amatista oscuro */
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #07050e;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #20183e;
+    border-radius: 9999px;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8b5cf6;
+  }
+
+  code,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  [inert],
+  [inert] * {
+    opacity: 0.5;
+    cursor: default;
+    user-select: none;
+  }
+
+  [focusgroup~="menu"] {
+    --menu-icon-size: 1.25rem;
+  }
+
+  [focusgroup~="menu"] > button,
+  [focusgroup~="menu"] > [role="group"] > button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  [focusgroup~="menu"] button::before {
+    content: "";
+    flex: none;
+    inline-size: var(--menu-icon-size);
+  }
+
+  [focusgroup~="menu"] button[aria-checked="true"]::before {
+    content: "✓";
+    color: #c084fc;
+    font-weight: 700;
+  }
+
+  [focusgroup~="menu"] .hint {
+    margin-inline-start: auto;
+  }
+
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+  }
+}
+
+/* ==========================================================================
+   PATRÓN DE RED NEURONAL & ELEMENTOS FLOTANTES EN TONOS VIOLETA & CIAN
+   ========================================================================== */
+
+.neural-mesh-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%238B5CF6' stroke-width='0.55' stroke-opacity='0.09'%3E%3Cpath d='M20 25 L75 50 L135 20 L150 85 L100 135 L35 120 Z'/%3E%3Cpath d='M75 50 L100 135 M20 25 L35 120 M75 50 L150 85'/%3E%3C/g%3E%3Cg fill='%23C084FC' fill-opacity='0.18'%3E%3Ccircle cx='20' cy='25' r='1.8'/%3E%3Ccircle cx='75' cy='50' r='2.2'/%3E%3Ccircle cx='135' cy='20' r='1.5'/%3E%3Ccircle cx='150' cy='85' r='2'/%3E%3Ccircle cx='100' cy='135' r='1.8'/%3E%3Ccircle cx='35' cy='120' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+.neural-floating-glyph {
+  color: rgba(192, 132, 252, 0.6);
+  box-shadow: 0 0 16px -2px rgba(139, 92, 246, 0.25);
+  animation: neural-float 11s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+.neural-floating-glyph-delayed {
+  color: rgba(139, 92, 246, 0.55);
+  box-shadow: 0 0 16px -2px rgba(56, 189, 248, 0.2);
+  animation: neural-float-reverse 14s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes neural-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0) rotate(3deg);
+  }
+}
+
+@keyframes neural-float-reverse {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, 9px, 0) rotate(-3deg);
+  }
+}
+
+/* ==========================================================================
+   PANELES Y TARJETAS EN NOCHE OBSIDIANA VIOLETA (#17112E) + RESPLANDOR
+   ========================================================================== */
+
+.edu-floating-panel {
+  background: linear-gradient(180deg, rgba(23, 17, 46, 0.88) 0%, rgba(15, 11, 30, 0.95) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.18);
+  box-shadow:
+    0 24px 50px -15px rgba(3, 2, 8, 0.92),
+    0 0 25px -8px rgba(139, 92, 246, 0.16),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.edu-floating-panel-active {
+  background: linear-gradient(180deg, rgba(32, 24, 62, 0.94) 0%, rgba(20, 14, 40, 0.98) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.55);
+  box-shadow:
+    0 26px 54px -15px rgba(3, 2, 8, 0.95),
+    0 0 30px -4px rgba(139, 92, 246, 0.35),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+}
+
+.edu-ivory-reading-card {
+  background-color: var(--panel-ivory-warm);
+  color: var(--panel-ivory-text);
+  border: 1.5px solid rgba(139, 92, 246, 0.65);
+  box-shadow:
+    0 20px 45px -12px rgba(3, 2, 8, 0.7),
+    0 0 24px -6px rgba(139, 92, 246, 0.22);
+}
+
+.purple-glow,
+.orange-glow {
+  box-shadow:
+    0 16px 38px -10px rgba(3, 2, 8, 0.85),
+    0 0 28px -6px rgba(139, 92, 246, 0.35);
+}
+
+.purple-glow-sm,
+.orange-glow-sm {
+  box-shadow:
+    0 10px 24px -8px rgba(3, 2, 8, 0.75),
+    0 0 16px -4px rgba(139, 92, 246, 0.28);
+}
+
+/* Botón y Enlace Obsidian */
+.btn-obsidian-vault {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.22) 0%, rgba(124, 58, 237, 0.36) 100%);
+  border: 1px solid rgba(192, 132, 252, 0.5);
+  color: #e9d5ff;
+  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-obsidian-vault:hover {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.38) 0%, rgba(124, 58, 237, 0.55) 100%);
+  border-color: rgba(216, 180, 254, 0.85);
+  box-shadow: 0 0 24px -2px rgba(168, 85, 247, 0.45);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
