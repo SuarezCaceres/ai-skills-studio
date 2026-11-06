@@ -19,6 +19,11 @@ import { TopStudioHeader } from './components/NavbarActiveSkill';
 import { InformativeLandingSection } from './components/InformativeLandingSection';
 import { NeuralAtmosphereBackground } from './components/NeuralAtmosphereBackground';
 
+const CodiceStudio = lazy(() =>
+  import('./components/CodiceStudio').then((m) => ({
+    default: m.CodiceStudio,
+  }))
+);
 const SkillManager = lazy(() =>
   import('./components/SkillManager').then((m) => ({
     default: m.SkillManager,
@@ -385,6 +390,8 @@ export function App() {
                 </div>
               }
             >
+              {activePage === 'codice-studio' && <CodiceStudio />}
+
               {activePage === 'boveda' && (
                 <SkillManager
                   skills={skills}

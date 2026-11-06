@@ -58,6 +58,13 @@ export const PAGE_NAV_ITEMS: {
     icon: Home,
   },
   {
+    id: 'codice-studio',
+    label: 'Códice Studio',
+    subtitle: 'Interfaz Cyber Dark & Espacial',
+    shortLabel: 'Códice',
+    icon: Sparkles,
+  },
+  {
     id: 'boveda',
     label: 'Skills',
     subtitle: 'Repositorio de Skills .MD y Reglas',
