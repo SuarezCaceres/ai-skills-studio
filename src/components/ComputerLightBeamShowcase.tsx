@@ -172,7 +172,7 @@ const COMPUTER_DOCK_ICONS: ComputerDockIconItem[] = [
   },
   {
     id: 'dock-center-codice',
-    name: 'Códice Orange',
+    name: 'Códice Studio',
     subtitle: 'Núcleo Central IA',
     modelToSelect: 'Opus 5.5',
     isCenterEmblem: true,
@@ -238,16 +238,16 @@ export const ComputerLightBeamShowcase: React.FC<
 
           {/* Pestaña Activa Principal */}
           <div className="hidden md:inline-flex items-center gap-2 rounded-lg border border-white/10 bg-[#131B2E] px-2.5 py-1 text-[11px] font-bold text-white">
-            <Sparkles className="h-3 w-3 text-[#FF6B00]" />
+            <Sparkles className="h-3 w-3 text-[#0EA5E9]" />
             <span>Estación IA · {activeModel}</span>
           </div>
         </div>
 
         {/* Barra de Dirección Central (Inspirada en app.wope.com de la imagen de referencia) */}
         <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#070A14] px-4 py-1 text-[11px] font-mono text-slate-300 shadow-inner min-w-[220px] sm:min-w-[300px] justify-center">
-          <Globe className="h-3 w-3 text-[#FF6B00]" />
+          <Globe className="h-3 w-3 text-[#0EA5E9]" />
           <span className="truncate">
-            app.codice-orange.ai/ingenieria/{activeModel.toLowerCase().replace(/\s+/g, '-')}
+            app.codice-studio.ai/ingenieria/{activeModel.toLowerCase().replace(/\s+/g, '-')}
           </span>
         </div>
 
@@ -283,7 +283,7 @@ export const ComputerLightBeamShowcase: React.FC<
                 onClick={() => onSelectModel(tab.version)}
                 className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-bold transition cursor-pointer border ${
                   active
-                    ? 'border-[#FF6B00]/60 bg-[#FF6B00]/15 text-white'
+                    ? 'border-[#0EA5E9]/60 bg-[#0EA5E9]/15 text-white'
                     : 'border-white/5 bg-[#111728]/80 text-slate-400 hover:text-white'
                 }`}
               >
@@ -366,8 +366,8 @@ export const ComputerLightBeamShowcase: React.FC<
                 }}
                 className={`group absolute inline-flex items-center gap-3 rounded-full pl-3 pr-5 py-2 text-xs font-bold backdrop-blur-md transition-all duration-300 cursor-pointer ${
                   isSelected
-                    ? 'bg-[#0F172A]/95 border-2 border-[#FF6B00] text-white shadow-xl shadow-[#FF6B00]/40 scale-105 z-20'
-                    : 'bg-[#0A0F1D]/80 hover:bg-[#0F172A]/95 border border-white/20 text-slate-100 hover:border-[#FF6B00]/70 hover:scale-105 shadow-lg'
+                    ? 'bg-[#0F172A]/95 border-2 border-[#0EA5E9] text-white shadow-xl shadow-[#0EA5E9]/40 scale-105 z-20'
+                    : 'bg-[#0B0F19]/80 hover:bg-[#0F172A]/95 border border-white/20 text-slate-100 hover:border-[#0EA5E9]/70 hover:scale-105 shadow-lg'
                 }`}
               >
                 {pill.brandIcon}
@@ -389,11 +389,11 @@ export const ComputerLightBeamShowcase: React.FC<
           {/* Resplandor Naranja Difuminado en el borde superior de la base */}
           <div
             aria-hidden="true"
-            className="h-6 w-[84%] max-w-4xl rounded-full bg-gradient-to-r from-transparent via-[#FF6B00] to-transparent blur-md opacity-95 -mb-2.5"
+            className="h-6 w-[84%] max-w-4xl rounded-full bg-gradient-to-r from-transparent via-[#0EA5E9] to-transparent blur-md opacity-95 -mb-2.5"
           />
           <div
             aria-hidden="true"
-            className="h-[2px] w-[88%] max-w-5xl bg-gradient-to-r from-transparent via-amber-300 to-transparent shadow-lg shadow-[#FF6B00]"
+            className="h-[2px] w-[88%] max-w-5xl bg-gradient-to-r from-transparent via-[#38BDF8] to-transparent shadow-lg shadow-[#0EA5E9]"
           />
 
           {/* Dock de la Computadora con los Iconos Oficiales de Claude, Gemini, GPT, Angular, Spring Boot y Tailwind */}
@@ -423,9 +423,9 @@ export const ComputerLightBeamShowcase: React.FC<
                     title={`${dockIcon.name} — ${dockIcon.subtitle}`}
                     className={`group flex flex-col items-center gap-1.5 transition duration-200 cursor-pointer ${
                       dockIcon.isCenterEmblem
-                        ? 'scale-105 px-4 py-1.5 rounded-2xl bg-white/[0.07] border border-[#FF6B00]/55 shadow-lg shadow-[#FF6B00]/30'
+                        ? 'scale-105 px-4 py-1.5 rounded-2xl bg-white/[0.07] border border-[#0EA5E9]/55 shadow-lg shadow-[#0EA5E9]/30'
                         : isActive
-                        ? 'px-3 py-1 rounded-xl bg-white/[0.08] border border-[#FF6B00]/60 shadow-md'
+                        ? 'px-3 py-1 rounded-xl bg-white/[0.08] border border-[#0EA5E9]/60 shadow-md'
                         : 'px-2.5 py-1 rounded-xl hover:bg-white/[0.06]'
                     }`}
                   >
@@ -435,7 +435,7 @@ export const ComputerLightBeamShowcase: React.FC<
                     <span
                       className={`text-[10px] font-mono font-bold tracking-tight whitespace-nowrap ${
                         dockIcon.isCenterEmblem
-                          ? 'text-[#F97316]'
+                          ? 'text-[#38BDF8]'
                           : isActive
                           ? 'text-white'
                           : 'text-slate-400 group-hover:text-white'
@@ -452,9 +452,9 @@ export const ComputerLightBeamShowcase: React.FC<
       </div>
 
       {/* Barra Inferior de Detalle del Elemento Activo */}
-      <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800/90 bg-[#0A0F1D] px-5 py-3 text-xs">
+      <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800/90 bg-[#0B0F19] px-5 py-3 text-xs">
         <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
-          <span className="inline-flex items-center gap-1 rounded-lg bg-[#FF6B00]/20 border border-[#FF6B00]/45 px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#F97316]">
+          <span className="inline-flex items-center gap-1 rounded-lg bg-[#0EA5E9]/20 border border-[#0EA5E9]/45 px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#38BDF8]">
             <Cpu className="h-3 w-3" />
             {selectedPill.modelVersion}
           </span>
@@ -470,15 +470,15 @@ export const ComputerLightBeamShowcase: React.FC<
           <button
             type="button"
             onClick={() => onNavigatePage('preview')}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#0F172A] px-3 py-1.5 text-[11px] font-bold text-slate-200 hover:border-[#FF6B00] hover:text-white transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#0F172A] px-3 py-1.5 text-[11px] font-bold text-slate-200 hover:border-[#0EA5E9] hover:text-white transition cursor-pointer"
           >
-            <Laptop className="h-3.5 w-3.5 text-[#FF6B00]" />
+            <Laptop className="h-3.5 w-3.5 text-[#0EA5E9]" />
             <span>Forja UI/UX</span>
           </button>
           <button
             type="button"
             onClick={() => onNavigatePage('modelos-ia')}
-            className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] px-3 py-1.5 text-[11px] font-extrabold text-black transition hover:brightness-110 cursor-pointer"
+            className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] px-3 py-1.5 text-[11px] font-extrabold text-black transition hover:brightness-110 cursor-pointer"
           >
             <span>Cortex IA</span>
             <ArrowUpRight className="h-3.5 w-3.5" />

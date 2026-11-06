@@ -29,7 +29,7 @@ export interface UIComponentSpec {
   id: string;
   type: UIComponentType;
   title: string;
-  theme: 'indigo' | 'emerald' | 'amber' | 'rose';
+  theme: 'indigo' | 'emerald' | 'cyan' | 'amber' | 'rose';
   activePresetId?: string;
   accentColors?: string[];
   styleLabel?: string;
@@ -59,7 +59,7 @@ export interface UIStylePreset {
   styleCategory: string;
   mode: 'Light' | 'Dark';
   colors: string[];
-  theme: 'indigo' | 'emerald' | 'amber' | 'rose';
+  theme: 'indigo' | 'emerald' | 'cyan' | 'amber' | 'rose';
   componentType: UIComponentType;
   heroTitle: string;
   heroAccent: string;

@@ -80,8 +80,8 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
     null
   );
   const [customColors, setCustomColors] = useState<string[]>([
-    '#FF6B00',
-    '#F97316',
+    '#0EA5E9',
+    '#38BDF8',
     '#38BDF8',
     '#0A0F1D',
   ]);
@@ -109,7 +109,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
         {
           skillId: 'ui-ux-pro-max',
           description:
-            'Sistema de diseño en Azul Noche (#0A0F1D) con acentos Naranja Vibrante (#FF6B00).',
+            'Sistema de diseño en Azul Noche (#0A0F1D) con acentos Naranja Vibrante (#0EA5E9).',
         },
       ]
     );
@@ -244,8 +244,8 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#F97316]">
-            <Sparkles className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#38BDF8]">
+            <Sparkles className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
             Catálogo Interactivo de Componentes UI/UX · Acciones al Pasar el Cursor
           </span>
           <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight mt-0.5">
@@ -254,7 +254,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
         </div>
         <p className="text-xs text-slate-400 max-w-md">
           Explora las 6 arquitecturas visuales en Azul Noche y Naranja. Prueba la personalización en vivo o compara el rendimiento entre{' '}
-          <strong className="text-[#F97316]">Opus 5.5, Gemini 3.8, Sonnet 5.5 y GPT Astra</strong>.
+          <strong className="text-[#38BDF8]">Opus 5.5, Gemini 3.8, Sonnet 5.5 y GPT Astra</strong>.
         </p>
       </div>
 
@@ -270,8 +270,8 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
               key={preset.id}
               className={`group relative rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col justify-between bg-[#0F172A] ${
                 isSelected
-                  ? 'border-[#FF6B00] ring-2 ring-[#FF6B00]/35 orange-glow'
-                  : 'border-slate-800/90 hover:border-[#FF6B00]/60 shadow-lg'
+                  ? 'border-[#0EA5E9] ring-2 ring-[#0EA5E9]/35 cyan-glow'
+                  : 'border-slate-800/90 hover:border-[#0EA5E9]/60 shadow-lg'
               }`}
             >
               {/* MITAD SUPERIOR: Miniatura de Previsualización + Overlay al pasar el cursor (Hover) */}
@@ -345,15 +345,15 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                 </div>
 
                 {/* OVERLAY INTERACTIVO EN HOVER CON LOS 2 BOTONES EN ESPAÑOL */}
-                <div className="absolute inset-0 bg-[#0A0F1D]/88 backdrop-blur-md opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200 flex flex-col items-center justify-center gap-3 p-4">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#F97316]">
+                <div className="absolute inset-0 bg-[#0B0F19]/88 backdrop-blur-md opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200 flex flex-col items-center justify-center gap-3 p-4">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#38BDF8]">
                     Acciones de Laboratorio UI/UX
                   </span>
                   <div className="flex flex-wrap items-center justify-center gap-2.5">
                     <button
                       type="button"
                       onClick={() => openDemoModal(preset)}
-                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] hover:brightness-110 text-black font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-[#FF6B00]/30 transition transform hover:scale-105 cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] hover:brightness-110 text-black font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-[#0EA5E9]/30 transition transform hover:scale-105 cursor-pointer"
                     >
                       <Eye className="w-4 h-4" aria-hidden="true" />
                       <span>Ver Demostración</span>
@@ -361,10 +361,10 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     <button
                       type="button"
                       onClick={() => openPromptModal(preset)}
-                      className="px-4 py-2.5 rounded-xl bg-[#131C31] hover:bg-slate-800 text-white border border-[#FF6B00]/45 font-bold text-xs flex items-center gap-2 shadow-lg transition transform hover:scale-105 cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl bg-[#131C31] hover:bg-slate-800 text-white border border-[#0EA5E9]/45 font-bold text-xs flex items-center gap-2 shadow-lg transition transform hover:scale-105 cursor-pointer"
                     >
                       <Code2
-                        className="w-4 h-4 text-[#FF6B00]"
+                        className="w-4 h-4 text-[#0EA5E9]"
                         aria-hidden="true"
                       />
                       <span>Mostrar Prompt y Rendimiento</span>
@@ -388,7 +388,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         {preset.styleCategory}
                       </p>
                     </div>
-                    <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full shrink-0 bg-[#FF6B00]/15 text-[#F97316] border border-[#FF6B00]/30">
+                    <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full shrink-0 bg-[#0EA5E9]/15 text-[#38BDF8] border border-[#0EA5E9]/30">
                       {preset.defaultAiModel || 'Opus 5.5'}
                     </span>
                   </div>
@@ -427,8 +427,8 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                       onClick={() => openDemoModal(preset)}
                       className={`text-xs font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
                         isSelected
-                          ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black'
-                          : 'bg-[#0A0F1D] hover:bg-[#FF6B00] text-slate-200 hover:text-black border border-slate-800'
+                          ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black'
+                          : 'bg-[#0B0F19] hover:bg-[#0EA5E9] text-slate-200 hover:text-black border border-slate-800'
                       }`}
                     >
                       <Eye className="w-3.5 h-3.5" aria-hidden="true" />
@@ -438,10 +438,10 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     <button
                       type="button"
                       onClick={() => openPromptModal(preset)}
-                      className="text-xs font-bold text-slate-300 hover:text-white px-2.5 py-1.5 rounded-xl bg-[#0A0F1D] hover:bg-slate-800 border border-slate-800 flex items-center gap-1 transition cursor-pointer"
+                      className="text-xs font-bold text-slate-300 hover:text-white px-2.5 py-1.5 rounded-xl bg-[#0B0F19] hover:bg-slate-800 border border-slate-800 flex items-center gap-1 transition cursor-pointer"
                     >
                       <Code2
-                        className="w-3.5 h-3.5 text-[#FF6B00]"
+                        className="w-3.5 h-3.5 text-[#0EA5E9]"
                         aria-hidden="true"
                       />
                       <span>Prompt y Rendimiento</span>
@@ -452,7 +452,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     type="button"
                     onClick={() => handleCopyPrompt(preset, preset.promptMarkdown)}
                     aria-label={`Copiar prompt de ${preset.name}`}
-                    className="text-[11px] font-semibold text-slate-400 hover:text-[#F97316] p-1.5 rounded-lg hover:bg-slate-800/60 transition cursor-pointer"
+                    className="text-[11px] font-semibold text-slate-400 hover:text-[#38BDF8] p-1.5 rounded-lg hover:bg-slate-800/60 transition cursor-pointer"
                   >
                     {copiedId === preset.id ? (
                       <Check
@@ -479,7 +479,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
         closedby="any"
         onClose={() => setDemoModalPreset(null)}
         aria-labelledby="view-demo-modal-title"
-        className="m-auto w-full max-w-5xl rounded-3xl bg-[#0A0F1D] border border-[#FF6B00]/45 text-slate-100 p-0 shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-md open:flex open:flex-col max-h-[92vh]"
+        className="m-auto w-full max-w-5xl rounded-3xl bg-[#0B0F19] border border-[#0EA5E9]/45 text-slate-100 p-0 shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-md open:flex open:flex-col max-h-[92vh]"
       >
         {demoModalPreset && (
           <>
@@ -488,13 +488,13 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-2xl flex items-center justify-center text-black font-black shadow-md"
-                  style={{ backgroundColor: customColors[0] || '#FF6B00' }}
+                  style={{ backgroundColor: customColors[0] || '#0EA5E9' }}
                 >
                   <Palette className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FF6B00]/20 text-[#F97316] border border-[#FF6B00]/40">
+                    <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0EA5E9]/20 text-[#38BDF8] border border-[#0EA5E9]/40">
                       Ver Demostración · Personalizador Interactivo en Vivo
                     </span>
                     <span className="text-xs text-slate-400">
@@ -514,16 +514,16 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                 <button
                   type="button"
                   onClick={handleResetDemoCustomization}
-                  className="px-3 py-1.5 rounded-xl bg-[#0A0F1D] hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl bg-[#0B0F19] hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition cursor-pointer"
                 >
-                  <RotateCcw className="w-3.5 h-3.5 text-[#FF6B00]" />
+                  <RotateCcw className="w-3.5 h-3.5 text-[#0EA5E9]" />
                   <span>Restaurar Colores</span>
                 </button>
                 <form method="dialog">
                   <button
                     type="submit"
                     aria-label="Cerrar ventana de demostración"
-                    className="p-2 rounded-xl bg-[#0A0F1D] hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition cursor-pointer"
+                    className="p-2 rounded-xl bg-[#0B0F19] hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition cursor-pointer"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
                   </button>
@@ -536,7 +536,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
               {/* Panel Izquierdo (5 cols): Controles de Colores y Personalización en Vivo */}
               <div className="lg:col-span-5 space-y-5 bg-[#0F172A] border border-slate-800 rounded-2xl p-5">
                 <div className="space-y-1 border-b border-slate-800 pb-3">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                     1. Paleta Interactiva del Componente
                   </span>
                   <h4 className="text-sm font-extrabold text-white">
@@ -559,7 +559,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     return (
                       <label
                         key={index}
-                        className="flex items-center gap-2.5 rounded-xl border border-slate-800 bg-[#0A0F1D] p-2.5 cursor-pointer hover:border-[#FF6B00]/50 transition"
+                        className="flex items-center gap-2.5 rounded-xl border border-slate-800 bg-[#0B0F19] p-2.5 cursor-pointer hover:border-[#0EA5E9]/50 transition"
                       >
                         <input
                           type="color"
@@ -573,7 +573,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                           <span className="block text-[10px] font-bold text-slate-300 truncate">
                             {labels[index] || `Color #${index + 1}`}
                           </span>
-                          <span className="block font-mono text-[11px] font-bold text-[#F97316]">
+                          <span className="block font-mono text-[11px] font-bold text-[#38BDF8]">
                             {hex.toUpperCase()}
                           </span>
                         </div>
@@ -591,15 +591,15 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     {[
                       {
                         label: 'Azul Noche + Naranja',
-                        palette: ['#FF6B00', '#F97316', '#38BDF8', '#0A0F1D'],
+                        palette: ['#0EA5E9', '#38BDF8', '#38BDF8', '#0A0F1D'],
                       },
                       {
                         label: 'Solar Ciber + Cian',
-                        palette: ['#FF8C00', '#06B6D4', '#10B981', '#0F172A'],
+                        palette: ['#0EA5E9', '#06B6D4', '#10B981', '#0F172A'],
                       },
                       {
                         label: 'Coral Neón + Índigo',
-                        palette: ['#F97316', '#F43F5E', '#A855F7', '#0A0F1D'],
+                        palette: ['#38BDF8', '#F43F5E', '#A855F7', '#0A0F1D'],
                       },
                     ].map((presetPalette) => (
                       <button
@@ -611,7 +611,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                             `Paleta rápida aplicada: ${presetPalette.label}`
                           );
                         }}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-800 bg-[#0A0F1D] px-2.5 py-1.5 text-[11px] font-semibold text-slate-300 hover:border-[#FF6B00] hover:text-white cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-800 bg-[#0B0F19] px-2.5 py-1.5 text-[11px] font-semibold text-slate-300 hover:border-[#0EA5E9] hover:text-white cursor-pointer"
                       >
                         <span
                           className="h-2.5 w-2.5 rounded-full"
@@ -625,7 +625,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
 
                 {/* Selector del Tipo de Arquitectura del Componente */}
                 <div className="space-y-2 border-t border-slate-800 pt-4">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                     2. Arquitectura del Componente
                   </span>
                   <div className="grid grid-cols-2 gap-2">
@@ -643,8 +643,8 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         onClick={() => setCustomComponentType(t.id)}
                         className={`rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer ${
                           customComponentType === t.id
-                            ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-sm'
-                            : 'border border-slate-800 bg-[#0A0F1D] text-slate-300 hover:text-white'
+                            ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-sm'
+                            : 'border border-slate-800 bg-[#0B0F19] text-slate-300 hover:text-white'
                         }`}
                       >
                         {t.label}
@@ -655,7 +655,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
 
                 {/* Personalización de Textos y Comandos de la Skill */}
                 <div className="space-y-3 border-t border-slate-800 pt-4">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                     3. Textos y Comandos de la Skill
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -667,7 +667,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         type="text"
                         value={customHeroTitle}
                         onChange={(e) => setCustomHeroTitle(e.target.value)}
-                        className="w-full rounded-xl border border-slate-800 bg-[#0A0F1D] px-3 py-1.5 text-xs text-white focus:border-[#FF6B00] focus:outline-none"
+                        className="w-full rounded-xl border border-slate-800 bg-[#0B0F19] px-3 py-1.5 text-xs text-white focus:border-[#0EA5E9] focus:outline-none"
                       />
                     </div>
                     <div>
@@ -678,7 +678,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         type="text"
                         value={customHeroAccent}
                         onChange={(e) => setCustomHeroAccent(e.target.value)}
-                        className="w-full rounded-xl border border-slate-800 bg-[#0A0F1D] px-3 py-1.5 text-xs text-[#F97316] font-bold focus:border-[#FF6B00] focus:outline-none"
+                        className="w-full rounded-xl border border-slate-800 bg-[#0B0F19] px-3 py-1.5 text-xs text-[#38BDF8] font-bold focus:border-[#0EA5E9] focus:outline-none"
                       />
                     </div>
                   </div>
@@ -745,7 +745,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         <div
                           role="menubar"
                           aria-label={demoModalPreset.name}
-                          className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-slate-800 bg-[#0A0F1D]/95 p-2 shadow-xl"
+                          className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-slate-800 bg-[#0B0F19]/95 p-2 shadow-xl"
                         >
                           {customMenuItems.map((item) => {
                             const isOpen = activeDemoMenuId === item.id;
@@ -794,7 +794,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                                       `Subcomando ejecutado: ${sub.label} (${sub.shortcut || '↵'})`
                                     )
                                   }
-                                  className="flex items-center justify-between rounded-xl border border-slate-800 bg-[#0A0F1D] px-3.5 py-2.5 text-left text-xs text-slate-200 hover:border-[#FF6B00] hover:text-white transition cursor-pointer"
+                                  className="flex items-center justify-between rounded-xl border border-slate-800 bg-[#0B0F19] px-3.5 py-2.5 text-left text-xs text-slate-200 hover:border-[#0EA5E9] hover:text-white transition cursor-pointer"
                                 >
                                   <span className="font-semibold">
                                     {sub.label}
@@ -825,7 +825,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                           </span>
                           <ChevronDown className="w-4 h-4" />
                         </button>
-                        <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D]/95 p-2 space-y-1 shadow-2xl">
+                        <div className="rounded-2xl border border-slate-800 bg-[#0B0F19]/95 p-2 space-y-1 shadow-2xl">
                           {customMenuItems.map((item) => (
                             <button
                               key={item.id}
@@ -851,7 +851,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     )}
 
                     {customComponentType === 'toolbar' && (
-                      <div className="flex flex-wrap items-center justify-center gap-2.5 rounded-2xl border border-slate-800 bg-[#0A0F1D]/95 p-3 shadow-2xl">
+                      <div className="flex flex-wrap items-center justify-center gap-2.5 rounded-2xl border border-slate-800 bg-[#0B0F19]/95 p-3 shadow-2xl">
                         {customMenuItems.map((item) => (
                           <button
                             key={item.id}
@@ -875,7 +875,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     )}
 
                     {customComponentType === 'command-palette' && (
-                      <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D]/95 overflow-hidden shadow-2xl">
+                      <div className="rounded-2xl border border-slate-800 bg-[#0B0F19]/95 overflow-hidden shadow-2xl">
                         <div className="px-4 py-2.5 bg-[#0F172A] border-b border-slate-800 flex items-center gap-2 text-xs font-bold">
                           <Command
                             className="w-4 h-4"
@@ -919,7 +919,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                 </div>
 
                 {/* Pie de telemetría de la previsualización */}
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-800 bg-[#0A0F1D]/90 px-4 py-2.5 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-800 bg-[#0B0F19]/90 px-4 py-2.5 text-xs">
                   <span className="font-mono text-slate-300 truncate">
                     {demoTriggeredStatus}
                   </span>
@@ -943,14 +943,14 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                 <button
                   type="button"
                   onClick={closeDemoModal}
-                  className="px-4 py-2 rounded-xl border border-slate-700 bg-[#0A0F1D] text-xs font-bold text-slate-300 hover:text-white cursor-pointer"
+                  className="px-4 py-2 rounded-xl border border-slate-700 bg-[#0B0F19] text-xs font-bold text-slate-300 hover:text-white cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="button"
                   onClick={handleApplyCustomizedDemoToSkill}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-[#FF6B00]/25 hover:brightness-110 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-[#0EA5E9]/25 hover:brightness-110 cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>Aplicar Personalización a la Skill</span>
@@ -970,19 +970,19 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
         closedby="any"
         onClose={() => setPromptModalPreset(null)}
         aria-labelledby="preset-prompt-modal-title"
-        className="m-auto w-full max-w-6xl rounded-3xl bg-[#0A0F1D] border border-[#FF6B00]/45 text-slate-100 p-0 shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-md open:flex open:flex-col max-h-[92vh]"
+        className="m-auto w-full max-w-6xl rounded-3xl bg-[#0B0F19] border border-[#0EA5E9]/45 text-slate-100 p-0 shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-md open:flex open:flex-col max-h-[92vh]"
       >
         {promptModalPreset && (
           <>
             {/* Cabecera del Modal "Mostrar Prompt y Rendimiento" */}
             <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-slate-800 bg-[#0F172A]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#FF6B00]/15 border border-[#FF6B00]/40 flex items-center justify-center text-[#FF6B00]">
+                <div className="w-10 h-10 rounded-2xl bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 flex items-center justify-center text-[#0EA5E9]">
                   <Code2 className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FF6B00]/20 text-[#F97316] border border-[#FF6B00]/35">
+                    <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0EA5E9]/20 text-[#38BDF8] border border-[#0EA5E9]/35">
                       Mostrar Prompt y Rendimiento · Trazabilidad IA
                     </span>
                     <span className="text-xs text-slate-400">
@@ -1002,7 +1002,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                 <button
                   type="submit"
                   aria-label="Cerrar ventana de prompt y rendimiento"
-                  className="p-2 rounded-xl bg-[#0A0F1D] hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition cursor-pointer"
+                  className="p-2 rounded-xl bg-[#0B0F19] hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition cursor-pointer"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -1016,7 +1016,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                         1. Prompt Exacto en Uso ({selectedPromptModel})
                       </span>
                       <h4 className="text-sm font-extrabold text-white">
@@ -1028,7 +1028,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                       onClick={() =>
                         handleCopyPrompt(promptModalPreset, composedPromptForModel)
                       }
-                      className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 border border-[#FF6B00]/40 text-xs font-bold text-[#F97316] flex items-center gap-1.5 transition cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 border border-[#0EA5E9]/40 text-xs font-bold text-[#38BDF8] flex items-center gap-1.5 transition cursor-pointer"
                     >
                       {copiedId === promptModalPreset.id ? (
                         <>
@@ -1041,7 +1041,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                       ) : (
                         <>
                           <Copy
-                            className="w-3.5 h-3.5 text-[#FF6B00]"
+                            className="w-3.5 h-3.5 text-[#0EA5E9]"
                             aria-hidden="true"
                           />
                           <span>Copiar Prompt</span>
@@ -1054,7 +1054,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     <figcaption className="px-4 py-2.5 bg-[#131C31] border-b border-slate-800 flex items-center justify-between text-xs text-slate-300 font-mono">
                       <span>
                         SKILL.md · Generado con{' '}
-                        <strong className="text-[#F97316]">
+                        <strong className="text-[#38BDF8]">
                           {selectedPromptModel}
                         </strong>
                       </span>
@@ -1089,8 +1089,8 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                 {/* Bloque A: Selector de las 7 Versiones Específicas de Modelos IA */}
                 <div className="space-y-3 border-b border-slate-800 pb-4">
                   <div className="flex items-center gap-2">
-                    <Cpu className="w-4 h-4 text-[#FF6B00]" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                    <Cpu className="w-4 h-4 text-[#0EA5E9]" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                       2. Versión Específica del Modelo IA
                     </span>
                   </div>
@@ -1108,8 +1108,8 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                           onClick={() => setSelectedPromptModel(item.version)}
                           className={`rounded-xl px-2.5 py-2 text-left transition cursor-pointer border ${
                             isCurrent
-                              ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black border-[#FF6B00] shadow-md'
-                              : 'border-slate-800 bg-[#0A0F1D] text-slate-300 hover:border-[#FF6B00]/45 hover:text-white'
+                              ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black border-[#0EA5E9] shadow-md'
+                              : 'border-slate-800 bg-[#0B0F19] text-slate-300 hover:border-[#0EA5E9]/45 hover:text-white'
                           }`}
                         >
                           <span
@@ -1129,12 +1129,12 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
 
                   {/* Tarjeta con el desglose del modelo seleccionado */}
                   {activeModelVariation && (
-                    <div className="rounded-2xl border border-[#FF6B00]/35 bg-[#0A0F1D] p-4 space-y-2.5">
+                    <div className="rounded-2xl border border-[#0EA5E9]/35 bg-[#0B0F19] p-4 space-y-2.5">
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-extrabold text-white">
                           {activeModelVariation.family} · {activeModelVariation.modelName}
                         </span>
-                        <span className="rounded-full bg-[#FF6B00]/20 border border-[#FF6B00]/40 px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#F97316]">
+                        <span className="rounded-full bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#38BDF8]">
                           {activeModelVariation.tier}
                         </span>
                       </div>
@@ -1164,23 +1164,23 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-[#FF6B00]" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                      <Sparkles className="w-4 h-4 text-[#0EA5E9]" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                         3. Skills Utilizadas ({editableSkills.length})
                       </span>
                     </div>
 
                     {isCollaboratorMode ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#FF6B00]/15 border border-[#FF6B00]/40 px-2.5 py-0.5 text-[10px] font-bold text-[#F97316]">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 px-2.5 py-0.5 text-[10px] font-bold text-[#38BDF8]">
                         <ShieldCheck className="w-3 h-3" /> Editable (Colaborador)
                       </span>
                     ) : (
                       <button
                         type="button"
                         onClick={onRequestLogin}
-                        className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-[#0A0F1D] px-2.5 py-0.5 text-[10px] font-bold text-slate-300 hover:border-[#FF6B00] hover:text-white cursor-pointer"
+                        className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-[#0B0F19] px-2.5 py-0.5 text-[10px] font-bold text-slate-300 hover:border-[#0EA5E9] hover:text-white cursor-pointer"
                       >
-                        <Lock className="w-2.5 h-2.5 text-[#FF6B00]" /> Iniciar sesión para editar
+                        <Lock className="w-2.5 h-2.5 text-[#0EA5E9]" /> Iniciar sesión para editar
                       </button>
                     )}
                   </div>
@@ -1189,10 +1189,10 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     {editableSkills.map((sk, idx) => (
                       <div
                         key={`${sk.skillId}-${idx}`}
-                        className="rounded-xl border border-slate-800 bg-[#0A0F1D] p-3 space-y-1.5"
+                        className="rounded-xl border border-slate-800 bg-[#0B0F19] p-3 space-y-1.5"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="inline-block font-mono text-xs font-extrabold text-[#F97316] bg-[#FF6B00]/15 border border-[#FF6B00]/30 px-2.5 py-0.5 rounded-lg">
+                          <span className="inline-block font-mono text-xs font-extrabold text-[#38BDF8] bg-[#0EA5E9]/15 border border-[#0EA5E9]/30 px-2.5 py-0.5 rounded-lg">
                             #{sk.skillId}
                           </span>
                           <div className="flex items-center gap-1.5">
@@ -1220,7 +1220,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                               handleUpdateSkillDescription(idx, e.target.value)
                             }
                             aria-label={`Descripción de la skill ${sk.skillId}`}
-                            className="w-full rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1 text-xs text-slate-200 focus:border-[#FF6B00] focus:outline-none"
+                            className="w-full rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1 text-xs text-slate-200 focus:border-[#0EA5E9] focus:outline-none"
                           />
                         ) : (
                           <p className="text-xs text-slate-300 leading-relaxed">
@@ -1235,9 +1235,9 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                   {isCollaboratorMode && (
                     <form
                       onSubmit={handleAddEditableSkill}
-                      className="rounded-xl border border-[#FF6B00]/35 bg-[#0A0F1D] p-3 space-y-2"
+                      className="rounded-xl border border-[#0EA5E9]/35 bg-[#0B0F19] p-3 space-y-2"
                     >
-                      <span className="block text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                      <span className="block text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                         Añadir Skill al Componente (Modo Colaborador)
                       </span>
                       <div className="flex gap-2">
@@ -1246,11 +1246,11 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                           value={newSkillIdInput}
                           onChange={(e) => setNewSkillIdInput(e.target.value)}
                           placeholder="ej. executive-video-editor"
-                          className="flex-1 rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1.5 font-mono text-xs text-white focus:border-[#FF6B00] focus:outline-none"
+                          className="flex-1 rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1.5 font-mono text-xs text-white focus:border-[#0EA5E9] focus:outline-none"
                         />
                         <button
                           type="submit"
-                          className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-[#FF6B00] to-[#F97316] px-3 py-1.5 text-xs font-extrabold text-black cursor-pointer"
+                          className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] px-3 py-1.5 text-xs font-extrabold text-black cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Añadir</span>
@@ -1261,7 +1261,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         value={newSkillDescInput}
                         onChange={(e) => setNewSkillDescInput(e.target.value)}
                         placeholder="Descripción del impacto técnico o visual..."
-                        className="w-full rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1.5 text-xs text-slate-300 focus:border-[#FF6B00] focus:outline-none"
+                        className="w-full rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1.5 text-xs text-slate-300 focus:border-[#0EA5E9] focus:outline-none"
                       />
                     </form>
                   )}
@@ -1273,7 +1273,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
             <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-t border-slate-800 bg-[#0F172A]">
               <div className="flex items-center gap-2 text-xs text-slate-400">
                 <span>Versión activa:</span>
-                <strong className="text-[#F97316]">{selectedPromptModel}</strong>
+                <strong className="text-[#38BDF8]">{selectedPromptModel}</strong>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -1290,7 +1290,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     );
                     closePromptModal();
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#0A0F1D] hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-bold transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#0B0F19] hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-bold transition cursor-pointer"
                 >
                   Aplicar Solo Diseño UI
                 </button>
@@ -1308,7 +1308,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                     );
                     closePromptModal();
                   }}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black text-xs font-extrabold flex items-center gap-1.5 shadow-md transition hover:brightness-110 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black text-xs font-extrabold flex items-center gap-1.5 shadow-md transition hover:brightness-110 cursor-pointer"
                 >
                   <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Inyectar Prompt + Estilo en {skill.filename}</span>

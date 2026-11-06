@@ -16,7 +16,7 @@ export const ClaudeBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
       height="33"
       rx="9"
       fill="url(#claude_bg)"
-      stroke="#FF8C00"
+      stroke="#0EA5E9"
       strokeOpacity="0.45"
       strokeWidth="1.2"
     />
@@ -33,7 +33,7 @@ export const ClaudeBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
           transform={`rotate(${idx * 30})`}
         />
       ))}
-      <circle r="3.4" fill="#FF8C00" />
+      <circle r="3.4" fill="#0EA5E9" />
     </g>
     <defs>
       <linearGradient id="claude_bg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
@@ -70,7 +70,7 @@ export const GeminiBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
     />
     <path
       d="M27.2 6.2C27.2 8.6 29.1 10.5 31.5 10.5C29.1 10.5 27.2 12.4 27.2 14.8C27.2 12.4 25.3 10.5 22.9 10.5C25.3 10.5 27.2 8.6 27.2 6.2Z"
-      fill="#F97316"
+      fill="#38BDF8"
     />
     <defs>
       <linearGradient id="gemini_bg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
@@ -80,7 +80,7 @@ export const GeminiBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
       <linearGradient id="gemini_star" x1="6" y1="7" x2="29" y2="30" gradientUnits="userSpaceOnUse">
         <stop offset="0%" stopColor="#38BDF8" />
         <stop offset="52%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#FF6B00" />
+        <stop offset="100%" stopColor="#0EA5E9" />
       </linearGradient>
     </defs>
   </svg>
@@ -166,7 +166,7 @@ export const AngularBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' })
       <linearGradient id="ng_shield" x1="7" y1="6" x2="29" y2="29" gradientUnits="userSpaceOnUse">
         <stop offset="0%" stopColor="#FF3162" />
         <stop offset="55%" stopColor="#DD0031" />
-        <stop offset="100%" stopColor="#FF6B00" />
+        <stop offset="100%" stopColor="#0EA5E9" />
       </linearGradient>
     </defs>
   </svg>
@@ -314,7 +314,7 @@ export const AstroBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =
       height="33"
       rx="9"
       fill="#160B24"
-      stroke="#F97316"
+      stroke="#38BDF8"
       strokeOpacity="0.45"
       strokeWidth="1.2"
     />
@@ -328,7 +328,7 @@ export const AstroBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =
     />
     <defs>
       <linearGradient id="astro_flame" x1="15" y1="24" x2="21" y2="30" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#FF6B00" />
+        <stop offset="0%" stopColor="#0EA5E9" />
         <stop offset="100%" stopColor="#EC4899" />
       </linearGradient>
     </defs>

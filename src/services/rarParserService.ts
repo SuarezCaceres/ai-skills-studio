@@ -16,9 +16,9 @@ const LANGUAGE_META: Record<
   CodeLanguage,
   { label: string; color: string }
 > = {
-  tsx: { label: 'React TSX', color: '#FF6B00' },
-  typescript: { label: 'TypeScript', color: '#FF8C00' },
-  css: { label: 'CSS3 Glow', color: '#F59E0B' },
+  tsx: { label: 'React TSX', color: '#0EA5E9' },
+  typescript: { label: 'TypeScript', color: '#0EA5E9' },
+  css: { label: 'CSS3 Glow', color: '#38BDF8' },
   markdown: { label: 'Markdown', color: '#10B981' },
   json: { label: 'JSON', color: '#A855F7' },
   html: { label: 'HTML5', color: '#EF4444' },
@@ -43,9 +43,9 @@ export function computeLanguageBreakdown(files: RarFileEntry[]): LanguageBreakdo
 
   if (totalBytes === 0) {
     return [
-      { language: 'React TSX', extension: 'tsx', percentage: 46, bytes: 4600, color: '#FF6B00' },
-      { language: 'TypeScript', extension: 'typescript', percentage: 32, bytes: 3200, color: '#FF8C00' },
-      { language: 'CSS3 Glow', extension: 'css', percentage: 22, bytes: 2200, color: '#F59E0B' },
+      { language: 'React TSX', extension: 'tsx', percentage: 46, bytes: 4600, color: '#0EA5E9' },
+      { language: 'TypeScript', extension: 'typescript', percentage: 32, bytes: 3200, color: '#0EA5E9' },
+      { language: 'CSS3 Glow', extension: 'css', percentage: 22, bytes: 2200, color: '#38BDF8' },
     ];
   }
 
@@ -84,7 +84,7 @@ export function extractColorsFromFiles(files: RarFileEntry[]): string[] {
     }
   }
 
-  const defaults = ['#0B0B0B', '#121212', '#FF6B00', '#FF8C00', '#F59E0B'];
+  const defaults = ['#0B0B0B', '#121212', '#0EA5E9', '#0EA5E9', '#38BDF8'];
   for (const d of defaults) {
     if (foundHex.size < 5) {
       foundHex.add(d);
@@ -119,13 +119,13 @@ export const OrangeThemeProvider: React.FC<{ children: React.ReactNode }> = ({ c
   return (
     <OrangeThemeContext.Provider
       value={{
-        accentHex: '#FF6B00',
-        secondaryHex: '#FF8C00',
+        accentHex: '#0EA5E9',
+        secondaryHex: '#0EA5E9',
         glowIntensity,
         setGlowIntensity,
       }}
     >
-      <div className="min-h-screen bg-[#0B0B0B] text-zinc-100 selection:bg-[#FF6B00] selection:text-black">
+      <div className="min-h-screen bg-[#0B0B0B] text-zinc-100 selection:bg-[#0EA5E9] selection:text-black">
         {children}
       </div>
     </OrangeThemeContext.Provider>
@@ -140,18 +140,18 @@ export const useOrangeTheme = () => {
   },
   {
     id: 'f-2',
-    name: 'cyber-orange-glow.css',
-    path: 'src/styles/cyber-orange-glow.css',
+    name: 'cyber-cyan-glow.css',
+    path: 'src/styles/cyber-cyan-glow.css',
     folder: 'src/styles',
     sizeBytes: 2240,
     language: 'css',
-    content: `/* Paleta Oficial Naranja & Negro (#0B0B0B, #121212, #FF6B00, #FF8C00) */
+    content: `/* Paleta Oficial Naranja & Negro (#0B0B0B, #121212, #0EA5E9, #0EA5E9) */
 :root {
   --bg-obsidian: #0B0B0B;
   --bg-card-dark: #121212;
-  --accent-orange: #FF6B00;
-  --accent-amber: #FF8C00;
-  --highlight-gold: #F59E0B;
+  --accent-orange: #0EA5E9;
+  --accent-amber: #0EA5E9;
+  --highlight-gold: #38BDF8;
   --border-glow: rgba(255, 107, 0, 0.28);
 }
 
@@ -169,7 +169,7 @@ export const useOrangeTheme = () => {
 }
 
 .benchmark-bar {
-  background: linear-gradient(90deg, #FF6B00 0%, #FF8C00 100%);
+  background: linear-gradient(90deg, #0EA5E9 0%, #0EA5E9 100%);
   box-shadow: 0 0 14px rgba(255, 107, 0, 0.45);
 }`,
   },
@@ -245,7 +245,7 @@ export function verifyRarSignature(buffer: ArrayBuffer): {
     content: `# UI/UX Pro Max Design Skill Specification
 
 ## Overview
-This skill guides the architecture of modern dark interfaces using high-contrast obsidian surfaces (\`#0B0B0B\`, \`#121212\`) and vibrant orange accents (\`#FF6B00\`, \`#FF8C00\`).
+This skill guides the architecture of modern dark interfaces using high-contrast obsidian surfaces (\`#0B0B0B\`, \`#121212\`) and vibrant cyan accents (\`#0EA5E9\`, \`#0EA5E9\`).
 
 ## Core Rules
 - Ensure every interactive component has keyboard navigation and visible focus rings.
@@ -261,14 +261,14 @@ This skill guides the architecture of modern dark interfaces using high-contrast
     sizeBytes: 980,
     language: 'json',
     content: `{
-  "name": "ai-orange-core-architecture",
+  "name": "ai-skills-core-architecture",
   "version": "2.4.0",
   "private": true,
   "theme": {
     "background": "#0B0B0B",
     "surface": "#121212",
-    "primaryAccent": "#FF6B00",
-    "secondaryAccent": "#FF8C00"
+    "primaryAccent": "#0EA5E9",
+    "secondaryAccent": "#0EA5E9"
   },
   "engines": {
     "gemini": "2.5-ultra-max",
@@ -281,7 +281,7 @@ This skill guides the architecture of modern dark interfaces using high-contrast
 
 export const DEFAULT_RAR_PACKAGE: RarArchivePackage = {
   id: 'rar-default-orange-suite',
-  archiveName: 'ai-orange-core-architecture-v2.rar',
+  archiveName: 'ai-skills-core-architecture-v2.rar',
   uploadedAt: '05/11/2026 08:40',
   totalSizeBytes: 148920,
   signatureDetected: 'RAR5 (Rar!\\x1A\\x07\\x01\\x00 · Verificado)',
@@ -388,9 +388,9 @@ import React from 'react';
 
 export const ExtractedProjectView: React.FC = () => {
   return (
-    <section className="rounded-2xl border border-[#FF6B00]/30 bg-[#121212] p-6 text-white">
-      <h2 className="text-xl font-bold text-[#FF6B00]">Proyecto: ${cleanBase}</h2>
-      <p className="text-sm text-zinc-400">Renderizado con paleta Naranja & Negro (#0B0B0B / #FF6B00)</p>
+    <section className="rounded-2xl border border-[#0EA5E9]/30 bg-[#121212] p-6 text-white">
+      <h2 className="text-xl font-bold text-[#0EA5E9]">Proyecto: ${cleanBase}</h2>
+      <p className="text-sm text-zinc-400">Renderizado con paleta Naranja & Negro (#0B0B0B / #0EA5E9)</p>
     </section>
   );
 };`,
@@ -406,9 +406,9 @@ export const ExtractedProjectView: React.FC = () => {
 :root {
   --bg-deep: #0B0B0B;
   --bg-panel: #121212;
-  --orange-vibrant: #FF6B00;
-  --orange-secondary: #FF8C00;
-  --amber-glow: #F59E0B;
+  --orange-vibrant: #0EA5E9;
+  --orange-secondary: #0EA5E9;
+  --amber-glow: #38BDF8;
 }`,
           },
           {
@@ -424,7 +424,7 @@ export const ExtractedProjectView: React.FC = () => {
 This package was extracted in memory from \`${file.name}\`. It implements a modular full-stack architecture with responsive UI/UX components, syntax highlighting, and dark obsidian styling.
 
 ## Key Features
-- High contrast dark surfaces (\`#0B0B0B\` and \`#121212\`) with vibrant orange highlights (\`#FF6B00\`).
+- High contrast dark surfaces (\`#0B0B0B\` and \`#121212\`) with vibrant orange highlights (\`#0EA5E9\`).
 - Built and verified using advanced AI model benchmarks and design system skills.`,
           },
           ...DEFAULT_FILES.slice(2).map((df, idx) => ({
@@ -467,7 +467,7 @@ function generateSampleCodeForExtractedFile(
     return `/* Extraído de ${archiveName} (${signature}) */
 .rar-extracted-module {
   background-color: #0B0B0B;
-  border: 1px solid #FF6B00;
+  border: 1px solid #0EA5E9;
   box-shadow: 0 0 24px rgba(255, 140, 0, 0.25);
   color: #F4F4F5;
   padding: 1.25rem;
@@ -485,7 +485,7 @@ This Markdown document was extracted from \`${archiveName}\` (${signature}). Pre
   "extractedFrom": "${archiveName}",
   "file": "${filename}",
   "signature": "${signature}",
-  "palette": ["#0B0B0B", "#121212", "#FF6B00", "#FF8C00"],
+  "palette": ["#0B0B0B", "#121212", "#0EA5E9", "#0EA5E9"],
   "status": "decompressed_in_memory"
 }`;
   }
@@ -496,7 +496,7 @@ export function initializeExtractedModule() {
   console.info('[RAR Extractor] Módulo cargado en memoria:', '${filename}');
   return {
     ready: true,
-    palette: ['#0B0B0B', '#121212', '#FF6B00', '#FF8C00'],
+    palette: ['#0B0B0B', '#121212', '#0EA5E9', '#0EA5E9'],
     timestamp: Date.now(),
   };
 }`;

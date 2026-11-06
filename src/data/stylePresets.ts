@@ -13,7 +13,7 @@ function buildSevenModelVariations(
       modelName: 'Opus 5.5',
       family: 'Claude Opus',
       tier: 'Cortex Supremo · 100% Razonamiento',
-      visualDifference: `En "${presetTitle}", Opus 5.5 esculpe una jerarquía espacial en 3 capas sobre Azul Noche (#0A0F1D) con contraste AAA, sombras calibradas y acentos #FF6B00 de precisión quirúrgica.`,
+      visualDifference: `En "${presetTitle}", Opus 5.5 esculpe una jerarquía espacial en 3 capas sobre Azul Noche (#0A0F1D) con contraste AAA, sombras calibradas y acentos #0EA5E9 de precisión quirúrgica.`,
       structureDifference:
         'Arquitectura desacoplada con estados WAI-ARIA completos, gestión de foco por teclado y validación estricta sin efectos secundarios.',
       promptAdaptation: `## Optimización Claude Opus 5.5 (${primarySpecialty})\n- Aplicar sistema de elevación triple sobre \`#0A0F1D\` y \`#0F172A\`.\n- Garantizar navegación por teclado completa (\`ArrowUp\`, \`ArrowDown\`, \`Escape\`) y contraste AAA.`,
@@ -31,7 +31,7 @@ function buildSevenModelVariations(
       modelName: 'Gemini 3.8',
       family: 'Gemini',
       tier: 'Ultra / Máximo · 178 tok/s (2M Contexto)',
-      visualDifference: `En "${presetTitle}", Gemini 3.8 despliega micro-interacciones a 60fps, destellos neuronales dinámicos en naranja vibrante (#FF6B00) y telemetría visual en tiempo real.`,
+      visualDifference: `En "${presetTitle}", Gemini 3.8 despliega micro-interacciones a 60fps, destellos neuronales dinámicos en naranja vibrante (#0EA5E9) y telemetría visual en tiempo real.`,
       structureDifference:
         'Uso de CSS Grid moderno, variables reactivas en vivo y contenedores semánticos nativos (<dialog>, <search>, <figure>).',
       promptAdaptation: `## Optimización Gemini 3.8 (${primarySpecialty})\n- Renderizar transiciones reactivas e indicadores de telemetría en tiempo real.\n- Sincronizar variables de color en vivo con latencia cero.`,
@@ -70,7 +70,7 @@ function buildSevenModelVariations(
       visualDifference: `En "${presetTitle}", GPT Luna suaviza las transiciones lumínicas sobre el fondo Azul Noche creando una atmósfera nocturna orgánica y envolvente.`,
       structureDifference:
         'Enfoque en ergonomía visual, espaciado generoso y retroalimentación asistida por voz.',
-      promptAdaptation: `## Optimización GPT Luna (${primarySpecialty})\n- Calibrar luminancias nocturnas suaves sobre \`#0A0F1D\` con resplandores cálidos en \`#F97316\`.`,
+      promptAdaptation: `## Optimización GPT Luna (${primarySpecialty})\n- Calibrar luminancias nocturnas suaves sobre \`#0A0F1D\` con resplandores cálidos en \`#38BDF8\`.`,
     },
   };
 }
@@ -82,8 +82,8 @@ export const STYLE_PRESETS: UIStylePreset[] = [
     category: 'Analítica SaaS',
     styleCategory: 'Cristal Oscuro + Azul Noche',
     mode: 'Dark',
-    colors: ['#FF6B00', '#38BDF8', '#10B981', '#0F172A'],
-    theme: 'amber',
+    colors: ['#0EA5E9', '#38BDF8', '#10B981', '#0F172A'],
+    theme: 'cyan',
     componentType: 'menubar',
     heroTitle: 'Transforma Señales en',
     heroAccent: 'Decisiones Ejecutivas',
@@ -96,7 +96,7 @@ export const STYLE_PRESETS: UIStylePreset[] = [
       {
         skillId: 'ui-ux-pro-max',
         description:
-          'Paleta Azul Noche (#0F172A) con acentos estratégicos #FF6B00 y jerarquía de KPIs.',
+          'Paleta Azul Noche (#0F172A) con acentos estratégicos #0EA5E9 y jerarquía de KPIs.',
       },
       {
         skillId: 'modern-web-guidance',
@@ -167,7 +167,7 @@ description: Diseña y genera menús de barras accesibles, menús desplegables c
 # Arquitecto de Componentes UI y Menús Interactivos
 
 ## Propósito de la Skill
-Diseña un panel analítico SaaS con estética de Cristal Oscuro sobre Azul Noche (#0F172A), acentos naranja vibrante (#FF6B00) y barra de menús interactiva para KPIs en tiempo real.
+Diseña un panel analítico SaaS con estética de Cristal Oscuro sobre Azul Noche (#0F172A), acentos naranja vibrante (#0EA5E9) y barra de menús interactiva para KPIs en tiempo real.
 
 ## Instrucciones para el Agente de IA
 1. Utiliza siempre elementos semánticos nativos (\`<button type="button">\`, \`<figure>\`, \`<pre tabindex="0">\`).
@@ -180,7 +180,7 @@ Diseña un panel analítico SaaS con estética de Cristal Oscuro sobre Azul Noch
     category: 'Educación',
     styleCategory: 'Atmósfera Neuronal + Alto Contraste',
     mode: 'Dark',
-    colors: ['#F97316', '#38BDF8', '#10B981', '#0A0F1D'],
+    colors: ['#38BDF8', '#38BDF8', '#10B981', '#0A0F1D'],
     theme: 'emerald',
     componentType: 'menubar',
     heroTitle: 'Domina Arquitecturas IA,',
@@ -260,10 +260,10 @@ description: Estructura menús educativos claros con progreso de módulos, rutas
 # Sistema de Navegación para Plataforma Educativa IA
 
 ## Propósito de la Skill
-Construye una barra de navegación curricular con estética Azul Noche (#0A0F1D) y acentos Naranja (#F97316) que facilite a los estudiantes explorar módulos y laboratorios sin fricción visual.
+Construye una barra de navegación curricular con estética Azul Noche (#0A0F1D) y acentos Naranja (#38BDF8) que facilite a los estudiantes explorar módulos y laboratorios sin fricción visual.
 
 ## Instrucciones de Implementación
-1. Destaca la ruta activa con acentos de alto contraste (\`#FF6B00\`).
+1. Destaca la ruta activa con acentos de alto contraste (\`#0EA5E9\`).
 2. Organiza las categorías en submenús desplegables claros con indicadores de progreso.`,
   },
   {
@@ -272,8 +272,8 @@ Construye una barra de navegación curricular con estética Azul Noche (#0A0F1D)
     category: 'Fintech',
     styleCategory: 'Modo Oscuro OLED + Brillo Naranja',
     mode: 'Dark',
-    colors: ['#FF6B00', '#F59E0B', '#10B981', '#0A0F1D'],
-    theme: 'amber',
+    colors: ['#0EA5E9', '#38BDF8', '#10B981', '#0A0F1D'],
+    theme: 'cyan',
     componentType: 'dropdown',
     heroTitle: 'Custodia de Activos de',
     heroAccent: 'Grado Institucional',
@@ -286,7 +286,7 @@ Construye una barra de navegación curricular con estética Azul Noche (#0A0F1D)
       {
         skillId: 'ui-ux-pro-max',
         description:
-          ' Contraste OLED sobre #0A0F1D con acentos ámbar/naranja (#FF6B00) para terminales financieras.',
+          ' Contraste OLED sobre #0A0F1D con acentos ámbar/naranja (#0EA5E9) para terminales financieras.',
       },
       {
         skillId: 'modern-web-guidance',
@@ -328,7 +328,7 @@ description: Genera menús desplegables en modo oscuro profundo con estética fi
 Proporciona un menú desplegable de baja latencia visual sobre fondo \`#0A0F1D\`, bordes luminosos sutiles y tipografía monoespaciada para métricas de precisión.
 
 ## Reglas de Diseño
-1. Fondo oscuro profundo \`#0A0F1D\` con tarjetas \`#0F172A\` y acentos \`#FF6B00\`.
+1. Fondo oscuro profundo \`#0A0F1D\` con tarjetas \`#0F172A\` y acentos \`#0EA5E9\`.
 2. Indicadores de estado claros y atajos de teclado directos para operadores.`,
   },
   {
@@ -337,7 +337,7 @@ Proporciona un menú desplegable de baja latencia visual sobre fondo \`#0A0F1D\`
     category: 'Herramientas Dev',
     styleCategory: 'Terminal Cibernética + Naranja Neón',
     mode: 'Dark',
-    colors: ['#FF6B00', '#10B981', '#38BDF8', '#0A0F1D'],
+    colors: ['#0EA5E9', '#10B981', '#38BDF8', '#0A0F1D'],
     theme: 'emerald',
     componentType: 'command-palette',
     heroTitle: 'Orquesta Enjambres IA',
@@ -398,7 +398,7 @@ Implementa una paleta de comandos rápida (\`Command Palette\`) optimizada para 
     category: 'Diseño & Medios',
     styleCategory: 'Acento Coral Naranja + Lienzo Nocturno',
     mode: 'Dark',
-    colors: ['#FF6B00', '#F43F5E', '#A855F7', '#0F172A'],
+    colors: ['#0EA5E9', '#F43F5E', '#A855F7', '#0F172A'],
     theme: 'rose',
     componentType: 'toolbar',
     heroTitle: 'Diseña Interfaces que',
@@ -459,7 +459,7 @@ Construye una barra de acción flotante (\`Toolbar\`) con estética nocturna sof
     category: 'Orquestación IA',
     styleCategory: 'Azul Noche Profundo + Naranja Solar',
     mode: 'Dark',
-    colors: ['#FF6B00', '#F97316', '#38BDF8', '#0A0F1D'],
+    colors: ['#0EA5E9', '#38BDF8', '#38BDF8', '#0A0F1D'],
     theme: 'indigo',
     componentType: 'menubar',
     heroTitle: 'Sincroniza Todos tus',
@@ -544,7 +544,7 @@ description: Centro de mando interactivo para comparar versiones específicas de
 # Núcleo de Control para Matriz de Inteligencias
 
 ## Propósito de la Skill
-Proporciona una interfaz de mando en Azul Noche (\`#0A0F1D\`) y Naranja Vibrante (\`#FF6B00\`) para alternar entre motores de IA, inspeccionar su impacto visual y registrar evaluaciones por voz.`,
+Proporciona una interfaz de mando en Azul Noche (\`#0A0F1D\`) y Naranja Vibrante (\`#0EA5E9\`) para alternar entre motores de IA, inspeccionar su impacto visual y registrar evaluaciones por voz.`,
   },
 ];
 

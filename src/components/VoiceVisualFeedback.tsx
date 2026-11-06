@@ -25,7 +25,7 @@ interface VoiceVisualFeedbackProps {
   compact?: boolean;
 }
 
-const FEEDBACK_STORAGE_KEY = 'ai_orange_visual_feedback_reviews_v1';
+const FEEDBACK_STORAGE_KEY = 'ai_studio_visual_feedback_reviews_v2';
 
 // Declaración segura para Web Speech API en navegadores Chromium / Edge / Safari
 interface BrowserSpeechRecognitionEvent {
@@ -253,7 +253,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
 
   return (
     <div
-      className={`rounded-2xl border border-[#FF6B00]/35 bg-[#0A0F1D]/95 ${
+      className={`rounded-2xl border border-[#0EA5E9]/35 bg-[#0B0F19]/95 ${
         compact ? 'p-4 space-y-3.5' : 'p-5 space-y-4'
       }`}
     >
@@ -263,19 +263,19 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
           <div
             className={`flex h-9 w-9 items-center justify-center rounded-xl border ${
               isListening
-                ? 'border-[#FF6B00] bg-[#FF6B00] text-black animate-pulse'
-                : 'border-[#FF6B00]/40 bg-[#FF6B00]/15 text-[#FF6B00]'
+                ? 'border-[#0EA5E9] bg-[#0EA5E9] text-black animate-pulse'
+                : 'border-[#0EA5E9]/40 bg-[#0EA5E9]/15 text-[#0EA5E9]'
             }`}
           >
             <Mic className="h-4 w-4" />
           </div>
           <div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#F97316]">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#38BDF8]">
               Impacto en el Resultado Visual · Dictado por Voz (ES)
             </span>
             <h4 className="text-sm font-extrabold text-white">
               Evalúa la Percepción Visual de{' '}
-              <span className="text-[#FF6B00]">{selectedModelVersion}</span>
+              <span className="text-[#0EA5E9]">{selectedModelVersion}</span>
             </h4>
           </div>
         </div>
@@ -300,7 +300,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
               <Star
                 className={`h-3.5 w-3.5 ${
                   star <= rating
-                    ? 'fill-[#FF6B00] text-[#FF6B00]'
+                    ? 'fill-[#0EA5E9] text-[#0EA5E9]'
                     : 'text-slate-600'
                 }`}
               />
@@ -319,7 +319,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
               className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition cursor-pointer ${
                 isListening
                   ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30 animate-pulse'
-                  : 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-md shadow-[#FF6B00]/25 hover:brightness-110'
+                  : 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-md shadow-[#0EA5E9]/25 hover:brightness-110'
               }`}
             >
               {isListening ? (
@@ -338,17 +338,17 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
             <button
               type="button"
               onClick={handleInsertQuickVoiceSample}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#0F172A] px-3 py-2 text-[11px] font-bold text-slate-300 transition hover:border-[#FF6B00] hover:text-white cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#0F172A] px-3 py-2 text-[11px] font-bold text-slate-300 transition hover:border-[#0EA5E9] hover:text-white cursor-pointer"
               title="Insertar ejemplo de dictado de voz sobre el impacto visual"
             >
-              <Volume2 className="h-3.5 w-3.5 text-[#FF6B00]" />
+              <Volume2 className="h-3.5 w-3.5 text-[#0EA5E9]" />
               <span>Dictado Asistido de Ejemplo</span>
             </button>
           </div>
 
           {isListening && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF6B00]/50 bg-[#FF6B00]/15 px-3 py-1 text-[11px] font-bold text-[#F97316]">
-              <span className="h-2 w-2 rounded-full bg-[#FF6B00] animate-ping" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0EA5E9]/50 bg-[#0EA5E9]/15 px-3 py-1 text-[11px] font-bold text-[#38BDF8]">
+              <span className="h-2 w-2 rounded-full bg-[#0EA5E9] animate-ping" />
               Micrófono Activo (Español)
             </span>
           )}
@@ -358,9 +358,9 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
           <div
             role="status"
             aria-live="polite"
-            className="flex items-center gap-2 rounded-xl border border-[#FF6B00]/30 bg-[#0F172A] px-3 py-2 text-[11px] text-[#F97316]"
+            className="flex items-center gap-2 rounded-xl border border-[#0EA5E9]/30 bg-[#0F172A] px-3 py-2 text-[11px] text-[#38BDF8]"
           >
-            <Sparkles className="h-3.5 w-3.5 shrink-0 text-[#FF6B00]" />
+            <Sparkles className="h-3.5 w-3.5 shrink-0 text-[#0EA5E9]" />
             <span>{speechStatus}</span>
           </div>
         )}
@@ -383,7 +383,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
               setInterimTranscript('');
             }}
             placeholder={`Dicta con el micrófono o escribe aquí cómo sentiste el resultado visual de ${selectedModelVersion} (contraste azul noche, acentos naranja, fluidez, estructura)...`}
-            className="w-full rounded-xl border border-slate-700 bg-[#0F172A] p-3 text-xs leading-relaxed text-white placeholder:text-slate-500 focus:border-[#FF6B00] focus:outline-none"
+            className="w-full rounded-xl border border-slate-700 bg-[#0F172A] p-3 text-xs leading-relaxed text-white placeholder:text-slate-500 focus:border-[#0EA5E9] focus:outline-none"
           />
         </div>
 
@@ -394,7 +394,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
               {isCollaboratorMode ? 'Modo Colaborador' : 'Modo Visitante'}
             </strong>
             {usedVoiceInCurrentDraft && (
-              <span className="ml-2 inline-flex items-center gap-1 rounded-md bg-[#FF6B00]/15 px-2 py-0.5 text-[10px] font-bold text-[#F97316]">
+              <span className="ml-2 inline-flex items-center gap-1 rounded-md bg-[#0EA5E9]/15 px-2 py-0.5 text-[10px] font-bold text-[#38BDF8]">
                 <Mic className="h-2.5 w-2.5" /> Con Dictado de Voz
               </span>
             )}
@@ -403,7 +403,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
           <button
             type="submit"
             disabled={!commentText.trim() && !interimTranscript.trim()}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] px-4 py-2 text-xs font-extrabold text-black shadow-md transition hover:brightness-110 disabled:opacity-40 cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-extrabold text-black shadow-md transition hover:brightness-110 disabled:opacity-40 cursor-pointer"
           >
             <Send className="h-3.5 w-3.5" />
             <span>Registrar Evaluación Visual</span>
@@ -415,13 +415,13 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
       <div className="space-y-2 border-t border-slate-800 pt-3">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            <MessageSquarePlus className="h-3.5 w-3.5 text-[#FF6B00]" />
+            <MessageSquarePlus className="h-3.5 w-3.5 text-[#0EA5E9]" />
             Bitácora de Percepción Visual ({displayedReviews.length})
           </span>
           <button
             type="button"
             onClick={() => setFilterByCurrentModel((v) => !v)}
-            className="text-[11px] font-bold text-[#F97316] hover:underline cursor-pointer"
+            className="text-[11px] font-bold text-[#38BDF8] hover:underline cursor-pointer"
           >
             {filterByCurrentModel
               ? 'Ver todas las versiones'
@@ -437,7 +437,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-[#FF6B00]/20 border border-[#FF6B00]/40 px-2 py-0.5 font-mono text-[10px] font-extrabold text-[#F97316]">
+                  <span className="rounded-md bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 px-2 py-0.5 font-mono text-[10px] font-extrabold text-[#38BDF8]">
                     {rev.modelVersion}
                   </span>
                   <span className="font-bold text-white">{rev.authorName}</span>
@@ -453,11 +453,11 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="flex items-center text-[#FF6B00]">
+                  <span className="flex items-center text-[#0EA5E9]">
                     {Array.from({ length: rev.rating }).map((_, idx) => (
                       <Star
                         key={idx}
-                        className="h-3 w-3 fill-[#FF6B00] text-[#FF6B00]"
+                        className="h-3 w-3 fill-[#0EA5E9] text-[#0EA5E9]"
                       />
                     ))}
                   </span>

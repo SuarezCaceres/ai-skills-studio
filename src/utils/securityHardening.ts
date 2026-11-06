@@ -47,9 +47,9 @@ export const SECURITY_TRUST_BOUNDARIES = [
 ] as const;
 
 const RATE_LIMIT_STORAGE_KEY = 'ai_orange_auth_ratelimit_v1';
-const USERS_STORAGE_KEY = 'ai_orange_studio_users_v1';
+const USERS_STORAGE_KEY = 'ai_skills_studio_users_v2';
 const SESSION_STORAGE_KEY = 'ai_orange_studio_session_v1';
-const FEEDBACK_STORAGE_KEY = 'ai_orange_visual_feedback_reviews_v1';
+const FEEDBACK_STORAGE_KEY = 'ai_studio_visual_feedback_reviews_v2';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutos

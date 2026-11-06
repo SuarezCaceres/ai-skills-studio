@@ -295,17 +295,17 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
           />
 
           {/* Panel Lateral Glassmórfico */}
-          <aside className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-[#FF6B00]/40 bg-gradient-to-b from-[#0D1326]/98 via-[#0A0F1D]/98 to-[#070B14]/98 p-6 shadow-2xl backdrop-blur-2xl overflow-y-auto">
+          <aside className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-[#0EA5E9]/40 bg-gradient-to-b from-[#0B0F19]/98 via-[#0B0F19]/98 to-[#070B14]/98 p-6 shadow-2xl backdrop-blur-2xl overflow-y-auto">
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -top-20 right-0 h-48 w-48 rounded-full bg-[#FF6B00]/20 blur-3xl"
+              className="pointer-events-none absolute -top-20 right-0 h-48 w-48 rounded-full bg-[#0EA5E9]/20 blur-3xl"
             />
 
             <div className="space-y-6 relative z-10">
               {/* Cabecera del Menú Hamburguesa */}
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FF6B00] to-[#F97316] text-black shadow-lg shadow-[#FF6B00]/30">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0EA5E9] to-[#38BDF8] text-black shadow-lg shadow-[#0EA5E9]/30">
                     <Terminal className="h-5 w-5" />
                   </div>
                   <div>
@@ -327,16 +327,16 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                   type="button"
                   onClick={() => setCollaboratorDrawerOpen(false)}
                   aria-label="Cerrar menú de colaborador"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-[#0F172A] text-slate-400 hover:border-[#FF6B00] hover:text-white transition cursor-pointer"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-[#0F172A] text-slate-400 hover:border-[#0EA5E9] hover:text-white transition cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
 
               {/* Tarjeta de Sesión del Colaborador */}
-              <div className="rounded-2xl border border-[#FF6B00]/50 bg-gradient-to-br from-[#131C31] to-[#0A0F1D] p-4 shadow-lg space-y-3">
+              <div className="rounded-2xl border border-[#0EA5E9]/50 bg-gradient-to-br from-[#131C31] to-[#0B0F19] p-4 shadow-lg space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF6B00]/20 border border-[#FF6B00]/40 text-[#FF6B00]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 text-[#0EA5E9]">
                     <ShieldCheck className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -359,7 +359,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                       onNavigatePage('estudio');
                       setCollaboratorDrawerOpen(false);
                     }}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] px-3 py-2 text-[11px] font-extrabold text-black shadow-md cursor-pointer"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] px-3 py-2 text-[11px] font-extrabold text-black shadow-md cursor-pointer"
                   >
                     <Upload className="h-3.5 w-3.5" />
                     <span>Subir .RAR / Código</span>
@@ -370,7 +370,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                       onLogout();
                       setCollaboratorDrawerOpen(false);
                     }}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-[#0A0F1D] px-3 py-2 text-[11px] font-bold text-slate-300 hover:border-rose-500/60 hover:text-rose-300 transition cursor-pointer"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-[#0B0F19] px-3 py-2 text-[11px] font-bold text-slate-300 hover:border-rose-500/60 hover:text-rose-300 transition cursor-pointer"
                   >
                     <LogOut className="h-3.5 w-3.5" />
                     <span>Cerrar Sesión</span>
@@ -400,7 +400,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
                   Proyecto / Paquete .RAR Activo ({skills.length})
                 </span>
-                <div className="max-h-44 space-y-1.5 overflow-y-auto rounded-2xl border border-slate-800 bg-[#0A0F1D]/90 p-2">
+                <div className="max-h-44 space-y-1.5 overflow-y-auto rounded-2xl border border-slate-800 bg-[#0B0F19]/90 p-2">
                   {skills.map((skill) => {
                     const selected = skill.id === activeSkillId;
                     return (
@@ -412,7 +412,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                         }}
                         className={`flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-xs transition cursor-pointer ${
                           selected
-                            ? 'border border-[#FF6B00]/50 bg-[#FF6B00]/15 text-white'
+                            ? 'border border-[#0EA5E9]/50 bg-[#0EA5E9]/15 text-white'
                             : 'text-slate-300 hover:bg-slate-800/70'
                         }`}
                       >
@@ -420,13 +420,13 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                           <p className="truncate font-bold text-white">
                             {skill.name}
                           </p>
-                          <p className="truncate font-mono text-[10px] text-[#F97316]">
+                          <p className="truncate font-mono text-[10px] text-[#38BDF8]">
                             {skill.rarPackage?.archiveName || skill.filename} ·{' '}
                             {skill.aiModelLabel || 'Opus 5.5'}
                           </p>
                         </div>
                         {selected && (
-                          <Check className="h-4 w-4 shrink-0 text-[#FF6B00]" />
+                          <Check className="h-4 w-4 shrink-0 text-[#0EA5E9]" />
                         )}
                       </button>
                     );
@@ -446,10 +446,10 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                       onNavigatePage('boveda');
                       setCollaboratorDrawerOpen(false);
                     }}
-                    className="group rounded-2xl border border-slate-800 bg-[#0F172A]/90 p-3 text-left hover:border-[#FF6B00]/60 transition cursor-pointer"
+                    className="group rounded-2xl border border-slate-800 bg-[#0F172A]/90 p-3 text-left hover:border-[#0EA5E9]/60 transition cursor-pointer"
                   >
-                    <BookOpen className="h-4 w-4 text-[#FF6B00] mb-1.5" />
-                    <span className="block text-xs font-extrabold text-white group-hover:text-[#F97316]">
+                    <BookOpen className="h-4 w-4 text-[#0EA5E9] mb-1.5" />
+                    <span className="block text-xs font-extrabold text-white group-hover:text-[#38BDF8]">
                       Editar Skills .MD
                     </span>
                     <span className="block text-[10px] text-slate-400">
@@ -463,7 +463,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                       onNavigatePage('preview');
                       setCollaboratorDrawerOpen(false);
                     }}
-                    className="group rounded-2xl border border-slate-800 bg-[#0F172A]/90 p-3 text-left hover:border-[#FF6B00]/60 transition cursor-pointer"
+                    className="group rounded-2xl border border-slate-800 bg-[#0F172A]/90 p-3 text-left hover:border-[#0EA5E9]/60 transition cursor-pointer"
                   >
                     <Mic className="h-4 w-4 text-sky-400 mb-1.5" />
                     <span className="block text-xs font-extrabold text-white group-hover:text-sky-300">
@@ -516,8 +516,8 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                         }}
                         className={`w-full flex items-center justify-between gap-3 rounded-2xl p-2.5 text-left transition-all cursor-pointer border ${
                           isCurrent
-                            ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black border-[#FF6B00] shadow-md'
-                            : 'border-slate-800/90 bg-[#0F172A]/75 text-slate-200 hover:border-[#FF6B00]/50'
+                            ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black border-[#0EA5E9] shadow-md'
+                            : 'border-slate-800/90 bg-[#0F172A]/75 text-slate-200 hover:border-[#0EA5E9]/50'
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
@@ -525,7 +525,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${
                               isCurrent
                                 ? 'bg-black/20 text-black'
-                                : 'bg-[#0A0F1D] text-[#FF6B00] border border-slate-800'
+                                : 'bg-[#0B0F19] text-[#0EA5E9] border border-slate-800'
                             }`}
                           >
                             <Icon className="h-4 w-4" />
@@ -550,7 +550,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                           className={`shrink-0 rounded-lg px-2 py-0.5 font-mono text-[10px] font-bold ${
                             isCurrent
                               ? 'bg-black/20 text-black'
-                              : 'bg-[#0A0F1D] text-slate-400 border border-slate-800'
+                              : 'bg-[#0B0F19] text-slate-400 border border-slate-800'
                           }`}
                         >
                           0{idx + 1}
@@ -566,11 +566,11 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
             <div className="relative z-10 mt-6 border-t border-white/10 pt-4 space-y-2.5">
               <div className="flex items-center justify-between text-[11px]">
                 <span className="text-slate-400 font-bold">Modelo Activo:</span>
-                <span className="font-mono font-extrabold text-[#F97316]">
+                <span className="font-mono font-extrabold text-[#38BDF8]">
                   {selectedModelName}
                 </span>
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-[#0A0F1D] px-3 py-2">
+              <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-[#0B0F19] px-3 py-2">
                 <span className="text-[10px] font-bold text-slate-400">
                   IAs &amp; Frameworks:
                 </span>

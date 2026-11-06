@@ -120,10 +120,10 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
       <div className="space-y-3">
         <nav aria-label="Ruta de navegación" className="flex items-center gap-1.5 text-xs text-zinc-400">
           <span>Comunidad</span>
-          <ChevronRight className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+          <ChevronRight className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
           <span>Bóveda</span>
-          <ChevronRight className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
-          <span className="font-bold text-[#FF8C00] truncate">{skill.filename}</span>
+          <ChevronRight className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
+          <span className="font-bold text-[#0EA5E9] truncate">{skill.filename}</span>
         </nav>
 
         <h1
@@ -141,7 +141,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
           En colaboración con{' '}
           {skill.ficha.collaborators.map((handle, i) => (
             <React.Fragment key={handle}>
-              <strong className="font-bold text-[#FF8C00] underline underline-offset-2">
+              <strong className="font-bold text-[#0EA5E9] underline underline-offset-2">
                 {handle}
               </strong>
               {i < skill.ficha.collaborators.length - 1 ? ' y ' : ''}
@@ -152,10 +152,10 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
       </div>
 
       {/* Tarjeta "FICHA" en #121212 con Glow Naranja */}
-      <div className="rounded-3xl bg-[#121212] border border-[#FF6B00]/30 p-5 sm:p-7 orange-glow space-y-6">
+      <div className="rounded-3xl bg-[#121212] border border-[#0EA5E9]/30 p-5 sm:p-7 cyan-glow space-y-6">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#FF6B00]/15 text-[#FF8C00] border border-[#FF6B00]/40">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#0EA5E9]/15 text-[#0EA5E9] border border-[#0EA5E9]/40">
               FICHA TÉCNICA &amp; TRADUCTOR .MD
             </span>
 
@@ -166,12 +166,12 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
                 aria-label={voiceEnabled ? 'Silenciar alertas de voz' : 'Activar alertas de voz'}
                 className={`h-9 px-3.5 rounded-full border text-xs font-bold flex items-center gap-1.5 transition duration-200 cursor-pointer ${
                   voiceEnabled
-                    ? 'bg-[#FF6B00]/15 border-[#FF6B00]/50 text-[#FF8C00]'
+                    ? 'bg-[#0EA5E9]/15 border-[#0EA5E9]/50 text-[#0EA5E9]'
                     : 'bg-[#0B0B0B] border-zinc-800 text-zinc-500'
                 }`}
               >
                 {voiceEnabled ? (
-                  <Volume2 className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+                  <Volume2 className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
                 ) : (
                   <VolumeX className="w-3.5 h-3.5" aria-hidden="true" />
                 )}
@@ -190,7 +190,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
                   </>
                 ) : (
                   <>
-                    <Play className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+                    <Play className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
                     <span>Escuchar .md</span>
                   </>
                 )}
@@ -213,7 +213,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
                 type="button"
                 disabled={isTranslating}
                 onClick={handleTranslate}
-                className="h-9 px-4 text-xs font-extrabold bg-gradient-to-r from-[#FF6B00] to-[#FF8C00] hover:from-[#FF8C00] hover:to-[#FF6B00] disabled:opacity-60 text-black rounded-full flex items-center gap-2 transition duration-200 orange-glow-sm cursor-pointer"
+                className="h-9 px-4 text-xs font-extrabold bg-gradient-to-r from-[#0EA5E9] to-[#0EA5E9] hover:from-[#0EA5E9] hover:to-[#0EA5E9] disabled:opacity-60 text-black rounded-full flex items-center gap-2 transition duration-200 cyan-glow-sm cursor-pointer"
               >
                 <Languages
                   className={`w-3.5 h-3.5 ${isTranslating ? 'animate-spin' : ''}`}
@@ -232,28 +232,28 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
         {/* Tabla de Especificaciones de la Ficha */}
         <dl className="divide-y divide-zinc-800/80 border-t border-b border-zinc-800/80 text-xs sm:text-sm">
           <div className="py-3 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4">
-            <dt className="sm:col-span-3 text-[11px] font-bold uppercase tracking-wider text-[#FF8C00] self-center">
+            <dt className="sm:col-span-3 text-[11px] font-bold uppercase tracking-wider text-[#0EA5E9] self-center">
               NIVEL
             </dt>
             <dd className="sm:col-span-9 text-zinc-200 font-semibold">{skill.level}</dd>
           </div>
 
           <div className="py-3 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4">
-            <dt className="sm:col-span-3 text-[11px] font-bold uppercase tracking-wider text-[#FF8C00] self-center">
+            <dt className="sm:col-span-3 text-[11px] font-bold uppercase tracking-wider text-[#0EA5E9] self-center">
               DÓNDE SE USA
             </dt>
             <dd className="sm:col-span-9 text-zinc-300">{skill.ficha.whereToUse}</dd>
           </div>
 
           <div className="py-3 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4">
-            <dt className="sm:col-span-3 text-[11px] font-bold uppercase tracking-wider text-[#FF8C00] self-center">
+            <dt className="sm:col-span-3 text-[11px] font-bold uppercase tracking-wider text-[#0EA5E9] self-center">
               QUÉ NECESITAS
             </dt>
             <dd className="sm:col-span-9 text-zinc-300">{skill.ficha.requirements}</dd>
           </div>
 
           <div className="py-3 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4">
-            <dt className="sm:col-span-3 text-[11px] font-bold uppercase tracking-wider text-[#FF8C00] self-center">
+            <dt className="sm:col-span-3 text-[11px] font-bold uppercase tracking-wider text-[#0EA5E9] self-center">
               CUÁNTO TOMA
             </dt>
             <dd className="sm:col-span-9 text-zinc-300">{skill.ficha.estimatedTime}</dd>
@@ -266,7 +266,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
           aria-live="polite"
           className={`rounded-2xl px-4 py-3 border transition duration-200 flex flex-wrap items-center justify-between gap-3 ${
             isTranslating
-              ? 'bg-[#FF6B00]/15 border-[#FF6B00] text-white orange-glow-sm'
+              ? 'bg-[#0EA5E9]/15 border-[#0EA5E9] text-white cyan-glow-sm'
               : 'bg-[#0B0B0B] border-zinc-800/80 text-zinc-400'
           }`}
         >
@@ -274,8 +274,8 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
             <span
               className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                 isTranslating
-                  ? 'bg-[#FF6B00] text-black'
-                  : 'bg-[#121212] border border-[#FF6B00]/40 text-[#FF6B00]'
+                  ? 'bg-[#0EA5E9] text-black'
+                  : 'bg-[#121212] border border-[#0EA5E9]/40 text-[#0EA5E9]'
               }`}
               aria-hidden="true"
             >
@@ -285,7 +285,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
             <div className="text-xs leading-relaxed">
               {isTranslating ? (
                 <>
-                  <strong className="font-bold text-[#FF8C00]">
+                  <strong className="font-bold text-[#0EA5E9]">
                     Indicador de Voz Activo (&ldquo;Traduciendo...&rdquo;):
                   </strong>{' '}
                   Procesando y traduciendo <code className="font-mono">{skill.filename}</code> a{' '}
@@ -297,7 +297,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
                     Feedback de Voz e Indicador Visual:
                   </strong>{' '}
                   Pulsa <em>Traducir Skill</em> para activar la alerta dinámica{' '}
-                  <code className="px-1.5 py-0.5 rounded bg-[#121212] border border-[#FF6B00]/30 text-[#FF8C00] font-mono">
+                  <code className="px-1.5 py-0.5 rounded bg-[#121212] border border-[#0EA5E9]/30 text-[#0EA5E9] font-mono">
                     &quot;Traduciendo...&quot;
                   </code>
                 </>
@@ -308,20 +308,20 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
           <div className="flex items-end gap-1 h-4 px-2" aria-hidden="true">
             <span
               className={`w-1 rounded-full ${
-                isTranslating ? 'bg-[#FF6B00] h-3 animate-bounce' : 'bg-zinc-700 h-1.5'
+                isTranslating ? 'bg-[#0EA5E9] h-3 animate-bounce' : 'bg-zinc-700 h-1.5'
               }`}
             />
             <span
               className={`w-1 rounded-full ${
                 isTranslating
-                  ? 'bg-[#FF8C00] h-4 animate-bounce [animation-delay:120ms]'
+                  ? 'bg-[#0EA5E9] h-4 animate-bounce [animation-delay:120ms]'
                   : 'bg-zinc-700 h-2.5'
               }`}
             />
             <span
               className={`w-1 rounded-full ${
                 isTranslating
-                  ? 'bg-[#FF6B00] h-2.5 animate-bounce [animation-delay:240ms]'
+                  ? 'bg-[#0EA5E9] h-2.5 animate-bounce [animation-delay:240ms]'
                   : 'bg-zinc-700 h-1.5'
               }`}
             />
@@ -334,7 +334,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
             <figcaption className="text-xs font-bold text-zinc-300 flex items-center justify-between px-1">
               <span>
                 Markdown Plano ({skill.language.toUpperCase()}) ·{' '}
-                <code className="text-[#FF8C00] font-mono">{skill.filename}</code>
+                <code className="text-[#0EA5E9] font-mono">{skill.filename}</code>
               </span>
               <button
                 type="button"
@@ -347,16 +347,16 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
             </figcaption>
             <pre
               tabIndex={0}
-              className="bg-[#0B0B0B] border border-zinc-800 rounded-2xl p-4 text-xs font-mono text-zinc-200 overflow-x-auto max-h-64 whitespace-pre-wrap leading-relaxed focus:outline-none focus:border-[#FF6B00]"
+              className="bg-[#0B0B0B] border border-zinc-800 rounded-2xl p-4 text-xs font-mono text-zinc-200 overflow-x-auto max-h-64 whitespace-pre-wrap leading-relaxed focus:outline-none focus:border-[#0EA5E9]"
             >
               <code>{skill.markdownContent}</code>
             </pre>
           </figure>
 
           <figure className="flex flex-col gap-2">
-            <figcaption className="text-xs font-bold text-[#FF8C00] flex items-center justify-between px-1">
+            <figcaption className="text-xs font-bold text-[#0EA5E9] flex items-center justify-between px-1">
               <span className="flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+                <Sparkles className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
                 Traducción Multilingüe ({targetLang.toUpperCase()})
               </span>
               <div className="flex items-center gap-3">
@@ -382,7 +382,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
                         onStatusChange(`Traducción (${targetLang.toUpperCase()}) establecida como principal`);
                         setTimeout(() => onStatusChange(null), 2200);
                       }}
-                      className="text-xs text-[#FF8C00] hover:underline flex items-center gap-1 font-bold cursor-pointer"
+                      className="text-xs text-[#0EA5E9] hover:underline flex items-center gap-1 font-bold cursor-pointer"
                     >
                       <Check className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>Usar como principal</span>
@@ -393,7 +393,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
             </figcaption>
             <pre
               tabIndex={0}
-              className="bg-[#0B0B0B] border border-[#FF6B00]/40 rounded-2xl p-4 text-xs font-mono text-amber-100 overflow-x-auto max-h-64 whitespace-pre-wrap leading-relaxed focus:outline-none focus:border-[#FF8C00]"
+              className="bg-[#0B0B0B] border border-[#0EA5E9]/40 rounded-2xl p-4 text-xs font-mono text-slate-100 overflow-x-auto max-h-64 whitespace-pre-wrap leading-relaxed focus:outline-none focus:border-[#0EA5E9]"
             >
               <code>
                 {skill.translatedContent ||
@@ -409,7 +409,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
             Motor de Traducción Híbrido (Instantáneo Local + Gemini API opcional)
           </summary>
           <div className="pt-3 pb-1 flex flex-wrap items-center gap-2">
-            <KeyRound className="w-4 h-4 text-[#FF6B00] shrink-0" aria-hidden="true" />
+            <KeyRound className="w-4 h-4 text-[#0EA5E9] shrink-0" aria-hidden="true" />
             <label htmlFor="gemini-key-input" className="text-zinc-400">
               Gemini API Key (opcional):
             </label>

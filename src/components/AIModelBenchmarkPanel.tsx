@@ -92,9 +92,9 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
       {/* Cabecera de la Matriz de Inteligencias (Cortex de Modelos IA) */}
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-800/90 pb-5">
         <div className="space-y-2">
-          <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#F97316]">
+          <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#38BDF8]">
             <Activity
-              className="w-3.5 h-3.5 text-[#FF6B00]"
+              className="w-3.5 h-3.5 text-[#0EA5E9]"
               aria-hidden="true"
             />
             MATRIZ DE INTELIGENCIAS · CORTEX DE MODELOS Y VERSIONES ESPECÍFICAS
@@ -107,10 +107,10 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
           </h1>
           <p className="text-sm text-slate-400 max-w-3xl">
             Compara el rendimiento visual y arquitectónico entre las versiones específicas del estudio:{' '}
-            <strong className="text-[#F97316]">Opus 5.5, Opus 4.8</strong>,{' '}
-            <strong className="text-[#F97316]">Gemini 3.8, Gemini 3.7</strong>,{' '}
-            <strong className="text-[#F97316]">Sonnet 5.5</strong> y{' '}
-            <strong className="text-[#F97316]">GPT Astra, GPT Luna</strong>.
+            <strong className="text-[#38BDF8]">Opus 5.5, Opus 4.8</strong>,{' '}
+            <strong className="text-[#38BDF8]">Gemini 3.8, Gemini 3.7</strong>,{' '}
+            <strong className="text-[#38BDF8]">Sonnet 5.5</strong> y{' '}
+            <strong className="text-[#38BDF8]">GPT Astra, GPT Luna</strong>.
           </p>
         </div>
 
@@ -118,7 +118,7 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
           type="button"
           disabled={isTestingBenchmark}
           onClick={handleRunLiveStressTest}
-          className="h-11 px-5 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] hover:brightness-110 disabled:opacity-60 text-black font-extrabold text-xs flex items-center gap-2 orange-glow transition cursor-pointer"
+          className="h-11 px-5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] hover:brightness-110 disabled:opacity-60 text-black font-extrabold text-xs flex items-center gap-2 cyan-glow transition cursor-pointer"
         >
           <Play
             className={`w-4 h-4 ${isTestingBenchmark ? 'animate-spin' : ''}`}
@@ -152,8 +152,8 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
                 onClick={() => setFamilyFilter(fam)}
                 className={`rounded-full px-4 py-1.5 text-xs font-extrabold transition cursor-pointer ${
                   active
-                    ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-md'
-                    : 'border border-slate-800 bg-[#0F172A] text-slate-300 hover:border-[#FF6B00]/50 hover:text-white'
+                    ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-md'
+                    : 'border border-slate-800 bg-[#0F172A] text-slate-300 hover:border-[#0EA5E9]/50 hover:text-white'
                 }`}
               >
                 {fam === 'Todos' ? 'Todas las Familias (7 Versiones)' : fam}
@@ -164,7 +164,7 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
 
         <span className="text-xs text-slate-400">
           Versión seleccionada:{' '}
-          <strong className="font-mono text-[#F97316]">
+          <strong className="font-mono text-[#38BDF8]">
             {activeModel.version}
           </strong>
         </span>
@@ -197,18 +197,18 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
               }}
               className={`rounded-3xl p-5 transition duration-200 flex flex-col justify-between gap-4 cursor-pointer ${
                 isSelected
-                  ? 'bg-[#0F172A] border-2 border-[#FF6B00] orange-glow'
-                  : 'bg-[#0F172A]/90 border border-slate-800 hover:border-[#FF6B00]/55'
+                  ? 'bg-[#0F172A] border-2 border-[#0EA5E9] cyan-glow'
+                  : 'bg-[#0F172A]/90 border border-slate-800 hover:border-[#0EA5E9]/55'
               }`}
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#FF6B00]/15 text-[#F97316] border border-[#FF6B00]/40">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#0EA5E9]/15 text-[#38BDF8] border border-[#0EA5E9]/40">
                     {model.family} · {model.tier}
                   </span>
                   {isSelected && (
                     <CheckCircle2
-                      className="w-5 h-5 text-[#FF6B00] shrink-0"
+                      className="w-5 h-5 text-[#0EA5E9] shrink-0"
                       aria-hidden="true"
                     />
                   )}
@@ -223,7 +223,7 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
                       {model.version}
                     </h2>
                   </div>
-                  <span className="rounded-xl bg-[#0A0F1D] border border-slate-800 px-2.5 py-1 font-mono text-xs font-extrabold text-sky-400">
+                  <span className="rounded-xl bg-[#0B0F19] border border-slate-800 px-2.5 py-1 font-mono text-xs font-extrabold text-sky-400">
                     Fidelidad UI: {model.visualFidelityScore}%
                   </span>
                 </div>
@@ -232,8 +232,8 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
                   {model.summary}
                 </p>
 
-                <div className="rounded-xl border border-slate-800/90 bg-[#0A0F1D] p-2.5 text-[11px] text-slate-300">
-                  <strong className="text-[#F97316] block mb-0.5">
+                <div className="rounded-xl border border-slate-800/90 bg-[#0B0F19] p-2.5 text-[11px] text-slate-300">
+                  <strong className="text-[#38BDF8] block mb-0.5">
                     Impacto Visual:
                   </strong>
                   {model.visualImpactNotes}
@@ -247,13 +247,13 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
                     <span className="text-slate-400">
                       Fidelidad Visual &amp; Estética UI/UX
                     </span>
-                    <span className="font-mono font-bold text-[#F97316]">
+                    <span className="font-mono font-bold text-[#38BDF8]">
                       {model.visualFidelityScore}%
                     </span>
                   </div>
-                  <div className="h-2 rounded-full bg-[#0A0F1D] overflow-hidden border border-slate-800">
+                  <div className="h-2 rounded-full bg-[#0B0F19] overflow-hidden border border-slate-800">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#FF6B00] to-[#F97316]"
+                      className="h-full rounded-full bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8]"
                       style={{ width: `${model.visualFidelityScore}%` }}
                     />
                   </div>
@@ -268,7 +268,7 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
                       {model.codingScore}%
                     </span>
                   </div>
-                  <div className="h-2 rounded-full bg-[#0A0F1D] overflow-hidden border border-slate-800">
+                  <div className="h-2 rounded-full bg-[#0B0F19] overflow-hidden border border-slate-800">
                     <div
                       className="h-full rounded-full bg-sky-400"
                       style={{ width: `${model.codingScore}%` }}
@@ -287,39 +287,39 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
       </div>
 
       {/* Panel Detallado del Modelo Seleccionado + Módulo de Evaluación Visual con Dictado de Voz */}
-      <div className="rounded-3xl bg-[#0F172A] border border-[#FF6B00]/35 p-6 sm:p-8 orange-glow space-y-6">
+      <div className="rounded-3xl bg-[#0F172A] border border-[#0EA5E9]/35 p-6 sm:p-8 cyan-glow space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#FF6B00]/15 border border-[#FF6B00]/40 flex items-center justify-center">
-              <Cpu className="w-6 h-6 text-[#FF6B00]" aria-hidden="true" />
+            <div className="w-12 h-12 rounded-2xl bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 flex items-center justify-center">
+              <Cpu className="w-6 h-6 text-[#0EA5E9]" aria-hidden="true" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-extrabold text-white">
                   {activeModel.name}
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-md text-[11px] font-extrabold bg-[#FF6B00] text-black">
+                <span className="px-2.5 py-0.5 rounded-md text-[11px] font-extrabold bg-[#0EA5E9] text-black">
                   {activeModel.version}
                 </span>
               </div>
               <p className="text-xs text-slate-400">
                 Familia: <strong className="text-slate-200">{activeModel.family}</strong> ·
                 Vinculado al proyecto activo{' '}
-                <code className="text-[#F97316]">{activeSkill.filename}</code>
+                <code className="text-[#38BDF8]">{activeSkill.filename}</code>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="px-4 py-2 rounded-xl bg-[#0A0F1D] border border-slate-800 text-right">
+            <div className="px-4 py-2 rounded-xl bg-[#0B0F19] border border-slate-800 text-right">
               <div className="text-[10px] uppercase tracking-wider text-slate-400">
                 Velocidad en Tiempo Real
               </div>
-              <div className="text-lg font-mono font-extrabold text-[#F97316]">
+              <div className="text-lg font-mono font-extrabold text-[#38BDF8]">
                 {liveTokenRate ?? activeModel.speedTokensPerSec} tok/s
               </div>
             </div>
-            <div className="px-4 py-2 rounded-xl bg-[#0A0F1D] border border-slate-800 text-right">
+            <div className="px-4 py-2 rounded-xl bg-[#0B0F19] border border-slate-800 text-right">
               <div className="text-[10px] uppercase tracking-wider text-slate-400">
                 Latencia TTFT
               </div>
@@ -356,19 +356,19 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
           ].map((metric) => (
             <div
               key={metric.label}
-              className="p-4 rounded-2xl bg-[#0A0F1D] border border-slate-800/90 space-y-2.5"
+              className="p-4 rounded-2xl bg-[#0B0F19] border border-slate-800/90 space-y-2.5"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-200">
                   {metric.label}
                 </span>
-                <span className="text-sm font-mono font-extrabold text-[#FF6B00]">
+                <span className="text-sm font-mono font-extrabold text-[#0EA5E9]">
                   {metric.score}/100
                 </span>
               </div>
               <div className="h-2.5 rounded-full bg-slate-900 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#FF6B00] to-[#F97316] transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] transition-all duration-500"
                   style={{ width: `${metric.score}%` }}
                 />
               </div>
@@ -379,16 +379,16 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
 
         {/* Fortalezas y Casos Recomendados */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-4 rounded-2xl bg-[#0A0F1D] border border-slate-800 space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#F97316] flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#FF6B00]" aria-hidden="true" />
+          <div className="p-4 rounded-2xl bg-[#0B0F19] border border-slate-800 space-y-2.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#38BDF8] flex items-center gap-2">
+              <Zap className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
               Fortalezas de la Versión {activeModel.version}
             </h4>
             <ul className="space-y-2 text-xs text-slate-300">
               {activeModel.strengths.map((s) => (
                 <li key={s} className="flex items-start gap-2">
                   <Sparkles
-                    className="w-3.5 h-3.5 text-[#FF6B00] shrink-0 mt-0.5"
+                    className="w-3.5 h-3.5 text-[#0EA5E9] shrink-0 mt-0.5"
                     aria-hidden="true"
                   />
                   <span>{s}</span>
@@ -397,7 +397,7 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
             </ul>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#0A0F1D] border border-slate-800 space-y-2.5">
+          <div className="p-4 rounded-2xl bg-[#0B0F19] border border-slate-800 space-y-2.5">
             <h4 className="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2">
               <Layers className="w-4 h-4 text-sky-400" aria-hidden="true" />
               Casos de Uso Recomendados en el Estudio

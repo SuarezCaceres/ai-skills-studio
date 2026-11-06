@@ -77,7 +77,7 @@ const LANGUAGE_BADGES: Record<
 > = {
   tsx: {
     label: 'TSX',
-    colorClass: 'border-[#FF6B00]/45 bg-[#FF6B00]/15 text-[#F97316]',
+    colorClass: 'border-[#0EA5E9]/45 bg-[#0EA5E9]/15 text-[#38BDF8]',
   },
   typescript: {
     label: 'TS',
@@ -85,7 +85,7 @@ const LANGUAGE_BADGES: Record<
   },
   css: {
     label: 'CSS',
-    colorClass: 'border-amber-400/40 bg-amber-500/15 text-amber-300',
+    colorClass: 'border-sky-400/30 bg-sky-500/15 text-sky-300',
   },
   json: {
     label: 'JSON',
@@ -121,10 +121,10 @@ function renderHighlightedLine(line: string, lang: CodeLanguage): React.ReactNod
 
   if (lang === 'markdown') {
     if (line.startsWith('#')) {
-      return <span className="font-bold text-[#FF6B00]">{line}</span>;
+      return <span className="font-bold text-[#0EA5E9]">{line}</span>;
     }
     if (line.trim().startsWith('-') || /^\d+\./.test(line.trim())) {
-      return <span className="text-amber-200">{line}</span>;
+      return <span className="text-sky-200">{line}</span>;
     }
   }
 
@@ -139,14 +139,14 @@ function renderHighlightedLine(line: string, lang: CodeLanguage): React.ReactNod
       )
     ) {
       return (
-        <span key={idx} className="font-semibold text-[#FF6B00]">
+        <span key={idx} className="font-semibold text-[#0EA5E9]">
           {token}
         </span>
       );
     }
     if (/^('[^']*'|"[^"]*"|`[^`]*`)$/.test(token)) {
       return (
-        <span key={idx} className="text-amber-300">
+        <span key={idx} className="text-sky-300">
           {token}
         </span>
       );
@@ -206,7 +206,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedColorHex, setCopiedColorHex] = useState<string | null>(null);
   const [savedToBovedaBanner, setSavedToBovedaBanner] = useState(false);
-  const [newColorInput, setNewColorInput] = useState('#FF6B00');
+  const [newColorInput, setNewColorInput] = useState('#0EA5E9');
 
   // Estados de la Sección Visual Principal (Izquierda/Centro)
   const [activeScreenshotIndex, setActiveScreenshotIndex] = useState(0);
@@ -259,8 +259,8 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
     activeRarPackage.metadata?.colorPalette || [
       '#0A0F1D',
       '#0F172A',
-      '#FF6B00',
-      '#F97316',
+      '#0EA5E9',
+      '#38BDF8',
       '#38BDF8',
     ];
 
@@ -479,7 +479,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             return (
               <h3
                 key={index}
-                className={`border-b border-[#FF6B00]/35 pb-2 text-xl font-extrabold tracking-tight ${
+                className={`border-b border-[#0EA5E9]/35 pb-2 text-xl font-extrabold tracking-tight ${
                   isIvory ? 'text-slate-950' : 'text-white'
                 }`}
               >
@@ -492,7 +492,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <h4
                 key={index}
                 className={`pt-2 text-base font-bold ${
-                  isIvory ? 'text-[#D95300]' : 'text-[#F97316]'
+                  isIvory ? 'text-[#D95300]' : 'text-[#38BDF8]'
                 }`}
               >
                 {line.replace('## ', '')}
@@ -505,11 +505,11 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 key={index}
                 className={`flex items-start gap-2.5 rounded-xl border px-3.5 py-2 text-xs ${
                   isIvory
-                    ? 'border-[#FF6B00]/35 bg-white/90 text-slate-900 shadow-xs'
-                    : 'border-slate-800 bg-[#0A0F1D] text-slate-200'
+                    ? 'border-[#0EA5E9]/35 bg-white/90 text-slate-900 shadow-xs'
+                    : 'border-slate-800 bg-[#0B0F19] text-slate-200'
                 }`}
               >
-                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#FF6B00]" />
+                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#0EA5E9]" />
                 <span>{line.replace(/^(- |\d+\.\s)/, '')}</span>
               </div>
             );
@@ -518,7 +518,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             return (
               <hr
                 key={index}
-                className={isIvory ? 'border-[#FF6B00]/25' : 'border-slate-800'}
+                className={isIvory ? 'border-[#0EA5E9]/25' : 'border-slate-800'}
               />
             );
           }
@@ -568,14 +568,14 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigatePage('boveda')}
-                className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-[#0A0F1D] px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-[#FF6B00] hover:text-white cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-[#0B0F19] px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-[#0EA5E9] hover:text-white cursor-pointer"
               >
-                <ArrowLeft className="h-3.5 w-3.5 text-[#FF6B00]" />
+                <ArrowLeft className="h-3.5 w-3.5 text-[#0EA5E9]" />
                 Códice Neuronal
               </button>
 
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF6B00]/40 bg-[#FF6B00]/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#F97316]">
-                <FolderArchive className="h-3.5 w-3.5 text-[#FF6B00]" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0EA5E9]/40 bg-[#0EA5E9]/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#38BDF8]">
+                <FolderArchive className="h-3.5 w-3.5 text-[#0EA5E9]" />
                 Núcleo de Proyectos · {activeRarPackage.archiveName}
               </span>
 
@@ -588,9 +588,9 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 <button
                   type="button"
                   onClick={onRequestLogin}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-[#0A0F1D] px-3 py-1 text-[11px] font-semibold text-slate-300 transition hover:border-[#FF6B00] hover:text-white cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-[#0B0F19] px-3 py-1 text-[11px] font-semibold text-slate-300 transition hover:border-[#0EA5E9] hover:text-white cursor-pointer"
                 >
-                  <Lock className="h-3 w-3 text-[#FF6B00]" />
+                  <Lock className="h-3 w-3 text-[#0EA5E9]" />
                   Modo Visitante (Solo Lectura) · Activar Modo Colaborador
                 </button>
               )}
@@ -606,13 +606,13 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
           {/* Botones Estratégicos: Vista Principal (UI/UX + Árbol .RAR) vs Botón Dedicado de Documentación y Metadatos */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="inline-flex rounded-2xl border border-slate-800 bg-[#0A0F1D] p-1">
+            <div className="inline-flex rounded-2xl border border-slate-800 bg-[#0B0F19] p-1">
               <button
                 type="button"
                 onClick={() => setActiveSectionView('main-split')}
                 className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-extrabold transition cursor-pointer ${
                   activeSectionView === 'main-split'
-                    ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-md'
+                    ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-md'
                     : 'text-slate-300 hover:text-white'
                 }`}
               >
@@ -625,7 +625,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 onClick={() => setActiveSectionView('docs-metadata')}
                 className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-extrabold transition cursor-pointer ${
                   activeSectionView === 'docs-metadata'
-                    ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-md'
+                    ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-md'
                     : 'text-slate-300 hover:text-white'
                 }`}
               >
@@ -652,11 +652,11 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   onClick={() => rarInputRef.current?.click()}
                   className={`flex cursor-pointer items-center gap-2 rounded-2xl border-2 border-dashed px-3.5 py-2 transition ${
                     isDraggingRar
-                      ? 'border-[#FF6B00] bg-[#FF6B00]/15 text-white'
-                      : 'border-[#FF6B00]/45 bg-[#0A0F1D] text-slate-200 hover:border-[#FF6B00]'
+                      ? 'border-[#0EA5E9] bg-[#0EA5E9]/15 text-white'
+                      : 'border-[#0EA5E9]/45 bg-[#0B0F19] text-slate-200 hover:border-[#0EA5E9]'
                   }`}
                 >
-                  <Upload className="h-4 w-4 text-[#FF6B00]" />
+                  <Upload className="h-4 w-4 text-[#0EA5E9]" />
                   <span className="text-xs font-bold">
                     {isProcessingRar ? 'Procesando...' : 'Subir .RAR'}
                   </span>
@@ -676,7 +676,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 <button
                   type="button"
                   onClick={handleSaveToBoveda}
-                  className="inline-flex items-center gap-1.5 rounded-2xl border border-[#FF6B00]/50 bg-[#FF6B00]/15 px-3.5 py-2 text-xs font-bold text-[#F97316] transition hover:bg-[#FF6B00] hover:text-black cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-2xl border border-[#0EA5E9]/50 bg-[#0EA5E9]/15 px-3.5 py-2 text-xs font-bold text-[#38BDF8] transition hover:bg-[#0EA5E9] hover:text-black cursor-pointer"
                 >
                   {savedToBovedaBanner ? (
                     <>
@@ -713,11 +713,11 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             <div className="edu-floating-panel rounded-3xl p-5 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3.5">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF6B00]/15 border border-[#FF6B00]/40 text-[#FF6B00]">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 text-[#0EA5E9]">
                     <ImageIcon className="h-4 w-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                       1. Sección Visual Principal (Izquierda / Centro)
                     </span>
                     <h2 className="text-base font-extrabold text-white">
@@ -743,7 +743,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                       <button
                         type="button"
                         onClick={() => screenshotInputRef.current?.click()}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] px-3 py-1.5 text-xs font-extrabold text-black shadow-sm transition hover:brightness-110 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] px-3 py-1.5 text-xs font-extrabold text-black shadow-sm transition hover:brightness-110 cursor-pointer"
                       >
                         <Plus className="h-3.5 w-3.5" />
                         Subir Captura
@@ -760,7 +760,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               {/* Visor Grande de la Captura Activa */}
               {currentScreenshot ? (
                 <div className="space-y-3">
-                  <div className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-[#0A0F1D]">
+                  <div className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-[#0B0F19]">
                     <img
                       src={currentScreenshot.dataUrl}
                       alt={currentScreenshot.title}
@@ -768,12 +768,12 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                       height={360}
                       className="h-[270px] sm:h-[310px] w-full object-cover transition duration-300 group-hover:scale-[1.01]"
                     />
-                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-[#0A0F1D] via-[#0A0F1D]/85 to-transparent p-4">
+                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/85 to-transparent p-4">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-bold text-white">
                           {currentScreenshot.title}
                         </p>
-                        <p className="text-[11px] text-[#F97316]">
+                        <p className="text-[11px] text-[#38BDF8]">
                           Generado con {currentScreenshot.modelUsed} · {currentScreenshot.createdAt}
                         </p>
                       </div>
@@ -781,7 +781,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         <button
                           type="button"
                           onClick={() => openZoomModal(currentScreenshot)}
-                          className="inline-flex items-center gap-1.5 rounded-xl bg-[#FF6B00] px-3 py-1.5 text-xs font-extrabold text-black shadow-md transition hover:brightness-110 cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-[#0EA5E9] px-3 py-1.5 text-xs font-extrabold text-black shadow-md transition hover:brightness-110 cursor-pointer"
                         >
                           <Maximize2 className="h-3.5 w-3.5" />
                           Zoom
@@ -810,7 +810,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                           onClick={() => setActiveScreenshotIndex(idx)}
                           className={`relative h-16 w-28 shrink-0 overflow-hidden rounded-xl border-2 transition cursor-pointer ${
                             idx === activeScreenshotIndex
-                              ? 'border-[#FF6B00] shadow-md shadow-[#FF6B00]/20'
+                              ? 'border-[#0EA5E9] shadow-md shadow-[#0EA5E9]/20'
                               : 'border-slate-800 opacity-65 hover:opacity-100'
                           }`}
                         >
@@ -827,7 +827,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   )}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-800 bg-[#0A0F1D] p-8 text-center">
+                <div className="rounded-2xl border border-dashed border-slate-800 bg-[#0B0F19] p-8 text-center">
                   <p className="text-xs text-slate-400">
                     No hay capturas registradas en este paquete.
                   </p>
@@ -855,14 +855,14 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigatePage('preview')}
-                  className="rounded-xl border border-[#FF6B00]/40 bg-[#FF6B00]/10 px-3 py-1.5 text-xs font-bold text-[#F97316] transition hover:bg-[#FF6B00] hover:text-black cursor-pointer"
+                  className="rounded-xl border border-[#0EA5E9]/40 bg-[#0EA5E9]/10 px-3 py-1.5 text-xs font-bold text-[#38BDF8] transition hover:bg-[#0EA5E9] hover:text-black cursor-pointer"
                 >
                   Abrir Laboratorio UI/UX Completo →
                 </button>
               </div>
 
               {/* Escenario interactivo del componente UI/UX */}
-              <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D] p-4 space-y-3">
+              <div className="rounded-2xl border border-slate-800 bg-[#0B0F19] p-4 space-y-3">
                 <div
                   role="menubar"
                   aria-label={activeSkill.uiSpec.title}
@@ -884,7 +884,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         }}
                         className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition cursor-pointer ${
                           isSelected
-                            ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-sm'
+                            ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-sm'
                             : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                         }`}
                       >
@@ -919,11 +919,11 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                               `Acción ejecutada: ${sub.label} (${sub.shortcut || 'OK'})`
                             )
                           }
-                          className="flex items-center justify-between rounded-xl border border-slate-800 bg-[#131C31] px-3 py-2 text-left text-xs text-slate-200 transition hover:border-[#FF6B00] hover:text-white cursor-pointer"
+                          className="flex items-center justify-between rounded-xl border border-slate-800 bg-[#131C31] px-3 py-2 text-left text-xs text-slate-200 transition hover:border-[#0EA5E9] hover:text-white cursor-pointer"
                         >
                           <span className="truncate font-semibold">{sub.label}</span>
                           {sub.shortcut && (
-                            <span className="font-mono text-[10px] text-[#F97316]">
+                            <span className="font-mono text-[10px] text-[#38BDF8]">
                               {sub.shortcut}
                             </span>
                           )}
@@ -934,7 +934,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
                 <div className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-[#0F172A] px-3 py-2 text-[11px] font-mono text-slate-300">
                   <span className="truncate">{lastTriggeredUiCommand}</span>
-                  <span className="text-[#FF6B00] font-bold shrink-0 ml-2">UI/UX READY</span>
+                  <span className="text-[#0EA5E9] font-bold shrink-0 ml-2">UI/UX READY</span>
                 </div>
               </div>
             </div>
@@ -947,7 +947,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
           >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3.5">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                   2. Explorador de Paquete (Derecha)
                 </span>
                 <h2 className="text-base font-extrabold text-white">
@@ -960,13 +960,13 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowAttachCodeForm((v) => !v)}
-                    className="inline-flex items-center gap-1 rounded-xl border border-[#FF6B00]/45 bg-[#FF6B00]/15 px-2.5 py-1.5 text-[11px] font-bold text-[#F97316] transition hover:bg-[#FF6B00] hover:text-black cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-xl border border-[#0EA5E9]/45 bg-[#0EA5E9]/15 px-2.5 py-1.5 text-[11px] font-bold text-[#38BDF8] transition hover:bg-[#0EA5E9] hover:text-black cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Adjuntar Código
                   </button>
                 )}
-                <span className="rounded-full border border-slate-700 bg-[#0A0F1D] px-2.5 py-1 font-mono text-[10px] text-slate-300">
+                <span className="rounded-full border border-slate-700 bg-[#0B0F19] px-2.5 py-1 font-mono text-[10px] text-slate-300">
                   {activeRarPackage.files.length} archivos
                 </span>
               </div>
@@ -976,10 +976,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             {isEditorMode && showAttachCodeForm && (
               <form
                 onSubmit={handleAttachCodeToRar}
-                className="rounded-2xl border border-[#FF6B00]/45 bg-[#0A0F1D] p-3.5 space-y-3"
+                className="rounded-2xl border border-[#0EA5E9]/45 bg-[#0B0F19] p-3.5 space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#F97316]">
+                  <span className="text-xs font-bold text-[#38BDF8]">
                     Adjuntar Nuevo Archivo al Árbol .RAR
                   </span>
                   <button
@@ -1019,7 +1019,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 />
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] py-2 text-xs font-extrabold text-black cursor-pointer"
+                  className="w-full rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] py-2 text-xs font-extrabold text-black cursor-pointer"
                 >
                   Guardar Archivo en el Árbol
                 </button>
@@ -1037,8 +1037,8 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   onClick={() => setLanguageFilter(lang)}
                   className={`rounded-full px-2.5 py-1 text-[10px] font-bold transition cursor-pointer ${
                     languageFilter === lang
-                      ? 'bg-[#FF6B00] text-black'
-                      : 'border border-slate-800 bg-[#0A0F1D] text-slate-400 hover:border-[#FF6B00]/40 hover:text-white'
+                      ? 'bg-[#0EA5E9] text-black'
+                      : 'border border-slate-800 bg-[#0B0F19] text-slate-400 hover:border-[#0EA5E9]/40 hover:text-white'
                   }`}
                 >
                   {lang === 'all' ? 'Todos' : LANGUAGE_BADGES[lang].label}
@@ -1050,7 +1050,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             <div
               role="tree"
               aria-label="Estructura de carpetas del paquete .rar"
-              className="max-h-[210px] space-y-1.5 overflow-y-auto rounded-2xl border border-slate-800 bg-[#0A0F1D] p-2.5"
+              className="max-h-[210px] space-y-1.5 overflow-y-auto rounded-2xl border border-slate-800 bg-[#0B0F19] p-2.5"
             >
               {Object.entries(groupedByFolder).map(([folderName, files]) => {
                 const isOpen = openFolders[folderName] ?? true;
@@ -1068,14 +1068,14 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     >
                       <span className="flex items-center gap-1.5">
                         {isOpen ? (
-                          <ChevronDown className="h-3.5 w-3.5 text-[#FF6B00]" />
+                          <ChevronDown className="h-3.5 w-3.5 text-[#0EA5E9]" />
                         ) : (
                           <ChevronRight className="h-3.5 w-3.5 text-slate-500" />
                         )}
                         {isOpen ? (
-                          <FolderOpen className="h-3.5 w-3.5 text-[#FF6B00]" />
+                          <FolderOpen className="h-3.5 w-3.5 text-[#0EA5E9]" />
                         ) : (
-                          <Folder className="h-3.5 w-3.5 text-[#F97316]" />
+                          <Folder className="h-3.5 w-3.5 text-[#38BDF8]" />
                         )}
                         <span className="font-mono text-[11px]">{folderName}/</span>
                       </span>
@@ -1096,14 +1096,14 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                               onClick={() => setSelectedSourceId(file.id)}
                               className={`flex w-full items-center justify-between rounded-xl px-2.5 py-1.5 text-left text-xs transition cursor-pointer ${
                                 isSelected
-                                  ? 'border border-[#FF6B00]/60 bg-[#FF6B00]/15 font-bold text-white'
+                                  ? 'border border-[#0EA5E9]/60 bg-[#0EA5E9]/15 font-bold text-white'
                                   : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
                               }`}
                             >
                               <span className="flex items-center gap-2 truncate">
                                 <FileCode
                                   className={`h-3.5 w-3.5 shrink-0 ${
-                                    isSelected ? 'text-[#FF6B00]' : 'text-slate-500'
+                                    isSelected ? 'text-[#0EA5E9]' : 'text-slate-500'
                                   }`}
                                 />
                                 <span className="truncate font-mono text-[11px]">
@@ -1126,7 +1126,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             </div>
 
             {/* Visor de Código Fuente del archivo seleccionado en el árbol */}
-            <figure className="overflow-hidden rounded-2xl border border-slate-800 bg-[#0A0F1D]">
+            <figure className="overflow-hidden rounded-2xl border border-slate-800 bg-[#0B0F19]">
               <figcaption className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-[#0F172A] px-3.5 py-2 text-[11px]">
                 <span className="font-mono font-bold text-white truncate">
                   {selectedRarFile?.path}
@@ -1140,25 +1140,25 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                       onChange={(e) => setCodeSearchQuery(e.target.value)}
                       placeholder="Buscar..."
                       aria-label="Buscar línea de código"
-                      className="w-24 rounded-lg border border-slate-700 bg-[#0A0F1D] py-0.5 pl-7 pr-2 text-[10px] text-white focus:border-[#FF6B00] focus:outline-none"
+                      className="w-24 rounded-lg border border-slate-700 bg-[#0B0F19] py-0.5 pl-7 pr-2 text-[10px] text-white focus:border-[#0EA5E9] focus:outline-none"
                     />
                   </search>
                   <button
                     type="button"
                     onClick={handleCopyContent}
-                    className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-[#0A0F1D] px-2 py-1 text-[10px] font-semibold text-slate-300 hover:border-[#FF6B00] hover:text-white cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-[#0B0F19] px-2 py-1 text-[10px] font-semibold text-slate-300 hover:border-[#0EA5E9] hover:text-white cursor-pointer"
                   >
                     {copiedCode ? (
-                      <Check className="h-3 w-3 text-[#FF6B00]" />
+                      <Check className="h-3 w-3 text-[#0EA5E9]" />
                     ) : (
-                      <Copy className="h-3 w-3 text-[#FF6B00]" />
+                      <Copy className="h-3 w-3 text-[#0EA5E9]" />
                     )}
                     {copiedCode ? 'OK' : 'Copiar'}
                   </button>
                   <button
                     type="button"
                     onClick={handleDownloadCurrentFile}
-                    className="inline-flex items-center gap-1 rounded-lg border border-[#FF6B00]/40 bg-[#FF6B00]/15 px-2 py-1 text-[10px] font-bold text-[#F97316] hover:bg-[#FF6B00] hover:text-black cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#0EA5E9]/40 bg-[#0EA5E9]/15 px-2 py-1 text-[10px] font-bold text-[#38BDF8] hover:bg-[#0EA5E9] hover:text-black cursor-pointer"
                   >
                     <Download className="h-3 w-3" />
                   </button>
@@ -1166,7 +1166,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               </figcaption>
               <pre
                 tabIndex={0}
-                className="h-[310px] overflow-auto p-3.5 font-mono text-[11px] leading-relaxed text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
+                className="h-[310px] overflow-auto p-3.5 font-mono text-[11px] leading-relaxed text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0EA5E9]"
               >
                 <code>
                   {codeLines.map(({ line, lineNumber }) => (
@@ -1236,7 +1236,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
           <div className="edu-floating-panel rounded-3xl p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3.5">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#38BDF8]">
                   3. Ficha de Metadatos Técnicos del Núcleo de Proyectos
                 </span>
                 <h2 className="text-lg font-extrabold text-white">
@@ -1246,7 +1246,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveSectionView('main-split')}
-                className="rounded-xl border border-slate-700 bg-[#0A0F1D] px-3.5 py-1.5 text-xs font-bold text-slate-300 hover:border-[#FF6B00] hover:text-white cursor-pointer"
+                className="rounded-xl border border-slate-700 bg-[#0B0F19] px-3.5 py-1.5 text-xs font-bold text-slate-300 hover:border-[#0EA5E9] hover:text-white cursor-pointer"
               >
                 ← Volver al Núcleo de Proyectos y Árbol .RAR
               </button>
@@ -1254,9 +1254,9 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {/* 1. Modelo de IA Empleado */}
-              <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D] p-4">
+              <div className="rounded-2xl border border-slate-800 bg-[#0B0F19] p-4">
                 <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  <Cpu className="h-3.5 w-3.5 text-[#FF6B00]" />
+                  <Cpu className="h-3.5 w-3.5 text-[#0EA5E9]" />
                   Versión del Cortex de Modelos
                 </span>
                 {isEditorMode ? (
@@ -1271,7 +1271,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         metadata: { ...activeRarPackage.metadata, aiModelLabel: newLabel },
                       });
                     }}
-                    className="mt-2.5 w-full rounded-xl border border-[#FF6B00]/40 bg-[#0F172A] px-3 py-2 text-xs font-bold text-white"
+                    className="mt-2.5 w-full rounded-xl border border-[#0EA5E9]/40 bg-[#0F172A] px-3 py-2 text-xs font-bold text-white"
                   >
                     {AI_BENCHMARK_MODELS.map((m) => {
                       const label = `${m.family} · ${m.version}`;
@@ -1293,9 +1293,9 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               </div>
 
               {/* 2. Skill Aplicada */}
-              <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D] p-4">
+              <div className="rounded-2xl border border-slate-800 bg-[#0B0F19] p-4">
                 <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  <Sparkles className="h-3.5 w-3.5 text-[#FF6B00]" />
+                  <Sparkles className="h-3.5 w-3.5 text-[#0EA5E9]" />
                   Skill Aplicada
                 </span>
                 {isEditorMode ? (
@@ -1310,7 +1310,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         metadata: { ...activeRarPackage.metadata, appliedSkill: newSkill },
                       });
                     }}
-                    className="mt-2.5 w-full rounded-xl border border-[#FF6B00]/40 bg-[#0F172A] px-3 py-2 font-mono text-xs font-bold text-[#F97316]"
+                    className="mt-2.5 w-full rounded-xl border border-[#0EA5E9]/40 bg-[#0F172A] px-3 py-2 font-mono text-xs font-bold text-[#38BDF8]"
                   >
                     {AVAILABLE_SKILLS.map((sk) => (
                       <option key={sk} value={sk}>
@@ -1319,7 +1319,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     ))}
                   </select>
                 ) : (
-                  <p className="mt-2.5 rounded-xl border border-slate-800 bg-[#0F172A] px-3 py-2 font-mono text-xs font-bold text-[#F97316]">
+                  <p className="mt-2.5 rounded-xl border border-slate-800 bg-[#0F172A] px-3 py-2 font-mono text-xs font-bold text-[#38BDF8]">
                     #{projectAppliedSkill}
                   </p>
                 )}
@@ -1329,9 +1329,9 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               </div>
 
               {/* 3. Lenguajes de Programación Predominantes */}
-              <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D] p-4">
+              <div className="rounded-2xl border border-slate-800 bg-[#0B0F19] p-4">
                 <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  <Code2 className="h-3.5 w-3.5 text-[#FF6B00]" />
+                  <Code2 className="h-3.5 w-3.5 text-[#0EA5E9]" />
                   Lenguajes Predominantes
                 </span>
                 <div className="mt-2.5 flex h-2.5 w-full overflow-hidden rounded-full bg-slate-900">
@@ -1354,21 +1354,21 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         style={{ backgroundColor: item.color }}
                       />
                       {item.language}{' '}
-                      <strong className="text-[#F97316]">{item.percentage}%</strong>
+                      <strong className="text-[#38BDF8]">{item.percentage}%</strong>
                     </span>
                   ))}
                 </div>
               </div>
 
               {/* 4. Paleta de Colores Utilizada */}
-              <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D] p-4">
+              <div className="rounded-2xl border border-slate-800 bg-[#0B0F19] p-4">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    <Palette className="h-3.5 w-3.5 text-[#FF6B00]" />
+                    <Palette className="h-3.5 w-3.5 text-[#0EA5E9]" />
                     Paleta de Colores
                   </span>
                   {copiedColorHex && (
-                    <span className="font-mono text-[10px] font-bold text-[#F97316]">
+                    <span className="font-mono text-[10px] font-bold text-[#38BDF8]">
                       {copiedColorHex} copiado
                     </span>
                   )}
@@ -1383,7 +1383,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         setCopiedColorHex(hex);
                         setTimeout(() => setCopiedColorHex(null), 1500);
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-800 bg-[#0F172A] px-2 py-1 font-mono text-[11px] text-slate-200 hover:border-[#FF6B00] cursor-pointer"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-800 bg-[#0F172A] px-2 py-1 font-mono text-[11px] text-slate-200 hover:border-[#0EA5E9] cursor-pointer"
                     >
                       <span
                         className="h-3.5 w-3.5 rounded-full border border-white/20"
@@ -1405,7 +1405,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     <button
                       type="button"
                       onClick={handleAddColorToPalette}
-                      className="rounded-lg border border-slate-700 bg-[#0F172A] px-2 py-1 text-[10px] font-bold text-slate-300 hover:border-[#FF6B00] hover:text-white cursor-pointer"
+                      className="rounded-lg border border-slate-700 bg-[#0F172A] px-2 py-1 text-[10px] font-bold text-slate-300 hover:border-[#0EA5E9] hover:text-white cursor-pointer"
                     >
                       + Añadir ({newColorInput.toUpperCase()})
                     </button>
@@ -1419,7 +1419,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
           <div className="edu-floating-panel rounded-3xl p-6 space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#FF6B00]/40 bg-[#0A0F1D] text-[#FF6B00]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#0EA5E9]/40 bg-[#0B0F19] text-[#0EA5E9]">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>
@@ -1437,20 +1437,20 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   type="button"
                   onClick={handleOneClickTranslate}
                   disabled={isTranslatingMd}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] px-4 py-2 text-xs font-extrabold text-black shadow-md transition hover:brightness-110 cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] px-4 py-2 text-xs font-extrabold text-black shadow-md transition hover:brightness-110 cursor-pointer"
                 >
                   <Languages className="h-4 w-4" />
                   {isTranslatingMd ? 'Traduciendo...' : 'Traducir al Español (1-Click)'}
                 </button>
 
                 {currentTranslatedMarkdown && (
-                  <div className="inline-flex rounded-xl border border-slate-800 bg-[#0A0F1D] p-1">
+                  <div className="inline-flex rounded-xl border border-slate-800 bg-[#0B0F19] p-1">
                     <button
                       type="button"
                       onClick={() => setMdDisplayMode('translated')}
                       className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
                         mdDisplayMode === 'translated'
-                          ? 'bg-[#FF6B00] text-black'
+                          ? 'bg-[#0EA5E9] text-black'
                           : 'text-slate-400 hover:text-white'
                       }`}
                     >
@@ -1461,7 +1461,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                       onClick={() => setMdDisplayMode('original')}
                       className={`rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
                         mdDisplayMode === 'original'
-                          ? 'bg-[#FF6B00] text-black'
+                          ? 'bg-[#0EA5E9] text-black'
                           : 'text-slate-400 hover:text-white'
                       }`}
                     >
@@ -1472,7 +1472,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                       onClick={() => setMdDisplayMode('split')}
                       className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold transition cursor-pointer ${
                         mdDisplayMode === 'split'
-                          ? 'bg-[#FF6B00] text-black'
+                          ? 'bg-[#0EA5E9] text-black'
                           : 'text-slate-400 hover:text-white'
                       }`}
                     >
@@ -1482,7 +1482,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   </div>
                 )}
 
-                <div className="inline-flex rounded-xl border border-slate-800 bg-[#0A0F1D] p-1">
+                <div className="inline-flex rounded-xl border border-slate-800 bg-[#0B0F19] p-1">
                   <button
                     type="button"
                     onClick={() => setStudentReadingSurface('dark')}
@@ -1507,7 +1507,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   </button>
                 </div>
 
-                <div className="inline-flex rounded-xl border border-slate-800 bg-[#0A0F1D] p-1">
+                <div className="inline-flex rounded-xl border border-slate-800 bg-[#0B0F19] p-1">
                   <button
                     type="button"
                     onClick={() => setMdRenderStyle('formatted')}
@@ -1517,7 +1517,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    <Eye className="h-3 w-3 text-[#FF6B00]" />
+                    <Eye className="h-3 w-3 text-[#0EA5E9]" />
                     Lectura
                   </button>
                   <button
@@ -1529,7 +1529,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    <Code2 className="h-3 w-3 text-[#FF6B00]" />
+                    <Code2 className="h-3 w-3 text-[#0EA5E9]" />
                     Raw
                   </button>
                 </div>
@@ -1552,7 +1552,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     className={`rounded-2xl p-6 ${
                       studentReadingSurface === 'ivory'
                         ? 'edu-ivory-reading-card'
-                        : 'border border-slate-800 bg-[#0A0F1D]'
+                        : 'border border-slate-800 bg-[#0B0F19]'
                     }`}
                   >
                     <span className="mb-3 inline-block rounded-full border border-slate-700 bg-slate-900 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">
@@ -1564,10 +1564,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     className={`rounded-2xl p-6 ${
                       studentReadingSurface === 'ivory'
                         ? 'edu-ivory-reading-card'
-                        : 'border border-[#FF6B00]/45 bg-[#0A0F1D]'
+                        : 'border border-[#0EA5E9]/45 bg-[#0B0F19]'
                     }`}
                   >
-                    <span className="mb-3 inline-block rounded-full bg-[#FF6B00] px-3 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-black">
+                    <span className="mb-3 inline-block rounded-full bg-[#0EA5E9] px-3 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-black">
                       Traducido al Español (1-Click · Sin Voz)
                     </span>
                     {renderMarkdownFormattedBlock(currentTranslatedMarkdown)}
@@ -1578,7 +1578,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   className={`rounded-2xl p-6 ${
                     studentReadingSurface === 'ivory'
                       ? 'edu-ivory-reading-card'
-                      : 'border border-slate-800 bg-[#0A0F1D]'
+                      : 'border border-slate-800 bg-[#0B0F19]'
                   }`}
                 >
                   {renderMarkdownFormattedBlock(
@@ -1591,7 +1591,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             ) : (
               <pre
                 tabIndex={0}
-                className="max-h-[420px] overflow-auto rounded-2xl border border-slate-800 bg-[#0A0F1D] p-5 font-mono text-xs leading-relaxed text-slate-200"
+                className="max-h-[420px] overflow-auto rounded-2xl border border-slate-800 bg-[#0B0F19] p-5 font-mono text-xs leading-relaxed text-slate-200"
               >
                 <code>
                   {mdDisplayMode === 'translated' && currentTranslatedMarkdown
@@ -1617,14 +1617,14 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 <h3 className="text-sm font-bold text-white">
                   {zoomedScreenshot.title}
                 </h3>
-                <p className="text-xs text-[#F97316]">
+                <p className="text-xs text-[#38BDF8]">
                   {zoomedScreenshot.modelUsed} · {zoomedScreenshot.createdAt}
                 </p>
               </div>
               <form method="dialog">
                 <button
                   type="submit"
-                  className="rounded-xl border border-slate-700 bg-[#0A0F1D] px-3 py-1.5 text-xs font-bold text-slate-300 hover:border-[#FF6B00] hover:text-white cursor-pointer"
+                  className="rounded-xl border border-slate-700 bg-[#0B0F19] px-3 py-1.5 text-xs font-bold text-slate-300 hover:border-[#0EA5E9] hover:text-white cursor-pointer"
                 >
                   Cerrar (Esc)
                 </button>
@@ -1635,7 +1635,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               alt={zoomedScreenshot.title}
               width={900}
               height={520}
-              className="w-full rounded-2xl border border-slate-800 object-contain max-h-[70vh] bg-[#0A0F1D]"
+              className="w-full rounded-2xl border border-slate-800 object-contain max-h-[70vh] bg-[#0B0F19]"
             />
           </div>
         )}

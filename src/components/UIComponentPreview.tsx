@@ -40,7 +40,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
   const [newItemShortcut, setNewItemShortcut] = useState('Ctrl+K');
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
-  const activeColors = uiSpec.accentColors || ['#FF6B00', '#FF8C00', '#10B981', '#121212'];
+  const activeColors = uiSpec.accentColors || ['#0EA5E9', '#0EA5E9', '#10B981', '#121212'];
 
   useEffect(() => {
     setOpenMenuId(uiSpec.items[0]?.id || null);
@@ -213,8 +213,8 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-800/90 pb-5">
         <div className="space-y-2">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-[#0F172A] text-[#FF6B00] orange-glow-sm flex items-center justify-center border border-[#FF6B00]/40 shrink-0">
-              <Zap className="w-6 h-6 text-[#FF6B00]" aria-hidden="true" />
+            <div className="w-12 h-12 rounded-2xl bg-[#0F172A] text-[#0EA5E9] cyan-glow-sm flex items-center justify-center border border-[#0EA5E9]/40 shrink-0">
+              <Zap className="w-6 h-6 text-[#0EA5E9]" aria-hidden="true" />
             </div>
             <div>
               <h1
@@ -225,9 +225,9 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
               </h1>
               <p className="text-sm text-slate-400">
                 Pasa el cursor sobre las tarjetas del catálogo para pulsar{' '}
-                <strong className="text-[#F97316]">Ver Demostración</strong> o{' '}
-                <strong className="text-[#F97316]">Mostrar Prompt y Rendimiento</strong> en{' '}
-                <code className="font-mono text-[#F97316]">{skill.filename}</code>.
+                <strong className="text-[#38BDF8]">Ver Demostración</strong> o{' '}
+                <strong className="text-[#38BDF8]">Mostrar Prompt y Rendimiento</strong> en{' '}
+                <code className="font-mono text-[#38BDF8]">{skill.filename}</code>.
               </p>
             </div>
           </div>
@@ -249,7 +249,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
               onClick={() => handleTypeChange(tab.id)}
               className={`px-3.5 py-1.5 text-xs rounded-xl font-bold transition duration-200 cursor-pointer ${
                 uiSpec.type === tab.id
-                  ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-xs'
+                  ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-xs'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
@@ -262,7 +262,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
       {/* Grid Showcase de 2 Columnas en Azul Noche y Naranja */}
       <div ref={previewContainerRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* TARJETA 1: Sandbox Interactivo Principal */}
-        <div className="rounded-3xl bg-[#0F172A] border border-[#FF6B00]/35 orange-glow overflow-hidden flex flex-col justify-between min-h-[380px]">
+        <div className="rounded-3xl bg-[#0F172A] border border-[#0EA5E9]/35 cyan-glow overflow-hidden flex flex-col justify-between min-h-[380px]">
           <div className="p-6 space-y-5 flex-1 flex flex-col justify-between">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -273,7 +273,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                   UI
                 </span>
                 <span className="text-xs font-bold text-slate-200">
-                  {uiSpec.styleLabel || 'Midnight Orange Sandbox'} · {uiSpec.type.toUpperCase()}
+                  {uiSpec.styleLabel || 'Cyber Dark Studio Sandbox'} · {uiSpec.type.toUpperCase()}
                 </span>
               </div>
 
@@ -287,7 +287,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                     />
                   ))}
                 </div>
-                <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#FF6B00]/20 text-[#F97316] border border-[#FF6B00]/40">
+                <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#0EA5E9]/20 text-[#38BDF8] border border-[#0EA5E9]/40">
                   Live Preview
                 </span>
               </div>
@@ -312,11 +312,11 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                     <div
                       role="menubar"
                       aria-label={uiSpec.title}
-                      className="inline-flex flex-wrap bg-[#0A0F1D] border border-slate-800 rounded-2xl p-1 shadow-xs"
+                      className="inline-flex flex-wrap bg-[#0B0F19] border border-slate-800 rounded-2xl p-1 shadow-xs"
                     >
                       {uiSpec.items.map((item) => {
                         const isOpen = openMenuId === item.id;
-                        const triggerId = `orange-menubar-trigger-${item.id}`;
+                        const triggerId = `cyan-menubar-trigger-${item.id}`;
                         return (
                           <div key={item.id} className="relative">
                             <button
@@ -340,7 +340,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                               <div
                                 {...({ focusgroup: 'menu nomemory' } as any)}
                                 aria-labelledby={triggerId}
-                                className="mt-2 w-60 bg-[#0A0F1D] border border-[#FF6B00]/40 rounded-2xl shadow-2xl p-1.5 z-20 space-y-0.5"
+                                className="mt-2 w-60 bg-[#0B0F19] border border-[#0EA5E9]/40 rounded-2xl shadow-2xl p-1.5 z-20 space-y-0.5"
                               >
                                 {(item.children && item.children.length > 0
                                   ? item.children
@@ -361,12 +361,12 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                                     onClick={() =>
                                       setLastTriggeredAction(`${item.label} → ${sub.label}`)
                                     }
-                                    className="w-full px-3 py-2 text-xs text-left text-slate-200 hover:bg-[#FF6B00]/20 hover:text-white rounded-xl transition cursor-pointer"
+                                    className="w-full px-3 py-2 text-xs text-left text-slate-200 hover:bg-[#0EA5E9]/20 hover:text-white rounded-xl transition cursor-pointer"
                                   >
                                     <span>{sub.label}</span>
                                     {sub.shortcut && (
                                       <span
-                                        className="hint text-[10px] font-mono text-[#F97316]"
+                                        className="hint text-[10px] font-mono text-[#38BDF8]"
                                         aria-hidden="true"
                                       >
                                         {sub.shortcut}
@@ -386,7 +386,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                 {uiSpec.type === 'dropdown' && (
                   <div className="relative w-full">
                     <button
-                      id="dropdown-orange-trigger"
+                      id="dropdown-studio-trigger"
                       type="button"
                       aria-haspopup="menu"
                       aria-expanded={openMenuId === 'dropdown-open'}
@@ -403,8 +403,8 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
 
                     <div
                       {...({ focusgroup: 'menu nomemory' } as any)}
-                      aria-labelledby="dropdown-orange-trigger"
-                      className="mt-2 w-full bg-[#0A0F1D] border border-[#FF6B00]/40 rounded-2xl shadow-lg p-1.5 space-y-0.5"
+                      aria-labelledby="dropdown-studio-trigger"
+                      className="mt-2 w-full bg-[#0B0F19] border border-[#0EA5E9]/40 rounded-2xl shadow-lg p-1.5 space-y-0.5"
                     >
                       {uiSpec.items.map((item) => (
                         <button
@@ -413,11 +413,11 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                           role={item.checked !== undefined ? 'menuitemcheckbox' : undefined}
                           aria-checked={item.checked}
                           onClick={() => setLastTriggeredAction(`Dropdown: ${item.label}`)}
-                          className="w-full px-3 py-2 text-xs text-slate-200 hover:bg-[#FF6B00]/20 rounded-xl transition cursor-pointer"
+                          className="w-full px-3 py-2 text-xs text-slate-200 hover:bg-[#0EA5E9]/20 rounded-xl transition cursor-pointer"
                         >
                           <span>{item.label}</span>
                           <span
-                            className="hint text-[10px] font-mono text-[#F97316]"
+                            className="hint text-[10px] font-mono text-[#38BDF8]"
                             aria-hidden="true"
                           >
                             {item.shortcut || '↵'}
@@ -429,13 +429,13 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                 )}
 
                 {uiSpec.type === 'toolbar' && (
-                  <div className="flex flex-wrap items-center gap-2 bg-[#0A0F1D] border border-slate-800 p-2.5 rounded-2xl w-full">
+                  <div className="flex flex-wrap items-center gap-2 bg-[#0B0F19] border border-slate-800 p-2.5 rounded-2xl w-full">
                     {uiSpec.items.map((item) => (
                       <button
                         key={item.id}
                         type="button"
                         onClick={() => setLastTriggeredAction(`Toolbar: ${item.label}`)}
-                        className="px-3 py-2 bg-[#0F172A] hover:bg-[#FF6B00] text-slate-200 hover:text-black border border-slate-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition duration-200 cursor-pointer"
+                        className="px-3 py-2 bg-[#0F172A] hover:bg-[#0EA5E9] text-slate-200 hover:text-black border border-slate-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition duration-200 cursor-pointer"
                       >
                         <Terminal className="w-3.5 h-3.5" aria-hidden="true" />
                         <span>{item.label}</span>
@@ -445,9 +445,9 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                 )}
 
                 {uiSpec.type === 'command-palette' && (
-                  <div className="w-full bg-[#0A0F1D] border border-[#FF6B00]/40 rounded-2xl overflow-hidden shadow-md">
-                    <div className="px-3.5 py-2 bg-[#0F172A] border-b border-slate-800 flex items-center gap-2 text-xs font-bold text-[#F97316]">
-                      <Command className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+                  <div className="w-full bg-[#0B0F19] border border-[#0EA5E9]/40 rounded-2xl overflow-hidden shadow-md">
+                    <div className="px-3.5 py-2 bg-[#0F172A] border-b border-slate-800 flex items-center gap-2 text-xs font-bold text-[#38BDF8]">
+                      <Command className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
                       <span>{uiSpec.title}</span>
                     </div>
                     <div className="p-1.5 space-y-1">
@@ -456,13 +456,13 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                           key={item.id}
                           type="button"
                           onClick={() => setLastTriggeredAction(`Paleta: ${item.label}`)}
-                          className="w-full px-3 py-2 text-xs text-slate-200 hover:bg-[#FF6B00]/20 rounded-xl flex items-center justify-between transition cursor-pointer"
+                          className="w-full px-3 py-2 text-xs text-slate-200 hover:bg-[#0EA5E9]/20 rounded-xl flex items-center justify-between transition cursor-pointer"
                         >
                           <span className="flex items-center gap-1.5 font-medium">
-                            <ChevronRight className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+                            <ChevronRight className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
                             {item.label}
                           </span>
-                          <span className="text-[10px] font-mono text-[#F97316]" aria-hidden="true">
+                          <span className="text-[10px] font-mono text-[#38BDF8]" aria-hidden="true">
                             {item.shortcut || 'Ctrl+P'}
                           </span>
                         </button>
@@ -474,14 +474,14 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-4 border-t border-slate-800 text-[11px] font-bold bg-[#0A0F1D]">
-            <div className="text-[#FF6B00] px-3 py-2.5 text-center truncate border-r border-slate-800">
+          <div className="grid grid-cols-4 border-t border-slate-800 text-[11px] font-bold bg-[#0B0F19]">
+            <div className="text-[#0EA5E9] px-3 py-2.5 text-center truncate border-r border-slate-800">
               MENUBAR UI
             </div>
-            <div className="text-[#F97316] px-3 py-2.5 text-center truncate border-r border-slate-800">
+            <div className="text-[#38BDF8] px-3 py-2.5 text-center truncate border-r border-slate-800">
               DROPDOWN
             </div>
-            <div className="text-amber-300 px-3 py-2.5 text-center truncate border-r border-slate-800">
+            <div className="text-sky-300 px-3 py-2.5 text-center truncate border-r border-slate-800">
               ARIA READY
             </div>
             <div className="text-emerald-400 px-3 py-2.5 text-center truncate">
@@ -493,8 +493,8 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
         {/* TARJETA 2: Constructor en Vivo */}
         <div className="rounded-3xl bg-[#0F172A] border border-slate-800 text-white p-6 shadow-xl flex flex-col justify-between min-h-[380px] relative overflow-hidden">
           <div className="space-y-2 text-center max-w-md mx-auto my-auto py-2">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#F97316] bg-[#FF6B00]/15 border border-[#FF6B00]/30 px-3 py-1 rounded-full">
-              <Layers className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#38BDF8] bg-[#0EA5E9]/15 border border-[#0EA5E9]/30 px-3 py-1 rounded-full">
+              <Layers className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
               Constructor de Complementos UI
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
@@ -502,12 +502,12 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
             </h2>
             <p className="text-xs text-slate-400">
               Evento activo:{' '}
-              <strong className="text-[#F97316] font-mono">{lastTriggeredAction}</strong>
+              <strong className="text-[#38BDF8] font-mono">{lastTriggeredAction}</strong>
             </p>
           </div>
 
           <form onSubmit={handleAddMenuItem} className="space-y-3 z-10">
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-[#0A0F1D] border border-slate-800 p-1.5 rounded-2xl">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-[#0B0F19] border border-slate-800 p-1.5 rounded-2xl">
               <label htmlFor="new-menu-item-input" className="sr-only">
                 Nombre del nuevo comando o menú
               </label>
@@ -528,11 +528,11 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                 value={newItemShortcut}
                 onChange={(e) => setNewItemShortcut(e.target.value)}
                 placeholder="Ctrl+K"
-                className="w-20 bg-[#0F172A] border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-mono text-[#F97316]"
+                className="w-20 bg-[#0F172A] border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-mono text-[#38BDF8]"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer shrink-0"
+                className="px-4 py-2 bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Añadir al Menú</span>
@@ -544,7 +544,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                 {uiSpec.items.map((item) => (
                   <span
                     key={item.id}
-                    className="inline-flex items-center gap-1.5 text-[11px] bg-[#0A0F1D] border border-slate-800 text-slate-300 px-2.5 py-1 rounded-full"
+                    className="inline-flex items-center gap-1.5 text-[11px] bg-[#0B0F19] border border-slate-800 text-slate-300 px-2.5 py-1 rounded-full"
                   >
                     <span>{item.label}</span>
                     {uiSpec.items.length > 1 && (
@@ -564,9 +564,9 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
               <button
                 type="button"
                 onClick={handleSyncFromMarkdown}
-                className="px-3 py-1.5 rounded-full bg-[#0A0F1D] hover:bg-slate-800 border border-[#FF6B00]/40 text-xs font-bold text-[#F97316] flex items-center gap-1.5 transition cursor-pointer"
+                className="px-3 py-1.5 rounded-full bg-[#0B0F19] hover:bg-slate-800 border border-[#0EA5E9]/40 text-xs font-bold text-[#38BDF8] flex items-center gap-1.5 transition cursor-pointer"
               >
-                <Wand2 className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+                <Wand2 className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
                 <span>Generar desde .md</span>
               </button>
             </div>

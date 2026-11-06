@@ -162,8 +162,8 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
       {/* Cabecera de la Galería del Sistema y Capturas del Núcleo */}
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-800/90 pb-5">
         <div className="space-y-2">
-          <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#F97316]">
-            <Sparkles className="w-3.5 h-3.5 text-[#FF6B00]" aria-hidden="true" />
+          <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#38BDF8]">
+            <Sparkles className="w-3.5 h-3.5 text-[#0EA5E9]" aria-hidden="true" />
             GALERÍA DEL SISTEMA · CAPTURAS DEL NÚCLEO UI/UX
           </span>
           <h1
@@ -181,15 +181,15 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
       {/* Galería Showcase de 2 Columnas en Azul Noche y Naranja */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Columna A: Subida y Previsualización Flotante de Capturas del Núcleo */}
-        <div className="rounded-3xl bg-[#0F172A] border border-[#FF6B00]/35 p-5 sm:p-6 orange-glow flex flex-col gap-5">
+        <div className="rounded-3xl bg-[#0F172A] border border-[#0EA5E9]/35 p-5 sm:p-6 cyan-glow flex flex-col gap-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-base font-extrabold text-white flex items-center gap-2">
-              <ImageIcon className="w-5 h-5 text-[#FF6B00]" aria-hidden="true" />
+              <ImageIcon className="w-5 h-5 text-[#0EA5E9]" aria-hidden="true" />
               Capturas del Núcleo (Galería Visual UI/UX)
             </h2>
             <span className="text-[11px] font-medium text-slate-400">
               Arrastra imagen o pega con{' '}
-              <kbd className="px-1.5 py-0.5 bg-[#0A0F1D] border border-[#FF6B00]/40 rounded text-[#F97316] font-mono">
+              <kbd className="px-1.5 py-0.5 bg-[#0B0F19] border border-[#0EA5E9]/40 rounded text-[#38BDF8] font-mono">
                 Ctrl+V
               </kbd>
             </span>
@@ -204,8 +204,8 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-2xl p-4 transition flex flex-wrap items-center gap-2.5 ${
               isDraggingOver
-                ? 'border-[#FF6B00] bg-[#FF6B00]/10 orange-glow-sm'
-                : 'border-zinc-800 bg-[#0B0B0B]/90 hover:border-[#FF6B00]/60'
+                ? 'border-[#0EA5E9] bg-[#0EA5E9]/10 cyan-glow-sm'
+                : 'border-zinc-800 bg-[#0B0B0B]/90 hover:border-[#0EA5E9]/60'
             }`}
           >
             <label htmlFor="screenshot-title-input" className="sr-only">
@@ -217,7 +217,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
               value={screenshotTitle}
               onChange={(e) => setScreenshotTitle(e.target.value)}
               placeholder="Etiqueta de la captura (ej. Ejecución en Gemini Ultra)..."
-              className="flex-1 min-w-[180px] h-10 bg-[#121212] border border-zinc-800 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-[#FF6B00]"
+              className="flex-1 min-w-[180px] h-10 bg-[#121212] border border-zinc-800 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-[#0EA5E9]"
             />
             <input
               ref={fileInputRef}
@@ -229,7 +229,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="h-10 px-4 bg-gradient-to-r from-[#FF6B00] to-[#FF8C00] text-black rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer shrink-0"
+              className="h-10 px-4 bg-gradient-to-r from-[#0EA5E9] to-[#0EA5E9] text-black rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer shrink-0"
             >
               <UploadCloud className="w-4 h-4" aria-hidden="true" />
               <span>Subir Pantallazo</span>
@@ -241,7 +241,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
             {skill.screenshots.map((shot) => (
               <figure
                 key={shot.id}
-                className="bg-[#0B0B0B] border border-zinc-800 hover:border-[#FF6B00] rounded-2xl overflow-hidden flex flex-col group transition duration-200 hover:-translate-y-1 orange-glow-sm"
+                className="bg-[#0B0B0B] border border-zinc-800 hover:border-[#0EA5E9] rounded-2xl overflow-hidden flex flex-col group transition duration-200 hover:-translate-y-1 cyan-glow-sm"
               >
                 <div className="relative overflow-hidden bg-zinc-950">
                   <img
@@ -259,7 +259,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
                       onClick={() => openModalPreview(shot)}
                       aria-label={`Hacer zoom en captura ${shot.title}`}
                       title="Zoom a pantalla completa"
-                      className="p-2 rounded-xl bg-[#0B0B0B]/90 border border-[#FF6B00]/50 text-[#FF8C00] hover:bg-[#FF6B00] hover:text-black transition cursor-pointer"
+                      className="p-2 rounded-xl bg-[#0B0B0B]/90 border border-[#0EA5E9]/50 text-[#0EA5E9] hover:bg-[#0EA5E9] hover:text-black transition cursor-pointer"
                     >
                       <Maximize2 className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
@@ -284,7 +284,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
                 <figcaption className="p-3 text-xs flex items-center justify-between gap-2 bg-[#121212] border-t border-zinc-800/80">
                   <div className="min-w-0">
                     <div className="font-bold text-white truncate">{shot.title}</div>
-                    <div className="text-[11px] font-mono text-[#FF8C00]">
+                    <div className="text-[11px] font-mono text-[#0EA5E9]">
                       {shot.modelUsed} · {shot.createdAt}
                     </div>
                   </div>
@@ -298,10 +298,10 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
         <div className="rounded-3xl bg-[#121212] border border-zinc-800 p-5 sm:p-6 shadow-xl flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-extrabold text-white flex items-center gap-2">
-              <Code className="w-5 h-5 text-[#FF8C00]" aria-hidden="true" />
+              <Code className="w-5 h-5 text-[#0EA5E9]" aria-hidden="true" />
               Fragmentos de Código Implementados
             </h2>
-            <span className="text-[11px] font-mono text-[#FF8C00]">
+            <span className="text-[11px] font-mono text-[#0EA5E9]">
               {skill.codeSnippets.length} guardados
             </span>
           </div>
@@ -329,7 +329,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
                 id="snippet-lang-select"
                 value={snippetLang}
                 onChange={(e) => setSnippetLang(e.target.value)}
-                className="h-9 bg-[#121212] border border-zinc-800 rounded-xl px-3 text-xs font-mono font-bold text-[#FF8C00] cursor-pointer"
+                className="h-9 bg-[#121212] border border-zinc-800 rounded-xl px-3 text-xs font-mono font-bold text-[#0EA5E9] cursor-pointer"
               >
                 <option value="tsx">TSX / React</option>
                 <option value="typescript">TypeScript</option>
@@ -348,13 +348,13 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
               value={snippetCode}
               onChange={(e) => setSnippetCode(e.target.value)}
               placeholder="Pega aquí el fragmento de código que la IA está implementando o ejecutando..."
-              className="w-full bg-[#121212] border border-zinc-800 rounded-xl p-2.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-[#FF6B00]"
+              className="w-full bg-[#121212] border border-zinc-800 rounded-xl p-2.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-[#0EA5E9]"
             />
 
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="h-9 px-4 bg-gradient-to-r from-[#FF6B00] to-[#FF8C00] text-black rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer"
+                className="h-9 px-4 bg-gradient-to-r from-[#0EA5E9] to-[#0EA5E9] text-black rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Adjuntar Código</span>
@@ -371,7 +371,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
                 <figcaption className="text-xs font-semibold text-zinc-200 mb-2 flex items-center justify-between gap-2">
                   <span className="flex items-center gap-2 truncate">
                     <span className="truncate">{snip.title}</span>
-                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-[#FF6B00]/15 text-[#FF8C00] border border-[#FF6B00]/30">
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-[#0EA5E9]/15 text-[#0EA5E9] border border-[#0EA5E9]/30">
                       {snip.language}
                     </span>
                   </span>
@@ -423,7 +423,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
       {/* Registro Rápido de Modelos Asociados a esta Skill */}
       <div className="rounded-3xl bg-[#121212] border border-zinc-800 p-5 sm:p-6 space-y-4">
         <h2 className="text-base font-extrabold text-white flex items-center gap-2">
-          <Cpu className="w-5 h-5 text-[#FF6B00]" aria-hidden="true" />
+          <Cpu className="w-5 h-5 text-[#0EA5E9]" aria-hidden="true" />
           Bitácora de Modelos IA Probados con {skill.filename}
         </h2>
 
@@ -479,7 +479,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
           <div className="md:col-span-2">
             <button
               type="submit"
-              className="w-full h-10 bg-gradient-to-r from-[#FF6B00] to-[#FF8C00] text-black rounded-xl px-4 text-xs font-extrabold flex items-center justify-center gap-1.5 transition cursor-pointer"
+              className="w-full h-10 bg-gradient-to-r from-[#0EA5E9] to-[#0EA5E9] text-black rounded-xl px-4 text-xs font-extrabold flex items-center justify-center gap-1.5 transition cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Registrar</span>
@@ -496,7 +496,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <strong className="text-xs font-bold text-white">{m.modelName}</strong>
-                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#FF6B00]/15 text-[#FF8C00] border border-[#FF6B00]/40">
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#0EA5E9]/15 text-[#0EA5E9] border border-[#0EA5E9]/40">
                     {m.status === 'optimal' ? 'ULTRA / ÓPTIMO' : 'COMPATIBLE'}
                   </span>
                 </div>
@@ -524,21 +524,21 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
       <dialog
         ref={dialogRef}
         {...({ closedby: 'any' } as any)}
-        className="backdrop:bg-black/85 bg-[#121212] border border-[#FF6B00]/50 text-white rounded-3xl p-5 max-w-3xl w-full orange-glow m-auto"
+        className="backdrop:bg-black/85 bg-[#121212] border border-[#0EA5E9]/50 text-white rounded-3xl p-5 max-w-3xl w-full cyan-glow m-auto"
       >
         {selectedScreenshot && (
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <div>
                 <h3 className="text-base font-extrabold text-white">{selectedScreenshot.title}</h3>
-                <p className="text-xs text-[#FF8C00] font-mono">
+                <p className="text-xs text-[#0EA5E9] font-mono">
                   Modelo asociado: {selectedScreenshot.modelUsed} · {selectedScreenshot.createdAt}
                 </p>
               </div>
               <form method="dialog">
                 <button
                   value="close"
-                  className="px-4 py-1.5 text-xs font-extrabold bg-[#FF6B00] text-black rounded-full cursor-pointer"
+                  className="px-4 py-1.5 text-xs font-extrabold bg-[#0EA5E9] text-black rounded-full cursor-pointer"
                 >
                   Cerrar Zoom (Esc)
                 </button>

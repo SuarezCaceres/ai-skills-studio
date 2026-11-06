@@ -8,7 +8,7 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     family: 'Claude Opus',
     provider: 'Anthropic',
     tier: 'Cortex Supremo',
-    badgeColor: '#FF6B00',
+    badgeColor: '#0EA5E9',
     speedTokensPerSec: 112,
     latencyMs: 420,
     contextWindow: '500,000 Tokens',
@@ -39,7 +39,7 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     family: 'Claude Opus',
     provider: 'Anthropic',
     tier: 'Ultra',
-    badgeColor: '#F97316',
+    badgeColor: '#38BDF8',
     speedTokensPerSec: 96,
     latencyMs: 490,
     contextWindow: '300,000 Tokens',
@@ -70,7 +70,7 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     family: 'Gemini',
     provider: 'Google DeepMind',
     tier: 'Ultra / Máximo',
-    badgeColor: '#FF6B00',
+    badgeColor: '#0EA5E9',
     speedTokensPerSec: 178,
     latencyMs: 260,
     contextWindow: '2,000,000 Tokens',
@@ -82,7 +82,7 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     summary:
       'Motor multimodal nativo de última generación con ventana de 2M de tokens, velocidad líder y síntesis visual de alto dinamismo cromático.',
     visualImpactNotes:
-      'Genera atmósferas inmersivas con mallas neuronales SVG, degradados dinámicos en naranja vibrante (#FF6B00) y respuesta instantánea a 60fps.',
+      'Genera atmósferas inmersivas con mallas neuronales SVG, degradados dinámicos en naranja vibrante (#0EA5E9) y respuesta instantánea a 60fps.',
     strengths: [
       'Ventana de contexto masiva de 2M tokens para inspeccionar paquetes .RAR enteros',
       'Velocidad de inferencia ultrarrápida (178 tok/s) con latencia mínima',
@@ -132,7 +132,7 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     family: 'Claude Sonnet',
     provider: 'Anthropic',
     tier: 'Máximo / Alto',
-    badgeColor: '#F97316',
+    badgeColor: '#38BDF8',
     speedTokensPerSec: 145,
     latencyMs: 340,
     contextWindow: '400,000 Tokens',
@@ -224,7 +224,7 @@ export const INITIAL_VISUAL_FEEDBACK_REVIEWS: VisualFeedbackReview[] = [
   {
     id: 'rev-1',
     modelVersion: 'Opus 5.5',
-    presetName: 'Cyber Orange Menubar',
+    presetName: 'Cyber Dark Menubar',
     authorName: 'Sergio Suarez',
     authorRole: 'Modo Colaborador',
     rating: 5,

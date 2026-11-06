@@ -58,7 +58,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
       'Arquitecturas modulares con Signals, Standalone Components y rutas reactivas de uso diario en el estudio.',
     ctaLabel: 'Explorar en Skills',
     filterTag: 'angular',
-    accentColor: '#FF6B00',
+    accentColor: '#0EA5E9',
     secondaryColor: '#F43F5E',
     metrics: '42 Skills & Plantillas',
     previewCards: [
@@ -67,7 +67,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'Estado reactivo limpio',
         badge: 'Opus 5.5',
         aiBrand: 'Claude',
-        accent: '#FF6B00',
+        accent: '#0EA5E9',
       },
       {
         title: 'Panel Enterprise UI',
@@ -81,7 +81,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'Guía paso a paso',
         badge: 'Gemini 3.8',
         aiBrand: 'Gemini',
-        accent: '#F97316',
+        accent: '#38BDF8',
       },
     ],
     iconSvg: <AngularBrandIcon className="h-7 w-7" />,
@@ -96,7 +96,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
     ctaLabel: 'Explorar en Skills',
     filterTag: 'spring',
     accentColor: '#10B981',
-    secondaryColor: '#FF6B00',
+    secondaryColor: '#0EA5E9',
     metrics: '38 Arquitecturas Backend',
     previewCards: [
       {
@@ -111,7 +111,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'WebFlux + Streaming',
         badge: 'Gemini 3.8',
         aiBrand: 'Gemini',
-        accent: '#FF6B00',
+        accent: '#0EA5E9',
       },
       {
         title: 'Validador .RAR Core',
@@ -129,16 +129,16 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
     category: 'frecuentes',
     categoryBadge: 'Más Frecuente',
     description:
-      'Sistemas de diseño en Azul Noche (#0A0F1D) y Naranja Vibrante (#FF6B00) con efectos de cristal y mallas SVG.',
+      'Sistemas de diseño en Azul Noche (#0A0F1D) y Naranja Vibrante (#0EA5E9) con efectos de cristal y mallas SVG.',
     ctaLabel: 'Explorar en Skills',
     filterTag: 'ui-ux-pro-max',
     accentColor: '#38BDF8',
-    secondaryColor: '#FF6B00',
+    secondaryColor: '#0EA5E9',
     metrics: '64 Componentes UI/UX',
     previewCards: [
       {
         title: 'Azul Noche + Naranja',
-        subtitle: 'Tokens #0A0F1D / #FF6B00',
+        subtitle: 'Tokens #0A0F1D / #0EA5E9',
         badge: 'Sonnet 5.5',
         aiBrand: 'Claude',
         accent: '#38BDF8',
@@ -148,7 +148,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'Partículas flotantes',
         badge: 'GPT Luna',
         aiBrand: 'GPT',
-        accent: '#FF6B00',
+        accent: '#0EA5E9',
       },
       {
         title: 'Modales <dialog>',
@@ -169,7 +169,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
       'Contratos fuertemente tipados, analizadores de árboles de archivos .RAR y automatización de agentes CLI.',
     ctaLabel: 'Explorar en Skills',
     filterTag: 'typescript',
-    accentColor: '#F97316',
+    accentColor: '#38BDF8',
     secondaryColor: '#38BDF8',
     metrics: '51 Módulos Tipados',
     previewCards: [
@@ -178,7 +178,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: '100% TypeScript estricto',
         badge: 'Gemini 3.8',
         aiBrand: 'Gemini',
-        accent: '#F97316',
+        accent: '#38BDF8',
       },
       {
         title: 'Voice Speech Engine',
@@ -206,7 +206,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
       'Interfaces reactivas de última generación con Server Actions, transiciones de vista y renderizado concurrente.',
     ctaLabel: 'Explorar en Skills',
     filterTag: 'react',
-    accentColor: '#FF6B00',
+    accentColor: '#0EA5E9',
     secondaryColor: '#38BDF8',
     metrics: '78 Plantillas Activas',
     previewCards: [
@@ -215,7 +215,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'Hooks + Custom Modals',
         badge: 'Sonnet 5.5',
         aiBrand: 'Claude',
-        accent: '#FF6B00',
+        accent: '#0EA5E9',
       },
       {
         title: 'Streaming AI Chat',
@@ -243,7 +243,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
       'Portales de documentación ultrarrápidos con arquitectura de islas interactivas y cero JavaScript innecesario.',
     ctaLabel: 'Explorar en Skills',
     filterTag: 'guia',
-    accentColor: '#F97316',
+    accentColor: '#38BDF8',
     secondaryColor: '#A855F7',
     metrics: '29 Guías Interactivas',
     previewCards: [
@@ -252,7 +252,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: '100/100 Lighthouse',
         badge: 'Gemini 3.7',
         aiBrand: 'Gemini',
-        accent: '#F97316',
+        accent: '#38BDF8',
       },
       {
         title: 'Islas Interactivas',
@@ -266,7 +266,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'Traducción 1-Clic',
         badge: 'Gemini 3.8',
         aiBrand: 'Gemini',
-        accent: '#FF6B00',
+        accent: '#0EA5E9',
       },
     ],
     iconSvg: <AstroBrandIcon className="h-7 w-7" />,
@@ -303,7 +303,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'Validación automática',
         badge: 'Gemini 3.8',
         aiBrand: 'Gemini',
-        accent: '#FF6B00',
+        accent: '#0EA5E9',
       },
     ],
     iconSvg: <PythonBrandIcon className="h-7 w-7" />,
@@ -318,11 +318,11 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
     ctaLabel: 'Explorar en Skills',
     filterTag: 'ui',
     accentColor: '#A855F7',
-    secondaryColor: '#FF6B00',
+    secondaryColor: '#0EA5E9',
     metrics: '55 Kits de Interfaz',
     previewCards: [
       {
-        title: 'Kit AI Orange Dark',
+        title: 'Kit AI Cyber Dark',
         subtitle: 'Variables cromáticas',
         badge: 'GPT Luna',
         aiBrand: 'GPT',
@@ -333,14 +333,14 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'Demo + Prompt Modal',
         badge: 'Sonnet 5.5',
         aiBrand: 'Claude',
-        accent: '#FF6B00',
+        accent: '#0EA5E9',
       },
       {
         title: 'Mockups Ingeniería',
         subtitle: 'Haces de Luz + Dock',
         badge: 'Opus 5.5',
         aiBrand: 'Claude',
-        accent: '#F97316',
+        accent: '#38BDF8',
       },
     ],
     iconSvg: <FigmaBrandIcon className="h-7 w-7" />,

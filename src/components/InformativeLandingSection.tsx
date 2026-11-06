@@ -204,18 +204,18 @@ export const InformativeLandingSection: React.FC<
          ==================================================================== */}
       <section
         aria-labelledby="purpose-why-heading"
-        className="content-visibility-auto rounded-3xl border border-slate-800/90 bg-gradient-to-b from-[#0F172A]/95 to-[#0A0F1D] p-6 sm:p-10 shadow-xl space-y-8"
+        className="content-visibility-auto rounded-3xl border border-slate-800/90 bg-gradient-to-b from-[#0F172A]/95 to-[#0B0F19] p-6 sm:p-10 shadow-xl space-y-8"
       >
         <div className="max-w-3xl mx-auto text-center space-y-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF6B00]/35 bg-[#FF6B00]/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#F97316]">
-            <Sparkles className="h-3.5 w-3.5 text-[#FF6B00]" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0EA5E9]/35 bg-[#0EA5E9]/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#38BDF8]">
+            <Sparkles className="h-3.5 w-3.5 text-[#0EA5E9]" />
             Propósito y Utilidad de la Web
           </span>
           <h2
             id="purpose-why-heading"
             className="text-2xl sm:text-4xl font-black tracking-tight text-white"
           >
-            ¿Para qué y por qué sirve Códice Orange?
+            ¿Para qué y por qué sirve Códice Studio?
           </h2>
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
             Esta aplicación web fue creada para resolver la desconexión entre los{' '}
@@ -227,8 +227,8 @@ export const InformativeLandingSection: React.FC<
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Razón 1 */}
-          <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D]/90 p-6 space-y-3 hover:border-[#FF6B00]/50 transition">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FF6B00]/15 border border-[#FF6B00]/40 text-[#FF6B00]">
+          <div className="rounded-2xl border border-slate-800 bg-[#0B0F19]/90 p-6 space-y-3 hover:border-[#0EA5E9]/50 transition">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 text-[#0EA5E9]">
               <FolderArchive className="h-5 w-5" />
             </div>
             <h3 className="text-lg font-extrabold text-white">
@@ -236,12 +236,12 @@ export const InformativeLandingSection: React.FC<
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               Normalmente, para revisar un proyecto comprimido hay que descargarlo, extraerlo y abrir un editor local. Aquí puedes{' '}
-              <strong className="text-white">arrastrar cualquier archivo .rar</strong> para ver al instante sus capturas visuales, explorar su árbol de archivos, leer su código fuente y traducir su documentación <code className="text-[#F97316]">.md</code> al español en 1 clic.
+              <strong className="text-white">arrastrar cualquier archivo .rar</strong> para ver al instante sus capturas visuales, explorar su árbol de archivos, leer su código fuente y traducir su documentación <code className="text-[#38BDF8]">.md</code> al español en 1 clic.
             </p>
           </div>
 
           {/* Razón 2 */}
-          <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D]/90 p-6 space-y-3 hover:border-[#FF6B00]/50 transition">
+          <div className="rounded-2xl border border-slate-800 bg-[#0B0F19]/90 p-6 space-y-3 hover:border-[#0EA5E9]/50 transition">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 border border-sky-400/40 text-sky-400">
               <Palette className="h-5 w-5" />
             </div>
@@ -256,7 +256,7 @@ export const InformativeLandingSection: React.FC<
           </div>
 
           {/* Razón 3 */}
-          <div className="rounded-2xl border border-slate-800 bg-[#0A0F1D]/90 p-6 space-y-3 hover:border-[#FF6B00]/50 transition">
+          <div className="rounded-2xl border border-slate-800 bg-[#0B0F19]/90 p-6 space-y-3 hover:border-[#0EA5E9]/50 transition">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-400">
               <Cpu className="h-5 w-5" />
             </div>
@@ -299,13 +299,13 @@ export const InformativeLandingSection: React.FC<
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Herramienta 1: Visor de Proyectos .RAR */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0A0F1D] p-6 flex flex-col justify-between space-y-5 hover:border-[#FF6B00]/60 transition shadow-lg">
+          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF6B00]/15 border border-[#FF6B00]/40 text-[#FF6B00]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 text-[#0EA5E9]">
                   <FolderArchive className="h-6 w-6" />
                 </div>
-                <span className="rounded-full border border-[#FF6B00]/35 bg-[#FF6B00]/10 px-3 py-1 font-mono text-[10px] font-extrabold text-[#F97316]">
+                <span className="rounded-full border border-[#0EA5E9]/35 bg-[#0EA5E9]/10 px-3 py-1 font-mono text-[10px] font-extrabold text-[#38BDF8]">
                   Sección: Proyectos .RAR
                 </span>
               </div>
@@ -330,7 +330,7 @@ export const InformativeLandingSection: React.FC<
             <button
               type="button"
               onClick={() => onNavigatePage('estudio')}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] px-4 py-2.5 text-xs font-extrabold text-black shadow-md hover:brightness-110 transition cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] px-4 py-2.5 text-xs font-extrabold text-black shadow-md hover:brightness-110 transition cursor-pointer"
             >
               <span>Ir a Proyectos .RAR</span>
               <ArrowRight className="h-4 w-4" />
@@ -338,7 +338,7 @@ export const InformativeLandingSection: React.FC<
           </article>
 
           {/* Herramienta 2: Catálogo de Componentes UI/UX y Prompts */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0A0F1D] p-6 flex flex-col justify-between space-y-5 hover:border-[#FF6B00]/60 transition shadow-lg">
+          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/15 border border-sky-400/40 text-sky-400">
@@ -356,7 +356,7 @@ export const InformativeLandingSection: React.FC<
               </p>
               <ul className="space-y-1.5 text-xs text-slate-400 pt-1">
                 <li className="flex items-center gap-2">
-                  <Mic className="h-3.5 w-3.5 text-[#FF6B00] shrink-0" />
+                  <Mic className="h-3.5 w-3.5 text-[#0EA5E9] shrink-0" />
                   <span>Evaluación de impacto visual con dictado por voz (ES)</span>
                 </li>
                 <li className="flex items-center gap-2">
@@ -369,7 +369,7 @@ export const InformativeLandingSection: React.FC<
             <button
               type="button"
               onClick={() => onNavigatePage('preview')}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#FF6B00] hover:text-black hover:border-[#FF6B00] px-4 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] px-4 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
             >
               <span>Ir a Catálogo UI/UX</span>
               <ArrowRight className="h-4 w-4" />
@@ -377,7 +377,7 @@ export const InformativeLandingSection: React.FC<
           </article>
 
           {/* Herramienta 3: Repositorio de Skills (.MD) */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0A0F1D] p-6 flex flex-col justify-between space-y-5 hover:border-[#FF6B00]/60 transition shadow-lg">
+          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/15 border border-purple-400/40 text-purple-300">
@@ -391,7 +391,7 @@ export const InformativeLandingSection: React.FC<
                 Gestor y Biblioteca de Skills (.MD)
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Repositorio organizado de documentos <code className="text-[#F97316]">SKILL.md</code> y guías técnicas que definen cómo debe programar y diseñar cada agente de IA según el framework.
+                Repositorio organizado de documentos <code className="text-[#38BDF8]">SKILL.md</code> y guías técnicas que definen cómo debe programar y diseñar cada agente de IA según el framework.
               </p>
               <ul className="space-y-1.5 text-xs text-slate-400 pt-1">
                 <li className="flex items-center gap-2">
@@ -408,7 +408,7 @@ export const InformativeLandingSection: React.FC<
             <button
               type="button"
               onClick={() => onNavigatePage('boveda')}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#FF6B00] hover:text-black hover:border-[#FF6B00] px-4 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] px-4 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
             >
               <span>Ir a Skills</span>
               <ArrowRight className="h-4 w-4" />
@@ -416,7 +416,7 @@ export const InformativeLandingSection: React.FC<
           </article>
 
           {/* Herramienta 4: Comparador de Modelos IA */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0A0F1D] p-6 flex flex-col justify-between space-y-5 hover:border-[#FF6B00]/60 transition shadow-lg md:col-span-1 lg:col-span-2">
+          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg md:col-span-1 lg:col-span-2">
             <div className="space-y-3">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-3">
@@ -448,7 +448,7 @@ export const InformativeLandingSection: React.FC<
                 {MODEL_VERSION_PILLS.map((m) => (
                   <span
                     key={m.version}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-[#0A0F1D] px-2.5 py-1 text-[11px] font-bold text-slate-200"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-[#0B0F19] px-2.5 py-1 text-[11px] font-bold text-slate-200"
                   >
                     <AIBrandBadgeIcon brand={m.brand} className="h-3.5 w-3.5" />
                     <span>{m.version}</span>
@@ -460,7 +460,7 @@ export const InformativeLandingSection: React.FC<
             <button
               type="button"
               onClick={() => onNavigatePage('modelos-ia')}
-              className="w-full sm:w-auto self-start inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#FF6B00] hover:text-black hover:border-[#FF6B00] px-5 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
+              className="w-full sm:w-auto self-start inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] px-5 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
             >
               <span>Ir a Modelos IA</span>
               <ArrowRight className="h-4 w-4" />
@@ -468,13 +468,13 @@ export const InformativeLandingSection: React.FC<
           </article>
 
           {/* Herramienta 5: Galería de Capturas */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0A0F1D] p-6 flex flex-col justify-between space-y-5 hover:border-[#FF6B00]/60 transition shadow-lg">
+          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-300">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/15 border border-sky-400/30 text-sky-300">
                   <ImageIcon className="h-6 w-6" />
                 </div>
-                <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-1 font-mono text-[10px] font-extrabold text-amber-300">
+                <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 font-mono text-[10px] font-extrabold text-sky-300">
                   Sección: Capturas
                 </span>
               </div>
@@ -489,7 +489,7 @@ export const InformativeLandingSection: React.FC<
             <button
               type="button"
               onClick={() => onNavigatePage('evidencias')}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#FF6B00] hover:text-black hover:border-[#FF6B00] px-4 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] px-4 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
             >
               <span>Ir a Capturas</span>
               <ArrowRight className="h-4 w-4" />
@@ -506,8 +506,8 @@ export const InformativeLandingSection: React.FC<
         className="content-visibility-auto space-y-8 pt-2"
       >
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF6B00]/35 bg-[#FF6B00]/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#F97316]">
-            <Code2 className="h-3.5 w-3.5 text-[#FF6B00]" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0EA5E9]/35 bg-[#0EA5E9]/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#38BDF8]">
+            <Code2 className="h-3.5 w-3.5 text-[#0EA5E9]" />
             Ecosistema de Frameworks Soportados
           </span>
           <h2
@@ -548,7 +548,7 @@ export const InformativeLandingSection: React.FC<
                   onClick={() => setCollectionTab(tab.id)}
                   className={`rounded-xl px-4 py-2 text-xs font-extrabold transition cursor-pointer ${
                     active
-                      ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-md'
+                      ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-md'
                       : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                   }`}
                 >
@@ -564,7 +564,7 @@ export const InformativeLandingSection: React.FC<
           {visibleCollections.map((col) => (
             <article
               key={col.id}
-              className="group relative rounded-3xl border border-slate-800/90 bg-gradient-to-b from-[#0F172A] via-[#0B1324] to-[#0A0F1D] p-6 flex flex-col justify-between overflow-hidden shadow-xl hover:border-[#FF6B00]/60 transition-all duration-300 min-h-[430px]"
+              className="group relative rounded-3xl border border-slate-800/90 bg-gradient-to-b from-[#0F172A] via-[#0B1324] to-[#0B0F19] p-6 flex flex-col justify-between overflow-hidden shadow-xl hover:border-[#0EA5E9]/60 transition-all duration-300 min-h-[430px]"
             >
               <div
                 aria-hidden="true"
@@ -575,7 +575,7 @@ export const InformativeLandingSection: React.FC<
               <div className="relative z-10 space-y-4">
                 <div className="flex items-center justify-between gap-2">
                   <div
-                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0A0F1D]/90 shadow-lg border border-white/15"
+                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0B0F19]/90 shadow-lg border border-white/15"
                     style={{
                       boxShadow: `0 8px 24px -4px ${col.accentColor}55`,
                     }}
@@ -586,7 +586,7 @@ export const InformativeLandingSection: React.FC<
                   <span
                     className={`rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider border ${
                       col.category === 'frecuentes'
-                        ? 'bg-[#FF6B00]/15 text-[#F97316] border-[#FF6B00]/40'
+                        ? 'bg-[#0EA5E9]/15 text-[#38BDF8] border-[#0EA5E9]/40'
                         : 'bg-sky-500/15 text-sky-300 border-sky-500/35'
                     }`}
                   >
@@ -611,7 +611,7 @@ export const InformativeLandingSection: React.FC<
                     }
                     onNavigatePage('boveda');
                   }}
-                  className="w-full py-2.5 px-4 rounded-xl border border-slate-700/90 bg-[#131C31]/90 hover:bg-[#FF6B00] hover:text-black hover:border-[#FF6B00] text-xs font-extrabold text-white transition duration-200 cursor-pointer shadow-sm"
+                  className="w-full py-2.5 px-4 rounded-xl border border-slate-700/90 bg-[#131C31]/90 hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] text-xs font-extrabold text-white transition duration-200 cursor-pointer shadow-sm"
                 >
                   {col.ctaLabel}
                 </button>
@@ -622,11 +622,11 @@ export const InformativeLandingSection: React.FC<
                   {col.previewCards.map((card, idx) => (
                     <div
                       key={card.title}
-                      className={`rounded-xl border border-slate-700/90 bg-[#0A0F1D] p-2.5 shadow-lg transition-transform duration-300 group-hover:-translate-y-1 ${
+                      className={`rounded-xl border border-slate-700/90 bg-[#0B0F19] p-2.5 shadow-lg transition-transform duration-300 group-hover:-translate-y-1 ${
                         idx === 0
                           ? '-rotate-3 translate-y-1'
                           : idx === 1
-                          ? 'z-10 scale-105 border-[#FF6B00]/50 shadow-xl'
+                          ? 'z-10 scale-105 border-[#0EA5E9]/50 shadow-xl'
                           : 'rotate-3 translate-y-1'
                       }`}
                     >
@@ -710,11 +710,11 @@ export const InformativeLandingSection: React.FC<
             ].map((item) => (
               <div
                 key={item.name}
-                className="flex items-center gap-2 rounded-xl border border-slate-800/90 bg-[#0F172A]/80 px-3.5 py-2 text-xs sm:text-sm font-black tracking-tight text-white/90 hover:border-[#FF6B00]/60 hover:text-[#FF6B00] transition"
+                className="flex items-center gap-2 rounded-xl border border-slate-800/90 bg-[#0F172A]/80 px-3.5 py-2 text-xs sm:text-sm font-black tracking-tight text-white/90 hover:border-[#0EA5E9]/60 hover:text-[#0EA5E9] transition"
               >
                 {item.icon}
                 <span>{item.name}</span>
-                <span className="rounded-md border border-slate-800 bg-[#0A0F1D] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#F97316]">
+                <span className="rounded-md border border-slate-800 bg-[#0B0F19] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#38BDF8]">
                   {item.badge}
                 </span>
               </div>

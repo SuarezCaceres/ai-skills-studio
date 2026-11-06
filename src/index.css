@@ -1,47 +1,56 @@
 @import "tailwindcss";
 
 @theme {
-  --color-midnight-void: #07050e;
-  --color-midnight-deep: #0c081a;
-  --color-midnight-base: #120d24;
-  --color-midnight-card: #17112e;
-  --color-midnight-elevated: #20183e;
-  --color-midnight-surface: #2b1f54;
+  --color-midnight-void: #030712;
+  --color-midnight-deep: #0b081b;
+  --color-midnight-base: #0b0f19;
+  --color-midnight-card: #0b0f19;
+  --color-midnight-elevated: #111726;
+  --color-midnight-surface: #171f33;
 
   --color-purple-primary: #8b5cf6;
   --color-purple-vibrant: #7c3aed;
   --color-purple-light: #c084fc;
   --color-purple-amethyst: #a855f7;
 
+  --color-cyan-primary: #0ea5e9;
+  --color-cyan-neon: #38bdf8;
+  --color-emerald-status: #34d399;
   --color-cyan-synapse: #38bdf8;
-  --color-emerald-matrix: #10b981;
-  --color-amber-score: #f59e0b;
+  --color-emerald-matrix: #34d399;
+  --color-amber-score: #38bdf8;
 }
 
 @layer base {
   :root {
-    /* Paleta Noche Obsidiana Violeta */
-    --bg-midnight-void: #07050e;
-    --bg-midnight-deep: #0c081a;
-    --bg-midnight-slate: #120d24;
-    --panel-midnight-card: #17112e;
-    --panel-midnight-elevated: #20183e;
-    --panel-midnight-border: rgba(168, 85, 247, 0.2);
+    /* Paleta Cyber Dark Espacial */
+    --bg-midnight-void: #030712;
+    --bg-midnight-deep: #0b081b;
+    --bg-midnight-slate: #0b0f19;
+    --panel-midnight-card: #0b0f19;
+    --panel-midnight-elevated: #111726;
+    --panel-midnight-border: rgba(139, 92, 246, 0.2);
 
-    /* Acentos Morado Moderno / Amatista Eléctrico */
+    /* Acentos Morado Espacial / Violeta */
     --purple-primary: #8b5cf6;
     --purple-vibrant: #7c3aed;
     --purple-light: #c084fc;
     --purple-glow: rgba(139, 92, 246, 0.32);
 
-    /* Contrastes Sinápticos IA */
+    /* Primario: Cian Eléctrico / Azul Neón (#0EA5E9 y #38BDF8) */
+    --cyan-primary: #0ea5e9;
+    --cyan-neon: #38bdf8;
     --cyan-synapse: #38bdf8;
-    --emerald-ready: #10b981;
-    --amber-score: #f59e0b;
+    --cyan-glow: rgba(14, 165, 233, 0.35);
 
-    /* Superficie de Lectura Cálida */
-    --panel-ivory-warm: #fcfbf8;
-    --panel-ivory-text: #0f172a;
+    /* Estados: Verde Esmeralda Suave (#34D399) */
+    --status-emerald: #34d399;
+    --emerald-ready: #34d399;
+    --amber-score: #38bdf8;
+
+    /* Superficie de Lectura Técnica */
+    --panel-ivory-warm: #070b14;
+    --panel-ivory-text: #f8fafc;
 
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -201,26 +210,28 @@
 }
 
 .edu-ivory-reading-card {
-  background-color: var(--panel-ivory-warm);
-  color: var(--panel-ivory-text);
-  border: 1.5px solid rgba(139, 92, 246, 0.65);
+  background-color: #070b14;
+  color: #f8fafc;
+  border: 1.5px solid rgba(14, 165, 233, 0.4);
   box-shadow:
-    0 20px 45px -12px rgba(3, 2, 8, 0.7),
-    0 0 24px -6px rgba(139, 92, 246, 0.22);
+    0 20px 45px -12px rgba(3, 7, 18, 0.7),
+    0 0 24px -6px rgba(14, 165, 233, 0.22);
 }
 
 .purple-glow,
-.orange-glow {
+.cyan-glow,
+.cyan-glow {
   box-shadow:
-    0 16px 38px -10px rgba(3, 2, 8, 0.85),
-    0 0 28px -6px rgba(139, 92, 246, 0.35);
+    0 16px 38px -10px rgba(3, 7, 18, 0.85),
+    0 0 28px -6px rgba(14, 165, 233, 0.35);
 }
 
 .purple-glow-sm,
-.orange-glow-sm {
+.cyan-glow-sm,
+.cyan-glow-sm {
   box-shadow:
-    0 10px 24px -8px rgba(3, 2, 8, 0.75),
-    0 0 16px -4px rgba(139, 92, 246, 0.28);
+    0 10px 24px -8px rgba(3, 7, 18, 0.75),
+    0 0 16px -4px rgba(14, 165, 233, 0.28);
 }
 
 /* Botón y Enlace Obsidian */

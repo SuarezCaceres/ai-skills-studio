@@ -26,7 +26,7 @@ interface AuthScreenProps {
   onContinueAsPublic?: () => void;
 }
 
-const USERS_STORAGE_KEY = 'ai_orange_studio_users_v1';
+const USERS_STORAGE_KEY = 'ai_skills_studio_users_v2';
 
 export const AuthScreen: React.FC<AuthScreenProps> = ({
   onAuthenticated,
@@ -35,7 +35,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('sergio@aistudio.dev');
-  const [password, setPassword] = useState('OrangeAI2026!');
+  const [password, setPassword] = useState('CodiceStudio2026!');
   const [role, setRole] = useState('Editor Autorizado · Full-Stack Architect');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -134,7 +134,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
     const defaultEditorHash =
       cleanEmail === 'sergio@aistudio.dev'
-        ? await hashPasswordPBKDF2('OrangeAI2026!', 'sergio@aistudio.dev')
+        ? await hashPasswordPBKDF2('CodiceStudio2026!', 'sergio@aistudio.dev')
         : '';
 
     const matched = users.find((u) => {
@@ -180,26 +180,26 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center z-10">
         {/* Columna Izquierda: Identidad del Sistema y Explicación de Roles */}
         <div className="lg:col-span-6 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0F172A] border border-[#FF6B00]/40 text-[#F97316] text-xs font-bold uppercase tracking-wider orange-glow-sm">
-            <Flame className="w-4 h-4 text-[#FF6B00]" aria-hidden="true" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0F172A] border border-[#0EA5E9]/40 text-[#38BDF8] text-xs font-bold uppercase tracking-wider cyan-glow-sm">
+            <Flame className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
             <span>Control de Roles · Modo Visitante vs. Modo Colaborador</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">
             Acceso para{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] to-[#F97316]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8]">
               Modo Colaborador
             </span>
           </h1>
 
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            En <strong className="text-white">Modo Visitante</strong> cualquier usuario puede explorar el Códice Neuronal, interactuar con los mockups, ver la Galería del Sistema y leer la documentación. Inicia sesión en <strong className="text-[#FF6B00]">Modo Colaborador</strong> para habilitar la subida de paquetes <code className="text-[#F97316] font-mono">.rar</code>, edición de skills aplicadas y gestión del sistema.
+            En <strong className="text-white">Modo Visitante</strong> cualquier usuario puede explorar el Códice Neuronal, interactuar con los mockups, ver la Galería del Sistema y leer la documentación. Inicia sesión en <strong className="text-[#0EA5E9]">Modo Colaborador</strong> para habilitar la subida de paquetes <code className="text-[#38BDF8] font-mono">.rar</code>, edición de skills aplicadas y gestión del sistema.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
             <div className="p-4 rounded-2xl bg-[#0F172A]/90 border border-slate-800 flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#FF6B00]/15 border border-[#FF6B00]/40 flex items-center justify-center shrink-0">
-                <FolderArchive className="w-4 h-4 text-[#FF6B00]" aria-hidden="true" />
+              <div className="w-9 h-9 rounded-xl bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 flex items-center justify-center shrink-0">
+                <FolderArchive className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
               </div>
               <div>
                 <h2 className="text-xs font-bold text-white">Permisos de Colaborador (.RAR)</h2>
@@ -226,9 +226,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
             <button
               type="button"
               onClick={onContinueAsPublic}
-              className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-[#0F172A] px-5 py-3 text-xs font-bold text-slate-200 transition hover:border-[#FF6B00] hover:text-white cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-[#0F172A] px-5 py-3 text-xs font-bold text-slate-200 transition hover:border-[#0EA5E9] hover:text-white cursor-pointer"
             >
-              <BookOpen className="h-4 w-4 text-[#FF6B00]" />
+              <BookOpen className="h-4 w-4 text-[#0EA5E9]" />
               Volver al Códice en Modo Visitante (Solo Lectura)
             </button>
           )}
@@ -237,7 +237,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
         {/* Columna Derecha: Tarjeta de Login y Registro en Azul Noche (#131C31 / #0F172A) */}
         <div className="lg:col-span-6">
           <div className="edu-floating-panel rounded-3xl p-6 sm:p-8 space-y-6">
-            <div className="grid grid-cols-2 p-1 rounded-2xl bg-[#0A0F1D] border border-slate-800">
+            <div className="grid grid-cols-2 p-1 rounded-2xl bg-[#0B0F19] border border-slate-800">
               <button
                 type="button"
                 onClick={() => {
@@ -246,7 +246,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 }}
                 className={`py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
                   mode === 'login'
-                    ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-md'
+                    ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-md'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -262,7 +262,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 }}
                 className={`py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
                   mode === 'register'
-                    ? 'bg-gradient-to-r from-[#FF6B00] to-[#F97316] text-black shadow-md'
+                    ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-md'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -309,7 +309,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                       setErrorMessage(null);
                     }}
                     placeholder="Ej. Sergio Suarez"
-                    className="w-full h-12 rounded-xl bg-[#0A0F1D] border border-slate-800 focus:border-[#FF6B00] px-4 text-sm text-white focus:outline-none transition"
+                    className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] px-4 text-sm text-white focus:outline-none transition"
                   />
                 </div>
               )}
@@ -340,10 +340,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                     setErrorMessage(null);
                   }}
                   placeholder="usuario@empresa.com"
-                  className="w-full h-12 rounded-xl bg-[#0A0F1D] border border-slate-800 focus:border-[#FF6B00] px-4 text-sm text-white focus:outline-none transition"
+                  className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] px-4 text-sm text-white focus:outline-none transition"
                 />
                 {emailTouchedError && (
-                  <p id="email-error-msg" className="text-[11px] text-[#F97316] mt-1">
+                  <p id="email-error-msg" className="text-[11px] text-[#38BDF8] mt-1">
                     {emailTouchedError}
                   </p>
                 )}
@@ -364,7 +364,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                     placeholder="Editor Autorizado · Full-Stack Architect"
-                    className="w-full h-12 rounded-xl bg-[#0A0F1D] border border-slate-800 focus:border-[#FF6B00] px-4 text-sm text-white focus:outline-none transition"
+                    className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] px-4 text-sm text-white focus:outline-none transition"
                   />
                 </div>
               )}
@@ -390,14 +390,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                       setPassword(e.target.value);
                       setErrorMessage(null);
                     }}
-                    className="w-full h-12 rounded-xl bg-[#0A0F1D] border border-slate-800 focus:border-[#FF6B00] pl-4 pr-12 text-sm text-white focus:outline-none transition"
+                    className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] pl-4 pr-12 text-sm text-white focus:outline-none transition"
                   />
                   <button
                     type="button"
                     aria-pressed={showPassword}
                     aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-[#F97316] cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-[#38BDF8] cursor-pointer"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" aria-hidden="true" />
@@ -413,7 +413,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
               <button
                 type="submit"
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#F97316] hover:brightness-110 text-black font-extrabold text-sm flex items-center justify-center gap-2 orange-glow transition cursor-pointer"
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] hover:brightness-110 text-black font-extrabold text-sm flex items-center justify-center gap-2 cyan-glow transition cursor-pointer"
               >
                 <span>
                   {mode === 'login'
@@ -426,7 +426,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
             <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
               <span className="text-slate-400 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#FF6B00]" aria-hidden="true" />
+                <ShieldCheck className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
                 Control de Acceso por Roles
               </span>
               <button
@@ -440,7 +440,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                     createdAt: '05/11/2026',
                   })
                 }
-                className="text-[#F97316] hover:underline font-bold cursor-pointer"
+                className="text-[#38BDF8] hover:underline font-bold cursor-pointer"
               >
                 Acceso Rápido Demo Editor (1-Clic) →
               </button>

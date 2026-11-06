@@ -330,7 +330,7 @@ export function App() {
   const formattedModelLabel = `${selectedModel.family} · ${selectedModel.version}`;
 
   return (
-    <div className="relative min-h-screen flex bg-[#07050E] text-slate-100 selection:bg-[#8B5CF6] selection:text-white">
+    <div className="relative min-h-screen flex bg-[#030712] text-[#94A3B8] selection:bg-[#0EA5E9] selection:text-white">
       <NeuralAtmosphereBackground />
 
       {/* COLUMNA PRINCIPAL DINÁMICA (CABECERA CONTEXTUAL + CONTENIDO EN CUADRÍCULA + PIE) */}
@@ -352,9 +352,9 @@ export function App() {
           <div
             role="status"
             aria-live="polite"
-            className="relative z-20 mx-auto mt-3 flex max-w-md items-center justify-center gap-2 rounded-full border border-purple-500/50 bg-[#120D24] px-4 py-1.5 text-xs font-bold text-[#C084FC] purple-glow-sm"
+            className="relative z-20 mx-auto mt-3 flex max-w-md items-center justify-center gap-2 rounded-full border border-sky-400/30 bg-[#0B0F19]/90 px-4 py-1.5 text-xs font-semibold text-[#38BDF8] shadow-[0_0_15px_rgba(14,165,233,0.2)] backdrop-blur-md"
           >
-            <span className="h-2 w-2 rounded-full bg-[#8B5CF6] animate-ping" />
+            <span className="h-2 w-2 rounded-full bg-[#0EA5E9] animate-ping" />
             {globalStatus}
           </div>
         )}
@@ -381,10 +381,10 @@ export function App() {
                 <div
                   role="status"
                   aria-live="polite"
-                  className="mx-auto my-16 flex max-w-md flex-col items-center justify-center gap-3 rounded-3xl border border-[#FF6B00]/40 bg-[#0F172A]/90 p-8 text-center shadow-2xl"
+                  className="mx-auto my-16 flex max-w-md flex-col items-center justify-center gap-3 rounded-3xl border border-sky-500/30 bg-[#0B0F19]/90 p-8 text-center shadow-2xl backdrop-blur-xl"
                 >
-                  <div className="h-9 w-9 animate-spin rounded-full border-2 border-[#FF6B00] border-t-transparent" />
-                  <p className="text-xs font-extrabold uppercase tracking-wider text-[#F97316]">
+                  <div className="h-9 w-9 animate-spin rounded-full border-2 border-[#0EA5E9] border-t-transparent shadow-[0_0_15px_rgba(14,165,233,0.4)]" />
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">
                     Cargando módulo del Códice Neuronal...
                   </p>
                 </div>
@@ -459,25 +459,25 @@ export function App() {
           )}
         </main>
 
-        <footer className="border-t border-purple-500/20 bg-[#07050E]/95 backdrop-blur-md py-6 px-4 sm:px-6 text-xs text-purple-200/70">
+        <footer className="border-t border-violet-900/25 bg-[#030712]/95 backdrop-blur-md py-6 px-4 sm:px-6 text-xs text-[#94A3B8]">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#8B5CF6] shadow-sm shadow-[#8B5CF6]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9] shadow-[0_0_8px_#0EA5E9]" />
               <span className="font-bold text-white">
                 Códice Studio · Ecosistema Neuronal IA
               </span>
-              <span className="text-purple-400/40">·</span>
+              <span className="text-violet-400/40">·</span>
               <span>
-                Noche Obsidiana (<code className="text-purple-300">#07050E</code> /{' '}
-                <code className="text-purple-300">#120D24</code>) &amp; Violeta Moderno (<code className="text-[#C084FC]">#8B5CF6</code>)
+                Cyber Dark (<code className="text-[#38BDF8]">#030712</code> /{' '}
+                <code className="text-[#38BDF8]">#0B0F19</code>) &amp; Cian Eléctrico (<code className="text-[#38BDF8]">#0EA5E9</code>)
               </span>
             </div>
-            <div className="flex items-center gap-3 text-[11px] text-purple-200/60">
+            <div className="flex items-center gap-3 text-[11px] text-[#94A3B8]/70">
               <span>
                 Rol de acceso:{' '}
                 <strong
                   className={
-                    isCollaboratorMode ? 'text-[#C084FC]' : 'text-sky-400'
+                    isCollaboratorMode ? 'text-[#34D399]' : 'text-sky-400'
                   }
                 >
                   {isCollaboratorMode && currentUser
@@ -485,10 +485,10 @@ export function App() {
                     : 'Modo Visitante (Público General · Solo Lectura)'}
                 </strong>
               </span>
-              <span className="text-purple-400/40">|</span>
+              <span className="text-violet-400/40">|</span>
               <span>
                 Núcleo activo:{' '}
-                <code className="text-[#C084FC] font-semibold">
+                <code className="text-[#38BDF8] font-semibold">
                   {activeRarPackage.archiveName}
                 </code>
               </span>
