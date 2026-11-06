@@ -207,7 +207,7 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
     const index = skills.length + 1;
     const filename = `skill-codice-${index}.md`;
     onCreateSkill({
-      name: `Proyecto #${index} · Arquitectura Azul Noche & Naranja`,
+      name: `Proyecto #${index} · Arquitectura Cyber Dark & Cian`,
       filename,
       summary:
         'Proyecto con paquete .rar asociado, traducción instantánea de Markdown en 1 clic (sin voz), Galería del Sistema y evaluación por dictado de voz.',
@@ -218,7 +218,7 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
       language: 'en',
       aiModelLabel: 'Opus 5.5',
       appliedSkill: 'ui-ux-pro-max',
-      colorPalette: ['#0A0F1D', '#0F172A', '#0EA5E9', '#38BDF8', '#38BDF8'],
+      colorPalette: ['#030712', '#0B1120', '#0EA5E9', '#38BDF8'],
       ficha: {
         whereToUse: 'Códice Neuronal, Núcleo de Proyectos .RAR y Cortex IA',
         requirements:
@@ -228,13 +228,13 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
       },
       markdownContent: `---
 name: skill-codice-${index}
-description: Diseña y genera menús de barras accesibles, menús desplegables con navegación por teclado y barras de comandos dinámicas en Azul Noche (#0A0F1D) y Naranja (#0EA5E9).
+description: Diseña y genera menús de barras accesibles, menús desplegables con navegación por teclado y barras de comandos dinámicas en Cyber Dark (#030712) y Cian Eléctrico (#0EA5E9).
 ---
 
 # Arquitecto de Componentes UI y Menús Interactivos
 
 ## Propósito de la Skill
-Diseña y genera menús de barras accesibles, menús desplegables con navegación por teclado y barras de comandos dinámicas con efectos de brillo naranja sutil sobre Azul Noche.
+Diseña y genera menús de barras accesibles, menús desplegables con navegación por teclado y barras de comandos dinámicas con resplandor cian sutil sobre fondo Cyber Dark.
 
 ## Instrucciones para el Agente de IA
 1. Utiliza siempre elementos semánticos nativos (\`<button type="button">\`, \`<figure>\`, \`<pre tabindex="0">\`).
@@ -417,7 +417,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
           </div>
         </div>
 
-        {/* Buscador y Doble Fila de Filtros en Azul Noche y Naranja */}
+        {/* Buscador y Doble Fila de Filtros en Cyber Dark y Cian Eléctrico */}
         <div className="space-y-3.5">
           <search>
             <form onSubmit={(e) => e.preventDefault()} className="relative">

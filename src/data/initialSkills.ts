@@ -9,7 +9,7 @@ const SAMPLE_SVG_SCREENSHOT_1 = `data:image/svg+xml;utf8,${encodeURIComponent(`
   <circle cx="60" cy="58" r="6" fill="#0EA5E9"/>
   <circle cx="80" cy="58" r="6" fill="#0EA5E9"/>
   <circle cx="100" cy="58" r="6" fill="#38BDF8"/>
-  <text x="126" y="63" fill="#F4F4F5" font-family="sans-serif" font-size="13" font-weight="bold">UI/UX Pro Max · Menubar Naranja &amp; Negro · Gemini Ultra</text>
+  <text x="126" y="63" fill="#F4F4F5" font-family="sans-serif" font-size="13" font-weight="bold">UI/UX Pro Max · Menubar Cyber Dark &amp; Cian · Gemini Ultra</text>
   <rect x="36" y="100" width="260" height="220" rx="14" fill="#0B0B0B" stroke="#27272A" stroke-width="1.5"/>
   <text x="56" y="130" fill="#0EA5E9" font-family="sans-serif" font-size="14" font-weight="bold">Menú Desplegable Activo</text>
   <rect x="52" y="146" width="228" height="34" rx="10" fill="#0EA5E9"/>
@@ -50,9 +50,9 @@ export const INITIAL_SKILLS: SkillDocument[] = [
   {
     id: 'skill-conversion-auditor',
     filename: 'auditor-de-conversiones.md',
-    name: 'Auditor de Conversiones & Sistema UI Naranja/Negro (.RAR Suite)',
+    name: 'Auditor de Conversiones & Sistema UI Cyber Dark/Cian (.RAR Suite)',
     summary:
-      'Proyecto integral con paquete .rar descomprimido en memoria, componentes UI/UX con efectos glow naranja (#0EA5E9) y documentación técnica traducible en 1 clic.',
+      'Proyecto integral con paquete .rar descomprimido en memoria, componentes UI/UX con efectos resplandor cian (#0EA5E9) y documentación técnica traducible en 1 clic.',
     category: 'Frontend & Conversión',
     level: 'Intermedio',
     kind: 'proyecto',
@@ -151,7 +151,7 @@ Design and generate accessible menubars, keyboard-navigable dropdown menus, and 
     screenshots: [
       {
         id: 'shot-initial-1',
-        title: 'Vista Previa UI/UX Naranja & Negro generada con Gemini (Ultra / Máximo)',
+        title: 'Vista Previa UI/UX Cyber Dark & Cian generada con Gemini (Ultra / Máximo)',
         dataUrl: SAMPLE_SVG_SCREENSHOT_1,
         createdAt: '08:12',
         modelUsed: 'Gemini (Ultra / Máximo)',
