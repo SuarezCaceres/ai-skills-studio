@@ -31,7 +31,7 @@ function buildSevenModelVariations(
       modelName: 'Gemini 3.8',
       family: 'Gemini',
       tier: 'Ultra / Máximo · 178 tok/s (2M Contexto)',
-      visualDifference: `En "${presetTitle}", Gemini 3.8 despliega micro-interacciones a 60fps, destellos neuronales dinámicos en naranja vibrante (#0EA5E9) y telemetría visual en tiempo real.`,
+      visualDifference: `En "${presetTitle}", Gemini 3.8 despliega micro-interacciones a 60fps, destellos neuronales dinámicos en cian eléctrico (#0EA5E9) y telemetría visual en tiempo real.`,
       structureDifference:
         'Uso de CSS Grid moderno, variables reactivas en vivo y contenedores semánticos nativos (<dialog>, <search>, <figure>).',
       promptAdaptation: `## Optimización Gemini 3.8 (${primarySpecialty})\n- Renderizar transiciones reactivas e indicadores de telemetría en tiempo real.\n- Sincronizar variables de color en vivo con latencia cero.`,
@@ -52,7 +52,7 @@ function buildSevenModelVariations(
       visualDifference: `En "${presetTitle}", Sonnet 5.5 logra un acabado de estudio tipo Apple/Linear con cristal esmerilado oscuro (backdrop-blur), píldoras de atajos y botones emergentes suaves.`,
       structureDifference:
         'Componentes funcionales en React 19 + Tailwind CSS con composición limpia y hooks reutilizables.',
-      promptAdaptation: `## Optimización Claude Sonnet 5.5 (${primarySpecialty})\n- Refinar micro-interacciones de hover, anillos de enfoque naranja y píldoras de atajos (\`Ctrl+K\`).`,
+      promptAdaptation: `## Optimización Claude Sonnet 5.5 (${primarySpecialty})\n- Refinar micro-interacciones de hover, anillos de enfoque cian eléctrico y píldoras de atajos (\`Ctrl+K\`).`,
     },
     'GPT Astra': {
       modelName: 'GPT Astra',
@@ -161,13 +161,13 @@ export const STYLE_PRESETS: UIStylePreset[] = [
     ],
     promptMarkdown: `---
 name: panel-telemetria-neuronal-saas
-description: Diseña y genera menús de barras accesibles, menús desplegables con navegación por teclado y barras de comandos dinámicas en Azul Noche y Naranja.
+description: Diseña y genera menús de barras accesibles, menús desplegables con navegación por teclado y barras de comandos dinámicas en Cyber Dark y Cian Eléctrico.
 ---
 
 # Arquitecto de Componentes UI y Menús Interactivos
 
 ## Propósito de la Skill
-Diseña un panel analítico SaaS con estética de Cristal Oscuro sobre Azul Noche (#0F172A), acentos naranja vibrante (#0EA5E9) y barra de menús interactiva para KPIs en tiempo real.
+Diseña un panel analítico SaaS con estética de Cristal Oscuro sobre Cyber Dark (#030712), acentos cian eléctrico (#0EA5E9) y barra de menús interactiva para KPIs en tiempo real.
 
 ## Instrucciones para el Agente de IA
 1. Utiliza siempre elementos semánticos nativos (\`<button type="button">\`, \`<figure>\`, \`<pre tabindex="0">\`).
@@ -260,7 +260,7 @@ description: Estructura menús educativos claros con progreso de módulos, rutas
 # Sistema de Navegación para Plataforma Educativa IA
 
 ## Propósito de la Skill
-Construye una barra de navegación curricular con estética Azul Noche (#0A0F1D) y acentos Naranja (#38BDF8) que facilite a los estudiantes explorar módulos y laboratorios sin fricción visual.
+Construye una barra de navegación curricular con estética Cyber Dark (#030712) y acentos Cian (#38BDF8) que facilite a los estudiantes explorar módulos y laboratorios sin fricción visual.
 
 ## Instrucciones de Implementación
 1. Destaca la ruta activa con acentos de alto contraste (\`#0EA5E9\`).
@@ -270,7 +270,7 @@ Construye una barra de navegación curricular con estética Azul Noche (#0A0F1D)
     id: 'preset-fintech',
     name: 'Bóveda Cripto & Liquidez Cuántica',
     category: 'Fintech',
-    styleCategory: 'Modo Oscuro OLED + Brillo Naranja',
+    styleCategory: 'Modo Oscuro OLED + Brillo Cian',
     mode: 'Dark',
     colors: ['#0EA5E9', '#38BDF8', '#10B981', '#0A0F1D'],
     theme: 'cyan',
@@ -286,7 +286,7 @@ Construye una barra de navegación curricular con estética Azul Noche (#0A0F1D)
       {
         skillId: 'ui-ux-pro-max',
         description:
-          ' Contraste OLED sobre #0A0F1D con acentos ámbar/naranja (#0EA5E9) para terminales financieras.',
+          ' Contraste OLED sobre #030712 con acentos cian (#0EA5E9) para terminales financieras.',
       },
       {
         skillId: 'modern-web-guidance',
@@ -335,7 +335,7 @@ Proporciona un menú desplegable de baja latencia visual sobre fondo \`#0A0F1D\`
     id: 'preset-developer-cli',
     name: 'Consola de Agentes Autónomos CLI',
     category: 'Herramientas Dev',
-    styleCategory: 'Terminal Cibernética + Naranja Neón',
+    styleCategory: 'Terminal Cibernética + Cian Neón',
     mode: 'Dark',
     colors: ['#0EA5E9', '#10B981', '#38BDF8', '#0A0F1D'],
     theme: 'emerald',
@@ -396,7 +396,7 @@ Implementa una paleta de comandos rápida (\`Command Palette\`) optimizada para 
     id: 'preset-creative-suite',
     name: 'Estudio Creativo de Diseño Generativo',
     category: 'Diseño & Medios',
-    styleCategory: 'Acento Coral Naranja + Lienzo Nocturno',
+    styleCategory: 'Acento Coral & Cian + Lienzo Nocturno',
     mode: 'Dark',
     colors: ['#0EA5E9', '#F43F5E', '#A855F7', '#0F172A'],
     theme: 'rose',
@@ -427,7 +427,7 @@ Implementa una paleta de comandos rápida (\`Command Palette\`) optimizada para 
     menuItems: [
       {
         id: 'cre-1',
-        label: 'Inyectar Paleta Naranja & Azul Noche',
+        label: 'Inyectar Paleta Cyber Dark & Cian',
         shortcut: ' Alt+1',
         checked: true,
       },
@@ -457,7 +457,7 @@ Construye una barra de acción flotante (\`Toolbar\`) con estética nocturna sof
     id: 'preset-ai-command-hub',
     name: 'Núcleo de Control Multi-Modelo IA',
     category: 'Orquestación IA',
-    styleCategory: 'Azul Noche Profundo + Naranja Solar',
+    styleCategory: 'Cyber Dark Profundo + Cian Solar',
     mode: 'Dark',
     colors: ['#0EA5E9', '#38BDF8', '#38BDF8', '#0A0F1D'],
     theme: 'indigo',
@@ -478,7 +478,7 @@ Construye una barra de acción flotante (\`Toolbar\`) con estética nocturna sof
       {
         skillId: 'ui-ux-pro-max',
         description:
-          'Diseño de centro de control en Azul Noche (#0A0F1D) con indicadores de estado naranjas.',
+          'Diseño de centro de control en Cyber Dark (#030712) con indicadores de estado cian.',
       },
     ],
     modelVariations: buildSevenModelVariations(
@@ -544,7 +544,7 @@ description: Centro de mando interactivo para comparar versiones específicas de
 # Núcleo de Control para Matriz de Inteligencias
 
 ## Propósito de la Skill
-Proporciona una interfaz de mando en Azul Noche (\`#0A0F1D\`) y Naranja Vibrante (\`#0EA5E9\`) para alternar entre motores de IA, inspeccionar su impacto visual y registrar evaluaciones por voz.`,
+Proporciona una interfaz de mando en Cyber Dark (\`#030712\`) y Cian Eléctrico (\`#0EA5E9\`) para alternar entre motores de IA, inspeccionar su impacto visual y registrar evaluaciones por voz.`,
   },
 ];
 

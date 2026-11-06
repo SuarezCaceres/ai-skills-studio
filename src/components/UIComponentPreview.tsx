@@ -259,7 +259,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
         </div>
       </div>
 
-      {/* Grid Showcase de 2 Columnas en Azul Noche y Naranja */}
+      {/* Grid Showcase de 2 Columnas en Cyber Dark y Cian */}
       <div ref={previewContainerRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* TARJETA 1: Sandbox Interactivo Principal */}
         <div className="rounded-3xl bg-[#0F172A] border border-[#0EA5E9]/35 cyan-glow overflow-hidden flex flex-col justify-between min-h-[380px]">

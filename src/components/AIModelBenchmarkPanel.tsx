@@ -336,7 +336,7 @@ export const AIModelBenchmarkPanel: React.FC<AIModelBenchmarkPanelProps> = ({
             {
               label: 'Fidelidad Visual UI/UX',
               score: activeModel.visualFidelityScore,
-              desc: 'Acabado cromático en Azul Noche y Naranja',
+              desc: 'Acabado cromático en Cyber Dark y Cian Eléctrico',
             },
             {
               label: 'Razonamiento Lógico',
