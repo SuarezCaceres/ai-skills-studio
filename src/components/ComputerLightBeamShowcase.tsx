@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import {
   Sparkles,
-  Terminal,
+  Laptop,
+  ArrowUpRight,
   Cpu,
-  Layers,
-  FolderArchive,
-  ArrowRight,
-  CheckCircle2,
-  Activity,
-  Play,
-  RotateCw,
+  Globe,
+  Plus,
+  PanelLeft,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { AppPageRoute, SpecificModelVersion } from '../types/workspace';
 import {
@@ -18,8 +17,9 @@ import {
   GPTBrandIcon,
   AngularBrandIcon,
   SpringBootBrandIcon,
+  TailwindBrandIcon,
+  TypeScriptBrandIcon,
   ReactBrandIcon,
-  ObsidianBrandIcon,
 } from './BrandIcons';
 
 interface ComputerLightBeamShowcaseProps {
@@ -28,304 +28,461 @@ interface ComputerLightBeamShowcaseProps {
   onNavigatePage: (page: AppPageRoute) => void;
 }
 
-interface InteractiveSandboxAction {
+interface FloatingBeamPill {
   id: string;
-  title: string;
-  subtitle: string;
-  category: string;
-  targetPage: AppPageRoute;
-  commandSnippet: string;
-  simulatedOutput: string;
-  icon: React.ReactNode;
+  label: string;
+  sublabel: string;
+  modelVersion: SpecificModelVersion;
+  skillTag: string;
+  topPercent: string;
+  leftPercent: string;
+  brandIcon: React.ReactNode;
+  description: string;
 }
 
-const SANDBOX_ACTIONS: InteractiveSandboxAction[] = [
+const FLOATING_BEAM_PILLS: FloatingBeamPill[] = [
   {
-    id: 'action-rar',
-    title: 'Inspección Binaria .RAR en Memoria',
-    subtitle: 'Extracción sin backend de paquetes RAR4/RAR5',
-    category: 'Módulo .RAR',
-    targetPage: 'estudio',
-    commandSnippet: '$ codice rar unpack --in-memory --target=bidercorp.rar',
-    simulatedOutput: '[OK] Encabezado RAR5 detectado en 14ms · 42 módulos TypeScript extraídos · 0 peticiones de red',
-    icon: <FolderArchive className="h-4 w-4 text-[#0EA5E9]" />,
+    id: 'pill-opus-55',
+    label: 'Claude Opus 5.5 · Cortex',
+    sublabel: 'Razonamiento 100%',
+    modelVersion: 'Opus 5.5',
+    skillTag: '#ui-ux-pro-max',
+    topPercent: '6%',
+    leftPercent: '14%',
+    brandIcon: <ClaudeBrandIcon className="h-6 w-6 shrink-0" />,
+    description:
+      'Jerarquía visual AAA en Azul Noche (#0A0F1D) con sombras multicapa y precisión arquitectónica.',
   },
   {
-    id: 'action-benchmark',
-    title: 'Telemetría de Modelos Fundacionales',
-    subtitle: 'Comparación tok/s, latencia y razonamiento',
-    category: 'Benchmarking',
-    targetPage: 'modelos-ia',
-    commandSnippet: '$ codice bench --models=opus-5.5,gemini-3.8 --metric=tok_sec',
-    simulatedOutput: 'Claude Opus 5.5: 112 tok/s (99.4% precisión) | Gemini 3.8: 178 tok/s (2M tokens de contexto)',
-    icon: <Cpu className="h-4 w-4 text-[#38BDF8]" />,
+    id: 'pill-study-angular',
+    label: 'Plan de Estudio · Angular & UI',
+    sublabel: 'Ingeniería Frontend',
+    modelVersion: 'Sonnet 5.5',
+    skillTag: '#angular-tutor',
+    topPercent: '9%',
+    leftPercent: '56%',
+    brandIcon: <AngularBrandIcon className="h-6 w-6 shrink-0" />,
+    description:
+      'Ruta de aprendizaje interactiva sincronizada con componentes en Angular, React 19 y Tailwind CSS.',
   },
   {
-    id: 'action-skills',
-    title: 'Catálogo de Directivas y Skills',
-    subtitle: 'Gestor y auditor de prompts de ingeniería',
-    category: 'Skills Codex',
-    targetPage: 'boveda',
-    commandSnippet: '$ codice skill audit --rules=wai-aria,dark-mode --format=obsidian',
-    simulatedOutput: '[AUDIT] 12 skills validadas · Vinculación bidireccional lista para obsidian://open',
-    icon: <Sparkles className="h-4 w-4 text-[#A855F7]" />,
+    id: 'pill-gemini-38',
+    label: 'Gemini 3.8 · 2M Contexto',
+    sublabel: '178 tokens/seg',
+    modelVersion: 'Gemini 3.8',
+    skillTag: '#modern-web-guidance',
+    topPercent: '23%',
+    leftPercent: '8%',
+    brandIcon: <GeminiBrandIcon className="h-6 w-6 shrink-0" />,
+    description:
+      'Descompresión e inspección completa de paquetes .RAR en memoria con traducción instantánea 1-clic.',
   },
   {
-    id: 'action-ui',
-    title: 'Sandbox de Componentes UI/UX',
-    subtitle: 'Pruebas de menús accesibles y tokens en vivo',
-    category: 'UI/UX Pro Max',
-    targetPage: 'preview',
-    commandSnippet: '$ codice ui inspect --contrast=AAA --focus-rings=visible',
-    simulatedOutput: 'Contraste 4.8:1 verificado en #030712 · WAI-ARIA menubar conforme · 0 layout shifts',
-    icon: <Layers className="h-4 w-4 text-[#10B981]" />,
+    id: 'pill-sonnet-55',
+    label: 'Claude Sonnet 5.5 · UI Code',
+    sublabel: 'React 19 & Tailwind',
+    modelVersion: 'Sonnet 5.5',
+    skillTag: '#ui-ux-pro-max',
+    topPercent: '27%',
+    leftPercent: '51%',
+    brandIcon: <ReactBrandIcon className="h-6 w-6 shrink-0" />,
+    description:
+      'Ingeniería frontend impecable con menús accesibles, micro-interacciones y cristal esmerilado.',
+  },
+  {
+    id: 'pill-opus-48',
+    label: 'Claude Opus 4.8 · Spring Boot',
+    sublabel: 'Auditoría Backend',
+    modelVersion: 'Opus 4.8',
+    skillTag: '#google-antigravity-sdk',
+    topPercent: '42%',
+    leftPercent: '16%',
+    brandIcon: <SpringBootBrandIcon className="h-6 w-6 shrink-0" />,
+    description:
+      'Estabilidad ortogonal en microservicios Spring Boot, contratos TypeScript y árboles .RAR.',
+  },
+  {
+    id: 'pill-gpt-astra',
+    label: 'GPT Astra · UI/UX Pro Max',
+    sublabel: 'Síntesis Futurista',
+    modelVersion: 'GPT Astra',
+    skillTag: '#ui-ux-pro-max',
+    topPercent: '47%',
+    leftPercent: '57%',
+    brandIcon: <GPTBrandIcon className="h-6 w-6 shrink-0" />,
+    description:
+      'Composición visual de alto impacto ejecutivo con indicadores energéticos y telemetría.',
+  },
+  {
+    id: 'pill-gpt-luna',
+    label: 'GPT Luna · Tailwind Nocturno',
+    sublabel: 'Atmósfera Lunar',
+    modelVersion: 'GPT Luna',
+    skillTag: '#modern-web-guidance',
+    topPercent: '61%',
+    leftPercent: '11%',
+    brandIcon: <TailwindBrandIcon className="h-6 w-6 shrink-0" />,
+    description:
+      'Calibración lumínica descansada sobre Azul Noche (#0A0F1D) con dictado de voz en español.',
+  },
+  {
+    id: 'pill-gemini-37',
+    label: 'Gemini 3.7 · TypeScript Core',
+    sublabel: 'Baja Latencia',
+    modelVersion: 'Gemini 3.7',
+    skillTag: '#ui-ux-pro-max',
+    topPercent: '66%',
+    leftPercent: '53%',
+    brandIcon: <TypeScriptBrandIcon className="h-6 w-6 shrink-0" />,
+    description:
+      'Control de acceso diferenciado entre Modo Visitante (lectura) y Modo Colaborador (edición .RAR).',
   },
 ];
 
-const MODEL_PROFILES: Record<
-  SpecificModelVersion,
+interface ComputerDockIconItem {
+  id: string;
+  name: string;
+  subtitle: string;
+  modelToSelect?: SpecificModelVersion;
+  isCenterEmblem?: boolean;
+  iconElement: React.ReactNode;
+}
+
+const COMPUTER_DOCK_ICONS: ComputerDockIconItem[] = [
   {
-    speed: string;
-    latency: string;
-    context: string;
-    specialty: string;
-    brand: 'Claude' | 'Gemini' | 'GPT';
-  }
-> = {
-  'Opus 5.5': {
-    speed: '112 tok/s',
-    latency: '420 ms',
-    context: '500K tokens',
-    specialty: 'Razonamiento arquitectónico y auditoría de código',
-    brand: 'Claude',
+    id: 'dock-angular',
+    name: 'Angular',
+    subtitle: 'Framework Frecuente',
+    modelToSelect: 'Sonnet 5.5',
+    iconElement: <AngularBrandIcon className="h-8 w-8" />,
   },
-  'Opus 4.8': {
-    speed: '96 tok/s',
-    latency: '480 ms',
-    context: '200K tokens',
-    specialty: 'Refactorización y estabilidad de sistemas',
-    brand: 'Claude',
+  {
+    id: 'dock-claude',
+    name: 'Claude Opus 5.5',
+    subtitle: 'Anthropic IA',
+    modelToSelect: 'Opus 5.5',
+    iconElement: <ClaudeBrandIcon className="h-8 w-8" />,
   },
-  'Sonnet 5.5': {
-    speed: '145 tok/s',
-    latency: '260 ms',
-    context: '200K tokens',
-    specialty: 'Generación precisa de interfaces React y Tailwind',
-    brand: 'Claude',
+  {
+    id: 'dock-gemini',
+    name: 'Gemini 3.8',
+    subtitle: 'Google DeepMind',
+    modelToSelect: 'Gemini 3.8',
+    iconElement: <GeminiBrandIcon className="h-8 w-8" />,
   },
-  'Gemini 3.8': {
-    speed: '178 tok/s',
-    latency: '190 ms',
-    context: '2,000K tokens',
-    specialty: 'Ventana de contexto ultra masiva y velocidad pura',
-    brand: 'Gemini',
+  {
+    id: 'dock-center-codice',
+    name: 'Códice Studio',
+    subtitle: 'Núcleo Central IA',
+    modelToSelect: 'Opus 5.5',
+    isCenterEmblem: true,
+    iconElement: (
+      <svg viewBox="0 0 36 26" className="h-8 w-11 fill-white" aria-hidden="true">
+        <path d="M3 4h6.8l4.4 12.2L18.8 4h5.8l-7.2 18h-6.2L3 4zm19.5 0H29.5l-7.2 18h-6L22.5 4z" />
+      </svg>
+    ),
   },
-  'Gemini 3.7': {
-    speed: '162 tok/s',
-    latency: '210 ms',
-    context: '1,000K tokens',
-    specialty: 'Inferencia reactiva y procesamiento en tiempo real',
-    brand: 'Gemini',
+  {
+    id: 'dock-gpt',
+    name: 'GPT Astra & Luna',
+    subtitle: 'OpenAI Next-Gen',
+    modelToSelect: 'GPT Astra',
+    iconElement: <GPTBrandIcon className="h-8 w-8" />,
   },
-  'GPT Astra': {
-    speed: '130 tok/s',
-    latency: '290 ms',
-    context: '128K tokens',
-    specialty: 'Inferencia visual multimodal y síntesis conceptual',
-    brand: 'GPT',
+  {
+    id: 'dock-springboot',
+    name: 'Spring Boot',
+    subtitle: 'Framework Frecuente',
+    modelToSelect: 'Opus 4.8',
+    iconElement: <SpringBootBrandIcon className="h-8 w-8" />,
   },
-  'GPT Luna': {
-    speed: '120 tok/s',
-    latency: '310 ms',
-    context: '128K tokens',
-    specialty: 'Modos nocturnos, optimización tokenómica y control',
-    brand: 'GPT',
+  {
+    id: 'dock-tailwind',
+    name: 'Tailwind CSS',
+    subtitle: 'Diseño Nocturno',
+    modelToSelect: 'GPT Luna',
+    iconElement: <TailwindBrandIcon className="h-8 w-8" />,
   },
-};
+];
 
 export const ComputerLightBeamShowcase: React.FC<
   ComputerLightBeamShowcaseProps
 > = ({ activeModel, onSelectModel, onNavigatePage }) => {
-  const [selectedActionId, setSelectedActionId] = useState<string>(
-    SANDBOX_ACTIONS[0].id
+  const [selectedPill, setSelectedPill] = useState<FloatingBeamPill>(
+    FLOATING_BEAM_PILLS[0]
   );
-  const [isExecuting, setIsExecuting] = useState<boolean>(false);
-
-  const currentAction =
-    SANDBOX_ACTIONS.find((a) => a.id === selectedActionId) ||
-    SANDBOX_ACTIONS[0];
-  const profile = MODEL_PROFILES[activeModel] || MODEL_PROFILES['Opus 5.5'];
-
-  const handleRunSimulation = (actionId: string) => {
-    setSelectedActionId(actionId);
-    setIsExecuting(true);
-    setTimeout(() => {
-      setIsExecuting(false);
-    }, 450);
-  };
 
   return (
-    <div className="relative w-full rounded-2xl border border-slate-800 bg-[#0B1120] p-4 sm:p-6 shadow-2xl backdrop-blur-xl transition-all">
-      {/* Barra de Instrumentación de la Estación de Trabajo */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+    <div
+      style={{ transform: 'translateZ(0)' }}
+      className="relative rounded-3xl border border-white/15 bg-[#060913] overflow-hidden shadow-[0_25px_90px_-15px_rgba(255,107,0,0.32)]"
+    >
+      {/* ====================================================================
+          BARRA SUPERIOR DE VENTANA ESTILO "WOPE" / STUDIO BROWSER
+          (Con semáforo macOS, URL de la aplicación y pestañas con Iconos de IAs y Frameworks)
+         ==================================================================== */}
+      <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#0B0F1C]/95 backdrop-blur-xl px-4 py-2.5">
+        {/* Semáforo de ventana + Controles de navegación */}
         <div className="flex items-center gap-3">
-          <div className="flex h-3 gap-1.5">
-            <span className="h-3 w-3 rounded-full bg-rose-500/80 inline-block" />
-            <span className="h-3 w-3 rounded-full bg-amber-500/80 inline-block" />
-            <span className="h-3 w-3 rounded-full bg-emerald-500/80 inline-block" />
+          <div className="flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-full bg-[#FF5F56]" />
+            <span className="h-3 w-3 rounded-full bg-[#FFBD2E]" />
+            <span className="h-3 w-3 rounded-full bg-[#27C93F]" />
           </div>
-          <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
-            <Terminal className="h-4 w-4 text-[#0EA5E9]" />
-            <span className="font-mono text-xs font-semibold text-slate-200">
-              codice-workstation://telemetry/session-active
-            </span>
+
+          <div className="hidden sm:flex items-center gap-1.5 text-slate-500 border-l border-white/10 pl-3">
+            <PanelLeft className="h-3.5 w-3.5 text-slate-400" />
+            <ChevronLeft className="h-3.5 w-3.5" />
+            <ChevronRight className="h-3.5 w-3.5" />
+          </div>
+
+          {/* Pestaña Activa Principal */}
+          <div className="hidden md:inline-flex items-center gap-2 rounded-lg border border-white/10 bg-[#131B2E] px-2.5 py-1 text-[11px] font-bold text-white">
+            <Sparkles className="h-3 w-3 text-[#0EA5E9]" />
+            <span>Estación IA · {activeModel}</span>
           </div>
         </div>
 
-        {/* Estado en vivo */}
-        <div className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/30 px-3 py-1 text-xs text-emerald-400">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-mono font-medium">Inferencia Activa</span>
+        {/* Barra de Dirección Central (Inspirada en app.wope.com de la imagen de referencia) */}
+        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#070A14] px-4 py-1 text-[11px] font-mono text-slate-300 shadow-inner min-w-[220px] sm:min-w-[300px] justify-center">
+          <Globe className="h-3 w-3 text-[#0EA5E9]" />
+          <span className="truncate">
+            app.codice-studio.ai/ingenieria/{activeModel.toLowerCase().replace(/\s+/g, '-')}
+          </span>
         </div>
-      </div>
 
-      {/* Selector de Modelos con Métricas en Vivo */}
-      <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-800/60">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap mr-1">
-          Modelo:
-        </span>
-        {(Object.keys(MODEL_PROFILES) as SpecificModelVersion[]).map(
-          (version) => {
-            const isSelected = activeModel === version;
+        {/* Pestañas derechas con los Iconos Oficiales de las IAs y Frameworks */}
+        <div className="hidden xl:flex items-center gap-1.5">
+          {[
+            {
+              label: 'Claude 5.5',
+              version: 'Opus 5.5' as SpecificModelVersion,
+              icon: <ClaudeBrandIcon className="h-3.5 w-3.5" />,
+            },
+            {
+              label: 'Gemini 3.8',
+              version: 'Gemini 3.8' as SpecificModelVersion,
+              icon: <GeminiBrandIcon className="h-3.5 w-3.5" />,
+            },
+            {
+              label: 'GPT Astra',
+              version: 'GPT Astra' as SpecificModelVersion,
+              icon: <GPTBrandIcon className="h-3.5 w-3.5" />,
+            },
+            {
+              label: 'Angular',
+              version: 'Sonnet 5.5' as SpecificModelVersion,
+              icon: <AngularBrandIcon className="h-3.5 w-3.5" />,
+            },
+          ].map((tab) => {
+            const active = activeModel === tab.version;
             return (
               <button
-                key={version}
+                key={tab.label}
                 type="button"
-                onClick={() => onSelectModel(version)}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-mono transition-all cursor-pointer whitespace-nowrap ${
-                  isSelected
-                    ? 'bg-[#0EA5E9] text-white font-bold shadow-md shadow-[#0EA5E9]/20'
-                    : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                onClick={() => onSelectModel(tab.version)}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-bold transition cursor-pointer border ${
+                  active
+                    ? 'border-[#0EA5E9]/60 bg-[#0EA5E9]/15 text-white'
+                    : 'border-white/5 bg-[#111728]/80 text-slate-400 hover:text-white'
                 }`}
               >
-                {version === 'Opus 5.5' || version === 'Opus 4.8' || version === 'Sonnet 5.5' ? (
-                  <ClaudeBrandIcon className="h-3.5 w-3.5 shrink-0" />
-                ) : version.startsWith('Gemini') ? (
-                  <GeminiBrandIcon className="h-3.5 w-3.5 shrink-0" />
-                ) : (
-                  <GPTBrandIcon className="h-3.5 w-3.5 shrink-0" />
-                )}
-                <span>{version}</span>
+                {tab.icon}
+                <span>{tab.label}</span>
               </button>
             );
-          }
-        )}
+          })}
+          <span className="p-1 text-slate-500">
+            <Plus className="h-3.5 w-3.5" />
+          </span>
+        </div>
       </div>
 
-      {/* Grid Central: Acciones del Sandbox + Consola Interactiva */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Columna Izquierda: Acciones de Simulación */}
-        <div className="lg:col-span-5 space-y-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
-            Selecciona un Módulo del Códice:
-          </span>
-          {SANDBOX_ACTIONS.map((action) => {
-            const isCurrent = selectedActionId === action.id;
+      {/* ====================================================================
+          ESCENA PRINCIPAL EN EL LUGAR DEL DASHBOARD:
+          LAPTOP DE INGENIERÍA DE FONDO + HACES DE LUZ DIFUMINADOS +
+          PÍLDORAS FLOTANTES CON ICONOS + DOCK INFERIOR DE ICONOS DE IAS Y FRAMEWORKS
+         ==================================================================== */}
+      <div className="relative h-[510px] sm:h-[560px] w-full overflow-hidden select-none">
+        {/* 1. IMAGEN GENERADA DE LAPTOP DE INGENIERÍA CON HOLOGRAMAS Y ESQUEMAS EN EL FONDO */}
+        <img
+          src={`${import.meta.env.BASE_URL}engineering-laptop-hero.jpg`}
+          alt="Laptop de ingeniería de software proyectando esquemas holográficos y haces de luz"
+          width={1280}
+          height={720}
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-85 scale-105 transition-transform duration-700"
+        />
+
+        {/* Velo radial para fundir los bordes y resaltar tanto la laptop como las píldoras flotantes */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(circle at 50% 68%, rgba(255, 107, 0, 0.15) 0%, rgba(10, 15, 29, 0.42) 55%, rgba(6, 9, 19, 0.90) 100%)',
+          }}
+        />
+
+        {/* 2. HACES DE LUZ VOLUMÉTRICOS DIFUMINADOS ADICIONALES */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+        >
+          <div
+            className="absolute -top-24 left-[22%] h-[120%] w-52 origin-bottom -rotate-[20deg] blur-2xl opacity-55"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(167, 139, 250, 0.35) 0%, rgba(139, 92, 246, 0.22) 50%, rgba(255, 107, 0, 0.35) 92%, transparent 100%)',
+              transform: 'translate3d(0, 0, 0)',
+              willChange: 'transform',
+            }}
+          />
+          <div
+            className="absolute -top-20 left-[45%] h-[115%] w-48 origin-bottom -rotate-[10deg] blur-2xl opacity-60"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(56, 189, 248, 0.22) 0%, rgba(255, 107, 0, 0.38) 90%, transparent 100%)',
+              transform: 'translate3d(0, 0, 0)',
+              willChange: 'transform',
+            }}
+          />
+        </div>
+
+        {/* 3. PÍLDORAS FLOTANTES DE CRISTAL CON LOS ICONOS OFICIALES DE LAS IAS Y FRAMEWORKS */}
+        <div className="relative z-10 h-[390px] sm:h-[430px] w-full max-w-5xl mx-auto px-4">
+          {FLOATING_BEAM_PILLS.map((pill) => {
+            const isSelected = selectedPill.id === pill.id;
             return (
               <button
-                key={action.id}
+                key={pill.id}
                 type="button"
-                onClick={() => handleRunSimulation(action.id)}
-                className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
-                  isCurrent
-                    ? 'border-[#0EA5E9]/60 bg-[#0EA5E9]/10 shadow-sm'
-                    : 'border-slate-800/80 bg-slate-950/40 hover:bg-slate-900/60 text-slate-300'
+                onClick={() => {
+                  setSelectedPill(pill);
+                  onSelectModel(pill.modelVersion);
+                }}
+                style={{
+                  top: pill.topPercent,
+                  left: pill.leftPercent,
+                }}
+                className={`group absolute inline-flex items-center gap-3 rounded-full pl-3 pr-5 py-2 text-xs font-bold backdrop-blur-md transition-all duration-300 cursor-pointer ${
+                  isSelected
+                    ? 'bg-[#0F172A]/95 border-2 border-[#0EA5E9] text-white shadow-xl shadow-[#0EA5E9]/40 scale-105 z-20'
+                    : 'bg-[#0B0F19]/80 hover:bg-[#0F172A]/95 border border-white/20 text-slate-100 hover:border-[#0EA5E9]/70 hover:scale-105 shadow-lg'
                 }`}
               >
-                <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 shrink-0">
-                  {action.icon}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-xs font-bold text-slate-100 truncate">
-                      {action.title}
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-400">
-                      {action.category}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
-                    {action.subtitle}
-                  </p>
+                {pill.brandIcon}
+                <div className="text-left leading-tight">
+                  <span className="block text-[11px] sm:text-xs font-extrabold tracking-tight text-white">
+                    {pill.label}
+                  </span>
+                  <span className="hidden sm:block text-[10px] font-mono text-slate-300">
+                    {pill.sublabel} · {pill.skillTag}
+                  </span>
                 </div>
               </button>
             );
           })}
         </div>
 
-        {/* Columna Derecha: Consola de Salida y Telemetría */}
-        <div className="lg:col-span-7 flex flex-col justify-between rounded-xl border border-slate-800 bg-[#070b14] p-4 font-mono text-xs">
-          <div>
-            {/* Telemetría del Modelo Activo */}
-            <div className="grid grid-cols-3 gap-2 pb-3 mb-3 border-b border-slate-800/70 text-center">
-              <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800/60">
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider">Velocidad</div>
-                <div className="font-bold text-[#38BDF8] text-sm mt-0.5">{profile.speed}</div>
-              </div>
-              <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800/60">
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider">Latencia</div>
-                <div className="font-bold text-emerald-400 text-sm mt-0.5">{profile.latency}</div>
-              </div>
-              <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800/60">
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider">Contexto</div>
-                <div className="font-bold text-violet-400 text-sm mt-0.5">{profile.context}</div>
-              </div>
-            </div>
+        {/* 4. BASE INFERIOR DE LA COMPUTADORA CON HORIZONTE NARANJA DIFUMINADO Y FILA DE ICONOS DE IAS Y FRAMEWORKS */}
+        <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center">
+          {/* Resplandor Naranja Difuminado en el borde superior de la base */}
+          <div
+            aria-hidden="true"
+            className="h-6 w-[84%] max-w-4xl rounded-full bg-gradient-to-r from-transparent via-[#0EA5E9] to-transparent blur-md opacity-95 -mb-2.5"
+          />
+          <div
+            aria-hidden="true"
+            className="h-[2px] w-[88%] max-w-5xl bg-gradient-to-r from-transparent via-[#38BDF8] to-transparent shadow-lg shadow-[#0EA5E9]"
+          />
 
-            {/* Comando y Ejecución en Vivo */}
-            <div className="space-y-2">
-              <div className="text-slate-400 flex items-center justify-between">
-                <span>Instrucción / Prompt:</span>
-                <span className="text-[10px] text-slate-400">{profile.specialty}</span>
-              </div>
-              <div className="rounded-lg bg-black/60 p-3 text-[#38BDF8] border border-slate-800">
-                {currentAction.commandSnippet}
-              </div>
-
-              <div className="mt-3">
-                <div className="text-slate-400 text-[11px] mb-1">Respuesta de Inferencia:</div>
-                <div
-                  className={`rounded-lg bg-slate-950/90 p-3 border border-slate-800/90 text-slate-200 transition-opacity ${
-                    isExecuting ? 'opacity-40' : 'opacity-100'
-                  }`}
-                >
-                  {isExecuting ? (
-                    <div className="flex items-center gap-2 text-[#0EA5E9]">
-                      <RotateCw className="h-3.5 w-3.5 animate-spin" />
-                      <span>Sintetizando tokens del modelo {activeModel}...</span>
-                    </div>
-                  ) : (
-                    <span>{currentAction.simulatedOutput}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* CTA de Navegación Directa al Módulo */}
-          <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3">
-            <span className="text-[11px] text-slate-400 hidden sm:inline">
-              Módulo listo en el entorno de producción
-            </span>
-            <button
-              type="button"
-              onClick={() => onNavigatePage(currentAction.targetPage)}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#0EA5E9] hover:bg-[#0284C7] px-3.5 py-1.5 text-xs font-sans font-bold text-white transition-all cursor-pointer shadow-md shadow-[#0EA5E9]/20"
+          {/* Dock de la Computadora con los Iconos Oficiales de Claude, Gemini, GPT, Angular, Spring Boot y Tailwind */}
+          <div className="w-[96%] max-w-5xl rounded-t-2xl border-t border-x border-white/15 bg-gradient-to-b from-[#0D1224]/95 to-[#060913]/98 px-3 sm:px-8 py-3.5 shadow-2xl backdrop-blur-xl">
+            <div
+              role="toolbar"
+              aria-label="Iconos de inteligencias artificiales y frameworks integrados en la computadora"
+              className="flex items-center justify-around gap-2 sm:gap-5"
             >
-              <span>Abrir {currentAction.title}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
+              {COMPUTER_DOCK_ICONS.map((dockIcon) => {
+                const isActive =
+                  dockIcon.modelToSelect === activeModel &&
+                  !dockIcon.isCenterEmblem;
+                return (
+                  <button
+                    key={dockIcon.id}
+                    type="button"
+                    onClick={() => {
+                      if (dockIcon.modelToSelect) {
+                        onSelectModel(dockIcon.modelToSelect);
+                      }
+                      const matchingPill = FLOATING_BEAM_PILLS.find(
+                        (p) => p.modelVersion === dockIcon.modelToSelect
+                      );
+                      if (matchingPill) setSelectedPill(matchingPill);
+                    }}
+                    title={`${dockIcon.name} — ${dockIcon.subtitle}`}
+                    className={`group flex flex-col items-center gap-1.5 transition duration-200 cursor-pointer ${
+                      dockIcon.isCenterEmblem
+                        ? 'scale-105 px-4 py-1.5 rounded-2xl bg-white/[0.07] border border-[#0EA5E9]/55 shadow-lg shadow-[#0EA5E9]/30'
+                        : isActive
+                        ? 'px-3 py-1 rounded-xl bg-white/[0.08] border border-[#0EA5E9]/60 shadow-md'
+                        : 'px-2.5 py-1 rounded-xl hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center transition transform group-hover:scale-110">
+                      {dockIcon.iconElement}
+                    </div>
+                    <span
+                      className={`text-[10px] font-mono font-bold tracking-tight whitespace-nowrap ${
+                        dockIcon.isCenterEmblem
+                          ? 'text-[#38BDF8]'
+                          : isActive
+                          ? 'text-white'
+                          : 'text-slate-400 group-hover:text-white'
+                      }`}
+                    >
+                      {dockIcon.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* Barra Inferior de Detalle del Elemento Activo */}
+      <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800/90 bg-[#0B0F19] px-5 py-3 text-xs">
+        <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+          <span className="inline-flex items-center gap-1 rounded-lg bg-[#0EA5E9]/20 border border-[#0EA5E9]/45 px-2.5 py-1 font-mono text-[10px] font-extrabold text-[#38BDF8]">
+            <Cpu className="h-3 w-3" />
+            {selectedPill.modelVersion}
+          </span>
+          <span className="font-bold text-white truncate">
+            {selectedPill.label}:
+          </span>
+          <span className="text-slate-300 truncate">
+            {selectedPill.description}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => onNavigatePage('preview')}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-[#0F172A] px-3 py-1.5 text-[11px] font-bold text-slate-200 hover:border-[#0EA5E9] hover:text-white transition cursor-pointer"
+          >
+            <Laptop className="h-3.5 w-3.5 text-[#0EA5E9]" />
+            <span>Forja UI/UX</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigatePage('modelos-ia')}
+            className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] px-3 py-1.5 text-[11px] font-extrabold text-black transition hover:brightness-110 cursor-pointer"
+          >
+            <span>Cortex IA</span>
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
     </div>
