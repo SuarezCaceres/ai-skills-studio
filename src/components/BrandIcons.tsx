@@ -37,12 +37,12 @@ export const ClaudeBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
     </g>
     <defs>
       <linearGradient id="claude_bg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#2A150D" />
-        <stop offset="100%" stopColor="#0E0A08" />
+        <stop offset="0%" stopColor="#0B081B" />
+        <stop offset="100%" stopColor="#030712" />
       </linearGradient>
       <linearGradient id="claude_spoke" x1="0" y1="-10.5" x2="0" y2="-2" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#FF9E5E" />
-        <stop offset="100%" stopColor="#E06D3B" />
+        <stop offset="0%" stopColor="#38BDF8" />
+        <stop offset="100%" stopColor="#818CF8" />
       </linearGradient>
     </defs>
   </svg>

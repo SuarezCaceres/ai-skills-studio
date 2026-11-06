@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Sparkles,
   Code2,
@@ -12,6 +12,8 @@ import {
   Mic,
   Palette,
   FileCode2,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import { AppPageRoute, SpecificModelVersion } from '../types/workspace';
 import { ComputerLightBeamShowcase } from './ComputerLightBeamShowcase';
@@ -50,6 +52,18 @@ export const InformativeLandingSection: React.FC<
 > = ({ onNavigatePage, onSelectModelVersion, onFilterByFramework }) => {
   const [activeDesktopModel, setActiveDesktopModel] =
     useState<SpecificModelVersion>('Opus 5.5');
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsModelDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   const [collectionTab, setCollectionTab] = useState<
     'todos' | 'frecuentes' | 'populares'
   >('todos');
@@ -113,51 +127,118 @@ export const InformativeLandingSection: React.FC<
             <strong className="text-white">Claude Opus 5.5, Gemini 3.8 y GPT Astra</strong>.
           </p>
 
-          {/* Barra Cápsula Central Interactiva */}
-          <div className="mx-auto flex max-w-lg items-center justify-between gap-2 rounded-full border border-purple-500/25 bg-[#17102E]/90 p-1.5 pl-4 shadow-[0_0_40px_rgba(139,92,246,0.22)] backdrop-blur-xl">
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <AIBrandBadgeIcon
-                brand={
-                  MODEL_VERSION_PILLS.find((m) => m.version === activeDesktopModel)
-                    ?.brand || 'Claude'
-                }
-                className="h-4 w-4 shrink-0"
-              />
-              <label htmlFor="hero-model-select" className="sr-only">
-                Seleccionar versión de modelo IA en la estación
-              </label>
-              <select
-                id="hero-model-select"
-                value={activeDesktopModel}
-                onChange={(e) =>
-                  handleModelClickInMockup(e.target.value as SpecificModelVersion)
-                }
-                className="w-full bg-transparent text-xs sm:text-sm font-bold text-slate-200 focus:outline-none cursor-pointer truncate"
+          {/* Barra Cápsula Central Interactiva (UI/UX Pro Max) */}
+          <div
+            ref={dropdownRef}
+            className="relative mx-auto flex w-full max-w-xl items-center justify-between gap-3 rounded-full border border-violet-900/40 bg-[#0B0F19]/90 p-1.5 pl-3 shadow-[0_12px_40px_-10px_rgba(3,7,18,0.9),0_0_24px_rgba(139,92,246,0.18)] backdrop-blur-2xl transition-all duration-300 hover:border-[#0EA5E9]/50 hover:shadow-[0_12px_45px_-10px_rgba(3,7,18,0.95),0_0_28px_rgba(14,165,233,0.22)]"
+          >
+            {/* Selector de Modelo Customizado (Sin select nativo antiestético) */}
+            <div className="relative min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={() => setIsModelDropdownOpen((prev) => !prev)}
+                aria-expanded={isModelDropdownOpen}
+                aria-haspopup="listbox"
+                aria-label="Seleccionar versión de modelo IA"
+                className="group w-full flex items-center justify-between gap-2.5 rounded-full px-2 py-1 text-left transition-all hover:bg-white/[0.04] focus:outline-none cursor-pointer"
               >
-                {MODEL_VERSION_PILLS.map((m) => (
-                  <option
-                    key={m.version}
-                    value={m.version}
-                    className="bg-[#0D091A] text-white"
-                  >
-                    {m.brand} · {m.version} ({m.badge})
-                  </option>
-                ))}
-              </select>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600/25 to-sky-500/20 border border-sky-400/30 shadow-inner">
+                    <AIBrandBadgeIcon
+                      brand={
+                        MODEL_VERSION_PILLS.find((m) => m.version === activeDesktopModel)?.brand || 'Claude'
+                      }
+                      className="h-4 w-4 shrink-0"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 min-w-0 truncate">
+                    <span className="text-xs sm:text-sm font-bold text-white group-hover:text-[#38BDF8] transition-colors truncate">
+                      {MODEL_VERSION_PILLS.find((m) => m.version === activeDesktopModel)?.brand} · {activeDesktopModel}
+                    </span>
+                    <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-sky-950/60 border border-sky-500/30 text-[#38BDF8] shrink-0">
+                      {MODEL_VERSION_PILLS.find((m) => m.version === activeDesktopModel)?.badge}
+                    </span>
+                  </div>
+                </div>
+
+                <ChevronDown
+                  className={`h-4 w-4 text-slate-400 shrink-0 transition-transform duration-200 ${
+                    isModelDropdownOpen ? 'rotate-180 text-[#38BDF8]' : 'group-hover:text-white'
+                  }`}
+                />
+              </button>
+
+              {/* Popover Dropdown Customizado Flotante */}
+              {isModelDropdownOpen && (
+                <div
+                  role="listbox"
+                  className="absolute left-0 right-0 top-full mt-2.5 z-50 rounded-2xl border border-violet-900/40 bg-[#070B14]/98 p-1.5 shadow-[0_24px_50px_rgba(0,0,0,0.95),0_0_25px_rgba(14,165,233,0.2)] backdrop-blur-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150"
+                >
+                  <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-violet-900/30 flex items-center justify-between">
+                    <span>Estaciones de IA Fundacionales</span>
+                    <span className="text-[#38BDF8]">7 Versiones</span>
+                  </div>
+                  <div className="max-h-60 overflow-y-auto space-y-1 pr-0.5">
+                    {MODEL_VERSION_PILLS.map((m) => {
+                      const isSelected = activeDesktopModel === m.version;
+                      return (
+                        <button
+                          key={m.version}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => {
+                            handleModelClickInMockup(m.version);
+                            setIsModelDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 text-white shadow-[0_0_12px_rgba(14,165,233,0.15)]'
+                              : 'text-slate-300 hover:bg-white/[0.05] hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-900/80 border border-slate-800">
+                              <AIBrandBadgeIcon brand={m.brand} className="h-3.5 w-3.5" />
+                            </div>
+                            <div className="min-w-0">
+                              <span className="block text-xs font-bold truncate">
+                                {m.brand} · {m.version}
+                              </span>
+                              <span className="block text-[10px] font-mono text-[#94A3B8] truncate">
+                                {m.badge}
+                              </span>
+                            </div>
+                          </div>
+
+                          {isSelected && (
+                            <span className="flex items-center gap-1 text-[11px] font-mono text-[#34D399] shrink-0">
+                              <Check className="h-3.5 w-3.5" />
+                              <span className="text-[10px]">Activo</span>
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
+            {/* Botón Primario / CTA en Cian Neón Oficial */}
             <button
               type="button"
               onClick={() => onNavigatePage('preview')}
-              className="shrink-0 rounded-full border border-purple-400/30 bg-gradient-to-r from-[#8B5CF6] via-[#7C3AED] to-[#6366F1] hover:brightness-110 px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-[#8B5CF6]/35 transition cursor-pointer"
+              className="group shrink-0 inline-flex items-center gap-2 rounded-full bg-[#0EA5E9] hover:bg-[#38BDF8] text-[#030712] font-black text-xs sm:text-sm px-5 py-2.5 shadow-[0_0_22px_rgba(14,165,233,0.45)] hover:shadow-[0_0_28px_rgba(56,189,248,0.65)] active:scale-95 transition-all duration-200 cursor-pointer"
             >
-              Ver Catálogo UI/UX
+              <span>Ver Catálogo UI/UX</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
             </button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-medium text-purple-200/70">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-medium text-slate-400">
             <span>Acceso libre en Modo General</span>
-            <Sparkles className="h-3.5 w-3.5 text-[#C084FC]" />
+            <Sparkles className="h-3.5 w-3.5 text-[#38BDF8]" />
             <span>7 Versiones de IA &amp; Evaluación por Voz ES</span>
           </div>
 
@@ -172,8 +253,8 @@ export const InformativeLandingSection: React.FC<
                   onClick={() => handleModelClickInMockup(m.version)}
                   className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition cursor-pointer border ${
                     active
-                      ? 'bg-[#8B5CF6]/25 text-white border-[#A855F7] shadow-sm shadow-[#8B5CF6]/40'
-                      : 'border-white/10 bg-[#130E26]/80 text-purple-200/80 hover:border-[#8B5CF6]/50 hover:text-white'
+                      ? 'bg-sky-500/15 text-[#38BDF8] border-sky-400/40 shadow-[0_0_12px_rgba(14,165,233,0.25)]'
+                      : 'border-violet-900/30 bg-[#0B0F19]/80 text-[#94A3B8] hover:border-sky-500/40 hover:text-white'
                   }`}
                 >
                   <AIBrandBadgeIcon brand={m.brand} className="h-3.5 w-3.5" />
