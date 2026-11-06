@@ -10,6 +10,7 @@ const securityHeaders = {
 };
 
 export default defineConfig({
+  base: './',
   plugins: [react(), tailwindcss()],
   server: {
     headers: securityHeaders,
