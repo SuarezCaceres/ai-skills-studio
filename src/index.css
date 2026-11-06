@@ -2,58 +2,31 @@
 
 @theme {
   --color-midnight-void: #030712;
-  --color-midnight-deep: #0b081b;
-  --color-midnight-base: #0b0f19;
-  --color-midnight-card: #0b0f19;
-  --color-midnight-elevated: #111726;
-  --color-midnight-surface: #171f33;
-
-  --color-purple-primary: #8b5cf6;
-  --color-purple-vibrant: #7c3aed;
-  --color-purple-light: #c084fc;
-  --color-purple-amethyst: #a855f7;
+  --color-midnight-deep: #060913;
+  --color-midnight-base: #0b1120;
+  --color-midnight-card: #0b1120;
+  --color-midnight-elevated: #111827;
+  --color-midnight-surface: #1e293b;
 
   --color-cyan-primary: #0ea5e9;
   --color-cyan-neon: #38bdf8;
-  --color-emerald-status: #34d399;
-  --color-cyan-synapse: #38bdf8;
-  --color-emerald-matrix: #34d399;
-  --color-amber-score: #38bdf8;
+  --color-emerald-status: #10b981;
+  --color-emerald-matrix: #10b981;
 }
 
 @layer base {
   :root {
-    /* Paleta Cyber Dark Espacial */
     --bg-midnight-void: #030712;
-    --bg-midnight-deep: #0b081b;
-    --bg-midnight-slate: #0b0f19;
-    --panel-midnight-card: #0b0f19;
-    --panel-midnight-elevated: #111726;
-    --panel-midnight-border: rgba(139, 92, 246, 0.2);
+    --panel-midnight-card: #0b1120;
+    --panel-midnight-elevated: #111827;
+    --panel-midnight-border: rgba(148, 163, 184, 0.12);
 
-    /* Acentos Morado Espacial / Violeta */
-    --purple-primary: #8b5cf6;
-    --purple-vibrant: #7c3aed;
-    --purple-light: #c084fc;
-    --purple-glow: rgba(139, 92, 246, 0.32);
-
-    /* Primario: Cian Eléctrico / Azul Neón (#0EA5E9 y #38BDF8) */
     --cyan-primary: #0ea5e9;
     --cyan-neon: #38bdf8;
-    --cyan-synapse: #38bdf8;
-    --cyan-glow: rgba(14, 165, 233, 0.35);
+    --status-emerald: #10b981;
 
-    /* Estados: Verde Esmeralda Suave (#34D399) */
-    --status-emerald: #34d399;
-    --emerald-ready: #34d399;
-    --amber-score: #38bdf8;
-
-    /* Superficie de Lectura Técnica */
-    --panel-ivory-warm: #070b14;
-    --panel-ivory-text: #f8fafc;
-
-    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   html {
@@ -61,44 +34,50 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--bg-midnight-void);
+    background-color: #030712;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--bg-midnight-void);
-    color: #f8fafc;
+    background-color: #030712;
+    color: #94a3b8;
     overflow-x: hidden;
   }
 
   ::selection {
-    background-color: #8b5cf6;
+    background-color: #0ea5e9;
     color: #ffffff;
   }
 
-  /* Barra de desplazamiento elegante en tono amatista oscuro */
+  /* Barra de desplazamiento ergonómica en carbón y pizarra */
   ::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #07050e;
+    background: #030712;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #20183e;
+    background: #1e293b;
     border-radius: 9999px;
-    border: 1px solid rgba(168, 85, 247, 0.2);
+    border: 1px solid rgba(148, 163, 184, 0.08);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #8b5cf6;
+    background: #334155;
   }
 
   code,
   pre {
     font-family: var(--font-mono);
+  }
+
+  /* Foco accesible visible para teclado */
+  :focus-visible {
+    outline: 2px solid #0ea5e9;
+    outline-offset: 2px;
   }
 
   [inert],
@@ -108,33 +87,6 @@
     user-select: none;
   }
 
-  [focusgroup~="menu"] {
-    --menu-icon-size: 1.25rem;
-  }
-
-  [focusgroup~="menu"] > button,
-  [focusgroup~="menu"] > [role="group"] > button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  [focusgroup~="menu"] button::before {
-    content: "";
-    flex: none;
-    inline-size: var(--menu-icon-size);
-  }
-
-  [focusgroup~="menu"] button[aria-checked="true"]::before {
-    content: "✓";
-    color: #c084fc;
-    font-weight: 700;
-  }
-
-  [focusgroup~="menu"] .hint {
-    margin-inline-start: auto;
-  }
-
   .content-visibility-auto {
     content-visibility: auto;
     contain-intrinsic-size: 1px 500px;
@@ -142,112 +94,68 @@
 }
 
 /* ==========================================================================
-   PATRÓN DE RED NEURONAL & ELEMENTOS FLOTANTES EN TONOS VIOLETA & CIAN
-   ========================================================================== */
-
-.neural-mesh-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%238B5CF6' stroke-width='0.55' stroke-opacity='0.09'%3E%3Cpath d='M20 25 L75 50 L135 20 L150 85 L100 135 L35 120 Z'/%3E%3Cpath d='M75 50 L100 135 M20 25 L35 120 M75 50 L150 85'/%3E%3C/g%3E%3Cg fill='%23C084FC' fill-opacity='0.18'%3E%3Ccircle cx='20' cy='25' r='1.8'/%3E%3Ccircle cx='75' cy='50' r='2.2'/%3E%3Ccircle cx='135' cy='20' r='1.5'/%3E%3Ccircle cx='150' cy='85' r='2'/%3E%3Ccircle cx='100' cy='135' r='1.8'/%3E%3Ccircle cx='35' cy='120' r='2'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 160px 160px;
-}
-
-.neural-floating-glyph {
-  color: rgba(192, 132, 252, 0.6);
-  box-shadow: 0 0 16px -2px rgba(139, 92, 246, 0.25);
-  animation: neural-float 11s ease-in-out infinite;
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-}
-
-.neural-floating-glyph-delayed {
-  color: rgba(139, 92, 246, 0.55);
-  box-shadow: 0 0 16px -2px rgba(56, 189, 248, 0.2);
-  animation: neural-float-reverse 14s ease-in-out infinite;
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-}
-
-@keyframes neural-float {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate3d(0, -10px, 0) rotate(3deg);
-  }
-}
-
-@keyframes neural-float-reverse {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate3d(0, 9px, 0) rotate(-3deg);
-  }
-}
-
-/* ==========================================================================
-   PANELES Y TARJETAS EN NOCHE OBSIDIANA VIOLETA (#17112E) + RESPLANDOR
+   SUPERFICIES DE PANEL CYBER DARK & INSTRUMENTACIÓN
    ========================================================================== */
 
 .edu-floating-panel {
-  background: linear-gradient(180deg, rgba(23, 17, 46, 0.88) 0%, rgba(15, 11, 30, 0.95) 100%);
-  border: 1px solid rgba(168, 85, 247, 0.18);
-  box-shadow:
-    0 24px 50px -15px rgba(3, 2, 8, 0.92),
-    0 0 25px -8px rgba(139, 92, 246, 0.16),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(18px);
+  background: #0b1120;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
 }
 
 .edu-floating-panel-active {
-  background: linear-gradient(180deg, rgba(32, 24, 62, 0.94) 0%, rgba(20, 14, 40, 0.98) 100%);
-  border: 1px solid rgba(168, 85, 247, 0.55);
-  box-shadow:
-    0 26px 54px -15px rgba(3, 2, 8, 0.95),
-    0 0 30px -4px rgba(139, 92, 246, 0.35),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+  background: #0e1628;
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  box-shadow: 0 18px 40px -12px rgba(14, 165, 233, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
 }
 
 .edu-ivory-reading-card {
-  background-color: #070b14;
+  background-color: #090d16;
   color: #f8fafc;
-  border: 1.5px solid rgba(14, 165, 233, 0.4);
-  box-shadow:
-    0 20px 45px -12px rgba(3, 7, 18, 0.7),
-    0 0 24px -6px rgba(14, 165, 233, 0.22);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.6);
 }
 
-.purple-glow,
 .cyan-glow,
-.cyan-glow {
-  box-shadow:
-    0 16px 38px -10px rgba(3, 7, 18, 0.85),
-    0 0 28px -6px rgba(14, 165, 233, 0.35);
+.purple-glow {
+  box-shadow: 0 12px 30px -10px rgba(14, 165, 233, 0.2);
 }
 
-.purple-glow-sm,
 .cyan-glow-sm,
-.cyan-glow-sm {
-  box-shadow:
-    0 10px 24px -8px rgba(3, 7, 18, 0.75),
-    0 0 16px -4px rgba(14, 165, 233, 0.28);
+.purple-glow-sm {
+  box-shadow: 0 6px 18px -6px rgba(14, 165, 233, 0.16);
 }
 
 /* Botón y Enlace Obsidian */
 .btn-obsidian-vault {
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.22) 0%, rgba(124, 58, 237, 0.36) 100%);
-  border: 1px solid rgba(192, 132, 252, 0.5);
-  color: #e9d5ff;
-  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(147, 51, 234, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #d8b4fe;
+  transition: all 180ms ease-out;
 }
 
 .btn-obsidian-vault:hover {
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.38) 0%, rgba(124, 58, 237, 0.55) 100%);
-  border-color: rgba(216, 180, 254, 0.85);
-  box-shadow: 0 0 24px -2px rgba(168, 85, 247, 0.45);
+  background: rgba(147, 51, 234, 0.28);
+  border-color: rgba(192, 132, 252, 0.7);
+  box-shadow: 0 0 16px -2px rgba(168, 85, 247, 0.3);
   color: #ffffff;
   transform: translateY(-1px);
+}
+
+/* Patrón de precisión técnica */
+.neural-mesh-pattern {
+  background-image: radial-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Glifos sutiles (sin animación oscilante agresiva) */
+.neural-floating-glyph,
+.neural-floating-glyph-delayed {
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(11, 17, 32, 0.85);
+  backdrop-filter: blur(8px);
 }
 
 @media (prefers-reduced-motion: reduce) {
