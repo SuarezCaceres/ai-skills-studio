@@ -82,7 +82,7 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     summary:
       'Motor multimodal nativo de última generación con ventana de 2M de tokens, velocidad líder y síntesis visual de alto dinamismo cromático.',
     visualImpactNotes:
-      'Genera atmósferas inmersivas con mallas neuronales SVG, degradados dinámicos en naranja vibrante (#0EA5E9) y respuesta instantánea a 60fps.',
+      'Genera atmósferas inmersivas con mallas neuronales SVG, degradados dinámicos en cian eléctrico (#0EA5E9) y respuesta instantánea a 60fps.',
     strengths: [
       'Ventana de contexto masiva de 2M tokens para inspeccionar paquetes .RAR enteros',
       'Velocidad de inferencia ultrarrápida (178 tok/s) con latencia mínima',
@@ -148,7 +148,7 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     strengths: [
       'Puntuación máxima en generación de componentes UI/UX interactivos',
       'Código React 19 y TypeScript limpio, modular y libre de redundancias',
-      'Sensibilidad estética superior en paletas Azul Noche y Naranja Vibrante',
+      'Sensibilidad estética superior en paletas Cyber Dark y Cian Eléctrico',
     ],
     recommendedFor: [
       'Personalización en vivo de componentes en el modal "Ver Demostración"',
@@ -206,7 +206,7 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     summary:
       'Modelo especializado en estética nocturna ("Lunar Dark UI"), transiciones sedosas, confort ocular prolongado y diseño centrado en el humano.',
     visualImpactNotes:
-      'Suaviza las luminancias sobre fondos Azul Noche (#0A0F1D) creando halos naranja orgánicos y superficies de lectura sumamente cómodas.',
+      'Suaviza las luminancias sobre fondos Cyber Dark (#030712) creando halos cian orgánicos y superficies de lectura sumamente cómodas.',
     strengths: [
       'Calibración cromática especializada en temas oscuros profundos',
       'Transiciones fluidas y jerarquía tipográfica de lectura descansada',
@@ -229,7 +229,7 @@ export const INITIAL_VISUAL_FEEDBACK_REVIEWS: VisualFeedbackReview[] = [
     authorRole: 'Modo Colaborador',
     rating: 5,
     comment:
-      'Con Opus 5.5 la jerarquía en azul noche y los acentos en naranja vibrante quedaron impecables; los bordes y el espaciado del menú se sienten de nivel Apple Pro.',
+      'Con Opus 5.5 la jerarquía en Cyber Dark y los acentos en cian eléctrico quedaron impecables; los bordes y el espaciado del menú se sienten de nivel Apple Pro.',
     usedVoiceDictation: true,
     createdAt: 'Hace 15 min',
   },

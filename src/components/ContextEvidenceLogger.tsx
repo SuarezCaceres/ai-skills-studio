@@ -178,7 +178,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
         </div>
       </div>
 
-      {/* Galería Showcase de 2 Columnas en Azul Noche y Naranja */}
+      {/* Galería Showcase de 2 Columnas en Cyber Dark y Cian */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Columna A: Subida y Previsualización Flotante de Capturas del Núcleo */}
         <div className="rounded-3xl bg-[#0F172A] border border-[#0EA5E9]/35 p-5 sm:p-6 cyan-glow flex flex-col gap-5">

@@ -109,7 +109,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
         {
           skillId: 'ui-ux-pro-max',
           description:
-            'Sistema de diseño en Azul Noche (#0A0F1D) con acentos Naranja Vibrante (#0EA5E9).',
+            'Sistema de diseño en Cyber Dark (#030712) con acentos Cian Eléctrico (#0EA5E9).',
         },
       ]
     );
@@ -253,7 +253,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
           </h3>
         </div>
         <p className="text-xs text-slate-400 max-w-md">
-          Explora las 6 arquitecturas visuales en Azul Noche y Naranja. Prueba la personalización en vivo o compara el rendimiento entre{' '}
+          Explora las 6 arquitecturas visuales en Cyber Dark y Cian Eléctrico. Prueba la personalización en vivo o compara el rendimiento entre{' '}
           <strong className="text-[#38BDF8]">Opus 5.5, Gemini 3.8, Sonnet 5.5 y GPT Astra</strong>.
         </p>
       </div>
@@ -590,8 +590,8 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                   <div className="flex flex-wrap gap-2">
                     {[
                       {
-                        label: 'Azul Noche + Naranja',
-                        palette: ['#0EA5E9', '#38BDF8', '#38BDF8', '#0A0F1D'],
+                        label: 'Cyber Dark + Cian',
+                        palette: ['#0EA5E9', '#38BDF8', '#38BDF8', '#030712'],
                       },
                       {
                         label: 'Solar Ciber + Cian',
