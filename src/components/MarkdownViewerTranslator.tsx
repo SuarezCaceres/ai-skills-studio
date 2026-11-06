@@ -116,7 +116,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
 
   return (
     <section aria-labelledby="ficha-skill-heading" className="space-y-6">
-      {/* Breadcrumb Editorial en Naranja y Negro */}
+      {/* Breadcrumb Editorial en Cyber Dark y Cian */}
       <div className="space-y-3">
         <nav aria-label="Ruta de navegación" className="flex items-center gap-1.5 text-xs text-zinc-400">
           <span>Comunidad</span>
@@ -151,8 +151,8 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
         </p>
       </div>
 
-      {/* Tarjeta "FICHA" en #121212 con Glow Naranja */}
-      <div className="rounded-3xl bg-[#121212] border border-[#0EA5E9]/30 p-5 sm:p-7 cyan-glow space-y-6">
+      {/* Tarjeta "FICHA" en Superficie de Panel con Borde Técnico */}
+      <div className="rounded-2xl bg-[#0B1120] border border-slate-800 p-5 sm:p-7 shadow-xl space-y-6">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#0EA5E9]/15 text-[#0EA5E9] border border-[#0EA5E9]/40">

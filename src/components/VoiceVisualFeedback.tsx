@@ -124,7 +124,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
       setUsedVoiceInCurrentDraft(true);
       const sampleDictation = `El resultado visual generado con ${selectedModelVersion}${
         presetName ? ` en "${presetName}"` : ''
-      } destaca por su atmósfera azul noche (#0A0F1D), excelente legibilidad y acentos naranjas vibrantes muy bien balanceados.`;
+      } destaca por su atmósfera Cyber Dark (#030712), excelente legibilidad y acentos cian eléctricos muy bien balanceados.`;
       setCommentText((prev) =>
         prev ? `${prev.trim()} ${sampleDictation}` : sampleDictation
       );
@@ -195,7 +195,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
     setUsedVoiceInCurrentDraft(true);
     const voiceSample = `Al evaluar ${selectedModelVersion}${
       presetName ? ` sobre el componente "${presetName}"` : ''
-    }, siento que el contraste entre el fondo azul noche y los botones naranjas guía la vista de inmediato y las transiciones se perciben muy fluidas.`;
+    }, siento que el contraste entre el fondo Cyber Dark y los botones cian guía la vista de inmediato y las transiciones se perciben muy fluidas.`;
     setCommentText((prev) =>
       prev ? `${prev.trim()} ${voiceSample}` : voiceSample
     );
@@ -382,7 +382,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
               setCommentText(e.target.value.slice(0, 500));
               setInterimTranscript('');
             }}
-            placeholder={`Dicta con el micrófono o escribe aquí cómo sentiste el resultado visual de ${selectedModelVersion} (contraste azul noche, acentos naranja, fluidez, estructura)...`}
+            placeholder={`Dicta con el micrófono o escribe aquí cómo sentiste el resultado visual de ${selectedModelVersion} (contraste Cyber Dark, acentos cian, fluidez, estructura)...`}
             className="w-full rounded-xl border border-slate-700 bg-[#0F172A] p-3 text-xs leading-relaxed text-white placeholder:text-slate-500 focus:border-[#0EA5E9] focus:outline-none"
           />
         </div>
