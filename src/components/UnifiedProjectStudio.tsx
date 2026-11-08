@@ -22,6 +22,9 @@ import {
   Terminal,
   X,
   Layers,
+  Sparkles,
+  ExternalLink,
+  Code2,
 } from 'lucide-react';
 import {
   AppPageRoute,
@@ -75,7 +78,7 @@ const LANGUAGE_BADGES: Record<CodeLanguage, { label: string; badgeClass: string 
   typescript: { label: 'TS', badgeClass: 'border-sky-500/35 bg-sky-500/10 text-sky-300' },
   css: { label: 'CSS', badgeClass: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' },
   markdown: { label: 'MD', badgeClass: 'border-amber-500/35 bg-amber-500/10 text-amber-300' },
-  json: { label: 'JSON', badgeClass: 'border-slate-500/40 bg-slate-500/15 text-slate-300' },
+  json: { label: 'JSON', badgeClass: 'border-slate-600/40 bg-slate-800/40 text-slate-300' },
   html: { label: 'HTML', badgeClass: 'border-rose-500/35 bg-rose-500/10 text-rose-300' },
 };
 
@@ -247,7 +250,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
     const folder = parts.length > 1 ? parts.slice(0, -1).join('/') : 'src';
     const starter =
       newFileLang === 'markdown'
-        ? `---\nname: ${name.replace(/\.md$/i, '')}\ndescription: Directiva operativa para el agente.\n---\n\n# ${name.replace(/\.md$/i, '')}\n\n1. Describe qué valida o construye esta skill.\n`
+        ? `---\nname: ${name.replace(/\.md$/i, '')}\ndescription: Directiva operativa para el agente de IA.\n---\n\n# ${name.replace(/\.md$/i, '')}\n\n1. Define aquí las reglas operativas y validaciones de la skill.\n`
         : `// ${clean}\nexport const ready = true;\n`;
 
     const entry: RarFileEntry = {
@@ -450,31 +453,33 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
       {/* TOP WORKSPACE COMMAND BAR */}
       <div
-        className={`flex flex-wrap items-center justify-between gap-3 rounded-md border px-4 py-3 transition ${
+        className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 transition-colors duration-200 ${
           isDraggingOver
             ? 'border-[#0ea5e9] bg-[#121c2c]'
             : 'border-slate-800 bg-[#121722]'
         }`}
       >
         <div className="flex flex-wrap items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded border border-slate-700 bg-[#0a0d14] text-[#0ea5e9]">
-            <FolderOpen className="h-4 w-4" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-700 bg-[#0a0d14] text-[#0ea5e9]">
+            <FolderOpen className="h-5 w-5" />
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-base font-semibold text-white">
+              <h1 className="truncate text-base font-semibold text-white tracking-tight">
                 {workspace.archiveName}
               </h1>
-              <span className="rounded border border-slate-700 bg-[#0a0d14] px-2 py-0.5 font-mono text-[11px] text-slate-300">
+              <span className="rounded-full border border-slate-700 bg-[#0a0d14] px-2.5 py-0.5 font-mono text-[11px] tabular-nums text-slate-300">
                 {workspace.files.length} archivos · {(workspace.totalSizeBytes / 1024).toFixed(1)} KB
               </span>
               {auditReport.modifiedCount > 0 && (
-                <span className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-[11px] text-amber-300">
+                <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 font-mono text-[11px] font-medium text-amber-300">
                   {auditReport.modifiedCount} modificado{auditReport.modifiedCount > 1 ? 's' : ''}
                 </span>
               )}
             </div>
-            <p className="truncate text-xs text-slate-400">{workspace.signatureDetected}</p>
+            <p className="truncate text-xs text-slate-400 mt-0.5">
+              {workspace.signatureDetected} · VFS en memoria de navegador
+            </p>
           </div>
         </div>
 
@@ -483,26 +488,26 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             type="button"
             disabled={isBusy}
             onClick={() => void handleOpenDirectoryPicker()}
-            className="inline-flex h-9 items-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white cursor-pointer"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white transition-all duration-150 cursor-pointer"
           >
             <FolderOpen className="h-3.5 w-3.5 text-[#0ea5e9]" />
-            <span>Abrir carpeta local</span>
+            <span>Abrir carpeta</span>
           </button>
 
           <button
             type="button"
             disabled={isBusy}
             onClick={() => archiveInputRef.current?.click()}
-            className="inline-flex h-9 items-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white cursor-pointer"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white transition-all duration-150 cursor-pointer"
           >
             <Upload className="h-3.5 w-3.5 text-[#0ea5e9]" />
-            <span>Importar .ZIP / archivo</span>
+            <span>Importar paquete ZIP</span>
           </button>
 
           <button
             type="button"
             onClick={handleExportZip}
-            className="inline-flex h-9 items-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white cursor-pointer"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white transition-all duration-150 cursor-pointer"
           >
             <Download className="h-3.5 w-3.5 text-emerald-400" />
             <span>Exportar .ZIP</span>
@@ -518,7 +523,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               onSaveRarProjectToBoveda(workspace);
               notify(`Workspace "${workspace.archiveName}" guardado en el catálogo.`);
             }}
-            className="inline-flex h-9 items-center gap-1.5 rounded bg-[#0ea5e9] px-3.5 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] cursor-pointer"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md bg-[#0ea5e9] px-3.5 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] transition-all duration-150 cursor-pointer shadow-sm"
           >
             <Save className="h-3.5 w-3.5" />
             <span>Guardar en catálogo</span>
@@ -530,7 +535,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
         <div
           role="status"
           aria-live="polite"
-          className={`flex items-center justify-between rounded border px-3.5 py-2 text-xs font-medium ${
+          className={`flex items-center justify-between rounded-md border px-3.5 py-2 text-xs font-medium ${
             feedbackBanner.tone === 'error'
               ? 'border-rose-500/40 bg-rose-950/30 text-rose-200'
               : 'border-[#0ea5e9]/40 bg-[#0ea5e9]/10 text-sky-200'
@@ -553,9 +558,9 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
         {/* PANE 1: VIRTUAL FILE SYSTEM TREE */}
         <aside
           aria-label="Explorador de archivos del workspace"
-          className="flex flex-col rounded-md border border-slate-800 bg-[#121722] lg:col-span-3"
+          className="flex flex-col rounded-lg border border-slate-800 bg-[#121722] lg:col-span-3 overflow-hidden"
         >
-          <div className="space-y-2.5 border-b border-slate-800 p-3">
+          <div className="space-y-2.5 border-b border-slate-800 p-3 bg-[#0d1118]">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 Árbol VFS
@@ -563,7 +568,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => setShowNewFileForm((v) => !v)}
-                className="inline-flex items-center gap-1 rounded border border-slate-700 bg-[#0a0d14] px-2 py-1 text-[11px] font-medium text-slate-200 hover:border-[#0ea5e9] hover:text-white cursor-pointer"
+                className="inline-flex items-center gap-1 rounded border border-slate-700 bg-[#0a0d14] px-2 py-1 text-[11px] font-medium text-slate-200 hover:border-[#0ea5e9] hover:text-white transition cursor-pointer"
               >
                 <Plus className="h-3 w-3 text-[#0ea5e9]" />
                 <span>Nuevo</span>
@@ -573,9 +578,9 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             {showNewFileForm && (
               <form
                 onSubmit={handleCreateFile}
-                className="space-y-2 rounded border border-slate-700 bg-[#0a0d14] p-2.5"
+                className="space-y-2 rounded-md border border-slate-700 bg-[#0a0d14] p-2.5"
               >
-                <label className="block text-[11px] text-slate-400" htmlFor="vfs-new-path">
+                <label className="block text-[11px] text-slate-400 font-medium" htmlFor="vfs-new-path">
                   Ruta del archivo
                 </label>
                 <input
@@ -583,14 +588,14 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   type="text"
                   value={newFilePath}
                   onChange={(e) => setNewFilePath(e.target.value)}
-                  className="w-full rounded border border-slate-700 bg-[#121722] px-2 py-1 font-mono text-xs text-white"
+                  className="w-full rounded border border-slate-700 bg-[#121722] px-2.5 py-1 font-mono text-xs text-white focus:border-[#0ea5e9] outline-none"
                 />
                 <div className="flex items-center gap-2">
                   <select
                     aria-label="Lenguaje del archivo"
                     value={newFileLang}
                     onChange={(e) => setNewFileLang(e.target.value as CodeLanguage)}
-                    className="flex-1 rounded border border-slate-700 bg-[#121722] px-2 py-1 text-xs text-slate-200"
+                    className="flex-1 rounded border border-slate-700 bg-[#121722] px-2 py-1 text-xs text-slate-200 outline-none"
                   >
                     <option value="markdown">Markdown (.md)</option>
                     <option value="typescript">TypeScript (.ts)</option>
@@ -600,7 +605,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   </select>
                   <button
                     type="submit"
-                    className="rounded bg-[#0ea5e9] px-2.5 py-1 text-xs font-semibold text-[#0a0d14] cursor-pointer"
+                    className="rounded bg-[#0ea5e9] px-2.5 py-1 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] cursor-pointer"
                   >
                     Crear
                   </button>
@@ -616,7 +621,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Filtrar ruta o código..."
                 aria-label="Filtrar archivos en el árbol VFS"
-                className="w-full rounded border border-slate-800 bg-[#0a0d14] py-1.5 pl-8 pr-2.5 text-xs text-slate-200 placeholder:text-slate-500 focus:border-[#0ea5e9]"
+                className="w-full rounded border border-slate-800 bg-[#0a0d14] py-1.5 pl-8 pr-2.5 text-xs text-slate-200 placeholder:text-slate-500 focus:border-[#0ea5e9] outline-none"
               />
             </div>
 
@@ -626,7 +631,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   key={lang}
                   type="button"
                   onClick={() => setLangFilter(lang)}
-                  className={`rounded px-2 py-0.5 font-mono text-[11px] transition cursor-pointer ${
+                  className={`rounded px-2 py-0.5 font-mono text-[11px] transition-colors cursor-pointer ${
                     langFilter === lang
                       ? 'bg-[#0ea5e9] font-semibold text-[#0a0d14]'
                       : 'bg-[#0a0d14] text-slate-400 hover:text-slate-200'
@@ -648,7 +653,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     onClick={() =>
                       setCollapsedFolders((prev) => ({ ...prev, [folder]: !prev[folder] }))
                     }
-                    className="flex w-full items-center gap-1.5 rounded px-2 py-1 text-left font-mono text-xs text-slate-400 hover:bg-[#0a0d14] hover:text-slate-200 cursor-pointer"
+                    className="flex w-full items-center gap-1.5 rounded px-2 py-1 text-left font-mono text-xs text-slate-400 hover:bg-[#0a0d14] hover:text-slate-200 transition cursor-pointer"
                   >
                     {isCollapsed ? (
                       <ChevronRight className="h-3.5 w-3.5 shrink-0" />
@@ -673,9 +678,9 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         return (
                           <div
                             key={file.id}
-                            className={`group flex items-center justify-between gap-1.5 rounded px-2 py-1.5 text-xs transition ${
+                            className={`group flex items-center justify-between gap-1.5 rounded-md px-2.5 py-1.5 text-xs transition duration-150 ${
                               isSelected
-                                ? 'bg-[#0ea5e9]/15 text-white ring-1 ring-[#0ea5e9]/45'
+                                ? 'bg-[#0ea5e9]/12 text-white border-l-2 border-[#0ea5e9]'
                                 : 'text-slate-300 hover:bg-[#0a0d14]'
                             }`}
                           >
@@ -734,11 +739,11 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
         {/* PANE 2: MULTI-TAB CODE EDITOR, UNIFIED DIFF & TRANSLATOR */}
         <section
           aria-label="Editor de código y visor de diferencias"
-          className="flex flex-col rounded-md border border-slate-800 bg-[#121722] lg:col-span-6"
+          className="flex flex-col rounded-lg border border-slate-800 bg-[#121722] lg:col-span-6 overflow-hidden"
         >
           {/* Open Tabs Bar */}
-          <div className="flex items-center justify-between gap-2 border-b border-slate-800 bg-[#0d1118] px-2 pt-1.5">
-            <div className="flex items-center gap-1 overflow-x-auto">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-800 bg-[#0d1118] px-2 pt-1.5 overflow-x-auto">
+            <div className="flex items-center gap-1">
               {openTabs.map((tabId) => {
                 const file = workspace.files.find((f) => f.id === tabId);
                 if (!file) return null;
@@ -755,9 +760,9 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') setSelectedFileId(file.id);
                     }}
-                    className={`flex items-center gap-2 rounded-t border-x border-t px-3 py-1.5 font-mono text-xs cursor-pointer ${
+                    className={`flex items-center gap-2 rounded-t-md border-x border-t px-3 py-1.5 font-mono text-xs cursor-pointer transition-colors ${
                       active
-                        ? 'border-slate-700 bg-[#121722] text-white'
+                        ? 'border-slate-700 bg-[#121722] text-white font-medium'
                         : 'border-transparent bg-transparent text-slate-400 hover:text-slate-200'
                     }`}
                   >
@@ -767,7 +772,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                       type="button"
                       onClick={(e) => handleCloseTab(e, file.id)}
                       aria-label={`Cerrar pestaña ${file.name}`}
-                      className="text-slate-500 hover:text-white cursor-pointer"
+                      className="text-slate-500 hover:text-white cursor-pointer ml-1"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -778,12 +783,12 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
           </div>
 
           {/* Mode Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
-            <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 px-3 py-2 bg-[#0f141f]">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setEditorMode('code')}
-                className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
                   editorMode === 'code'
                     ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
                     : 'bg-[#0a0d14] text-slate-300 hover:text-white'
@@ -796,7 +801,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => setEditorMode('diff')}
-                className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
                   editorMode === 'diff'
                     ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
                     : 'bg-[#0a0d14] text-slate-300 hover:text-white'
@@ -813,7 +818,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   type="button"
                   disabled={isTranslating}
                   onClick={() => void handleTranslateActiveFile()}
-                  className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
                     editorMode === 'translate'
                       ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
                       : 'bg-[#0a0d14] text-slate-300 hover:text-white'
@@ -827,7 +832,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => setEditorMode('presets')}
-                className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
                   editorMode === 'presets'
                     ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
                     : 'bg-[#0a0d14] text-slate-300 hover:text-white'
@@ -843,7 +848,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 <button
                   type="button"
                   onClick={handleRevertActiveFile}
-                  className="inline-flex items-center gap-1 rounded border border-slate-700 bg-[#0a0d14] px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500 hover:text-white cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-[#0a0d14] px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer"
                 >
                   <RotateCcw className="h-3 w-3" />
                   <span>Revertir</span>
@@ -852,7 +857,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => void handleCopyActiveCode()}
-                className="inline-flex items-center gap-1 rounded border border-slate-700 bg-[#0a0d14] px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500 hover:text-white cursor-pointer"
+                className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-[#0a0d14] px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer"
               >
                 {copiedCode ? (
                   <>
@@ -917,7 +922,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   value={activeFile.content}
                   onChange={(e) => handleEditActiveFile(e.target.value)}
                   spellCheck={false}
-                  className="min-h-[520px] w-full resize-y bg-[#0a0d14] p-3 font-mono text-xs leading-6 text-slate-100"
+                  className="min-h-[520px] w-full resize-y bg-[#0a0d14] p-3 font-mono text-xs leading-6 text-slate-100 outline-none"
                 />
               </div>
             ) : editorMode === 'diff' ? (
@@ -938,10 +943,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                           : 'text-slate-400'
                     }`}
                   >
-                    <span className="w-9 shrink-0 select-none text-right pr-2 opacity-50">
+                    <span className="w-9 shrink-0 select-none text-right pr-2 opacity-50 tabular-nums">
                       {row.oldLine ?? ''}
                     </span>
-                    <span className="w-9 shrink-0 select-none text-right pr-3 opacity-50">
+                    <span className="w-9 shrink-0 select-none text-right pr-3 opacity-50 tabular-nums">
                       {row.newLine ?? ''}
                     </span>
                     <span className="w-5 shrink-0 select-none font-bold">
@@ -960,8 +965,8 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
           {activeFile && (
             <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 bg-[#0d1118] px-3 py-1.5 font-mono text-[11px] text-slate-400">
-              <span>{activeFile.path}</span>
-              <span>
+              <span className="truncate max-w-[320px]">{activeFile.path}</span>
+              <span className="tabular-nums">
                 {activeFile.content.split('\n').length} líneas · {activeFile.sizeBytes} B · UTF-8
               </span>
             </footer>
@@ -974,10 +979,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
           className="space-y-4 lg:col-span-3"
         >
           {/* Live Audit Card */}
-          <div className="rounded-md border border-slate-800 bg-[#121722] p-4 space-y-3">
+          <div className="rounded-lg border border-slate-800 bg-[#121722] p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white">Auditoría en vivo</h2>
-              <span className="rounded border border-slate-700 bg-[#0a0d14] px-2 py-0.5 font-mono text-[11px] text-[#38bdf8]">
+              <h2 className="text-sm font-semibold text-white tracking-tight">Auditoría en vivo</h2>
+              <span className="rounded-full border border-slate-700 bg-[#0a0d14] px-2.5 py-0.5 font-mono text-[11px] tabular-nums text-[#38bdf8]">
                 ~{auditReport.estimatedTokens.toLocaleString()} tok
               </span>
             </div>
@@ -986,7 +991,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               {auditReport.checks.map((chk) => (
                 <div
                   key={chk.id}
-                  className="rounded border border-slate-800 bg-[#0a0d14] p-2.5 text-xs"
+                  className="rounded-md border border-slate-800 bg-[#0a0d14] p-2.5 text-xs"
                 >
                   <div className="flex items-center gap-1.5 font-medium text-slate-100">
                     {chk.status === 'pass' && (
@@ -1000,17 +1005,17 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     )}
                     <span>{chk.label}</span>
                   </div>
-                  <p className="mt-1 text-[11px] text-slate-400">{chk.detail}</p>
+                  <p className="mt-1 text-[11px] text-slate-400 leading-relaxed">{chk.detail}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Language Breakdown & Runtime Target */}
-          <div className="rounded-md border border-slate-800 bg-[#121722] p-4 space-y-3">
-            <h2 className="text-sm font-semibold text-white">Composición y modelo</h2>
+          <div className="rounded-lg border border-slate-800 bg-[#121722] p-4 space-y-3">
+            <h2 className="text-sm font-semibold text-white tracking-tight">Composición y modelo</h2>
 
-            <div className="flex h-2 w-full overflow-hidden rounded bg-[#0a0d14]">
+            <div className="flex h-2 w-full overflow-hidden rounded-full bg-[#0a0d14]">
               {workspace.metadata.predominantLanguages.map((lang) => (
                 <div
                   key={lang.extension}
@@ -1022,7 +1027,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
             <div className="flex flex-wrap gap-2 text-[11px] text-slate-300">
               {workspace.metadata.predominantLanguages.map((lang) => (
-                <span key={lang.extension} className="inline-flex items-center gap-1 font-mono">
+                <span key={lang.extension} className="inline-flex items-center gap-1 font-mono tabular-nums">
                   <span
                     className="h-2 w-2 rounded-full"
                     style={{ backgroundColor: lang.color }}
@@ -1033,7 +1038,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             </div>
 
             <div className="space-y-2 pt-1">
-              <label className="block text-xs text-slate-400" htmlFor="wks-model-select">
+              <label className="block text-xs font-medium text-slate-400" htmlFor="wks-model-select">
                 Modelo objetivo
               </label>
               <select
@@ -1048,7 +1053,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   commitWorkspace(next);
                   onUpdateProjectMetadata(activeSkill.id, { aiModelLabel: label });
                 }}
-                className="w-full rounded border border-slate-700 bg-[#0a0d14] px-2.5 py-1.5 text-xs text-slate-100"
+                className="w-full rounded-md border border-slate-700 bg-[#0a0d14] px-2.5 py-1.5 text-xs text-slate-100 outline-none"
               >
                 {AI_BENCHMARK_MODELS.map((m) => {
                   const full = `${m.family} · ${m.version}`;
@@ -1060,7 +1065,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 })}
               </select>
 
-              <label className="block text-xs text-slate-400" htmlFor="wks-skill-select">
+              <label className="block text-xs font-medium text-slate-400" htmlFor="wks-skill-select">
                 Skill rectora
               </label>
               <select
@@ -1075,7 +1080,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   commitWorkspace(next);
                   onUpdateProjectMetadata(activeSkill.id, { appliedSkill: sk });
                 }}
-                className="w-full rounded border border-slate-700 bg-[#0a0d14] px-2.5 py-1.5 font-mono text-xs text-slate-100"
+                className="w-full rounded-md border border-slate-700 bg-[#0a0d14] px-2.5 py-1.5 font-mono text-xs text-slate-100 outline-none"
               >
                 {AVAILABLE_SKILLS.map((sk) => (
                   <option key={sk} value={sk}>
@@ -1087,7 +1092,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
             {/* Extracted Palette Swatches */}
             <div className="space-y-1.5 pt-1">
-              <span className="block text-xs text-slate-400">Tokens hexadecimales detectados</span>
+              <span className="block text-xs font-medium text-slate-400">Tokens hexadecimales detectados</span>
               <div className="flex flex-wrap gap-1.5">
                 {workspace.metadata.colorPalette.map((hex) => (
                   <button
@@ -1098,7 +1103,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                       setCopiedHex(hex);
                       setTimeout(() => setCopiedHex(null), 1400);
                     }}
-                    className="inline-flex items-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-2 py-1 font-mono text-[11px] text-slate-200 hover:border-slate-500 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-slate-700 bg-[#0a0d14] px-2 py-1 font-mono text-[11px] text-slate-200 hover:border-slate-500 transition cursor-pointer"
                   >
                     <span
                       className="h-2.5 w-2.5 rounded-sm border border-white/15"
@@ -1112,22 +1117,22 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
           </div>
 
           {/* CLI Install & Obsidian Sync */}
-          <div className="rounded-md border border-slate-800 bg-[#121722] p-4 space-y-3">
-            <div className="flex items-center gap-1.5 text-sm font-semibold text-white">
+          <div className="rounded-lg border border-slate-800 bg-[#121722] p-4 space-y-3">
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-white tracking-tight">
               <Terminal className="h-4 w-4 text-[#0ea5e9]" />
               <h2>Instalación en entorno local</h2>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-400 leading-relaxed">
               Exporta el paquete .ZIP y descomprímelo directamente en tu directorio de agentes:
             </p>
-            <div className="rounded border border-slate-800 bg-[#0a0d14] p-2.5 font-mono text-[11px] text-slate-300 break-all">
+            <div className="rounded-md border border-slate-800 bg-[#0a0d14] p-2.5 font-mono text-[11px] text-slate-300 break-all select-all">
               {cliInstallCommand}
             </div>
             <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => void handleCopyCli()}
-                className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white cursor-pointer"
+                className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-md border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white transition cursor-pointer"
               >
                 {copiedCli ? (
                   <>
@@ -1144,7 +1149,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
               <a
                 href="obsidian://open?vault=ai-skills-studio"
-                className="btn-obsidian-vault inline-flex h-9 w-full items-center justify-center gap-2 rounded px-3 text-xs font-medium"
+                className="btn-obsidian-vault inline-flex h-9 w-full items-center justify-center gap-2 rounded-md px-3 text-xs font-medium transition"
               >
                 <ObsidianBrandIcon className="h-3.5 w-3.5" />
                 <span>Sincronizar con Obsidian</span>
@@ -1153,7 +1158,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigatePage('boveda')}
-                className="inline-flex h-9 w-full items-center justify-center rounded border border-slate-800 bg-transparent px-3 text-xs text-slate-400 hover:text-white cursor-pointer"
+                className="inline-flex h-9 w-full items-center justify-center rounded-md border border-slate-800 bg-transparent px-3 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition cursor-pointer"
               >
                 Ir al repositorio de skills
               </button>

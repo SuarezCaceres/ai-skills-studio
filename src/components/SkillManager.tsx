@@ -26,6 +26,7 @@ import {
   FolderArchive,
   Lock,
   ShieldCheck,
+  ExternalLink,
 } from 'lucide-react';
 
 interface SkillManagerProps {
@@ -48,6 +49,7 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
   skills,
   activeSkillId,
   isEditorMode,
+  currentUserName,
   onRequestLogin,
   onSelectSkill,
   onCreateSkill,
@@ -89,17 +91,15 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
   }, [activeSkill.id]);
 
   const filteredSkills = skills.filter((s) => {
+    const q = searchQuery.toLowerCase().trim();
     const matchesQuery =
-      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.aiModelLabel || '')
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      (s.appliedSkill || '')
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      s.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+      !q ||
+      s.name.toLowerCase().includes(q) ||
+      s.filename.toLowerCase().includes(q) ||
+      s.summary.toLowerCase().includes(q) ||
+      (s.aiModelLabel || '').toLowerCase().includes(q) ||
+      (s.appliedSkill || '').toLowerCase().includes(q) ||
+      s.tags.some((t) => t.toLowerCase().includes(q));
     const matchesKind = kindFilter === 'all' || s.kind === kindFilter;
     const matchesLevel = levelFilter === 'all' || s.level === levelFilter;
     return matchesQuery && matchesKind && matchesLevel;
@@ -190,14 +190,14 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
             provider: 'Anthropic',
             testedAt: new Date().toLocaleDateString(),
             status: 'optimal',
-            notes: 'Skill importada y validada en el Códice Neuronal.',
+            notes: 'Importada desde archivo local (.md)',
           },
         ],
         screenshots: [],
         codeSnippets: [],
       });
-      onStatusChange(`Importada al Códice Neuronal: ${file.name}`);
-      setTimeout(() => onStatusChange(null), 2500);
+      onStatusChange(`Skill importada con éxito: ${file.name}`);
+      setTimeout(() => onStatusChange(null), 2400);
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -205,41 +205,39 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
 
   const handleCreateNewSkill = () => {
     const index = skills.length + 1;
-    const filename = `skill-codice-${index}.md`;
     onCreateSkill({
-      name: `Proyecto #${index} · Arquitectura Cyber Dark & Cian`,
-      filename,
+      name: `Directiva Personalizada #${index}`,
+      filename: `skill-personalizada-${index}.md`,
       summary:
-        'Proyecto con paquete .zip VFS asociado, traducción instantánea de Markdown en 1 clic (sin voz), Galería del Sistema y evaluación por dictado de voz.',
-      category: 'Códice Neuronal',
+        'Nueva directiva para agentes de desarrollo y modelos cognitivos.',
+      category: 'Personalizada',
       level: 'Intermedio',
-      kind: 'proyecto',
-      tags: ['#ui-ux-pro-max', '#workspace-vfs', '#opus-5.5'],
-      language: 'en',
-      aiModelLabel: 'Opus 5.5',
-      appliedSkill: 'ui-ux-pro-max',
+      kind: 'guia',
+      tags: ['#custom', '#directiva-ia', '#skills'],
+      language: 'es',
+      aiModelLabel: 'Gemini 3.8',
+      appliedSkill: 'design-taste-frontend',
       colorPalette: ['#0A0D14', '#121722', '#0EA5E9', '#38BDF8'],
-      ficha: {
-        whereToUse: 'Códice Neuronal, Workspace Studio VFS y Cortex IA',
-        requirements:
-          'Configurar las instrucciones del archivo .md y asociar una versión del Cortex de Modelos',
-        estimatedTime: '2 minutos de edición interactiva',
-        collaborators: ['@equipo_colaborador'],
-      },
       markdownContent: `---
-name: skill-codice-${index}
-description: Diseña y genera menús de barras accesibles, menús desplegables con navegación por teclado y barras de comandos dinámicas en Cyber Dark (#030712) y Cian Eléctrico (#0EA5E9).
+name: directiva-personalizada-${index}
+description: Directiva técnica con diseño anti-slop y controles accesibles.
 ---
 
-# Arquitecto de Componentes UI y Menús Interactivos
+# Directiva Técnica y Operativa para Agentes
 
 ## Propósito de la Skill
-Diseña y genera menús de barras accesibles, menús desplegables con navegación por teclado y barras de comandos dinámicas con resplandor cian sutil sobre fondo Cyber Dark.
+Define las directrices de arquitectura, calidad de código y diseño de interfaz para el desarrollo asistido por agentes.
 
 ## Instrucciones para el Agente de IA
 1. Utiliza siempre elementos semánticos nativos (\`<button type="button">\`, \`<figure>\`, \`<pre tabindex="0">\`).
-2. Sincroniza el estado \`aria-expanded\` en cada disparador de menú desplegable.
-3. Incluye atajos de teclado claros y soporte para cerrar con la tecla \`Escape\`.`,
+2. Mantén bordes alineados y una paleta neutra en carbón (#0a0d14) con acento cian (#0ea5e9).
+3. Asegura pruebas en navegadores reales y cumplimiento con las directivas del Códice.`,
+      ficha: {
+        whereToUse: 'Códice Neuronal, Antigravity CLI y agentes compatibles',
+        requirements: 'Archivo Markdown (.md) válido',
+        estimatedTime: 'Lista para usar y traducir en 1 clic.',
+        collaborators: [currentUserName || '@colaborador'],
+      },
       uiSpec: {
         id: `spec-${Date.now()}`,
         type: 'menubar',
@@ -284,45 +282,37 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
   const getLevelBadgeStyle = (level: SkillLevel) => {
     switch (level) {
       case 'Principiante':
-        return 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40';
+        return 'bg-emerald-950/60 text-emerald-300 border-emerald-500/35';
       case 'Intermedio':
-        return 'bg-[#0EA5E9]/15 text-[#38BDF8] border-[#0EA5E9]/40';
+        return 'bg-[#0ea5e9]/12 text-[#38bdf8] border-[#0ea5e9]/35';
       case 'Avanzado':
-        return 'bg-rose-950/80 text-rose-300 border-rose-500/40';
+        return 'bg-rose-950/60 text-rose-300 border-rose-500/35';
     }
   };
 
   return (
-    <div className="space-y-12">
-      {/* 1. CÓDICE NEURONAL (ARSENAL DE SKILLS, WORKSPACE VFS Y METADATOS DEL SISTEMA) */}
+    <div className="space-y-6">
+      {/* 1. CABECERA Y ARSENAL DE SKILLS */}
       <section
         ref={codiceSectionRef}
         aria-labelledby="boveda-heading"
-        className="space-y-6 pt-2"
+        className="space-y-6 pt-1"
       >
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="space-y-2 max-w-2xl">
-            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#38BDF8] block">
-              CÓDICE NEURONAL · WORKSPACE VFS (.ZIP), SKILLS (.MD) Y CORTEX IA
+          <div className="space-y-1.5 max-w-2xl">
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#38bdf8] block">
+              CÓDICE NEURONAL · ARSENAL DE SKILLS (.MD) Y WORKSPACES VFS
             </span>
-            <h2
+            <h1
               id="boveda-heading"
-              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white"
+              className="text-2xl sm:text-3xl font-bold tracking-tight text-white"
             >
-              Códice Neuronal y Arsenal de Skills
-            </h2>
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
-              Selecciona cualquier elemento para abrirlo en{' '}
-              <strong className="text-[#38BDF8]">Workspace Studio</strong>{' '}
-              (Árbol VFS{' '}
-              <code className="px-1.5 py-0.5 rounded-md bg-[#0F172A] border border-[#0EA5E9]/30 text-[#38BDF8] text-xs font-mono">
-                .zip
-              </code>
-              , vista Diff en vivo, Galería del Sistema y traducción de{' '}
-              <code className="px-1.5 py-0.5 rounded-md bg-[#0F172A] border border-[#0EA5E9]/30 text-[#38BDF8] text-xs font-mono">
-                .md
-              </code>{' '}
-              en 1 clic).
+              Códice Neuronal y Catálogo de Skills
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              Selecciona cualquier elemento para inspeccionarlo o abrirlo en{' '}
+              <strong className="text-[#38bdf8]">Workspace Studio</strong>{' '}
+              (VFS interactivo, diff en tiempo real y traducción técnica en 1 clic).
             </p>
           </div>
 
@@ -339,22 +329,22 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                 <button
                   type="button"
                   onClick={() => onNavigatePage('estudio')}
-                  className="h-10 px-4 rounded-xl bg-[#0F172A] hover:bg-slate-800 border border-[#0EA5E9]/45 text-xs font-bold text-[#38BDF8] flex items-center gap-2 transition cursor-pointer"
+                  className="h-9 px-3.5 rounded-md bg-[#121722] hover:bg-slate-800 border border-slate-700 hover:border-slate-500 text-xs font-medium text-slate-200 flex items-center gap-2 transition cursor-pointer"
                 >
                   <FolderArchive
-                    className="w-3.5 h-3.5 text-[#0EA5E9]"
+                    className="w-3.5 h-3.5 text-[#0ea5e9]"
                     aria-hidden="true"
                   />
-                  <span>Abrir Workspace .ZIP</span>
+                  <span>Abrir Workspace</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="h-10 px-4 rounded-xl bg-[#0F172A] hover:bg-slate-800 border border-slate-800 hover:border-[#0EA5E9]/50 text-xs font-bold text-slate-200 flex items-center gap-2 transition cursor-pointer"
+                  className="h-9 px-3.5 rounded-md bg-[#121722] hover:bg-slate-800 border border-slate-700 hover:border-slate-500 text-xs font-medium text-slate-200 flex items-center gap-2 transition cursor-pointer"
                 >
                   <Upload
-                    className="w-3.5 h-3.5 text-[#0EA5E9]"
+                    className="w-3.5 h-3.5 text-[#0ea5e9]"
                     aria-hidden="true"
                   />
                   <span>Importar .md</span>
@@ -363,19 +353,19 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                 <a
                   href="obsidian://open?vault=ai-skills-studio"
                   title="Abrir este proyecto y sus notas en Obsidian"
-                  className="btn-obsidian-vault h-10 px-4 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer"
+                  className="btn-obsidian-vault h-9 px-3.5 rounded-md text-xs font-medium flex items-center gap-2 transition cursor-pointer"
                 >
-                  <ObsidianBrandIcon className="w-4 h-4 shrink-0" />
+                  <ObsidianBrandIcon className="w-3.5 h-3.5 shrink-0" />
                   <span>Bóveda Obsidian</span>
                 </a>
 
                 <button
                   type="button"
                   onClick={() => setIsEditing((v) => !v)}
-                  className="h-10 px-4 rounded-xl bg-[#0F172A] hover:bg-slate-800 border border-slate-800 hover:border-[#0EA5E9]/50 text-xs font-bold text-slate-200 flex items-center gap-2 transition cursor-pointer"
+                  className="h-9 px-3.5 rounded-md bg-[#121722] hover:bg-slate-800 border border-slate-700 hover:border-slate-500 text-xs font-medium text-slate-200 flex items-center gap-2 transition cursor-pointer"
                 >
                   <Edit3
-                    className="w-3.5 h-3.5 text-[#38BDF8]"
+                    className="w-3.5 h-3.5 text-[#38bdf8]"
                     aria-hidden="true"
                   />
                   <span>{isEditing ? 'Cerrar Editor' : 'Editar Activa'}</span>
@@ -384,10 +374,10 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                 <button
                   type="button"
                   onClick={handleCreateNewSkill}
-                  className="h-10 px-4 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] hover:brightness-110 text-black text-xs font-extrabold flex items-center gap-2 cyan-glow-sm transition cursor-pointer"
+                  className="h-9 px-4 rounded-md bg-[#0ea5e9] hover:bg-[#38bdf8] text-[#0a0d14] text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-sm"
                 >
                   <Plus className="w-3.5 h-3.5" aria-hidden="true" />
-                  <span>Nueva Skill en Códice</span>
+                  <span>Nueva Skill</span>
                 </button>
               </>
             ) : (
@@ -395,135 +385,128 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                 <a
                   href="obsidian://open?vault=ai-skills-studio"
                   title="Abrir este proyecto y sus notas en Obsidian"
-                  className="btn-obsidian-vault h-10 px-4 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer"
+                  className="btn-obsidian-vault h-9 px-3.5 rounded-md text-xs font-medium flex items-center gap-2 transition cursor-pointer"
                 >
-                  <ObsidianBrandIcon className="w-4 h-4 shrink-0" />
+                  <ObsidianBrandIcon className="w-3.5 h-3.5 shrink-0" />
                   <span>Bóveda Obsidian</span>
                 </a>
-                <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-800 bg-[#0F172A] px-3.5 py-2 text-xs font-semibold text-slate-300">
-                  <Lock className="w-3.5 h-3.5 text-[#0EA5E9]" />
-                  Modo Visitante: Exploración de Solo Lectura
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-slate-800 bg-[#121722] px-3 py-1.5 text-xs text-slate-400">
+                  <Lock className="w-3.5 h-3.5 text-slate-500" />
+                  Modo Visitante
                 </span>
                 <button
                   type="button"
                   onClick={onRequestLogin}
-                  className="h-10 px-4 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] hover:brightness-110 text-black text-xs font-extrabold flex items-center gap-2 cyan-glow-sm transition cursor-pointer"
+                  className="h-9 px-3.5 rounded-md bg-[#0ea5e9] hover:bg-[#38bdf8] text-[#0a0d14] text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <ShieldCheck className="w-4 h-4" />
-                  <span>Activar Modo Colaborador</span>
+                  <span>Activar Colaborador</span>
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Buscador y Doble Fila de Filtros en Cyber Dark y Cian Eléctrico */}
-        <div className="space-y-3.5">
-          <search>
-            <form onSubmit={(e) => e.preventDefault()} className="relative">
-              <label htmlFor="vault-search-input" className="sr-only">
-                Busca proyectos, paquetes .zip, skills en Markdown o versiones de modelos IA
-              </label>
-              <Search
-                className="w-4 h-4 text-[#0EA5E9] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
-                aria-hidden="true"
-              />
-              <input
-                id="vault-search-input"
-                type="search"
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Busca en el Códice Neuronal por proyecto, paquete .zip, skill, framework o versión IA (Opus 5.5, Gemini 3.8, Sonnet 5.5, GPT Astra)..."
-                className="w-full h-12 rounded-2xl bg-[#0F172A] border border-slate-800 pl-11 pr-4 text-sm text-white placeholder:text-slate-500  focus:border-[#0EA5E9] transition"
-              />
-            </form>
-          </search>
-
-          {/* Fila 1: Tipo */}
-          <div className="flex flex-wrap items-center gap-2">
-            {(
-              [
-                { id: 'all', label: 'Todo el Códice' },
-                {
-                  id: 'proyecto',
-                  label: 'Workspaces VFS (.ZIP)',
-                  icon: true,
-                },
-                { id: 'guia', label: 'Guías Técnicas (.md)' },
-                { id: 'repo', label: 'Repositorios & Módulos' },
-              ] as const
-            ).map((item) => {
-              const active = kindFilter === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setKindFilter(item.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition duration-200 flex items-center gap-1.5 cursor-pointer ${
-                    active
-                      ? 'bg-[#0EA5E9] text-black border-[#0EA5E9] cyan-glow-sm'
-                      : 'bg-[#0F172A] text-slate-300 border-slate-800 hover:border-[#0EA5E9]/50'
-                  }`}
-                >
-                  {'icon' in item && item.icon && (
-                    <Crown
-                      className={`w-3.5 h-3.5 ${
-                        active ? 'text-black' : 'text-[#38BDF8]'
-                      }`}
-                      aria-hidden="true"
-                    />
-                  )}
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
+        {/* BUSCADOR Y FILTROS ORDENADOS */}
+        <div className="rounded-lg border border-slate-800 bg-[#121722] p-3 space-y-3">
+          <div className="relative">
+            <Search
+              className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+              aria-hidden="true"
+            />
+            <input
+              id="vault-search-input"
+              type="search"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Buscar en el Códice por proyecto, skill, modelo IA o tag..."
+              className="w-full h-10 rounded-md bg-[#0a0d14] border border-slate-800 pl-10 pr-4 text-xs text-white placeholder:text-slate-500 focus:border-[#0ea5e9] outline-none"
+            />
           </div>
 
-          {/* Fila 2: Nivel */}
-          <div className="flex flex-wrap items-center gap-2">
-            {(
-              [
-                { id: 'all', label: 'Todos los niveles' },
-                { id: 'Principiante', label: 'Principiante' },
-                { id: 'Intermedio', label: 'Intermedio' },
-                { id: 'Avanzado', label: 'Avanzado' },
-              ] as const
-            ).map((lvl) => {
-              const active = levelFilter === lvl.id;
-              return (
-                <button
-                  key={lvl.id}
-                  type="button"
-                  onClick={() => setLevelFilter(lvl.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition duration-200 cursor-pointer ${
-                    active
-                      ? 'bg-[#0EA5E9] text-black border-[#0EA5E9] cyan-glow-sm'
-                      : 'bg-[#0F172A] text-slate-300 border-slate-800 hover:border-[#0EA5E9]/50'
-                  }`}
-                >
-                  {lvl.label}
-                </button>
-              );
-            })}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-slate-800/80">
+            {/* Fila 1: Tipo */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] font-mono text-slate-500 mr-1">Tipo:</span>
+              {(
+                [
+                  { id: 'all', label: 'Todo' },
+                  { id: 'proyecto', label: 'Workspaces VFS (.ZIP)', icon: true },
+                  { id: 'guia', label: 'Guías (.md)' },
+                  { id: 'repo', label: 'Repositorios' },
+                ] as const
+              ).map((item) => {
+                const active = kindFilter === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setKindFilter(item.id)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium border transition cursor-pointer flex items-center gap-1 ${
+                      active
+                        ? 'bg-[#0ea5e9] text-[#0a0d14] border-[#0ea5e9] font-semibold'
+                        : 'bg-[#0a0d14] text-slate-300 border-slate-800 hover:border-slate-700'
+                    }`}
+                  >
+                    {'icon' in item && item.icon && (
+                      <Crown
+                        className={`w-3 h-3 ${active ? 'text-[#0a0d14]' : 'text-[#38bdf8]'}`}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Fila 2: Nivel */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] font-mono text-slate-500 mr-1">Nivel:</span>
+              {(
+                [
+                  { id: 'all', label: 'Todos' },
+                  { id: 'Principiante', label: 'Principiante' },
+                  { id: 'Intermedio', label: 'Intermedio' },
+                  { id: 'Avanzado', label: 'Avanzado' },
+                ] as const
+              ).map((lvl) => {
+                const active = levelFilter === lvl.id;
+                return (
+                  <button
+                    key={lvl.id}
+                    type="button"
+                    onClick={() => setLevelFilter(lvl.id)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium border transition cursor-pointer ${
+                      active
+                        ? 'bg-[#0ea5e9] text-[#0a0d14] border-[#0ea5e9] font-semibold'
+                        : 'bg-[#0a0d14] text-slate-300 border-slate-800 hover:border-slate-700'
+                    }`}
+                  >
+                    {lvl.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Editor Desplegable (Modo Colaborador) */}
+        {/* EDITOR DESPLEGABLE (MODO COLABORADOR) */}
         {isEditing && (
           <form
             onSubmit={handleSave}
-            className="bg-[#0F172A] border border-[#0EA5E9]/40 rounded-2xl p-5 cyan-glow space-y-4"
+            className="bg-[#121722] border border-[#0ea5e9]/40 rounded-lg p-5 space-y-4"
           >
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Edit3 className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2 tracking-tight">
+                <Edit3 className="w-4 h-4 text-[#0ea5e9]" aria-hidden="true" />
                 Editando en Códice Neuronal:{' '}
-                <code className="text-[#38BDF8]">{activeSkill.filename}</code>
+                <code className="text-[#38bdf8] font-mono">{activeSkill.filename}</code>
               </h3>
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 cursor-pointer"
+                className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
               </button>
@@ -535,14 +518,14 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                   htmlFor="skill-name-input"
                   className="block text-xs font-medium text-slate-400 mb-1"
                 >
-                  Título del Proyecto / Skill
+                  Título de la Skill
                 </label>
                 <input
                   id="skill-name-input"
                   type="text"
                   value={draftName}
                   onChange={(e) => setDraftName(e.target.value)}
-                  className="w-full rounded-xl bg-[#0B0F19] border border-slate-800 px-3 py-2 text-xs text-white"
+                  className="w-full rounded-md bg-[#0a0d14] border border-slate-700 px-3 py-1.5 text-xs text-white focus:border-[#0ea5e9] outline-none"
                 />
               </div>
 
@@ -551,14 +534,14 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                   htmlFor="skill-file-input"
                   className="block text-xs font-medium text-slate-400 mb-1"
                 >
-                  Nombre del Archivo (.md)
+                  Nombre de archivo (.md)
                 </label>
                 <input
                   id="skill-file-input"
                   type="text"
                   value={draftFilename}
                   onChange={(e) => setDraftFilename(e.target.value)}
-                  className="w-full rounded-xl bg-[#0B0F19] border border-slate-800 px-3 py-2 text-xs font-mono text-[#38BDF8]"
+                  className="w-full rounded-md bg-[#0a0d14] border border-slate-700 px-3 py-1.5 text-xs font-mono text-[#38bdf8] focus:border-[#0ea5e9] outline-none"
                 />
               </div>
 
@@ -567,13 +550,13 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                   htmlFor="skill-level-select"
                   className="block text-xs font-medium text-slate-400 mb-1"
                 >
-                  Nivel
+                  Nivel de complejidad
                 </label>
                 <select
                   id="skill-level-select"
                   value={draftLevel}
                   onChange={(e) => setDraftLevel(e.target.value as SkillLevel)}
-                  className="w-full rounded-xl bg-[#0B0F19] border border-slate-800 px-3 py-2 text-xs text-white"
+                  className="w-full rounded-md bg-[#0a0d14] border border-slate-700 px-3 py-1.5 text-xs text-white outline-none"
                 >
                   <option value="Principiante">Principiante</option>
                   <option value="Intermedio">Intermedio</option>
@@ -586,7 +569,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                   htmlFor="skill-lang-select"
                   className="block text-xs font-medium text-slate-400 mb-1"
                 >
-                  Idioma Base
+                  Idioma base
                 </label>
                 <select
                   id="skill-lang-select"
@@ -594,7 +577,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                   onChange={(e) =>
                     setDraftLanguage(e.target.value as LanguageCode)
                   }
-                  className="w-full rounded-xl bg-[#0B0F19] border border-slate-800 px-3 py-2 text-xs text-white"
+                  className="w-full rounded-md bg-[#0a0d14] border border-slate-700 px-3 py-1.5 text-xs text-white outline-none"
                 >
                   <option value="es">Español (ES)</option>
                   <option value="en">Inglés (EN)</option>
@@ -607,14 +590,14 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                 htmlFor="skill-summary-input"
                 className="block text-xs font-medium text-slate-400 mb-1"
               >
-                Resumen del Proyecto
+                Resumen de propósito
               </label>
               <input
                 id="skill-summary-input"
                 type="text"
                 value={draftSummary}
                 onChange={(e) => setDraftSummary(e.target.value)}
-                className="w-full rounded-xl bg-[#0B0F19] border border-slate-800 px-3 py-2 text-xs text-white"
+                className="w-full rounded-md bg-[#0a0d14] border border-slate-700 px-3 py-1.5 text-xs text-white focus:border-[#0ea5e9] outline-none"
               />
             </div>
 
@@ -623,55 +606,56 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                 htmlFor="skill-md-textarea"
                 className="block text-xs font-medium text-slate-400 mb-1"
               >
-                Contenido Markdown (.md)
+                Contenido Markdown (SKILL.md)
               </label>
               <textarea
                 id="skill-md-textarea"
-                rows={7}
+                rows={8}
                 value={draftMarkdown}
                 onChange={(e) => setDraftMarkdown(e.target.value)}
-                className="w-full rounded-xl bg-[#0B0F19] border border-slate-800 p-3 text-xs font-mono text-slate-100 leading-relaxed  focus:border-[#0EA5E9]"
+                className="w-full rounded-md bg-[#0a0d14] border border-slate-700 p-3 text-xs font-mono text-slate-100 leading-relaxed focus:border-[#0ea5e9] outline-none"
               />
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 rounded-xl border border-slate-800 text-xs font-semibold text-slate-300 hover:bg-slate-800 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-md border border-slate-700 text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-1.5 rounded-md bg-[#0ea5e9] hover:bg-[#38bdf8] text-[#0a0d14] text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
               >
                 <Save className="w-3.5 h-3.5" aria-hidden="true" />
-                Guardar {draftFilename}
+                Guardar cambios
               </button>
             </div>
           </form>
         )}
 
-        {/* Lista de Proyectos del Códice Neuronal */}
+        {/* LISTA DE PROYECTOS Y SKILLS */}
         <div className="space-y-2">
-          <div className="text-xs font-medium text-slate-400 px-1">
-            {filteredSkills.length}{' '}
-            {filteredSkills.length === 1
-              ? 'elemento en el Códice Neuronal'
-              : 'elementos en el Códice Neuronal'}{' '}
-            · Haz clic en cualquiera para abrirlo en{' '}
-            <strong className="text-[#38BDF8]">Workspace Studio (.ZIP)</strong>
+          <div className="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
+            <span>
+              {filteredSkills.length}{' '}
+              {filteredSkills.length === 1 ? 'elemento' : 'elementos'} en el Códice Neuronal
+            </span>
+            <span className="text-slate-500 text-[11px]">
+              Haz clic para seleccionar o abrir en Workspace
+            </span>
           </div>
 
-          <div className="edu-floating-panel rounded-2xl divide-y divide-slate-800/80 overflow-hidden">
+          <div className="rounded-lg border border-slate-800 bg-[#121722] overflow-hidden divide-y divide-slate-800/80">
             {filteredSkills.map((skill) => {
               const isActive = skill.id === activeSkillId;
               const palette = skill.colorPalette || [
-                '#0A0F1D',
-                '#0F172A',
-                '#0EA5E9',
-                '#38BDF8',
+                '#0a0d14',
+                '#121722',
+                '#0ea5e9',
+                '#38bdf8',
               ];
               const langs = skill.predominantLanguages || [];
 
@@ -680,25 +664,21 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                   key={skill.id}
                   onClick={() => {
                     onSelectSkill(skill.id);
-                    onNavigatePage('estudio');
                   }}
-                  className={`p-4 sm:p-5 transition duration-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4 cursor-pointer ${
-                    isActive ? 'bg-[#0EA5E9]/10' : 'hover:bg-slate-900/70'
+                  className={`p-4 transition-all duration-150 flex flex-col lg:flex-row lg:items-center justify-between gap-4 cursor-pointer hover:bg-[#161c2a] ${
+                    isActive ? 'bg-[#0ea5e9]/10 border-l-2 border-[#0ea5e9]' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3.5 min-w-0 flex-1">
                     <div
-                      className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 mt-0.5 ${
+                      className={`w-9 h-9 rounded-md border flex items-center justify-center shrink-0 mt-0.5 ${
                         isActive
-                          ? 'bg-[#0EA5E9] border-[#0EA5E9] text-black font-bold'
-                          : 'bg-[#0B0F19] border-slate-800 text-[#38BDF8]'
+                          ? 'bg-[#0ea5e9] border-[#0ea5e9] text-[#0a0d14]'
+                          : 'bg-[#0a0d14] border-slate-700 text-[#38bdf8]'
                       }`}
                     >
                       {skill.kind === 'proyecto' ? (
-                        <FolderArchive
-                          className="w-4 h-4"
-                          aria-hidden="true"
-                        />
+                        <FolderArchive className="w-4 h-4" aria-hidden="true" />
                       ) : skill.kind === 'repo' ? (
                         <Code2 className="w-4 h-4" aria-hidden="true" />
                       ) : (
@@ -706,27 +686,25 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                       )}
                     </div>
 
-                    <div className="space-y-2 min-w-0 flex-1">
+                    <div className="space-y-1.5 min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-sm sm:text-[15px] font-bold text-white leading-snug">
+                        <h2 className="text-sm font-semibold text-white leading-snug">
                           {skill.name}
-                        </h3>
+                        </h2>
 
                         {skill.kind === 'proyecto' && (
                           <Crown
-                            className="w-4 h-4 text-[#38BDF8] shrink-0"
+                            className="w-3.5 h-3.5 text-[#38bdf8] shrink-0"
                             aria-hidden="true"
                           />
                         )}
 
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0B0F19] text-slate-300 border border-slate-800 whitespace-nowrap">
-                          {skill.kind === 'guia'
-                            ? 'GUÍA DEL CÓDICE'
-                            : 'WORKSPACE VFS'}
+                        <span className="text-[10px] font-mono font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0a0d14] text-slate-300 border border-slate-800 whitespace-nowrap">
+                          {skill.kind === 'guia' ? 'GUÍA TÉCNICA' : 'WORKSPACE VFS'}
                         </span>
 
                         <span
-                          className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border whitespace-nowrap ${getLevelBadgeStyle(
+                          className={`text-[10px] font-mono font-medium uppercase tracking-wider px-2 py-0.5 rounded-full border whitespace-nowrap ${getLevelBadgeStyle(
                             skill.level
                           )}`}
                         >
@@ -734,33 +712,33 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                         </span>
 
                         {isActive && (
-                          <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0EA5E9] text-black flex items-center gap-1 whitespace-nowrap">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0ea5e9] text-[#0a0d14] flex items-center gap-1 whitespace-nowrap">
                             <Check className="w-3 h-3" aria-hidden="true" />
                             Activo
                           </span>
                         )}
                       </div>
 
-                      <p className="text-xs sm:text-sm text-slate-300 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
                         {skill.summary}
                       </p>
 
-                      {/* Fila explícita de Metadatos del Proyecto: Versión del Cortex IA, Skill aplicada, Lenguajes y Paleta */}
-                      <div className="pt-1 flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#0B0F19] text-white border border-[#0EA5E9]/45">
-                          <Cpu className="w-3 h-3 text-[#0EA5E9]" />
+                      {/* Metadatos técnicos */}
+                      <div className="pt-0.5 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#0a0d14] text-slate-200 border border-slate-700">
+                          <Cpu className="w-3 h-3 text-[#0ea5e9]" />
                           {skill.aiModelLabel || 'Opus 5.5'}
                         </span>
 
-                        <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-[#0B0F19] text-[#38BDF8] border border-[#38BDF8]/35">
-                          <Sparkles className="w-3 h-3 text-[#38BDF8]" />
-                          Skill: #{skill.appliedSkill || 'ui-ux-pro-max'}
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#0a0d14] text-[#38bdf8] border border-[#38bdf8]/35">
+                          <Sparkles className="w-3 h-3 text-[#38bdf8]" />
+                          #{skill.appliedSkill || 'ui-ux-pro-max'}
                         </span>
 
                         {langs.slice(0, 3).map((l) => (
                           <span
                             key={l.language}
-                            className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#0B0F19] text-slate-300 border border-slate-800"
+                            className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0a0d14] text-slate-300 border border-slate-800 tabular-nums"
                           >
                             <span
                               className="w-2 h-2 rounded-full"
@@ -770,13 +748,13 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                           </span>
                         ))}
 
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#0B0F19] text-slate-400 border border-slate-800">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0a0d14] text-slate-400 border border-slate-800">
                           <span>Paleta:</span>
                           {palette.slice(0, 5).map((hex) => (
                             <span
                               key={hex}
                               title={hex}
-                              className="w-3 h-3 rounded-full border border-white/20"
+                              className="w-2.5 h-2.5 rounded-full border border-white/20"
                               style={{ backgroundColor: hex }}
                             />
                           ))}
@@ -793,20 +771,17 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                         onSelectSkill(skill.id);
                         onNavigatePage('estudio');
                       }}
-                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black text-xs font-extrabold transition cursor-pointer inline-flex items-center gap-1.5 shadow-sm shadow-[#0EA5E9]/20 hover:brightness-110"
+                      className="px-3 py-1.5 rounded-md bg-[#0ea5e9] hover:bg-[#38bdf8] text-[#0a0d14] text-xs font-semibold transition cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
                     >
-                      <span>Abrir en Núcleo de Proyectos</span>
-                      <ChevronRight
-                        className="w-3.5 h-3.5"
-                        aria-hidden="true"
-                      />
+                      <span>Abrir en Workspace</span>
+                      <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
                     </button>
 
                     <button
                       type="button"
                       onClick={(e) => handleDownloadMd(skill, e)}
                       aria-label={`Descargar ${skill.filename}`}
-                      className="p-2 rounded-xl text-slate-400 hover:text-[#38BDF8] hover:bg-slate-800 transition cursor-pointer"
+                      className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
                     >
                       <Download className="w-4 h-4" aria-hidden="true" />
                     </button>
@@ -818,7 +793,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                           onDeleteSkill(skill.id);
                         }}
                         aria-label={`Eliminar ${skill.filename}`}
-                        className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition cursor-pointer"
+                        className="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </button>

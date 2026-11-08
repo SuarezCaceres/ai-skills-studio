@@ -130,4 +130,21 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
 | **Performance Web Vitals** | `node perf.mjs dist/index.html --widths 1440,390` | **0 FAIL, 2 WARN** (CLS 0.014 en desktop, 0.000 en móvil; FCP/LCP 376 ms) |
 | **Consistencia Multiancho** | `node consistency.mjs dist/index.html --widths 1440,1024,820,768,390` | **0 FAIL, 63 WARN (CLEAN)** |
 | **Finish Gate Oficial** | `node gate.mjs dist/index.html --root dist --kind software` | **GATE: PASS** |
+| **Pruebas Visuales Multi-Ancho (Playwright)** | `npm test` (`node scripts/test-interfaces-playwright.mjs`) | **0 ERRORES (4 anchos: 1440, 1024, 768, 390)** |
+| **Pruebas de Interacción VFS y Catálogo** | `npm test` (`node scripts/test-interactions-playwright.mjs`) | **PASS (Árbol VFS, Diff toggle, filtros y búsqueda)** |
+
+---
+
+## 🎨 7. Actualización v2.1.0 — Overhaul Anti-Slop Workspace VFS y Skills
+
+- **Workspace VFS (`UnifiedProjectStudio.tsx`):**
+  - Barra de comandos superior estilizada y compacta en carbón profundo `#121722` y bordes `slate-800`.
+  - Árbol VFS con búsqueda en vivo, filtros de lenguaje compactos y badges tabulares.
+  - Editor multi-pestaña con vista Diff sutil (adiciones en `emerald-950/40`, eliminaciones en `rose-950/40`) y canalón de números de línea sin saltos.
+  - Telemetría, selector de directivas y comando PowerShell `Expand-Archive` con copia en 1 clic.
+- **Skills & Códice (`SkillManager.tsx`):**
+  - Eliminación completa de degradados estridentes y resplandores artificiales (`cyan-glow-sm`), sustituidos por el estándar de herramienta de desarrollo: fondos planos `#0ea5e9` y bordes limpios.
+  - Filtros unificados por Tipo (Todo, Workspaces VFS, Guías, Repos) y Nivel (Principiante, Intermedio, Avanzado).
+  - Tarjetas con micro-interacción de elevación de 2px y selección con borde cian izquierdo.
+  - Corrección íntegra de mojibake y errores de sintaxis en `obsidian.svg` (comas decimales corregidas a puntos).
 
