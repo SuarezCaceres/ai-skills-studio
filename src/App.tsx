@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { SkillDocument } from './types/skill';
 import {
   AppPageRoute,
@@ -17,7 +17,6 @@ import {
 import { AuthScreen } from './components/AuthScreen';
 import { TopStudioHeader } from './components/NavbarActiveSkill';
 import { InformativeLandingSection } from './components/InformativeLandingSection';
-import { NeuralAtmosphereBackground } from './components/NeuralAtmosphereBackground';
 
 const CodiceStudio = lazy(() =>
   import('./components/CodiceStudio').then((m) => ({
@@ -63,7 +62,6 @@ export function App() {
     }
   });
 
-  // Permite mostrar la pantalla de Login/Registro cuando el visitante quiere pasar a Modo Colaborador
   const [showAuthScreen, setShowAuthScreen] = useState<boolean>(false);
 
   const [skills, setSkills] = useState<SkillDocument[]>(() => {
@@ -71,8 +69,12 @@ export function App() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed: unknown = JSON.parse(saved);
-        if (isValidSkillDocumentArray(parsed)) {
-          return parsed;
+        if (isValidSkillDocumentArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map((item) => item.id));
+          const missingBuiltIns = INITIAL_SKILLS.filter(
+            (builtIn) => !existingIds.has(builtIn.id)
+          );
+          return [...missingBuiltIns, ...parsed];
         }
       }
     } catch {
@@ -98,7 +100,7 @@ export function App() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(skills));
     } catch {
-      // Ignorar límites de cuota
+      // Ignorar límites de cuota de almacenamiento local
     }
   }, [skills]);
 
@@ -119,7 +121,7 @@ export function App() {
   const handleAuthenticated = (user: UserAccount) => {
     setCurrentUser(user);
     setShowAuthScreen(false);
-    setGlobalStatus(`Modo Colaborador Activado · Bienvenido, ${user.fullName}`);
+    setGlobalStatus(`Modo Colaborador activado · Bienvenido, ${user.fullName}`);
     setTimeout(() => setGlobalStatus(null), 2800);
     try {
       localStorage.setItem(
@@ -134,9 +136,7 @@ export function App() {
   const handleLogout = () => {
     setCurrentUser(null);
     setShowAuthScreen(false);
-    setGlobalStatus(
-      'Sesión cerrada · Ahora exploras en Modo Visitante (Solo Lectura)'
-    );
+    setGlobalStatus('Sesión cerrada · Exploras en Modo Visitante');
     setTimeout(() => setGlobalStatus(null), 2800);
     try {
       localStorage.removeItem(AUTH_SESSION_KEY);
@@ -150,7 +150,7 @@ export function App() {
     setCurrentUser(null);
     setShowAuthScreen(false);
     setGlobalStatus(
-      'Datos personales eliminados (GDPR / CCPA) · Sesión cerrada en Modo Visitante'
+      'Datos personales eliminados (GDPR / CCPA) · Sesión cerrada'
     );
     setTimeout(() => setGlobalStatus(null), 3200);
   };
@@ -174,7 +174,6 @@ export function App() {
     }
   };
 
-  // Permite actualizar vistas previas UI/UX en vivo incluso en Modo Visitante para experimentar las demostraciones
   const handleUpdateSkill = (updated: SkillDocument) => {
     setSkills((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
   };
@@ -221,7 +220,6 @@ export function App() {
       colorPalette?: string[];
     }
   ) => {
-    if (!isCollaboratorMode) return;
     setSkills((prev) =>
       prev.map((s) =>
         s.id === skillId
@@ -235,8 +233,8 @@ export function App() {
     );
   };
 
+  // Permite montar carpetas/ZIPs y probar ediciones en memoria tanto en visitante como colaborador
   const handleUpdateRarPackage = (pkg: RarArchivePackage) => {
-    if (!isCollaboratorMode) return;
     setActiveRarPackage(pkg);
     setSkills((prev) =>
       prev.map((s) =>
@@ -260,31 +258,29 @@ export function App() {
       setShowAuthScreen(true);
       return;
     }
-    const cleanTitle = pkg.archiveName.replace(/\.rar$/i, '');
+    const cleanTitle = pkg.archiveName.replace(/\.(zip|skillbundle|rar)$/i, '');
     const existingWithSameArchive = skills.find(
       (s) => s.rarPackage?.archiveName === pkg.archiveName
     );
     if (existingWithSameArchive) {
       handleUpdateRarPackage(pkg);
-      setGlobalStatus(
-        `Paquete ${pkg.archiveName} actualizado en el Códice Neuronal`
-      );
+      setGlobalStatus(`Workspace ${pkg.archiveName} actualizado en la bóveda`);
       setTimeout(() => setGlobalStatus(null), 2600);
       return;
     }
 
     const mdFile = pkg.files.find((f) => f.language === 'markdown');
     handleCreateSkill({
-      name: `${cleanTitle} · Núcleo de Proyecto .RAR`,
+      name: `${cleanTitle} · Workspace VFS`,
       filename: mdFile?.name || `${cleanTitle}.md`,
-      summary: `Paquete .RAR (${pkg.signatureDetected}) desarrollado con ${pkg.metadata.aiModelLabel} y la skill #${pkg.metadata.appliedSkill}. Contiene ${pkg.files.length} módulos inspeccionables.`,
-      category: 'Núcleo .RAR',
+      summary: `Workspace (${pkg.signatureDetected}) auditado con ${pkg.metadata.aiModelLabel} y la directiva #${pkg.metadata.appliedSkill}. Incluye ${pkg.files.length} archivos en VFS.`,
+      category: 'Workspace VFS',
       level: 'Avanzado',
       kind: 'proyecto',
       tags: [
         `#${pkg.metadata.appliedSkill}`,
-        '#rar-package',
-        '#codice-neuronal',
+        '#workspace-vfs',
+        '#zip-bundle',
       ],
       language: 'en',
       aiModelId: pkg.metadata.aiModelId,
@@ -295,11 +291,11 @@ export function App() {
       rarPackage: pkg,
       markdownContent:
         mdFile?.content ||
-        `# Project Documentation: ${cleanTitle}\n\n## Overview\nThis package was extracted in memory from \`${pkg.archiveName}\`. Press the **Traducir** button in the top bar to translate this documentation into Spanish instantaneously.`,
+        `# Workspace Documentation: ${cleanTitle}\n\n## Overview\nThis workspace was mounted in client memory from \`${pkg.archiveName}\`. Use the **Traducir ES** action to translate technical sections into Spanish.`,
       ficha: {
-        whereToUse: 'Núcleo de Proyectos .RAR y Códice Neuronal',
-        requirements: 'Paquete .RAR verificado en memoria',
-        estimatedTime: 'Inspección y traducción en 1 clic',
+        whereToUse: 'Workspace VFS, paquetes ZIP y bóveda local',
+        requirements: 'Navegador moderno con soporte Web Crypto y DecompressionStream',
+        estimatedTime: 'Inspección y diff en tiempo real',
         collaborators: [currentUser?.email || '@colaborador'],
       },
       uiSpec: activeSkill.uiSpec,
@@ -307,34 +303,36 @@ export function App() {
       screenshots: activeSkill.screenshots,
       codeSnippets: activeSkill.codeSnippets,
     });
-    setGlobalStatus(
-      `¡Paquete ${pkg.archiveName} registrado en el Códice Neuronal!`
-    );
+    setGlobalStatus(`Workspace ${pkg.archiveName} guardado en la bóveda`);
     setTimeout(() => setGlobalStatus(null), 2600);
+  };
+
+  const openModuleFromFooter = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    page: AppPageRoute
+  ) => {
+    e.preventDefault();
+    setActivePage(page);
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   if (showAuthScreen) {
     return (
-      <div className="relative min-h-screen bg-[#07050E]">
-        <NeuralAtmosphereBackground />
-        <div className="relative z-10">
-          <AuthScreen
-            onAuthenticated={handleAuthenticated}
-            onContinueAsPublic={() => setShowAuthScreen(false)}
-          />
-        </div>
+      <div className="min-h-screen bg-[#0a0d14] text-[#f1f5f9]">
+        <AuthScreen
+          onAuthenticated={handleAuthenticated}
+          onContinueAsPublic={() => setShowAuthScreen(false)}
+        />
       </div>
     );
   }
 
   const formattedModelLabel = `${selectedModel.family} · ${selectedModel.version}`;
 
-  return (
-    <div className="relative min-h-screen flex bg-[#030712] text-[#94A3B8] selection:bg-[#0EA5E9] selection:text-white">
-      <NeuralAtmosphereBackground />
-
-      {/* COLUMNA PRINCIPAL DINÁMICA (CABECERA CONTEXTUAL + CONTENIDO EN CUADRÍCULA + PIE) */}
-      <div className="relative z-10 flex-1 flex flex-col min-w-0">
+  /* MODO LANDING (activePage === 'inicio'): estructura estricta tasteskill 2.5.1 (header.nav + main#top + footer.closing) */
+  if (activePage === 'inicio') {
+    return (
+      <>
         <TopStudioHeader
           skills={skills}
           activeSkillId={activeSkill.id}
@@ -348,44 +346,208 @@ export function App() {
           selectedModelName={formattedModelLabel}
         />
 
+        <main id="top">
+          <InformativeLandingSection
+            onNavigatePage={setActivePage}
+            onSelectModelVersion={(version) => {
+              const found = AI_BENCHMARK_MODELS.find(
+                (m) => m.version === version
+              );
+              if (found) setSelectedModelId(found.id);
+            }}
+            onFilterByFramework={(tag) => {
+              setSearchQuery(tag);
+            }}
+          />
+        </main>
+
+        <footer
+          className="footer closing g2m"
+          id="contact"
+          aria-labelledby="close-h"
+        >
+          <div className="wrap">
+            <div className="closing__cta close--type">
+              <div className="section-head">
+                <h2 id="close-h">Audita tu próximo workspace hoy</h2>
+                <p className="t-small muted">
+                  Ejecución íntegra en navegador · Sin servidor ni registro previo
+                </p>
+              </div>
+              <a
+                className="btn btn--primary"
+                href="#workspace"
+                onClick={(e) => openModuleFromFooter(e, 'estudio')}
+              >
+                Abrir Workspace
+              </a>
+            </div>
+
+            <div className="closing__links">
+              <div className="grid">
+                <div className="span-4 stack-4">
+                  <a className="nav__logo" href="#top">
+                    <span className="mark" data-mark="stack" aria-hidden="true" />
+                    Códice Studio
+                  </a>
+                  <p className="footer__lede">
+                    Auditoría local de skills y workspaces IA.
+                  </p>
+                </div>
+
+                <div className="footer__col span-2">
+                  <h3>Módulos</h3>
+                  <ul>
+                    <li>
+                      <a
+                        href="#workspace"
+                        onClick={(e) => openModuleFromFooter(e, 'estudio')}
+                      >
+                        Workspace VFS
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#capabilities"
+                        onClick={(e) => openModuleFromFooter(e, 'boveda')}
+                      >
+                        Catálogo SKILL.md
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#benchmarks"
+                        onClick={(e) => openModuleFromFooter(e, 'codice-studio')}
+                      >
+                        Códice Obsidian
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="footer__col span-2">
+                  <h3>Página</h3>
+                  <ul>
+                    <li>
+                      <a href="#workspace">Workspace</a>
+                    </li>
+                    <li>
+                      <a href="#capabilities">Capacidades</a>
+                    </li>
+                    <li>
+                      <a href="#benchmarks">Modelos</a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="footer__col span-2">
+                  <h3>Verificación</h3>
+                  <ul>
+                    <li>
+                      <a
+                        href="#capabilities"
+                        onClick={(e) => openModuleFromFooter(e, 'preview')}
+                      >
+                        Componentes UI
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#faq"
+                        onClick={(e) => openModuleFromFooter(e, 'evidencias')}
+                      >
+                        Registro visual
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#faq">Preguntas</a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="footer__col span-2">
+                  <h3>Cuenta</h3>
+                  <ul>
+                    <li>
+                      <a
+                        href="#top"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowAuthScreen(true);
+                        }}
+                      >
+                        Acceder
+                      </a>
+                    </li>
+                    <li>
+                      <a href="obsidian://open?vault=ai-skills-studio">
+                        Abrir en Obsidian
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://github.com/suarezcaceres/ai-skills-studio">
+                        Repositorio
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="footer__legal">
+                <span>&copy; 2026 Códice Studio. Ejecución local en cliente.</span>
+                <div className="socials" />
+                <span>
+                  Los nombres de productos y logotipos son marcas registradas de sus
+                  respectivos propietarios.
+                </span>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </>
+    );
+  }
+
+  /* MODO IDE INTERNO (activePage !== 'inicio'): estación de trabajo de ancho completo sin restricciones 100svh */
+  return (
+    <>
+      <TopStudioHeader
+        skills={skills}
+        activeSkillId={activeSkill.id}
+        onSelectSkill={handleSelectSkill}
+        activePage={activePage}
+        onNavigatePage={setActivePage}
+        currentUser={currentUser}
+        onRequestLogin={() => setShowAuthScreen(true)}
+        onLogout={handleLogout}
+        onErasePersonalData={handleErasePersonalData}
+        selectedModelName={formattedModelLabel}
+      />
+
+      <div className="ide-shell selection:bg-[#0ea5e9] selection:text-[#0a0d14]">
         {globalStatus && (
           <div
             role="status"
             aria-live="polite"
-            className="relative z-20 mx-auto mt-3 flex max-w-md items-center justify-center gap-2 rounded-full border border-sky-400/30 bg-[#0B0F19]/90 px-4 py-1.5 text-xs font-semibold text-[#38BDF8] shadow-[0_0_15px_rgba(14,165,233,0.2)] backdrop-blur-md"
+            className="mx-auto mt-4 flex max-w-lg items-center justify-center gap-2 rounded-full border border-[#0ea5e9]/40 bg-[#121722] px-4 py-1.5 text-xs font-medium text-[#f1f5f9]"
           >
-            <span className="h-2 w-2 rounded-full bg-[#0EA5E9] animate-ping" />
+            <span className="h-2 w-2 rounded-full bg-[#0ea5e9]" />
             {globalStatus}
           </div>
         )}
 
-        <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 py-7">
-          {activePage === 'inicio' && (
-            <InformativeLandingSection
-              onNavigatePage={setActivePage}
-              onSelectModelVersion={(version) => {
-                const found = AI_BENCHMARK_MODELS.find(
-                  (m) => m.version === version
-                );
-                if (found) setSelectedModelId(found.id);
-              }}
-              onFilterByFramework={(tag) => {
-                setSearchQuery(tag);
-              }}
-            />
-          )}
-
-          {activePage !== 'inicio' && (
+        <main id="top" className="ide-container">
+          <div>
             <Suspense
               fallback={
                 <div
                   role="status"
                   aria-live="polite"
-                  className="mx-auto my-16 flex max-w-md flex-col items-center justify-center gap-3 rounded-3xl border border-sky-500/30 bg-[#0B0F19]/90 p-8 text-center shadow-2xl backdrop-blur-xl"
+                  className="mx-auto my-16 flex max-w-md flex-col items-center justify-center gap-3 rounded-lg border border-slate-800 bg-[#121722] p-8 text-center"
                 >
-                  <div className="h-9 w-9 animate-spin rounded-full border-2 border-[#0EA5E9] border-t-transparent shadow-[0_0_15px_rgba(14,165,233,0.4)]" />
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">
-                    Cargando módulo del Códice Neuronal...
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0ea5e9] border-t-transparent" />
+                  <p className="text-xs font-medium text-slate-300">
+                    Cargando estación de trabajo...
                   </p>
                 </div>
               }
@@ -456,39 +618,39 @@ export function App() {
                 />
               )}
             </Suspense>
-          )}
+          </div>
         </main>
 
-        <footer className="border-t border-violet-900/25 bg-[#030712]/95 backdrop-blur-md py-6 px-4 sm:px-6 text-xs text-[#94A3B8]">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+        <footer className="border-t border-slate-800/80 bg-[#0a0d14] py-5 px-6 text-xs text-slate-400">
+          <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-3 sm:flex-row">
             <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9] shadow-[0_0_8px_#0EA5E9]" />
-              <span className="font-bold text-white">
-                Códice Studio · Ecosistema Neuronal IA
+              <span className="h-2 w-2 rounded-full bg-[#0ea5e9]" />
+              <span className="font-semibold text-slate-200">
+                Códice Studio · Workspace VFS
               </span>
-              <span className="text-violet-400/40">·</span>
+              <span>·</span>
               <span>
-                Cyber Dark (<code className="text-[#38BDF8]">#030712</code> /{' '}
-                <code className="text-[#38BDF8]">#0B0F19</code>) &amp; Cian Eléctrico (<code className="text-[#38BDF8]">#0EA5E9</code>)
+                Carbón neutro (<code className="text-slate-300">#0a0d14</code>) y acento cian (
+                <code className="text-[#38bdf8]">#0ea5e9</code>)
               </span>
             </div>
-            <div className="flex items-center gap-3 text-[11px] text-[#94A3B8]/70">
+            <div className="flex items-center gap-3 text-[11px]">
               <span>
-                Rol de acceso:{' '}
+                Sesión:{' '}
                 <strong
                   className={
-                    isCollaboratorMode ? 'text-[#34D399]' : 'text-sky-400'
+                    isCollaboratorMode ? 'text-emerald-400' : 'text-[#38bdf8]'
                   }
                 >
                   {isCollaboratorMode && currentUser
-                    ? `Modo Colaborador (${currentUser.email})`
-                    : 'Modo Visitante (Público General · Solo Lectura)'}
+                    ? `Colaborador (${currentUser.email})`
+                    : 'Visitante (lectura y pruebas en memoria)'}
                 </strong>
               </span>
-              <span className="text-violet-400/40">|</span>
+              <span>|</span>
               <span>
-                Núcleo activo:{' '}
-                <code className="text-[#38BDF8] font-semibold">
+                Paquete activo:{' '}
+                <code className="font-mono text-slate-200">
                   {activeRarPackage.archiveName}
                 </code>
               </span>
@@ -496,7 +658,7 @@ export function App() {
           </div>
         </footer>
       </div>
-    </div>
+    </>
   );
 }
 

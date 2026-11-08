@@ -383,7 +383,7 @@ export const VoiceVisualFeedback: React.FC<VoiceVisualFeedbackProps> = ({
               setInterimTranscript('');
             }}
             placeholder={`Dicta con el micrófono o escribe aquí cómo sentiste el resultado visual de ${selectedModelVersion} (contraste Cyber Dark, acentos cian, fluidez, estructura)...`}
-            className="w-full rounded-xl border border-slate-700 bg-[#0F172A] p-3 text-xs leading-relaxed text-white placeholder:text-slate-500 focus:border-[#0EA5E9] focus:outline-none"
+            className="w-full rounded-xl border border-slate-700 bg-[#0F172A] p-3 text-xs leading-relaxed text-white placeholder:text-slate-500 focus:border-[#0EA5E9] "
           />
         </div>
 

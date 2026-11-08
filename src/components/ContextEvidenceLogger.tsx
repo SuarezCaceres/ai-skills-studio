@@ -217,7 +217,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
               value={screenshotTitle}
               onChange={(e) => setScreenshotTitle(e.target.value)}
               placeholder="Etiqueta de la captura (ej. Ejecución en Gemini Ultra)..."
-              className="flex-1 min-w-[180px] h-10 bg-[#121212] border border-zinc-800 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-[#0EA5E9]"
+              className="flex-1 min-w-[180px] h-10 bg-[#121212] border border-zinc-800 rounded-xl px-3 text-xs text-white  focus:border-[#0EA5E9]"
             />
             <input
               ref={fileInputRef}
@@ -348,7 +348,7 @@ export const ContextEvidenceLogger: React.FC<ContextEvidenceLoggerProps> = ({
               value={snippetCode}
               onChange={(e) => setSnippetCode(e.target.value)}
               placeholder="Pega aquí el fragmento de código que la IA está implementando o ejecutando..."
-              className="w-full bg-[#121212] border border-zinc-800 rounded-xl p-2.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-[#0EA5E9]"
+              className="w-full bg-[#121212] border border-zinc-800 rounded-xl p-2.5 text-xs font-mono text-zinc-100  focus:border-[#0EA5E9]"
             />
 
             <div className="flex justify-end">

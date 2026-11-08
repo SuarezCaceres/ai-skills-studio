@@ -210,17 +210,17 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
       name: `Proyecto #${index} · Arquitectura Cyber Dark & Cian`,
       filename,
       summary:
-        'Proyecto con paquete .rar asociado, traducción instantánea de Markdown en 1 clic (sin voz), Galería del Sistema y evaluación por dictado de voz.',
+        'Proyecto con paquete .zip VFS asociado, traducción instantánea de Markdown en 1 clic (sin voz), Galería del Sistema y evaluación por dictado de voz.',
       category: 'Códice Neuronal',
       level: 'Intermedio',
       kind: 'proyecto',
-      tags: ['#ui-ux-pro-max', '#rar-package', '#opus-5.5'],
+      tags: ['#ui-ux-pro-max', '#workspace-vfs', '#opus-5.5'],
       language: 'en',
       aiModelLabel: 'Opus 5.5',
       appliedSkill: 'ui-ux-pro-max',
-      colorPalette: ['#030712', '#0B1120', '#0EA5E9', '#38BDF8'],
+      colorPalette: ['#0A0D14', '#121722', '#0EA5E9', '#38BDF8'],
       ficha: {
-        whereToUse: 'Códice Neuronal, Núcleo de Proyectos .RAR y Cortex IA',
+        whereToUse: 'Códice Neuronal, Workspace Studio VFS y Cortex IA',
         requirements:
           'Configurar las instrucciones del archivo .md y asociar una versión del Cortex de Modelos',
         estimatedTime: '2 minutos de edición interactiva',
@@ -294,7 +294,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
 
   return (
     <div className="space-y-12">
-      {/* 1. CÓDICE NEURONAL (ARSENAL DE SKILLS, PAQUETES .RAR Y METADATOS DEL SISTEMA) */}
+      {/* 1. CÓDICE NEURONAL (ARSENAL DE SKILLS, WORKSPACE VFS Y METADATOS DEL SISTEMA) */}
       <section
         ref={codiceSectionRef}
         aria-labelledby="boveda-heading"
@@ -303,7 +303,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="space-y-2 max-w-2xl">
             <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#38BDF8] block">
-              CÓDICE NEURONAL · NÚCLEO DE PROYECTOS (.RAR), SKILLS (.MD) Y CORTEX IA
+              CÓDICE NEURONAL · WORKSPACE VFS (.ZIP), SKILLS (.MD) Y CORTEX IA
             </span>
             <h2
               id="boveda-heading"
@@ -312,13 +312,13 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
               Códice Neuronal y Arsenal de Skills
             </h2>
             <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
-              Selecciona cualquier elemento para abrirlo en el{' '}
-              <strong className="text-[#38BDF8]">Núcleo de Proyectos</strong>{' '}
-              (Árbol de archivos{' '}
+              Selecciona cualquier elemento para abrirlo en{' '}
+              <strong className="text-[#38BDF8]">Workspace Studio</strong>{' '}
+              (Árbol VFS{' '}
               <code className="px-1.5 py-0.5 rounded-md bg-[#0F172A] border border-[#0EA5E9]/30 text-[#38BDF8] text-xs font-mono">
-                .rar
+                .zip
               </code>
-              , código fuente, Galería del Sistema y traducción de{' '}
+              , vista Diff en vivo, Galería del Sistema y traducción de{' '}
               <code className="px-1.5 py-0.5 rounded-md bg-[#0F172A] border border-[#0EA5E9]/30 text-[#38BDF8] text-xs font-mono">
                 .md
               </code>{' '}
@@ -345,7 +345,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                     className="w-3.5 h-3.5 text-[#0EA5E9]"
                     aria-hidden="true"
                   />
-                  <span>Subir Paquete .RAR</span>
+                  <span>Abrir Workspace .ZIP</span>
                 </button>
 
                 <button
@@ -422,7 +422,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
           <search>
             <form onSubmit={(e) => e.preventDefault()} className="relative">
               <label htmlFor="vault-search-input" className="sr-only">
-                Busca proyectos, paquetes .rar, skills en Markdown o versiones de modelos IA
+                Busca proyectos, paquetes .zip, skills en Markdown o versiones de modelos IA
               </label>
               <Search
                 className="w-4 h-4 text-[#0EA5E9] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -433,8 +433,8 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                 type="search"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Busca en el Códice Neuronal por proyecto, paquete .rar, skill, framework o versión IA (Opus 5.5, Gemini 3.8, Sonnet 5.5, GPT Astra)..."
-                className="w-full h-12 rounded-2xl bg-[#0F172A] border border-slate-800 pl-11 pr-4 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[#0EA5E9] transition"
+                placeholder="Busca en el Códice Neuronal por proyecto, paquete .zip, skill, framework o versión IA (Opus 5.5, Gemini 3.8, Sonnet 5.5, GPT Astra)..."
+                className="w-full h-12 rounded-2xl bg-[#0F172A] border border-slate-800 pl-11 pr-4 text-sm text-white placeholder:text-slate-500  focus:border-[#0EA5E9] transition"
               />
             </form>
           </search>
@@ -446,7 +446,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                 { id: 'all', label: 'Todo el Códice' },
                 {
                   id: 'proyecto',
-                  label: 'Núcleo de Proyectos (.RAR)',
+                  label: 'Workspaces VFS (.ZIP)',
                   icon: true,
                 },
                 { id: 'guia', label: 'Guías Técnicas (.md)' },
@@ -630,7 +630,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                 rows={7}
                 value={draftMarkdown}
                 onChange={(e) => setDraftMarkdown(e.target.value)}
-                className="w-full rounded-xl bg-[#0B0F19] border border-slate-800 p-3 text-xs font-mono text-slate-100 leading-relaxed focus:outline-none focus:border-[#0EA5E9]"
+                className="w-full rounded-xl bg-[#0B0F19] border border-slate-800 p-3 text-xs font-mono text-slate-100 leading-relaxed  focus:border-[#0EA5E9]"
               />
             </div>
 
@@ -660,8 +660,8 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
             {filteredSkills.length === 1
               ? 'elemento en el Códice Neuronal'
               : 'elementos en el Códice Neuronal'}{' '}
-            · Haz clic en cualquiera para abrirlo en el{' '}
-            <strong className="text-[#38BDF8]">Núcleo de Proyectos (.RAR)</strong>
+            · Haz clic en cualquiera para abrirlo en{' '}
+            <strong className="text-[#38BDF8]">Workspace Studio (.ZIP)</strong>
           </div>
 
           <div className="edu-floating-panel rounded-2xl divide-y divide-slate-800/80 overflow-hidden">
@@ -722,7 +722,7 @@ Diseña y genera menús de barras accesibles, menús desplegables con navegació
                         <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#0B0F19] text-slate-300 border border-slate-800 whitespace-nowrap">
                           {skill.kind === 'guia'
                             ? 'GUÍA DEL CÓDICE'
-                            : 'NÚCLEO .RAR'}
+                            : 'WORKSPACE VFS'}
                         </span>
 
                         <span

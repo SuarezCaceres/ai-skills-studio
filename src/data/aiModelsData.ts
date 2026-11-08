@@ -24,11 +24,11 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     strengths: [
       'Precisión absoluta en arquitectura de componentes UI/UX y sistemas de diseño',
       'Cumplimiento estricto de accesibilidad WAI-ARIA y semántica HTML5 nativa',
-      'Documentación técnica exhaustiva y desglose modular de paquetes .RAR',
+      'Documentación técnica exhaustiva y desglose modular de paquetes Workspace VFS (.zip)',
     ],
     recommendedFor: [
       'Arquitectura integral de laboratorios UI/UX y paneles de control complejos',
-      'Auditoría de código fuente y refactorización de árboles .RAR multicapa',
+      'Auditoría de código fuente y refactorización de árboles VFS multicapa',
       'Diseño de sistemas interactivos con micro-transiciones calibradas',
     ],
   },
@@ -84,12 +84,12 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     visualImpactNotes:
       'Genera atmósferas inmersivas con mallas neuronales SVG, degradados dinámicos en cian eléctrico (#0EA5E9) y respuesta instantánea a 60fps.',
     strengths: [
-      'Ventana de contexto masiva de 2M tokens para inspeccionar paquetes .RAR enteros',
+      'Ventana de contexto masiva de 2M tokens para inspeccionar paquetes VFS (.zip) enteros',
       'Velocidad de inferencia ultrarrápida (178 tok/s) con latencia mínima',
       'Comprensión multimodal nativa de capturas del núcleo, audio y código',
     ],
     recommendedFor: [
-      'Descompresión e inspección completa de proyectos .RAR en memoria',
+      'Descompresión e inspección completa de proyectos VFS en memoria',
       'Traducción técnica instantánea 1-clic de documentación Markdown',
       'Generación de experiencias visuales fluidas y reactivas',
     ],
@@ -194,7 +194,7 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     family: 'GPT',
     provider: 'OpenAI Next-Gen',
     tier: 'Máximo / Alto',
-    badgeColor: '#A855F7',
+    badgeColor: '#14B8A6',
     speedTokensPerSec: 152,
     latencyMs: 310,
     contextWindow: '256,000 Tokens',

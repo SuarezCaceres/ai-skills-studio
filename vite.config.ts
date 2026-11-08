@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -9,9 +9,38 @@ const securityHeaders = {
   'Permissions-Policy': 'camera=(), geolocation=(), payment=()',
 };
 
+function preservePublicKitAssets(): Plugin[] {
+  return [
+    {
+      name: 'preserve-public-kit-assets-pre',
+      apply: 'build',
+      transformIndexHtml: {
+        order: 'pre',
+        handler(html) {
+          return html
+            .replace(/\bhref="(assets\/[^"]+)"/g, 'data-kit-href="$1"')
+            .replace(/\bsrc="(assets\/[^"]+)"/g, 'data-kit-src="$1"');
+        },
+      },
+    },
+    {
+      name: 'preserve-public-kit-assets-post',
+      apply: 'build',
+      transformIndexHtml: {
+        order: 'post',
+        handler(html) {
+          return html
+            .replace(/\bdata-kit-href="(assets\/[^"]+)"/g, 'href="$1"')
+            .replace(/\bdata-kit-src="(assets\/[^"]+)"/g, 'src="$1"');
+        },
+      },
+    },
+  ];
+}
+
 export default defineConfig({
   base: './',
-  plugins: [react(), tailwindcss()],
+  plugins: [...preservePublicKitAssets(), react(), tailwindcss()],
   server: {
     headers: securityHeaders,
   },
@@ -19,6 +48,7 @@ export default defineConfig({
     headers: securityHeaders,
   },
   build: {
+    assetsDir: 'bundle',
     rollupOptions: {
       output: {
         manualChunks: {

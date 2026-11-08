@@ -598,8 +598,8 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         palette: ['#0EA5E9', '#06B6D4', '#10B981', '#0F172A'],
                       },
                       {
-                        label: 'Coral Neón + Índigo',
-                        palette: ['#38BDF8', '#F43F5E', '#A855F7', '#0A0F1D'],
+                        label: 'Coral + Esmeralda',
+                        palette: ['#38BDF8', '#F43F5E', '#14B8A6', '#0A0F1D'],
                       },
                     ].map((presetPalette) => (
                       <button
@@ -667,7 +667,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         type="text"
                         value={customHeroTitle}
                         onChange={(e) => setCustomHeroTitle(e.target.value)}
-                        className="w-full rounded-xl border border-slate-800 bg-[#0B0F19] px-3 py-1.5 text-xs text-white focus:border-[#0EA5E9] focus:outline-none"
+                        className="w-full rounded-xl border border-slate-800 bg-[#0B0F19] px-3 py-1.5 text-xs text-white focus:border-[#0EA5E9] "
                       />
                     </div>
                     <div>
@@ -678,7 +678,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         type="text"
                         value={customHeroAccent}
                         onChange={(e) => setCustomHeroAccent(e.target.value)}
-                        className="w-full rounded-xl border border-slate-800 bg-[#0B0F19] px-3 py-1.5 text-xs text-[#38BDF8] font-bold focus:border-[#0EA5E9] focus:outline-none"
+                        className="w-full rounded-xl border border-slate-800 bg-[#0B0F19] px-3 py-1.5 text-xs text-[#38BDF8] font-bold focus:border-[#0EA5E9] "
                       />
                     </div>
                   </div>
@@ -1220,7 +1220,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                               handleUpdateSkillDescription(idx, e.target.value)
                             }
                             aria-label={`Descripción de la skill ${sk.skillId}`}
-                            className="w-full rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1 text-xs text-slate-200 focus:border-[#0EA5E9] focus:outline-none"
+                            className="w-full rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1 text-xs text-slate-200 focus:border-[#0EA5E9] "
                           />
                         ) : (
                           <p className="text-xs text-slate-300 leading-relaxed">
@@ -1246,7 +1246,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                           value={newSkillIdInput}
                           onChange={(e) => setNewSkillIdInput(e.target.value)}
                           placeholder="ej. executive-video-editor"
-                          className="flex-1 rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1.5 font-mono text-xs text-white focus:border-[#0EA5E9] focus:outline-none"
+                          className="flex-1 rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1.5 font-mono text-xs text-white focus:border-[#0EA5E9] "
                         />
                         <button
                           type="submit"
@@ -1261,7 +1261,7 @@ export const StylePresetCatalog: React.FC<StylePresetCatalogProps> = ({
                         value={newSkillDescInput}
                         onChange={(e) => setNewSkillDescInput(e.target.value)}
                         placeholder="Descripción del impacto técnico o visual..."
-                        className="w-full rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1.5 text-xs text-slate-300 focus:border-[#0EA5E9] focus:outline-none"
+                        className="w-full rounded-lg border border-slate-800 bg-[#0F172A] px-2.5 py-1.5 text-xs text-slate-300 focus:border-[#0EA5E9] "
                       />
                     </form>
                   )}

@@ -114,7 +114,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         accent: '#0EA5E9',
       },
       {
-        title: 'Validador .RAR Core',
+        title: 'Validador VFS Core',
         subtitle: 'Inspección binaria',
         badge: 'Opus 4.8',
         aiBrand: 'Claude',
@@ -155,7 +155,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'Glassmorphism Pro',
         badge: 'Opus 5.5',
         aiBrand: 'Claude',
-        accent: '#A855F7',
+        accent: '#14B8A6',
       },
     ],
     iconSvg: <TailwindBrandIcon className="h-7 w-7" />,
@@ -166,7 +166,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
     category: 'frecuentes',
     categoryBadge: 'Más Frecuente',
     description:
-      'Contratos fuertemente tipados, analizadores de árboles de archivos .RAR y automatización de agentes CLI.',
+      'Contratos fuertemente tipados, analizadores de árboles VFS .ZIP y automatización de agentes CLI.',
     ctaLabel: 'Explorar en Skills',
     filterTag: 'typescript',
     accentColor: '#38BDF8',
@@ -174,7 +174,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
     metrics: '51 Módulos Tipados',
     previewCards: [
       {
-        title: 'Parser .RAR Memoria',
+        title: 'Parser VFS Memoria',
         subtitle: '100% TypeScript estricto',
         badge: 'Gemini 3.8',
         aiBrand: 'Gemini',
@@ -244,7 +244,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
     ctaLabel: 'Explorar en Skills',
     filterTag: 'guia',
     accentColor: '#38BDF8',
-    secondaryColor: '#A855F7',
+    secondaryColor: '#14B8A6',
     metrics: '29 Guías Interactivas',
     previewCards: [
       {
@@ -259,7 +259,7 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
         subtitle: 'Hidratación selectiva',
         badge: 'Sonnet 5.5',
         aiBrand: 'Claude',
-        accent: '#A855F7',
+        accent: '#14B8A6',
       },
       {
         title: 'Visor Markdown Bilingüe',
@@ -317,16 +317,16 @@ export const FRAMEWORK_COLLECTIONS: FrameworkCollectionItem[] = [
       'Tokens de diseño sincronizados, bibliotecas de componentes con estados hover y prototipos de alta fidelidad.',
     ctaLabel: 'Explorar en Skills',
     filterTag: 'ui',
-    accentColor: '#A855F7',
+    accentColor: '#14B8A6',
     secondaryColor: '#0EA5E9',
     metrics: '55 Kits de Interfaz',
     previewCards: [
       {
-        title: 'Kit AI Cyber Dark',
+        title: 'Kit AI Carbon Dark',
         subtitle: 'Variables cromáticas',
         badge: 'GPT Luna',
         aiBrand: 'GPT',
-        accent: '#A855F7',
+        accent: '#14B8A6',
       },
       {
         title: 'Catálogo Hover Pro',

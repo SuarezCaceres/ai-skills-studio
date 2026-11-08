@@ -5,7 +5,7 @@ interface IconProps {
 }
 
 /**
- * Icono oficial estilizado de Anthropic Claude (Estrella orgánica de 12 rayos en terracota/naranja)
+ * Icono estilizado de Anthropic Claude (Estrella orgánica de 12 rayos en terracota oficial)
  */
 export const ClaudeBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
@@ -15,8 +15,8 @@ export const ClaudeBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
       width="33"
       height="33"
       rx="9"
-      fill="url(#claude_bg)"
-      stroke="#0EA5E9"
+      fill="#121722"
+      stroke="#D97757"
       strokeOpacity="0.45"
       strokeWidth="1.2"
     />
@@ -29,27 +29,17 @@ export const ClaudeBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
           width="2.7"
           height="8.4"
           rx="1.35"
-          fill="url(#claude_spoke)"
+          fill="#D97757"
           transform={`rotate(${idx * 30})`}
         />
       ))}
-      <circle r="3.4" fill="#0EA5E9" />
+      <circle r="3.4" fill="#F29A7A" />
     </g>
-    <defs>
-      <linearGradient id="claude_bg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#0B081B" />
-        <stop offset="100%" stopColor="#030712" />
-      </linearGradient>
-      <linearGradient id="claude_spoke" x1="0" y1="-10.5" x2="0" y2="-2" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#38BDF8" />
-        <stop offset="100%" stopColor="#818CF8" />
-      </linearGradient>
-    </defs>
   </svg>
 );
 
 /**
- * Icono oficial estilizado de Google Gemini (Estrella curva de 4 puntas con degradado azul-violeta-naranja + destello)
+ * Icono estilizado de Google Gemini (Estrella curva de 4 puntas en gama azul-cian oficial)
  */
 export const GeminiBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
@@ -59,8 +49,8 @@ export const GeminiBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
       width="33"
       height="33"
       rx="9"
-      fill="url(#gemini_bg)"
-      stroke="#60A5FA"
+      fill="#121722"
+      stroke="#38BDF8"
       strokeOpacity="0.45"
       strokeWidth="1.2"
     />
@@ -73,21 +63,17 @@ export const GeminiBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
       fill="#38BDF8"
     />
     <defs>
-      <linearGradient id="gemini_bg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#0E1B38" />
-        <stop offset="100%" stopColor="#090D1C" />
-      </linearGradient>
       <linearGradient id="gemini_star" x1="6" y1="7" x2="29" y2="30" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#38BDF8" />
-        <stop offset="52%" stopColor="#A855F7" />
-        <stop offset="100%" stopColor="#0EA5E9" />
+        <stop offset="0%" stopColor="#4285F4" />
+        <stop offset="52%" stopColor="#0EA5E9" />
+        <stop offset="100%" stopColor="#38BDF8" />
       </linearGradient>
     </defs>
   </svg>
 );
 
 /**
- * Icono oficial estilizado de OpenAI GPT (Nudo hexagonal entrelazado de 6 pétalos)
+ * Icono estilizado de OpenAI GPT (Nudo hexagonal entrelazado de 6 pétalos)
  */
 export const GPTBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
@@ -97,7 +83,7 @@ export const GPTBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => 
       width="33"
       height="33"
       rx="9"
-      fill="url(#gpt_bg)"
+      fill="#121722"
       stroke="#10B981"
       strokeOpacity="0.45"
       strokeWidth="1.2"
@@ -119,22 +105,16 @@ export const GPTBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => 
       ))}
       <polygon
         points="0,-3.8 3.3,-1.9 3.3,1.9 0,3.8 -3.3,1.9 -3.3,-1.9"
-        fill="#06231B"
+        fill="#0D1F1B"
         stroke="#6EE7B7"
         strokeWidth="1.3"
       />
     </g>
-    <defs>
-      <linearGradient id="gpt_bg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#092920" />
-        <stop offset="100%" stopColor="#061210" />
-      </linearGradient>
-    </defs>
   </svg>
 );
 
 /**
- * Icono oficial de Angular (Escudo hexagonal bicolor rojo/naranja con la A geométrica)
+ * Icono oficial de Angular (Escudo hexagonal rojo con la A geométrica)
  */
 export const AngularBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
@@ -144,7 +124,7 @@ export const AngularBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' })
       width="33"
       height="33"
       rx="9"
-      fill="#1A0B12"
+      fill="#121722"
       stroke="#F43F5E"
       strokeOpacity="0.45"
       strokeWidth="1.2"
@@ -165,15 +145,15 @@ export const AngularBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' })
     <defs>
       <linearGradient id="ng_shield" x1="7" y1="6" x2="29" y2="29" gradientUnits="userSpaceOnUse">
         <stop offset="0%" stopColor="#FF3162" />
-        <stop offset="55%" stopColor="#DD0031" />
-        <stop offset="100%" stopColor="#0EA5E9" />
+        <stop offset="65%" stopColor="#DD0031" />
+        <stop offset="100%" stopColor="#F97316" />
       </linearGradient>
     </defs>
   </svg>
 );
 
 /**
- * Icono oficial de Spring Boot (Hexágono verde con símbolo de encendido/hoja)
+ * Icono oficial de Spring Boot (Hexágono verde con símbolo de encendido)
  */
 export const SpringBootBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
@@ -183,7 +163,7 @@ export const SpringBootBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6'
       width="33"
       height="33"
       rx="9"
-      fill="#0B1F11"
+      fill="#121722"
       stroke="#6DB33F"
       strokeOpacity="0.5"
       strokeWidth="1.2"
@@ -224,7 +204,7 @@ export const TailwindBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }
       width="33"
       height="33"
       rx="9"
-      fill="#081C29"
+      fill="#121722"
       stroke="#38BDF8"
       strokeOpacity="0.45"
       strokeWidth="1.2"
@@ -276,7 +256,7 @@ export const ReactBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =
       width="33"
       height="33"
       rx="9"
-      fill="#081B26"
+      fill="#121722"
       stroke="#38BDF8"
       strokeOpacity="0.45"
       strokeWidth="1.2"
@@ -284,26 +264,14 @@ export const ReactBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =
     <g transform="translate(18, 18)">
       <circle r="2.4" fill="#61DAFB" />
       <ellipse rx="11" ry="4.2" stroke="#61DAFB" strokeWidth="1.5" />
-      <ellipse
-        rx="11"
-        ry="4.2"
-        stroke="#61DAFB"
-        strokeWidth="1.5"
-        transform="rotate(60)"
-      />
-      <ellipse
-        rx="11"
-        ry="4.2"
-        stroke="#61DAFB"
-        strokeWidth="1.5"
-        transform="rotate(120)"
-      />
+      <ellipse rx="11" ry="4.2" stroke="#61DAFB" strokeWidth="1.5" transform="rotate(60)" />
+      <ellipse rx="11" ry="4.2" stroke="#61DAFB" strokeWidth="1.5" transform="rotate(120)" />
     </g>
   </svg>
 );
 
 /**
- * Icono oficial de Astro (A espacial con llama naranja-magenta)
+ * Icono oficial de Astro (A espacial con llama naranja)
  */
 export const AstroBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
@@ -313,8 +281,8 @@ export const AstroBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =
       width="33"
       height="33"
       rx="9"
-      fill="#160B24"
-      stroke="#38BDF8"
+      fill="#121722"
+      stroke="#F97316"
       strokeOpacity="0.45"
       strokeWidth="1.2"
     />
@@ -328,8 +296,8 @@ export const AstroBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =
     />
     <defs>
       <linearGradient id="astro_flame" x1="15" y1="24" x2="21" y2="30" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#0EA5E9" />
-        <stop offset="100%" stopColor="#EC4899" />
+        <stop offset="0%" stopColor="#FF5D01" />
+        <stop offset="100%" stopColor="#FBBF24" />
       </linearGradient>
     </defs>
   </svg>
@@ -346,13 +314,13 @@ export const PythonBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
       width="33"
       height="33"
       rx="9"
-      fill="#0D192B"
+      fill="#121722"
       stroke="#38BDF8"
       strokeOpacity="0.4"
       strokeWidth="1.2"
     />
     <path
-      d="M17.8 6.5C12.8 6.5 13.1 8.7 13.1 8.7V11H18V11.8H11.2C11.2 11.8 6.8 11.3 6.8 17.2C6.8 23.1 10.6 22.9 10.6 22.9H12.9V20.1C12.9 20.1 12.8 16.3 16.6 16.3H21.6C21.6 16.3 25.2 16.4 25.2 12.8V8.9C25.2 8.9 25.7 6.5 17.8 6.5ZM15.1 8.1C15.7 8.1 16.1 8.5 16.1 9.1C16.1 9.7 15.7 10.1 15.1 10.1C14.5 10.1 14.1 9.7 14.1 9.1C14.1 8.5 14.5 8.1 15.1 8.1Z"
+      d="M17.8 6.5C12.8 6.5 13.1 8.7 13.1 8.7V11H18V11.8H11.2C11.2 11.8 6.8 11.3 6.8 17.2C6.8 23.1 10.6 22.9 10.6 22.9H12.9V20.1C12.9 20.1 12.8 16.3 16.6 16.3H21.6C21.6 16.3 25.2 16.4 25.2 12.8V8.9C25.2 8.9 25.7 6.5 17.8 6.5ZM15.1 8.1C15.7 8.1 16.1 9.1 16.1 9.1C16.1 9.7 15.7 10.1 15.1 10.1C14.5 10.1 14.1 9.7 14.1 9.1C14.1 8.5 14.5 8.1 15.1 8.1Z"
       fill="#387EB8"
     />
     <path
@@ -363,7 +331,7 @@ export const PythonBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) 
 );
 
 /**
- * Icono oficial de Figma (5 bloques geométricos multicolores)
+ * Icono oficial de Figma (5 bloques geométricos multicolores oficiales sobre baldosa neutra)
  */
 export const FigmaBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
@@ -373,9 +341,9 @@ export const FigmaBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =
       width="33"
       height="33"
       rx="9"
-      fill="#14111F"
-      stroke="#A855F7"
-      strokeOpacity="0.45"
+      fill="#121722"
+      stroke="#64748B"
+      strokeOpacity="0.4"
       strokeWidth="1.2"
     />
     <path d="M14 7.5A3.5 3.5 0 0014 14.5H17.5V7.5H14Z" fill="#F24E1E" />
@@ -387,7 +355,7 @@ export const FigmaBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =
 );
 
 /**
- * Icono oficial estilizado de Obsidian (Cristal amatista facetado con destello púrpura/violeta)
+ * Marca oficial de Obsidian (cristal facetado de la marca sobre baldosa neutra)
  */
 export const ObsidianBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
@@ -397,44 +365,18 @@ export const ObsidianBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }
       width="33"
       height="33"
       rx="9"
-      fill="#130D24"
-      stroke="#A855F7"
-      strokeOpacity="0.45"
+      fill="#121722"
+      stroke="#64748B"
+      strokeOpacity="0.4"
       strokeWidth="1.2"
     />
     <g transform="translate(6, 5)">
-      {/* Faceta Superior Izquierda */}
-      <path
-        d="M12 2L4 10L10 13L16 6L12 2Z"
-        fill="#9333EA"
-        fillOpacity="0.85"
-      />
-      {/* Faceta Superior Derecha */}
-      <path
-        d="M12 2L16 6L20 12L17 14L12 2Z"
-        fill="#C084FC"
-        fillOpacity="0.95"
-      />
-      {/* Faceta Central Lumínica */}
-      <path
-        d="M16 6L10 13L14 20L17 14L16 6Z"
-        fill="#A855F7"
-      />
-      {/* Faceta Inferior Frontal */}
-      <path
-        d="M10 13L4 10L6 21L14 24L10 13Z"
-        fill="#7C3AED"
-      />
-      {/* Faceta Inferior Punta */}
-      <path
-        d="M10 13L14 20L14 24L10 13Z"
-        fill="#6B21A8"
-      />
-      {/* Faceta Derecha Inferior */}
-      <path
-        d="M17 14L20 12L18 20L14 24L14 20L17 14Z"
-        fill="#581C87"
-      />
+      <path d="M12 2L4 10L10 13L16 6L12 2Z" fill="#9333EA" fillOpacity="0.85" />
+      <path d="M12 2L16 6L20 12L17 14L12 2Z" fill="#C084FC" fillOpacity="0.95" />
+      <path d="M16 6L10 13L14 20L17 14L16 6Z" fill="#A855F7" />
+      <path d="M10 13L4 10L6 21L14 24L10 13Z" fill="#7C3AED" />
+      <path d="M10 13L14 20L14 24L10 13Z" fill="#6B21A8" />
+      <path d="M17 14L20 12L18 20L14 24L14 20L17 14Z" fill="#581C87" />
     </g>
   </svg>
 );

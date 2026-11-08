@@ -1,36 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import {
-  Sparkles,
-  Code2,
-  FolderArchive,
-  Layers,
-  BookOpen,
-  Cpu,
-  Image as ImageIcon,
-  ArrowRight,
-  CheckCircle2,
-  Mic,
-  Palette,
-  FileCode2,
-  ChevronDown,
-  Check,
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { AppPageRoute, SpecificModelVersion } from '../types/workspace';
 import { ComputerLightBeamShowcase } from './ComputerLightBeamShowcase';
-import {
-  ClaudeBrandIcon,
-  GeminiBrandIcon,
-  GPTBrandIcon,
-  AngularBrandIcon,
-  SpringBootBrandIcon,
-  TailwindBrandIcon,
-  TypeScriptBrandIcon,
-  ReactBrandIcon,
-} from './BrandIcons';
-import {
-  MODEL_VERSION_PILLS,
-  FRAMEWORK_COLLECTIONS,
-} from '../data/frameworkCollectionsData';
 
 interface InformativeLandingSectionProps {
   onNavigatePage: (page: AppPageRoute) => void;
@@ -38,771 +8,681 @@ interface InformativeLandingSectionProps {
   onFilterByFramework?: (tag: string) => void;
 }
 
-const AIBrandBadgeIcon: React.FC<{
-  brand: 'Claude' | 'Gemini' | 'GPT';
-  className?: string;
-}> = ({ brand, className = 'h-3.5 w-3.5' }) => {
-  if (brand === 'Claude') return <ClaudeBrandIcon className={className} />;
-  if (brand === 'Gemini') return <GeminiBrandIcon className={className} />;
-  return <GPTBrandIcon className={className} />;
-};
+const HUB_DIAGRAM_JSON = JSON.stringify({
+  layout: 'hub',
+  ground: 'dots',
+  alt: 'Códice Studio conecta archivos SKILL.md y paquetes ZIP con Obsidian, Claude, Gemini y Cursor.',
+  center: {
+    label: 'Códice Studio',
+    icon: 'ui:layers',
+  },
+  spokes: [
+    { label: 'SKILL.md', icon: 'md' },
+    { label: 'Paquete ZIP', icon: 'zip' },
+    { label: 'Obsidian', icon: 'obsidian' },
+    { label: 'Claude', icon: 'claude' },
+    { label: 'Gemini', icon: 'gemini' },
+    { label: 'Cursor', icon: 'cursor' },
+  ],
+});
 
-export const InformativeLandingSection: React.FC<
-  InformativeLandingSectionProps
-> = ({ onNavigatePage, onSelectModelVersion, onFilterByFramework }) => {
+declare global {
+  interface Window {
+    __tasteUi?: {
+      startAll: (doc: Document) => void;
+    };
+  }
+}
+
+export const InformativeLandingSection: React.FC<InformativeLandingSectionProps> = ({
+  onNavigatePage,
+  onSelectModelVersion,
+}) => {
   const [activeDesktopModel, setActiveDesktopModel] =
     useState<SpecificModelVersion>('Opus 5.5');
-  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setIsModelDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    if (window.__tasteUi) {
+      try {
+        window.__tasteUi.startAll(document);
+      } catch {}
+    }
   }, []);
-  const [collectionTab, setCollectionTab] = useState<
-    'todos' | 'frecuentes' | 'populares'
-  >('todos');
-
-  const visibleCollections =
-    collectionTab === 'todos'
-      ? FRAMEWORK_COLLECTIONS
-      : FRAMEWORK_COLLECTIONS.filter((c) => c.category === collectionTab);
 
   const handleModelClickInMockup = (version: SpecificModelVersion) => {
     setActiveDesktopModel(version);
     onSelectModelVersion?.(version);
   };
 
+  const openModule = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    page: AppPageRoute
+  ) => {
+    e.preventDefault();
+    onNavigatePage(page);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
   return (
-    <div className="relative space-y-16">
-      {/* ====================================================================
-          1. SECCIÓN HERO CENTRADA CON LA COMPUTADORA DE INGENIERÍA E ICONOS
-         ==================================================================== */}
-      <section
-        aria-labelledby="landing-hero-heading"
-        className="relative -mt-4 rounded-3xl border border-purple-500/20 bg-gradient-to-b from-[#0F0B1E] via-[#130E26] to-[#07050E] px-4 pt-12 pb-8 sm:px-10 sm:pt-16 sm:pb-12 shadow-2xl overflow-hidden"
-      >
-        {/* Retícula Geométrica en Perspectiva Superior */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 1200 260"
-          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl opacity-30"
-        >
-          <defs>
-            <linearGradient id="heroGridGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="transparent" />
-              <stop offset="25%" stopColor="#8B5CF6" />
-              <stop offset="50%" stopColor="#C084FC" />
-              <stop offset="75%" stopColor="#38BDF8" />
-              <stop offset="100%" stopColor="transparent" />
-            </linearGradient>
-          </defs>
-          <path
-            d="M120 190 L1080 190 M180 150 L1020 150 M250 115 L950 115 M600 115 L600 240 M430 115 L310 240 M770 115 L890 240 M330 115 L140 240 M870 115 L1060 240"
-            stroke="url(#heroGridGrad)"
-            strokeWidth="1"
-            fill="none"
-          />
-        </svg>
+    <>
+      {/* 1. HERO CENTRADO (100svh · ventana interactiva con dock de 7 modelos IA) */}
+      <section className="hero hero--centred" data-enter aria-labelledby="hero-h">
+        <div className="wrap">
+          <div className="hero-text">
+            <div className="hero__c">
+              <span className="pill" role="status">
+                <span>Workspace VFS</span>
+                <span className="muted hidden sm:inline">Auditoría en memoria</span>
+              </span>
 
-        {/* Bloque Superior Centrado */}
-        <div className="relative z-10 mx-auto max-w-4xl text-center space-y-6">
-          <h1
-            id="landing-hero-heading"
-            className="text-4xl sm:text-6xl lg:text-[64px] font-black tracking-tight text-white leading-[1.06]"
-          >
-            Nueva Era de{' '}
-            <span className="bg-gradient-to-r from-white via-purple-100 to-[#C084FC] bg-clip-text text-transparent">
-              Ingeniería y Skills IA
-            </span>
-          </h1>
+              <h1 id="hero-h">IDE local de skills para equipos IA</h1>
 
-          <p className="mx-auto max-w-2xl text-sm sm:text-lg text-purple-100/80 leading-relaxed font-medium">
-            Inspecciona paquetes <code className="text-[#C084FC] font-mono font-bold">.rar</code> en vivo, personaliza componentes UI/UX con sus prompts exactos y compara el rendimiento real de{' '}
-            <strong className="text-white">Claude Opus 5.5, Gemini 3.8 y GPT Astra</strong>.
-          </p>
+              <p className="hero__lead">
+                Abre paquetes ZIP o carpetas locales en el navegador, audita archivos
+                SKILL.md línea por línea y compara 7 modelos sin subir código a ningún
+                servidor.
+              </p>
 
-          {/* Barra Cápsula Central Interactiva (UI/UX Pro Max) */}
-          <div
-            ref={dropdownRef}
-            className="relative mx-auto flex w-full max-w-xl items-center justify-between gap-3 rounded-full border border-violet-900/40 bg-[#0B0F19]/90 p-1.5 pl-3 shadow-[0_12px_40px_-10px_rgba(3,7,18,0.9),0_0_24px_rgba(139,92,246,0.18)] backdrop-blur-2xl transition-all duration-300 hover:border-[#0EA5E9]/50 hover:shadow-[0_12px_45px_-10px_rgba(3,7,18,0.95),0_0_28px_rgba(14,165,233,0.22)]"
-          >
-            {/* Selector de Modelo Customizado (Sin select nativo antiestético) */}
-            <div className="relative min-w-0 flex-1">
-              <button
-                type="button"
-                onClick={() => setIsModelDropdownOpen((prev) => !prev)}
-                aria-expanded={isModelDropdownOpen}
-                aria-haspopup="listbox"
-                aria-label="Seleccionar versión de modelo IA"
-                className="group w-full flex items-center justify-between gap-2.5 rounded-full px-2 py-1 text-left transition-all hover:bg-white/[0.04] focus:outline-none cursor-pointer"
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600/25 to-sky-500/20 border border-sky-400/30 shadow-inner">
-                    <AIBrandBadgeIcon
-                      brand={
-                        MODEL_VERSION_PILLS.find((m) => m.version === activeDesktopModel)?.brand || 'Claude'
-                      }
-                      className="h-4 w-4 shrink-0"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2 min-w-0 truncate">
-                    <span className="text-xs sm:text-sm font-bold text-white group-hover:text-[#38BDF8] transition-colors truncate">
-                      {MODEL_VERSION_PILLS.find((m) => m.version === activeDesktopModel)?.brand} · {activeDesktopModel}
-                    </span>
-                    <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-sky-950/60 border border-sky-500/30 text-[#38BDF8] shrink-0">
-                      {MODEL_VERSION_PILLS.find((m) => m.version === activeDesktopModel)?.badge}
-                    </span>
-                  </div>
-                </div>
-
-                <ChevronDown
-                  className={`h-4 w-4 text-slate-400 shrink-0 transition-transform duration-200 ${
-                    isModelDropdownOpen ? 'rotate-180 text-[#38BDF8]' : 'group-hover:text-white'
-                  }`}
-                />
-              </button>
-
-              {/* Popover Dropdown Customizado Flotante */}
-              {isModelDropdownOpen && (
-                <div
-                  role="listbox"
-                  className="absolute left-0 right-0 top-full mt-2.5 z-50 rounded-2xl border border-violet-900/40 bg-[#070B14]/98 p-1.5 shadow-[0_24px_50px_rgba(0,0,0,0.95),0_0_25px_rgba(14,165,233,0.2)] backdrop-blur-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150"
+              <div className="btn-row">
+                <a
+                  className="btn btn--primary"
+                  href="#workspace"
+                  onClick={(e) => openModule(e, 'estudio')}
                 >
-                  <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-violet-900/30 flex items-center justify-between">
-                    <span>Estaciones de IA Fundacionales</span>
-                    <span className="text-[#38BDF8]">7 Versiones</span>
-                  </div>
-                  <div className="max-h-60 overflow-y-auto space-y-1 pr-0.5">
-                    {MODEL_VERSION_PILLS.map((m) => {
-                      const isSelected = activeDesktopModel === m.version;
-                      return (
-                        <button
-                          key={m.version}
-                          type="button"
-                          role="option"
-                          aria-selected={isSelected}
-                          onClick={() => {
-                            handleModelClickInMockup(m.version);
-                            setIsModelDropdownOpen(false);
-                          }}
-                          className={`w-full flex items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left transition-all cursor-pointer ${
-                            isSelected
-                              ? 'bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 text-white shadow-[0_0_12px_rgba(14,165,233,0.15)]'
-                              : 'text-slate-300 hover:bg-white/[0.05] hover:text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-900/80 border border-slate-800">
-                              <AIBrandBadgeIcon brand={m.brand} className="h-3.5 w-3.5" />
-                            </div>
-                            <div className="min-w-0">
-                              <span className="block text-xs font-bold truncate">
-                                {m.brand} · {m.version}
-                              </span>
-                              <span className="block text-[10px] font-mono text-[#94A3B8] truncate">
-                                {m.badge}
-                              </span>
-                            </div>
-                          </div>
-
-                          {isSelected && (
-                            <span className="flex items-center gap-1 text-[11px] font-mono text-[#34D399] shrink-0">
-                              <Check className="h-3.5 w-3.5" />
-                              <span className="text-[10px]">Activo</span>
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Botón Primario / CTA en Cian Neón Oficial */}
-            <button
-              type="button"
-              onClick={() => onNavigatePage('preview')}
-              className="group shrink-0 inline-flex items-center gap-2 rounded-full bg-[#0EA5E9] hover:bg-[#38BDF8] text-[#030712] font-black text-xs sm:text-sm px-5 py-2.5 shadow-[0_0_22px_rgba(14,165,233,0.45)] hover:shadow-[0_0_28px_rgba(56,189,248,0.65)] active:scale-95 transition-all duration-200 cursor-pointer"
-            >
-              <span>Ver Catálogo UI/UX</span>
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-            </button>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-medium text-slate-400">
-            <span>Acceso libre en Modo General</span>
-            <Sparkles className="h-3.5 w-3.5 text-[#38BDF8]" />
-            <span>7 Versiones de IA &amp; Evaluación por Voz ES</span>
-          </div>
-
-          {/* Píldoras Rápidas de las 7 Versiones con sus Iconos Oficiales */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
-            {MODEL_VERSION_PILLS.map((m) => {
-              const active = activeDesktopModel === m.version;
-              return (
-                <button
-                  key={m.version}
-                  type="button"
-                  onClick={() => handleModelClickInMockup(m.version)}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition cursor-pointer border ${
-                    active
-                      ? 'bg-sky-500/15 text-[#38BDF8] border-sky-400/40 shadow-[0_0_12px_rgba(14,165,233,0.25)]'
-                      : 'border-violet-900/30 bg-[#0B0F19]/80 text-[#94A3B8] hover:border-sky-500/40 hover:text-white'
-                  }`}
-                >
-                  <AIBrandBadgeIcon brand={m.brand} className="h-3.5 w-3.5" />
-                  <span>{m.version}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Contenedor Panorámico Inferior con la Computadora de Ingeniería e Iconos */}
-        <div className="relative z-10 mt-10 mx-auto max-w-6xl">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 h-44 w-[82%] rounded-full bg-gradient-to-r from-purple-600/40 via-[#8B5CF6]/45 to-sky-500/30 blur-3xl"
-          />
-
-          <ComputerLightBeamShowcase
-            activeModel={activeDesktopModel}
-            onSelectModel={handleModelClickInMockup}
-            onNavigatePage={onNavigatePage}
-          />
-        </div>
-      </section>
-
-      {/* ====================================================================
-          2. SECCIÓN INFORMATIVA: ¿PARA QUÉ Y POR QUÉ SIRVE LA PLATAFORMA?
-         ==================================================================== */}
-      <section
-        aria-labelledby="purpose-why-heading"
-        className="content-visibility-auto rounded-3xl border border-slate-800/90 bg-gradient-to-b from-[#0F172A]/95 to-[#0B0F19] p-6 sm:p-10 shadow-xl space-y-8"
-      >
-        <div className="max-w-3xl mx-auto text-center space-y-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0EA5E9]/35 bg-[#0EA5E9]/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#38BDF8]">
-            <Sparkles className="h-3.5 w-3.5 text-[#0EA5E9]" />
-            Propósito y Utilidad de la Web
-          </span>
-          <h2
-            id="purpose-why-heading"
-            className="text-2xl sm:text-4xl font-black tracking-tight text-white"
-          >
-            ¿Para qué y por qué sirve Códice Studio?
-          </h2>
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            Esta aplicación web fue creada para resolver la desconexión entre los{' '}
-            <strong className="text-white">paquetes de código comprimidos (.rar)</strong>, los{' '}
-            <strong className="text-white">prompts de diseño UI/UX</strong> y las{' '}
-            <strong className="text-white">pruebas de modelos de IA</strong>, reuniendo todo en un mismo entorno interactivo.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Razón 1 */}
-          <div className="rounded-2xl border border-slate-800 bg-[#0B0F19]/90 p-6 space-y-3 hover:border-[#0EA5E9]/50 transition">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 text-[#0EA5E9]">
-              <FolderArchive className="h-5 w-5" />
-            </div>
-            <h3 className="text-lg font-extrabold text-white">
-              1. ¿Por qué centralizar paquetes .RAR y código?
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Normalmente, para revisar un proyecto comprimido hay que descargarlo, extraerlo y abrir un editor local. Aquí puedes{' '}
-              <strong className="text-white">arrastrar cualquier archivo .rar</strong> para ver al instante sus capturas visuales, explorar su árbol de archivos, leer su código fuente y traducir su documentación <code className="text-[#38BDF8]">.md</code> al español en 1 clic.
-            </p>
-          </div>
-
-          {/* Razón 2 */}
-          <div className="rounded-2xl border border-slate-800 bg-[#0B0F19]/90 p-6 space-y-3 hover:border-[#0EA5E9]/50 transition">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 border border-sky-400/40 text-sky-400">
-              <Palette className="h-5 w-5" />
-            </div>
-            <h3 className="text-lg font-extrabold text-white">
-              2. ¿Para qué sirve el Catálogo UI/UX en vivo?
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              En lugar de ver plantillas estáticas, puedes pasar el cursor sobre cada estilo para{' '}
-              <strong className="text-white">abrir una demostración interactiva</strong>, cambiar los colores del componente en tiempo real y obtener el{' '}
-              <strong className="text-white">prompt exacto y las skills</strong> necesarias para replicarlo.
-            </p>
-          </div>
-
-          {/* Razón 3 */}
-          <div className="rounded-2xl border border-slate-800 bg-[#0B0F19]/90 p-6 space-y-3 hover:border-[#0EA5E9]/50 transition">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-400">
-              <Cpu className="h-5 w-5" />
-            </div>
-            <h3 className="text-lg font-extrabold text-white">
-              3. ¿Por qué comparar 7 versiones de IA y dictar por voz?
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              No todos los modelos generan la misma calidad visual. La web permite comparar cómo responden{' '}
-              <strong className="text-white">Opus 5.5, Opus 4.8, Sonnet 5.5, Gemini 3.8, Gemini 3.7, GPT Astra y GPT Luna</strong>, y registrar tu opinión hablada mediante{' '}
-              <strong className="text-white">dictado por voz en español</strong>.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ====================================================================
-          3. SECCIÓN: HERRAMIENTAS DE LA PLATAFORMA (FUNCIONES INTERNAS DE LA WEB)
-             De aquí el usuario comprende cada módulo y puede navegar desde las tarjetas o el Navbar
-         ==================================================================== */}
-      <section
-        aria-labelledby="platform-tools-heading"
-        className="content-visibility-auto space-y-8"
-      >
-        <div className="max-w-3xl mx-auto text-center space-y-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/35 bg-sky-500/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-sky-300">
-            <Layers className="h-3.5 w-3.5 text-sky-400" />
-            Funciones Internas de la Web
-          </span>
-          <h2
-            id="platform-tools-heading"
-            className="text-2xl sm:text-4xl font-black tracking-tight text-white"
-          >
-            Herramientas de la Plataforma
-          </h2>
-          <p className="text-sm sm:text-base text-slate-400">
-            Conoce las herramientas que integran esta plataforma. Puedes acceder a cualquiera de ellas desde aquí o usando la{' '}
-            <strong className="text-white">barra de navegación superior</strong> en cualquier momento.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Herramienta 1: Visor de Proyectos .RAR */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 text-[#0EA5E9]">
-                  <FolderArchive className="h-6 w-6" />
-                </div>
-                <span className="rounded-full border border-[#0EA5E9]/35 bg-[#0EA5E9]/10 px-3 py-1 font-mono text-[10px] font-extrabold text-[#38BDF8]">
-                  Sección: Proyectos .RAR
-                </span>
-              </div>
-              <h3 className="text-xl font-extrabold text-white">
-                Visor e Inspector de Paquetes .RAR
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Dividido en tres paneles: <strong className="text-white">capturas visuales del sistema</strong> a la izquierda/centro, <strong className="text-white">árbol de archivos y visor de código</strong> a la derecha, y <strong className="text-white">documentación .MD con traducción instantánea</strong> en la parte inferior.
-              </p>
-              <ul className="space-y-1.5 text-xs text-slate-400 pt-1">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span>Carga drag &amp; drop de archivos .rar en memoria</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span>Botón &quot;Traducir&quot; al español en 1 clic</span>
-                </li>
-              </ul>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => onNavigatePage('estudio')}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] px-4 py-2.5 text-xs font-extrabold text-black shadow-md hover:brightness-110 transition cursor-pointer"
-            >
-              <span>Ir a Proyectos .RAR</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </article>
-
-          {/* Herramienta 2: Catálogo de Componentes UI/UX y Prompts */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/15 border border-sky-400/40 text-sky-400">
-                  <Layers className="h-6 w-6" />
-                </div>
-                <span className="rounded-full border border-sky-500/35 bg-sky-500/10 px-3 py-1 font-mono text-[10px] font-extrabold text-sky-300">
-                  Sección: Catálogo UI/UX
-                </span>
-              </div>
-              <h3 className="text-xl font-extrabold text-white">
-                Catálogo UI/UX con Demo y Prompts
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Incluye tarjetas de componentes con dos acciones al pasar el cursor: <strong className="text-white">&quot;Ver Demostración&quot;</strong> para personalizar colores y menús en vivo, y <strong className="text-white">&quot;Mostrar Prompt y Rendimiento&quot;</strong> para copiar el prompt y editar sus skills.
-              </p>
-              <ul className="space-y-1.5 text-xs text-slate-400 pt-1">
-                <li className="flex items-center gap-2">
-                  <Mic className="h-3.5 w-3.5 text-[#0EA5E9] shrink-0" />
-                  <span>Evaluación de impacto visual con dictado por voz (ES)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span>Skills editables al iniciar sesión como Colaborador</span>
-                </li>
-              </ul>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => onNavigatePage('preview')}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] px-4 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
-            >
-              <span>Ir a Catálogo UI/UX</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </article>
-
-          {/* Herramienta 3: Repositorio de Skills (.MD) */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/15 border border-purple-400/40 text-purple-300">
-                  <BookOpen className="h-6 w-6" />
-                </div>
-                <span className="rounded-full border border-purple-500/35 bg-purple-500/10 px-3 py-1 font-mono text-[10px] font-extrabold text-purple-300">
-                  Sección: Skills
-                </span>
-              </div>
-              <h3 className="text-xl font-extrabold text-white">
-                Gestor y Biblioteca de Skills (.MD)
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Repositorio organizado de documentos <code className="text-[#38BDF8]">SKILL.md</code> y guías técnicas que definen cómo debe programar y diseñar cada agente de IA según el framework.
-              </p>
-              <ul className="space-y-1.5 text-xs text-slate-400 pt-1">
-                <li className="flex items-center gap-2">
-                  <FileCode2 className="h-3.5 w-3.5 text-purple-400 shrink-0" />
-                  <span>Descarga directa de archivos .MD y filtrado por nivel</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span>Creación y edición de skills en Modo Colaborador</span>
-                </li>
-              </ul>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => onNavigatePage('boveda')}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] px-4 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
-            >
-              <span>Ir a Skills</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </article>
-
-          {/* Herramienta 4: Comparador de Modelos IA */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg md:col-span-1 lg:col-span-2">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-400">
-                    <Cpu className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-extrabold text-white">
-                      Comparador de las 7 Versiones de Modelos de IA
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      Benchmarks de velocidad, contexto, código y fidelidad visual
-                    </p>
-                  </div>
-                </div>
-                <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 font-mono text-[10px] font-extrabold text-emerald-300">
-                  Sección: Modelos IA
-                </span>
-              </div>
-
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Compara lado a lado las métricas y el impacto visual de las versiones específicas soportadas en la plataforma:{' '}
-                <strong className="text-white">
-                  Claude Opus 5.5, Claude Opus 4.8, Claude Sonnet 5.5, Gemini 3.8, Gemini 3.7, GPT Astra y GPT Luna
-                </strong>.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                {MODEL_VERSION_PILLS.map((m) => (
-                  <span
-                    key={m.version}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-[#0B0F19] px-2.5 py-1 text-[11px] font-bold text-slate-200"
-                  >
-                    <AIBrandBadgeIcon brand={m.brand} className="h-3.5 w-3.5" />
-                    <span>{m.version}</span>
-                  </span>
-                ))}
+                  Abrir Workspace
+                </a>
+                <a className="btn btn--secondary" href="#capabilities">
+                  Ver capacidades
+                </a>
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => onNavigatePage('modelos-ia')}
-              className="w-full sm:w-auto self-start inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] px-5 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
+            <div
+              className="hero__window"
+              role="img"
+              aria-label="Workspace VFS mostrando árbol de archivos, diff de SKILL.md y selector interactivo de 7 modelos de IA"
             >
-              <span>Ir a Modelos IA</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </article>
-
-          {/* Herramienta 5: Galería de Capturas */}
-          <article className="rounded-3xl border border-slate-800 bg-gradient-to-b from-[#0F172A] to-[#0B0F19] p-6 flex flex-col justify-between space-y-5 hover:border-[#0EA5E9]/60 transition shadow-lg">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/15 border border-sky-400/30 text-sky-300">
-                  <ImageIcon className="h-6 w-6" />
-                </div>
-                <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 font-mono text-[10px] font-extrabold text-sky-300">
-                  Sección: Capturas
-                </span>
-              </div>
-              <h3 className="text-xl font-extrabold text-white">
-                Galería de Capturas y Evidencias UI/UX
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Visualiza en alta resolución las pantallas de cada proyecto y registra nuevas capturas junto con sus fragmentos de código asociados.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => onNavigatePage('evidencias')}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-[#131C31] hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] px-4 py-2.5 text-xs font-extrabold text-white transition cursor-pointer"
-            >
-              <span>Ir a Capturas</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </article>
-        </div>
-      </section>
-
-      {/* ====================================================================
-          4. SECCIÓN DE COLECCIONES Y FRAMEWORKS (POPULARES Y MÁS FRECUENTES)
-         ==================================================================== */}
-      <section
-        aria-labelledby="collections-frameworks-heading"
-        className="content-visibility-auto space-y-8 pt-2"
-      >
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0EA5E9]/35 bg-[#0EA5E9]/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-[#38BDF8]">
-            <Code2 className="h-3.5 w-3.5 text-[#0EA5E9]" />
-            Ecosistema de Frameworks Soportados
-          </span>
-          <h2
-            id="collections-frameworks-heading"
-            className="text-3xl sm:text-5xl font-black tracking-tight text-white"
-          >
-            Colecciones y Frameworks
-          </h2>
-          <p className="text-sm sm:text-base text-slate-400">
-            Explora nuestras arquitecturas clasificadas en{' '}
-            <strong className="text-white">Frameworks Más Frecuentes</strong>{' '}
-            (Angular, Spring Boot, Tailwind, TypeScript) y{' '}
-            <strong className="text-white">Frameworks Populares</strong> de la comunidad.
-          </p>
-
-          <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-slate-800 bg-[#0F172A] p-1.5 mt-2">
-            {(
-              [
-                {
-                  id: 'todos',
-                  label: 'Todas las Colecciones (8)',
-                },
-                {
-                  id: 'frecuentes',
-                  label: '⚡ Frameworks Más Frecuentes (Angular, Spring Boot, Tailwind)',
-                },
-                {
-                  id: 'populares',
-                  label: '🔥 Frameworks Populares (React 19, Astro, Python MCP)',
-                },
-              ] as const
-            ).map((tab) => {
-              const active = collectionTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setCollectionTab(tab.id)}
-                  className={`rounded-xl px-4 py-2 text-xs font-extrabold transition cursor-pointer ${
-                    active
-                      ? 'bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8] text-black shadow-md'
-                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Cuadrícula de 4 Columnas de Tarjetas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {visibleCollections.map((col) => (
-            <article
-              key={col.id}
-              className="group relative rounded-3xl border border-slate-800/90 bg-gradient-to-b from-[#0F172A] via-[#0B1324] to-[#0B0F19] p-6 flex flex-col justify-between overflow-hidden shadow-xl hover:border-[#0EA5E9]/60 transition-all duration-300 min-h-[430px]"
-            >
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-12 -right-12 h-36 w-36 rounded-full blur-2xl opacity-30 group-hover:opacity-60 transition"
-                style={{ backgroundColor: col.accentColor }}
+              <ComputerLightBeamShowcase
+                activeModel={activeDesktopModel}
+                onSelectModel={handleModelClickInMockup}
+                onNavigatePage={onNavigatePage}
               />
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <div className="relative z-10 space-y-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div
-                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0B0F19]/90 shadow-lg border border-white/15"
-                    style={{
-                      boxShadow: `0 8px 24px -4px ${col.accentColor}55`,
-                    }}
-                  >
-                    {col.iconSvg}
-                  </div>
+      {/* 2. APP-FRAME (Lista VFS + Revisor Diff línea por línea) */}
+      <section className="section" id="workspace" aria-labelledby="workspace-h">
+        <div className="wrap">
+          <div className="grid">
+            <div className="span-5">
+              <h2 id="workspace-h">Workspace VFS: audita paquetes ZIP y carpetas en memoria</h2>
+            </div>
+            <div className="span-6 start-7 stack-4">
+              <p className="muted">
+                Monta carpetas completas o archivos comprimidos en el sistema virtual,
+                revisa cada línea modificada y exporta un ZIP limpio con CRC-32 verificado.
+              </p>
+              <a
+                className="link"
+                href="#capabilities"
+                onClick={(e) => openModule(e, 'boveda')}
+              >
+                Explorar catálogo SKILL.md
+              </a>
+            </div>
+          </div>
 
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider border ${
-                      col.category === 'frecuentes'
-                        ? 'bg-[#0EA5E9]/15 text-[#38BDF8] border-[#0EA5E9]/40'
-                        : 'bg-sky-500/15 text-sky-300 border-sky-500/35'
-                    }`}
-                  >
-                    {col.categoryBadge}
+          <div
+            className="ui app fill"
+            role="img"
+            aria-label="Explorador de archivos del workspace junto al revisor de cambios de rarParserService.ts"
+            data-ui-pause-host
+          >
+            <div className="app__pane app__pane--list">
+              <div
+                className="ui ui-panel ui-win"
+                data-ui="window"
+                data-open="Abierto"
+                data-work="Auditando"
+                data-done="Verificado"
+              >
+                <div className="ui-win__bar">
+                  <span className="ui-dots" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  <span className="ui-win__crumb">
+                    Workspace <i>/</i> <b>Revisión VFS</b>
+                  </span>
+                  <span className="ui-spacer" />
+                  <span className="ui-win__search" aria-hidden="true">
+                    <svg className="ui-icon" viewBox="0 0 16 16">
+                      <circle cx="7" cy="7" r="4.5" />
+                      <path d="m10.5 10.5 3 3" />
+                    </svg>
+                    <span className="ui-win__ph">Filtrar</span>
+                    <span className="ui-kbd">/</span>
                   </span>
                 </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-xl font-extrabold text-white tracking-tight">
-                    {col.name}
-                  </h3>
-                  <p className="text-xs text-slate-300 leading-relaxed min-h-[54px]">
-                    {col.description}
-                  </p>
+                <div className="ui-win__body">
+                  <nav className="ui-win__side" aria-hidden="true">
+                    <span className="ui-win__nav is-on">
+                      <svg className="ui-icon" viewBox="0 0 16 16">
+                        <path d="M2.5 9h3l1 1.5h3l1-1.5h3" />
+                        <path d="M2.5 9 4 3.5h8L13.5 9v3.5h-11z" />
+                      </svg>
+                      Activos<em>10</em>
+                    </span>
+                    <span className="ui-win__nav">
+                      <svg className="ui-icon" viewBox="0 0 16 16">
+                        <path d="m3.5 8.4 2.8 2.8 6.2-6.4" />
+                      </svg>
+                      Auditados<em>8</em>
+                    </span>
+                    <span className="ui-win__label">Skills</span>
+                    <span className="ui-win__nav">
+                      <span className="ui-win__hash">#</span>design-taste
+                    </span>
+                    <span className="ui-win__nav">
+                      <span className="ui-win__hash">#</span>git-workflow
+                    </span>
+                  </nav>
+                  <div className="ui-win__main">
+                    <div className="ui-win__cols" aria-hidden="true">
+                      <span>Autor</span>
+                      <span>Archivo</span>
+                      <span>Estado</span>
+                      <span>Edad</span>
+                    </div>
+                    <ul className="ui-win__rows">
+                      <li className="ui-win__row" data-row>
+                        <span className="ui-avatar" data-tone="1">MS</span>
+                        <span className="ui-win__who">Mateo Suárez</span>
+                        <span className="ui-win__sub">rarParserService.ts · +18 −6</span>
+                        <span className="ui-win__st" data-st>Abierto</span>
+                        <span className="ui-win__age">2m</span>
+                      </li>
+                      <li className="ui-win__row" data-row>
+                        <span className="ui-avatar" data-tone="3">CS</span>
+                        <span className="ui-win__who">Códice Auditor</span>
+                        <span className="ui-win__sub">design-taste-frontend/SKILL.md</span>
+                        <span className="ui-win__st" data-st>Abierto</span>
+                        <span className="ui-win__age">5m</span>
+                      </li>
+                      <li className="ui-win__row" data-row>
+                        <span className="ui-avatar" data-tone="4">VF</span>
+                        <span className="ui-win__who">Valeria Fuentes</span>
+                        <span className="ui-win__sub">UnifiedProjectStudio.tsx · VFS</span>
+                        <span className="ui-win__st" data-st>Abierto</span>
+                        <span className="ui-win__age">9m</span>
+                      </li>
+                      <li className="ui-win__row" data-row>
+                        <span className="ui-avatar" data-tone="2">DR</span>
+                        <span className="ui-win__who">Diego Rojas</span>
+                        <span className="ui-win__sub">securityHardening.ts · 25 MB</span>
+                        <span className="ui-win__st is-you" data-st>Revisión</span>
+                        <span className="ui-win__age">14m</span>
+                      </li>
+                      <li className="ui-win__row" data-row>
+                        <span className="ui-avatar" data-tone="5">LP</span>
+                        <span className="ui-win__who">Lucía Paredes</span>
+                        <span className="ui-win__sub">github-workflow/SKILL.md</span>
+                        <span className="ui-win__st is-done" data-st>Verificado</span>
+                        <span className="ui-win__age">21m</span>
+                      </li>
+                      <li className="ui-win__row" data-row>
+                        <span className="ui-avatar" data-tone="3">MS</span>
+                        <span className="ui-win__who">Mateo Suárez</span>
+                        <span className="ui-win__sub">NavbarActiveSkill.tsx · A11y</span>
+                        <span className="ui-win__st is-done" data-st>Verificado</span>
+                        <span className="ui-win__age">29m</span>
+                      </li>
+                      <li className="ui-win__row" data-row>
+                        <span className="ui-avatar" data-tone="1">CS</span>
+                        <span className="ui-win__who">Códice Auditor</span>
+                        <span className="ui-win__sub">initialSkills.ts · Catálogo</span>
+                        <span className="ui-win__st is-done" data-st>Verificado</span>
+                        <span className="ui-win__age">34m</span>
+                      </li>
+                      <li className="ui-win__row" data-row>
+                        <span className="ui-avatar" data-tone="4">VF</span>
+                        <span className="ui-win__who">Valeria Fuentes</span>
+                        <span className="ui-win__sub">aiModelsData.ts · 7 modelos</span>
+                        <span className="ui-win__st is-done" data-st>Verificado</span>
+                        <span className="ui-win__age">41m</span>
+                      </li>
+                      <li className="ui-win__row" data-row>
+                        <span className="ui-avatar" data-tone="2">DR</span>
+                        <span className="ui-win__who">Diego Rojas</span>
+                        <span className="ui-win__sub">workspace.ts · Tipos VFS</span>
+                        <span className="ui-win__st is-done" data-st>Verificado</span>
+                        <span className="ui-win__age">48m</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (onFilterByFramework) {
-                      onFilterByFramework(col.filterTag);
-                    }
-                    onNavigatePage('boveda');
-                  }}
-                  className="w-full py-2.5 px-4 rounded-xl border border-slate-700/90 bg-[#131C31]/90 hover:bg-[#0EA5E9] hover:text-black hover:border-[#0EA5E9] text-xs font-extrabold text-white transition duration-200 cursor-pointer shadow-sm"
-                >
-                  {col.ctaLabel}
-                </button>
               </div>
+            </div>
 
-              <div className="relative z-10 pt-8 mt-auto">
-                <div className="grid grid-cols-3 gap-2 items-end">
-                  {col.previewCards.map((card, idx) => (
-                    <div
-                      key={card.title}
-                      className={`rounded-xl border border-slate-700/90 bg-[#0B0F19] p-2.5 shadow-lg transition-transform duration-300 group-hover:-translate-y-1 ${
-                        idx === 0
-                          ? '-rotate-3 translate-y-1'
-                          : idx === 1
-                          ? 'z-10 scale-105 border-[#0EA5E9]/50 shadow-xl'
-                          : 'rotate-3 translate-y-1'
-                      }`}
+            <div className="app__pane app__pane--open" data-ui-loop>
+              <div className="ui ui-panel ui-diff" data-ui="diff-review">
+                <div className="ui-diff__head">
+                  <svg
+                    className="ui-icon ui-diff__fold"
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                  >
+                    <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+                  </svg>
+                  <span className="ui-diff__tool" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 256 256"
+                      width="16"
+                      height="16"
+                      aria-hidden="true"
+                      className="shrink-0 rounded-[2px]"
                     >
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div
-                          className="h-1.5 w-6 rounded-full"
-                          style={{ backgroundColor: card.accent }}
-                        />
-                        <AIBrandBadgeIcon
-                          brand={card.aiBrand}
-                          className="h-3.5 w-3.5"
-                        />
-                      </div>
-                      <p className="text-[10px] font-extrabold text-white truncate">
-                        {card.title}
-                      </p>
-                      <p className="text-[9px] text-slate-400 truncate mt-0.5">
-                        {card.subtitle}
-                      </p>
-                      <span
-                        className="mt-1.5 inline-block rounded px-1.5 py-0.5 font-mono text-[8px] font-bold text-black"
-                        style={{ backgroundColor: card.accent }}
-                      >
-                        {card.badge}
+                      <path d="M20 0h216a20 20 0 0 1 20 20v216a20 20 0 0 1-20 20H20a20 20 0 0 1-20-20V20A20 20 0 0 1 20 0Z" fill="#3178C6" />
+                      <path d="M150.5 200.5v27.6c4.5 2.3 9.8 4 16 5.2 6.1 1.1 12.6 1.7 19.4 1.7 6.6 0 12.9-.6 18.9-1.9 6-1.2 11.2-3.3 15.7-6.2 4.5-2.9 8-6.7 10.6-11.4 2.7-4.7 4-10.5 4-17.4 0-5-.8-9.4-2.3-13.2-1.5-3.8-3.6-7.1-6.4-10-2.9-3-6.2-5.6-10.2-8-4-2.3-8.4-4.5-13.4-6.6-3.6-1.5-6.9-3-9.7-4.4-2.9-1.4-5.4-2.8-7.4-4.3-2-1.5-3.5-3-4.6-4.7-1.1-1.6-1.7-3.5-1.7-5.5 0-1.9.5-3.6 1.5-5.2 1-1.5 2.4-2.8 4.2-3.9 1.8-1.1 4-1.9 6.5-2.5 2.6-.6 5.5-.9 8.6-.9 2.3 0 4.8.2 7.3.5 2.6.4 5.2.9 7.8 1.6 2.6.7 5.1 1.6 7.5 2.7 2.5 1.1 4.7 2.4 6.8 3.8v-25.8c-4.2-1.6-8.8-2.8-13.8-3.6-5-.8-10.7-1.2-17.1-1.2-6.6 0-12.8.7-18.7 2.1-5.9 1.4-11 3.6-15.5 6.6-4.5 3-8 6.8-10.6 11.4-2.6 4.7-3.9 10.2-3.9 16.6 0 8.3 2.4 15.3 7.1 21.1 4.8 5.8 12 10.7 21.7 14.8 3.8 1.5 7.3 3.1 10.6 4.6 3.3 1.5 6.1 3 8.5 4.6 2.4 1.6 4.3 3.4 5.7 5.3 1.4 1.9 2.1 4 2.1 6.5 0 1.8-.5 3.4-1.3 4.9-.9 1.5-2.2 2.8-4 4-1.8 1.1-4 2-6.6 2.6-2.6.6-5.7 1-9.2 1-6 0-11.9-1.1-17.8-3.2-5.9-2.1-11.3-5.2-16.3-9.4ZM104.5 131.7H140V109H41v22.7h35.3V233h28.2v-101.3Z" fill="#FFF" />
+                    </svg>
+                  </span>
+                  <span className="ui-diff__repo">codice-studio</span>
+                  <i className="ui-diff__slash" aria-hidden="true">/</i>
+                  <span className="ui-diff__path">
+                    <span className="ui-diff__dir">src/services/</span>
+                    <b>rarParserService.ts</b>
+                  </span>
+                  <span className="ui-spacer" />
+                  <span className="ui-diff__stat">
+                    <b className="is-add">
+                      <span className="ui-diff__was">+5</span>
+                      <span className="ui-diff__now">+6</span>
+                    </b>
+                    <b className="is-del">
+                      <span className="ui-diff__was">&minus;2</span>
+                      <span className="ui-diff__now">&minus;3</span>
+                    </b>
+                    <span className="ui-diff__bar" aria-hidden="true">
+                      <i className="is-add" />
+                      <i className="is-add" />
+                      <i className="is-add" />
+                      <i className="is-del" />
+                      <i className="is-del" />
+                    </span>
+                  </span>
+                </div>
+                <div className="ui-diff__hunk">
+                  <span>@@ -44,12 +44,14 @@</span>{' '}
+                  <em className="ui-diff__sig truncate block">
+                    parseZipWorkspace(buffer) &#123;
+                  </em>
+                </div>
+                <div className="ui-diff__lines">
+                  <div className="ui-diff__ln">
+                    <i>44</i>
+                    <i>44</i>
+                    <span className="ui-diff__code" data-i="1">
+                      <span className="ui-diff__ind">  </span>
+                      <span className="k">const</span> view ={' '}
+                      <span className="k">new</span>{' '}
+                      <span className="f">DataView</span>(buffer);
+                    </span>
+                  </div>
+                  <div className="ui-diff__ln is-del">
+                    <i>45</i>
+                    <i />
+                    <span className="ui-diff__code" data-i="1">
+                      <span className="ui-diff__ind">  </span>
+                      <span className="k">const</span> safePath = entry.rawName;
+                    </span>
+                  </div>
+                  <div className="ui-diff__ln is-add">
+                    <i />
+                    <i>45</i>
+                    <span className="ui-diff__code" data-i="1">
+                      <span className="ui-diff__ind">  </span>
+                      <span className="k">const</span> safePath ={' '}
+                      <mark className="ui-diff__w">
+                        <span className="f">sanitizeArchiveEntryPath</span>(entry.rawName)
+                      </mark>
+                      ;
+                    </span>
+                  </div>
+                  <div className="ui-diff__ln is-target" data-diff-target>
+                    <i>46</i>
+                    <i>46</i>
+                    <span className="ui-diff__code" data-i="2">
+                      <span className="ui-diff__ind">    </span>
+                      <span className="k">const</span> bytes ={' '}
+                      <span className="k">await</span>{' '}
+                      <span className="f">inflateRaw</span>(slice,{' '}
+                      <mark className="ui-diff__w">
+                        <span className="n">52428800</span>
+                      </mark>
+                      );
+                    </span>
+                  </div>
+                  <div className="ui-diff__sug" data-diff-sug>
+                    <div className="ui-diff__ln is-add">
+                      <i />
+                      <i>46</i>
+                      <span className="ui-diff__code" data-i="2">
+                        <span className="ui-diff__ind">    </span>
+                        <span className="k">const</span> bytes ={' '}
+                        <span className="k">await</span>{' '}
+                        <span className="f">inflateRaw</span>(slice,{' '}
+                        <mark className="ui-diff__w">MAX_ARCHIVE_BYTES</mark>);
                       </span>
                     </div>
-                  ))}
+                  </div>
+                  <div className="ui-diff__thread">
+                    <div className="ui-diff__by">
+                      <span className="ui-avatar" data-tone="4">MS</span>
+                      <span className="ui-diff__name">Mateo Suárez</span>
+                      <span className="ui-diff__time">ahora</span>
+                      <span className="ui-spacer" />
+                      <span className="ui-diff__act" data-diff-act>
+                        <button
+                          className="ui-btn ui-btn--sm ui-diff__apply"
+                          type="button"
+                          tabIndex={-1}
+                          data-diff-apply
+                        >
+                          <span className="ui-diff__lbl">Aplicar cambio</span>
+                          <i className="ui-diff__spin" aria-hidden="true" />
+                        </button>
+                        <span className="ui-chip ui-diff__done">
+                          <svg viewBox="0 0 16 16" aria-hidden="true">
+                            <path
+                              d="m4 8.4 2.6 2.6L12 5.4"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          Aplicado
+                        </span>
+                      </span>
+                    </div>
+                    <div className="ui-diff__msg">
+                      Usa <code>MAX_ARCHIVE_BYTES</code> (25 MB) como en{' '}
+                      <code>securityHardening.ts</code>.
+                    </div>
+                  </div>
+                  <div className="ui-diff__ln">
+                    <i>47</i>
+                    <i>47</i>
+                    <span className="ui-diff__code" data-i="2">
+                      <span className="ui-diff__ind">    </span>
+                      <span className="k">const</span> hash ={' '}
+                      <span className="k">await</span>{' '}
+                      <span className="f">computeSha256</span>(bytes);
+                    </span>
+                  </div>
+                  <div className="ui-diff__ln is-del">
+                    <i>48</i>
+                    <i />
+                    <span className="ui-diff__code" data-i="2">
+                      <span className="ui-diff__ind">    </span>
+                      <span className="k">return</span> mockFallbackEntry;
+                    </span>
+                  </div>
+                  <div className="ui-diff__ln is-add">
+                    <i />
+                    <i>48</i>
+                    <span className="ui-diff__code" data-i="2">
+                      <span className="ui-diff__ind">    </span>
+                      <span className="k">return</span>{' '}
+                      <mark className="ui-diff__w">
+                        <span className="f">createVfsTextEntry</span>(safePath, bytes, hash)
+                      </mark>
+                      ;
+                    </span>
+                  </div>
+                  <div className="ui-diff__ln is-add">
+                    <i />
+                    <i>49</i>
+                    <span className="ui-diff__code" data-i="2">
+                      <span className="ui-diff__ind">    </span>auditLog.
+                      <span className="f">record</span>(
+                      <span className="s">&quot;zip-verified&quot;</span>, archiveName);
+                    </span>
+                  </div>
+                  <div className="ui-diff__ln">
+                    <i>49</i>
+                    <i>50</i>
+                    <span className="ui-diff__code" data-i="1">
+                      <span className="ui-diff__ind">  </span>&#125;
+                    </span>
+                  </div>
+                  <div className="ui-diff__ln">
+                    <i>50</i>
+                    <i>51</i>
+                    <span className="ui-diff__code" data-i="1">
+                      <span className="ui-diff__ind">  </span>
+                      <span className="k">return</span>{' '}
+                      <span className="f">sealWorkspaceSnapshot</span>(archiveName, entries);
+                    </span>
+                  </div>
+                  <div className="ui-diff__ln">
+                    <i>51</i>
+                    <i>52</i>
+                    <span className="ui-diff__code" data-i="0">&#125;</span>
+                  </div>
+                  <div className="ui-diff__ln">
+                    <i>52</i>
+                    <i>53</i>
+                    <span className="ui-diff__code" data-i="0" />
+                  </div>
+                  <div className="ui-diff__ln">
+                    <i>53</i>
+                    <i>54</i>
+                    <span className="ui-diff__code" data-i="0">
+                      <span className="k">export</span> &#123; parseZipWorkspace &#125;;
+                    </span>
+                  </div>
                 </div>
               </div>
-            </article>
-          ))}
-        </div>
-
-        {/* Cintillo Inferior de Ecosistemas e Inteligencias con Iconos Oficiales */}
-        <div className="pt-6 border-t border-slate-800/80 text-center space-y-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-            Frecuentemente Desplegado e Integrado Con:
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-7 text-slate-300">
-            {[
-              {
-                name: 'Angular Signals',
-                badge: 'Frecuente',
-                icon: <AngularBrandIcon className="h-5 w-5" />,
-              },
-              {
-                name: 'Spring Boot 3',
-                badge: 'Frecuente',
-                icon: <SpringBootBrandIcon className="h-5 w-5" />,
-              },
-              {
-                name: 'Tailwind CSS',
-                badge: 'Frecuente',
-                icon: <TailwindBrandIcon className="h-5 w-5" />,
-              },
-              {
-                name: 'TypeScript 5',
-                badge: 'Frecuente',
-                icon: <TypeScriptBrandIcon className="h-5 w-5" />,
-              },
-              {
-                name: 'React 19',
-                badge: 'Popular',
-                icon: <ReactBrandIcon className="h-5 w-5" />,
-              },
-              {
-                name: 'Claude Opus 5.5',
-                badge: 'IA Cortex',
-                icon: <ClaudeBrandIcon className="h-5 w-5" />,
-              },
-              {
-                name: 'Gemini 3.8 Ultra',
-                badge: 'IA Cortex',
-                icon: <GeminiBrandIcon className="h-5 w-5" />,
-              },
-              {
-                name: 'GPT Astra & Luna',
-                badge: 'IA Cortex',
-                icon: <GPTBrandIcon className="h-5 w-5" />,
-              },
-            ].map((item) => (
-              <div
-                key={item.name}
-                className="flex items-center gap-2 rounded-xl border border-slate-800/90 bg-[#0F172A]/80 px-3.5 py-2 text-xs sm:text-sm font-black tracking-tight text-white/90 hover:border-[#0EA5E9]/60 hover:text-[#0EA5E9] transition"
-              >
-                {item.icon}
-                <span>{item.name}</span>
-                <span className="rounded-md border border-slate-800 bg-[#0B0F19] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#38BDF8]">
-                  {item.badge}
-                </span>
-              </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
-    </div>
+
+      {/* 3. CAPACIDADES (Split-text-left + Diagrama de flujo con iconos reales) */}
+      <section className="section" id="capabilities" aria-labelledby="capabilities-h">
+        <div className="wrap">
+          <div className="grid">
+            <div className="span-5 split-col">
+              <h2 id="capabilities-h">Conecta directivas SKILL.md con tu entorno</h2>
+              <p>
+                Un único archivo SKILL.md sincroniza reglas de interfaz, seguridad y
+                commits entre tu bóveda local, tus agentes de código y tus paquetes ZIP.
+              </p>
+              <ul className="checks">
+                <li>Descompresión y empaquetado ZIP estándar con límite de 25 MB</li>
+                <li>Traducción técnica de documentación Markdown en un clic</li>
+                <li className="hidden sm:block">Componentes UI accesibles probados con navegación por teclado</li>
+              </ul>
+              <div className="split-col__end">
+                <a
+                  className="link"
+                  href="#benchmarks"
+                  onClick={(e) => openModule(e, 'codice-studio')}
+                >
+                  Vincular bóveda de Obsidian
+                </a>
+              </div>
+            </div>
+
+            <div className="span-6 start-7 panel">
+              <div className="dg" data-diagram>
+                <script
+                  type="application/json"
+                  dangerouslySetInnerHTML={{ __html: HUB_DIAGRAM_JSON }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. MODELOS IA (Momento dealt: iris-opens sobre ground-surface) */}
+      <section
+        className="section ground-surface"
+        id="benchmarks"
+        data-moment="iris-opens"
+        data-moment-opts='{"from": "base"}'
+        aria-labelledby="benchmarks-h"
+      >
+        <div className="wrap">
+          <div className="grid">
+            <div className="span-5 split-col">
+              <h2 id="benchmarks-h">Siete modelos medidos en Códice Studio</h2>
+              <p>
+                Comparamos velocidad de salida, latencia al primer token y contexto útil
+                sobre refactorizaciones TypeScript y auditorías SKILL.md reales.
+              </p>
+              <dl className="stats">
+                <div>
+                  <dt className="t-small muted">Velocidad pico</dt>
+                  <dd className="t-stat">178 tok/s</dd>
+                </div>
+                <div>
+                  <dt className="t-small muted">Contexto máximo</dt>
+                  <dd className="t-stat">2M tokens</dd>
+                </div>
+              </dl>
+              <div className="split-col__end">
+                <a
+                  className="link"
+                  href="#faq"
+                  onClick={(e) => openModule(e, 'modelos-ia')}
+                >
+                  Abrir comparador completo
+                </a>
+              </div>
+            </div>
+
+            <ul className="rows span-6 start-7">
+              <li>
+                <span className="rows__name">Claude Opus 5.5</span>
+                <p>Arquitectura de software y contratos TypeScript · 200K</p>
+                <span className="rows__value">88 tok/s</span>
+              </li>
+              <li>
+                <span className="rows__name">Gemini 3.8 Pro</span>
+                <p>Inspección completa de repositorios grandes · 2M</p>
+                <span className="rows__value">178 tok/s</span>
+              </li>
+              <li>
+                <span className="rows__name">Claude Sonnet 5.5</span>
+                <p>Componentes React 19 y sistemas de diseño · 200K</p>
+                <span className="rows__value">128 tok/s</span>
+              </li>
+              <li className="sm-row-hidden">
+                <span className="rows__name">GPT Astra</span>
+                <p>Auditoría semántica de flujos Git y PR · 256K</p>
+                <span className="rows__value">142 tok/s</span>
+              </li>
+              <li className="sm-row-hidden">
+                <span className="rows__name">Gemini 3.7 Flash</span>
+                <p>Validación instantánea de rutas y hashes · 1M</p>
+                <span className="rows__value">164 tok/s</span>
+              </li>
+              <li className="sm-row-hidden">
+                <span className="rows__name">Claude Opus 4.8</span>
+                <p>Servicios backend e invariantes de dominio · 200K</p>
+                <span className="rows__value">76 tok/s</span>
+              </li>
+              <li className="sm-row-hidden">
+                <span className="rows__name">GPT Luna</span>
+                <p>Modo nocturno y calibración de contraste AAA · 256K</p>
+                <span className="rows__value">136 tok/s</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. PREGUNTAS FRECUENTES (Split FAQ abierto, cero acordeones cerrados) */}
+      <section className="section" id="faq" aria-labelledby="faq-h">
+        <div className="wrap">
+          <div className="grid">
+            <div className="span-5 split-col">
+              <h2 id="faq-h">Preguntas sobre Códice Studio y tus skills</h2>
+              <p className="muted">
+                Privacidad en cliente, formatos admitidos, bóvedas locales y permisos de
+                edición.
+              </p>
+              <dl className="stats hidden sm:grid">
+                <div>
+                  <dt className="t-small muted">Privacidad</dt>
+                  <dd className="t-stat">100% local</dd>
+                </div>
+                <div>
+                  <dt className="t-small muted">Algoritmo</dt>
+                  <dd className="t-stat">SHA-256</dd>
+                </div>
+              </dl>
+              <div className="split-col__end">
+                <svg
+                  className="w-8 h-8 text-[#0ea5e9]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+            </div>
+
+            <div className="faq span-6 start-7">
+              <div className="faq__item">
+                <h3>01. Seguridad del código: ¿sube a algún servidor externo?</h3>
+                <p>
+                  No. La descompresión ZIP, hashing SHA-256 y edición ocurren íntegramente
+                  en la memoria de tu navegador.
+                </p>
+              </div>
+              <div className="faq__item">
+                <h3>02. Formatos admitidos: ¿qué archivos de proyecto puedo abrir?</h3>
+                <p>
+                  Carpetas locales, archivos ZIP estándar y documentos técnicos de hasta 25 MB.
+                </p>
+              </div>
+              <div className="faq__item">
+                <h3>03. Migración RAR: ¿qué ocurre si cargo un archivo antiguo?</h3>
+                <p>
+                  El inspector detecta su cabecera binaria y ofrece convertirlo a ZIP estándar.
+                </p>
+              </div>
+              <div className="faq__item sm-faq-hidden">
+                <h3>04. Acceso local: ¿necesito cuenta para auditar workspaces?</h3>
+                <p>
+                  No. El modo visitante permite montar carpetas, editar directivas y exportar ZIPs.
+                </p>
+              </div>
+              <div className="faq__item sm-faq-hidden">
+                <h3>05. Directivas de agentes: ¿cómo exporto los cambios a disco?</h3>
+                <p>
+                  Exporta el archivo SKILL.md o paquete ZIP para cargarlo en Claude, Gemini,
+                  Cursor o tu bóveda de Obsidian directamente.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 };

@@ -1,0 +1,11 @@
+{
+  "name": "codice-dock",
+  "title": "Códice Studio Hero IDE Dock",
+  "shows": "Códice IDE workspace dock with VFS tree and diff auditor",
+  "size": [
+    320,
+    240
+  ],
+  "fluid": "fills its .hero__window",
+  "js": true
+}
