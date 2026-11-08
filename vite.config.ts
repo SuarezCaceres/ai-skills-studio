@@ -101,6 +101,9 @@ export default defineConfig({
     host: true,
     headers: securityHeaders,
   },
+  optimizeDeps: {
+    entries: ['src/main.tsx'],
+  },
   preview: {
     port: 5173,
     headers: securityHeaders,
