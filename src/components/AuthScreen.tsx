@@ -193,7 +193,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
           </h1>
 
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            En <strong className="text-white">Modo Visitante</strong> cualquier usuario puede explorar el Códice Neuronal, interactuar con los mockups, ver la Galería del Sistema y leer la documentación. Inicia sesión en <strong className="text-[#0EA5E9]">Modo Colaborador</strong> para habilitar la subida de paquetes <code className="text-[#38BDF8] font-mono">.rar</code>, edición de skills aplicadas y gestión del sistema.
+            En <strong className="text-white">Modo Visitante</strong> cualquier usuario puede explorar el Códice Neuronal, montar carpetas locales o archivos en memoria y probar los mockups. Inicia sesión en <strong className="text-[#0EA5E9]">Modo Colaborador</strong> para persistir workspaces <code className="text-[#38BDF8] font-mono">.zip</code>, editar skills aplicadas y gestionar la bóveda local.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
@@ -202,9 +202,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 <FolderArchive className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
               </div>
               <div>
-                <h2 className="text-xs font-bold text-white">Permisos de Colaborador (.RAR)</h2>
+                <h2 className="text-xs font-bold text-white">Permisos de Colaborador (VFS)</h2>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  Subir archivos .rar, adjuntar códigos, editar skills aplicadas y gestionar el Códice.
+                  Persistir paquetes .zip, adjuntar evidencias, editar skills aplicadas y gestionar el Códice.
                 </p>
               </div>
             </div>
@@ -309,7 +309,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                       setErrorMessage(null);
                     }}
                     placeholder="Ej. Sergio Suarez"
-                    className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] px-4 text-sm text-white focus:outline-none transition"
+                    className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] px-4 text-sm text-white  transition"
                   />
                 </div>
               )}
@@ -340,7 +340,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                     setErrorMessage(null);
                   }}
                   placeholder="usuario@empresa.com"
-                  className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] px-4 text-sm text-white focus:outline-none transition"
+                  className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] px-4 text-sm text-white  transition"
                 />
                 {emailTouchedError && (
                   <p id="email-error-msg" className="text-[11px] text-[#38BDF8] mt-1">
@@ -364,7 +364,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                     placeholder="Editor Autorizado · Full-Stack Architect"
-                    className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] px-4 text-sm text-white focus:outline-none transition"
+                    className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] px-4 text-sm text-white  transition"
                   />
                 </div>
               )}
@@ -390,7 +390,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                       setPassword(e.target.value);
                       setErrorMessage(null);
                     }}
-                    className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] pl-4 pr-12 text-sm text-white focus:outline-none transition"
+                    className="w-full h-12 rounded-xl bg-[#0B0F19] border border-slate-800 focus:border-[#0EA5E9] pl-4 pr-12 text-sm text-white  transition"
                   />
                   <button
                     type="button"
@@ -407,7 +407,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                   </button>
                 </div>
                 <span id="password-hint" className="block text-[11px] text-slate-400 mt-1">
-                  Mínimo 6 caracteres. Habilita permisos de subida .rar y edición.
+                  Mínimo 6 caracteres. Habilita persistencia de paquetes .zip y edición de skills.
                 </span>
               </div>
 

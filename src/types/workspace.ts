@@ -98,6 +98,7 @@ export interface RarFileEntry {
   sizeBytes: number;
   language: CodeLanguage;
   content: string;
+  originalContent?: string;
 }
 
 export interface RarArchivePackage {
@@ -106,6 +107,7 @@ export interface RarArchivePackage {
   uploadedAt: string;
   totalSizeBytes: number;
   signatureDetected: string;
+  sourceKind?: 'zip' | 'folder' | 'bundle' | 'rar-legacy';
   files: RarFileEntry[];
   metadata: ProjectMetadata;
 }

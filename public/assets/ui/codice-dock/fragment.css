@@ -1,0 +1,4 @@
+/* codice-dock fragment styling */
+.cs-dock-win {
+  contain: layout;
+}

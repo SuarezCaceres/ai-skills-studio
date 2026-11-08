@@ -517,7 +517,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
                 value={newItemLabel}
                 onChange={(e) => setNewItemLabel(e.target.value)}
                 placeholder="Añadir comando (ej. 'Exportar Agente')..."
-                className="flex-1 min-w-[160px] bg-transparent px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none"
+                className="flex-1 min-w-[160px] bg-transparent px-3 py-2 text-xs text-white placeholder:text-slate-500 "
               />
               <label htmlFor="new-menu-shortcut-input" className="sr-only">
                 Atajo de teclado

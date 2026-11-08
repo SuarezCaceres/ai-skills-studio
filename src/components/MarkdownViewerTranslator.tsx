@@ -347,7 +347,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
             </figcaption>
             <pre
               tabIndex={0}
-              className="bg-[#0B0B0B] border border-zinc-800 rounded-2xl p-4 text-xs font-mono text-zinc-200 overflow-x-auto max-h-64 whitespace-pre-wrap leading-relaxed focus:outline-none focus:border-[#0EA5E9]"
+              className="bg-[#0B0B0B] border border-zinc-800 rounded-2xl p-4 text-xs font-mono text-zinc-200 overflow-x-auto max-h-64 whitespace-pre-wrap leading-relaxed  focus:border-[#0EA5E9]"
             >
               <code>{skill.markdownContent}</code>
             </pre>
@@ -393,7 +393,7 @@ export const MarkdownViewerTranslator: React.FC<MarkdownViewerTranslatorProps> =
             </figcaption>
             <pre
               tabIndex={0}
-              className="bg-[#0B0B0B] border border-[#0EA5E9]/40 rounded-2xl p-4 text-xs font-mono text-slate-100 overflow-x-auto max-h-64 whitespace-pre-wrap leading-relaxed focus:outline-none focus:border-[#0EA5E9]"
+              className="bg-[#0B0B0B] border border-[#0EA5E9]/40 rounded-2xl p-4 text-xs font-mono text-slate-100 overflow-x-auto max-h-64 whitespace-pre-wrap leading-relaxed  focus:border-[#0EA5E9]"
             >
               <code>
                 {skill.translatedContent ||

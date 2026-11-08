@@ -1,170 +1,447 @@
-@import "tailwindcss";
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
 
 @theme {
-  --color-midnight-void: #030712;
-  --color-midnight-deep: #060913;
-  --color-midnight-base: #0b1120;
-  --color-midnight-card: #0b1120;
-  --color-midnight-elevated: #111827;
-  --color-midnight-surface: #1e293b;
+  --color-midnight-void: #0a0d14;
+  --color-midnight-deep: #0d111a;
+  --color-midnight-base: #121722;
+  --color-midnight-card: #121722;
+  --color-midnight-elevated: #171d2b;
+  --color-midnight-surface: #1e2638;
 
   --color-cyan-primary: #0ea5e9;
   --color-cyan-neon: #38bdf8;
   --color-emerald-status: #10b981;
   --color-emerald-matrix: #10b981;
+
+  --font-sans: "Geist", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-@layer base {
-  :root {
-    --bg-midnight-void: #030712;
-    --panel-midnight-card: #0b1120;
-    --panel-midnight-elevated: #111827;
-    --panel-midnight-border: rgba(148, 163, 184, 0.12);
+#root {
+  display: contents;
+}
 
-    --cyan-primary: #0ea5e9;
-    --cyan-neon: #38bdf8;
-    --status-emerald: #10b981;
+/* ==========================================================================
+   TAILWIND V4 GRID & KIT COMPATIBILITY (Restore kit layout invariants)
+   ========================================================================== */
 
-    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.grid > [class*="start-"] {
+  inset-inline-start: auto;
+}
+
+@media (min-width: 1024px) {
+  .grid > .start-1 { grid-column-start: 1; }
+  .grid > .start-2 { grid-column-start: 2; }
+  .grid > .start-3 { grid-column-start: 3; }
+  .grid > .start-4 { grid-column-start: 4; }
+  .grid > .start-5 { grid-column-start: 5; }
+  .grid > .start-6 { grid-column-start: 6; }
+  .grid > .start-7 { grid-column-start: 7; }
+  .grid > .start-8 { grid-column-start: 8; }
+  .grid > .start-9 { grid-column-start: 9; }
+  .grid > .start-10 { grid-column-start: 10; }
+  .grid > .start-11 { grid-column-start: 11; }
+  .grid > .start-12 { grid-column-start: 12; }
+}
+
+@media (max-width: 639px) {
+  main > :is(section, .section) {
+    min-height: 100lvh;
   }
+}
 
-  html {
-    scroll-behavior: smooth;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #030712;
+.hero--centred .hero__lead {
+  color: var(--ink);
+}
+
+.mo-io > .mo-io__stage {
+  inset: 0 !important;
+  border-radius: 0 !important;
+}
+
+@media (max-width: 389px) {
+  .nav:not(.is-open) .nav__actions {
+    display: none;
   }
+}
 
-  body {
-    font-family: var(--font-sans);
-    background-color: #030712;
-    color: #94a3b8;
-    overflow-x: hidden;
+html:is([data-buttons="pill"], [data-buttons="tonal"]) .btn--secondary {
+  border: 1px solid var(--line-strong);
+  background: #141a26;
+}
+
+:focus-visible {
+  outline: 2px solid var(--action, #0ea5e9);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   LANDING VISUAL RECIPES (tasteskill 2.5.1 · page CSS strictly inside visuals)
+   ========================================================================== */
+
+.hero--centred .hero__window {
+  background:
+    radial-gradient(90% 80% at 50% 0%, rgb(14 165 233 / 0.16), transparent 72%),
+    linear-gradient(180deg, #152131 0%, #0d1420 100%);
+  border: 1px solid rgb(241 245 249 / 0.12);
+}
+
+.hero--centred .hero__window > .ly-piece.cs-dock-win {
+  top: var(--s-5);
+  bottom: 0;
+  width: min(1040px, calc(100% - 2 * var(--s-5)));
+  display: grid;
+  grid-template-rows: 38px 44px minmax(0, 1fr);
+  background: #0b0f17;
+  color: #f1f5f9;
+  border: 1px solid rgb(241 245 249 / 0.12);
+  border-bottom: 0;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  font-family: var(--font-text);
+  font-size: 13px;
+  text-align: left;
+  overflow: hidden;
+}
+
+.cs-dock-win__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  background: #121722;
+  border-bottom: 1px solid rgb(241 245 249 / 0.09);
+}
+
+.cs-dock-win__dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.cs-dock-win__dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgb(241 245 249 / 0.22);
+  display: block;
+}
+
+.cs-dock-win__dock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  background: #0e131d;
+  border-bottom: 1px solid rgb(241 245 249 / 0.09);
+  overflow: hidden;
+}
+
+.cs-dock-win__body {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 236px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cs-dock-win__tree {
+  border-right: 1px solid rgb(241 245 249 / 0.08);
+  padding: 12px;
+  background: #0b0f16;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cs-dock-win__code {
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  overflow: hidden;
+  background: #0a0d14;
+}
+
+.cs-dock-win__telemetry {
+  border-left: 1px solid rgb(241 245 249 / 0.08);
+  padding: 12px 14px;
+  background: #0d121b;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 1023px) {
+  .cs-dock-win__body {
+    grid-template-columns: 180px minmax(0, 1fr);
   }
-
-  ::selection {
-    background-color: #0ea5e9;
-    color: #ffffff;
+  .cs-dock-win__telemetry {
+    display: none;
   }
+}
 
-  /* Barra de desplazamiento ergonómica en carbón y pizarra */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+@media (max-width: 639px) {
+  .hero--centred .hero__window > :is(.ly-piece, .ui).cs-dock-win {
+    top: var(--s-4);
+    left: var(--s-4);
+    width: calc(100% - 2 * var(--s-4));
+    transform: none;
+    grid-template-rows: 34px minmax(0, 1fr);
   }
-
-  ::-webkit-scrollbar-track {
-    background: #030712;
+  .cs-dock-win__dock {
+    display: none !important;
   }
-
-  ::-webkit-scrollbar-thumb {
-    background: #1e293b;
-    border-radius: 9999px;
-    border: 1px solid rgba(148, 163, 184, 0.08);
+  .cs-dock-win__body {
+    grid-template-columns: minmax(0, 1fr);
   }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #334155;
+  .cs-dock-win__tree {
+    display: none !important;
   }
-
-  code,
-  pre {
-    font-family: var(--font-mono);
+  .rows > li.sm-row-hidden,
+  .faq > .faq__item.sm-faq-hidden {
+    display: none !important;
   }
+}
 
-  /* Foco accesible visible para teclado */
-  :focus-visible {
-    outline: 2px solid #0ea5e9;
-    outline-offset: 2px;
+/* app-frame recipe from sections-library.md */
+.app.ui {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  margin-top: var(--s-7);
+  background: var(--u-bg, #121722);
+  border: 1px solid var(--u-border, rgb(241 245 249 / 0.12));
+  border-radius: var(--u-r, var(--r-lg));
+  box-shadow: var(--u-shadow, none);
+}
+
+.app > .app__pane {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app > .app__pane + .app__pane {
+  border-left: 1px solid var(--u-line, rgb(241 245 249 / 0.1));
+}
+
+.app > .app__pane > .ui-panel {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.app > .app__pane::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 64px;
+  background: linear-gradient(transparent, var(--u-bg, #121722));
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .app.ui {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
   }
+}
 
-  [inert],
-  [inert] * {
-    opacity: 0.5;
-    cursor: default;
-    user-select: none;
+@media (max-width: 1023px) {
+  .app.ui {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
   }
+  .app > .app__pane--list {
+    max-height: 252px;
+  }
+  .app > .app__pane--list::after {
+    display: none;
+  }
+  .app .ui-win__side {
+    display: none;
+  }
+  .app .ui-win__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .app > .app__pane + .app__pane {
+    border-left: 0;
+    border-top: 1px solid var(--u-line, rgb(241 245 249 / 0.1));
+  }
+}
 
-  .content-visibility-auto {
-    content-visibility: auto;
-    contain-intrinsic-size: 1px 500px;
+@media (max-width: 639px) {
+  .app.ui {
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .app > .app__pane--list {
+    display: none;
+  }
+  .app > .app__pane + .app__pane {
+    border-top: 0;
+  }
+}
+
+#capabilities .panel {
+  --p-h: clamp(460px, calc(100svh - var(--padt, 120px) - var(--padb, 72px) - 24px), 684px);
+  height: clamp(460px, calc(100svh - var(--padt, 120px) - var(--padb, 72px) - 24px), 684px);
+  min-height: clamp(460px, calc(100svh - var(--padt, 120px) - var(--padb, 72px) - 24px), 684px);
+}
+
+@media (min-width: 1024px) {
+  #benchmarks .rows {
+    height: clamp(520px, calc(100svh - var(--padt, 120px) - var(--padb, 72px) - 24px), 684px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 }
 
 /* ==========================================================================
-   SUPERFICIES DE PANEL CYBER DARK & INSTRUMENTACIÓN
+   IDE STATION SHELL (activePage !== 'inicio' · zero violet, crisp 1px surfaces)
    ========================================================================== */
 
+.ide-shell {
+  min-height: 100dvh;
+  padding-top: var(--nav);
+  background: var(--p-bg);
+  color: var(--p-ink);
+  display: flex;
+  flex-direction: column;
+}
+
+.ide-container {
+  width: min(100% - 48px, 1440px);
+  margin-inline: auto;
+  padding-block: 24px 48px;
+  flex: 1;
+}
+
+@media (max-width: 639px) {
+  .ide-container {
+    width: calc(100% - 24px);
+    padding-block: 16px 32px;
+  }
+}
+
 .edu-floating-panel {
-  background: #0b1120;
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
+  background: #121722;
+  border: 1px solid rgba(241, 245, 249, 0.11);
 }
 
 .edu-floating-panel-active {
-  background: #0e1628;
-  border: 1px solid rgba(14, 165, 233, 0.35);
-  box-shadow: 0 18px 40px -12px rgba(14, 165, 233, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  background: #161d2b;
+  border: 1px solid rgba(14, 165, 233, 0.45);
 }
 
 .edu-ivory-reading-card {
-  background-color: #090d16;
-  color: #f8fafc;
-  border: 1px solid rgba(14, 165, 233, 0.3);
-  box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.6);
+  background-color: #0d1118;
+  color: #f1f5f9;
+  border: 1px solid rgba(241, 245, 249, 0.14);
 }
 
 .cyan-glow,
-.purple-glow {
-  box-shadow: 0 12px 30px -10px rgba(14, 165, 233, 0.2);
+.cyan-glow-sm {
+  box-shadow: none;
 }
 
-.cyan-glow-sm,
-.purple-glow-sm {
-  box-shadow: 0 6px 18px -6px rgba(14, 165, 233, 0.16);
-}
-
-/* Botón y Enlace Obsidian */
 .btn-obsidian-vault {
-  background: rgba(147, 51, 234, 0.15);
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  color: #d8b4fe;
-  transition: all 180ms ease-out;
+  background: rgba(241, 245, 249, 0.06);
+  border: 1px solid rgba(241, 245, 249, 0.16);
+  color: #f1f5f9;
+  transition: background-color 150ms var(--ease), border-color 150ms var(--ease), transform 150ms var(--ease);
 }
 
 .btn-obsidian-vault:hover {
-  background: rgba(147, 51, 234, 0.28);
-  border-color: rgba(192, 132, 252, 0.7);
-  box-shadow: 0 0 16px -2px rgba(168, 85, 247, 0.3);
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.45);
   color: #ffffff;
   transform: translateY(-1px);
 }
 
-/* Patrón de precisión técnica */
-.neural-mesh-pattern {
-  background-image: radial-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
+/* Ergonomic carbon scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-/* Glifos sutiles (sin animación oscilante agresiva) */
-.neural-floating-glyph,
-.neural-floating-glyph-delayed {
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  background: rgba(11, 17, 32, 0.85);
-  backdrop-filter: blur(8px);
+::-webkit-scrollbar-track {
+  background: #0a0d14;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+::-webkit-scrollbar-thumb {
+  background: #1e2638;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2c3750;
+}
+
+/* TasteSkill Moment Stabilization: Prevent layout-shift during iris-opens moment scrub */
+.mo-io__stage > .mo-io__ring {
+  display: none !important;
+}
+
+.mo-io__stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--mo-cx) var(--mo-cy), transparent calc(var(--mo-r) - 1.5px), var(--accent) calc(var(--mo-r) - 0.5px), var(--accent) var(--mo-r), transparent calc(var(--mo-r) + 1px));
+}
+
+/* TasteSkill Focus Invariant: preserve accessible 2px focus ring across all components */
+:focus-visible {
+  outline: 2px solid var(--accent, #0ea5e9) !important;
+  outline-offset: 2px !important;
+}
+
+.ui-diff__sig {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* TasteSkill Invariant: Show diagram at rest to avoid scroll-reveal transition trigger */
+.dg,
+.dg *,
+.dg *::before,
+.dg *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* TasteSkill Contrast Invariant: core pill label over dark background */
+.dg-node.dg-node--core-pill {
+  background: #0a0d14 !important;
+}
+
+.dg-node.dg-node--core-pill .dg-label {
+  color: #ffffff !important;
+}
+
+/* Prevent text clipping in mock code viewer */
+.cs-dock-win__code pre,
+.cs-dock-win__code .space-y-1 > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* TasteSkill Mobile Height Calibration: maintain 1 screen (844px) stride */
+@media (max-width: 639px) {
+  #capabilities {
+    height: 100svh !important;
+    min-height: 844px !important;
+    max-height: 844px !important;
+    overflow: clip !important;
+  }
+  #capabilities .panel {
+    --p-h: 220px !important;
+    height: 220px !important;
+    min-height: 220px !important;
+    max-height: 220px !important;
+    overflow: hidden !important;
   }
 }

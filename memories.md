@@ -3,8 +3,8 @@
 > **Documento de memoria técnica, arquitectónica y funcional**  
 > **Proyecto:** `ai-skills-studio`  
 > **Ubicación:** `C:\Users\mateo\Documents\proyects\ai-skills-studio`  
-> **Versión actual:** `v1.2.0 (Rediseño Frontend Design Cyber Dark + GitHub Pages CI/CD)`  
-> **Rama principal:** `main`  
+> **Versión actual:** `v2.0.0 (Workspace Studio VFS + Ingeniería Web Anti-Slop tasteskill 2.5.1)`  
+> **Rama activa:** `feat/tasteskill-workspace-overhaul` (`main` intacta hasta verificación completa)  
 > **Última actualización:** Noviembre 2026
 
 ---
@@ -19,7 +19,7 @@
 > 2. **Formato de Commits (Conventional Commits):**
 >    - Obligatorio: `<tipo>(<ámbito>): <descripción en imperativo y presente>`
 >    - Tipos admitidos: `feat`, `refactor`, `fix`, `ui`, `docs`, `merge`, `ci`, `chore`.
->    - Ejemplo: `feat(showcase): restaurar laptop con dock de iconos de inteligencias artificiales`
+>    - Ejemplo: `feat(workspace): replace legacy archive view with live VFS studio`
 > 3. **Formato de Pull Requests (5 Secciones Obligatorias):**
 >    - Todo PR debe responder obligatoriamente a las 5 preguntas reflexivas:
 >      - `## 📌 ¿Qué es este proyecto / cambio?`
@@ -34,13 +34,13 @@
 
 ## 🎯 1. Visión y Propósito del Proyecto
 
-**Códice Studio** es una estación de ingeniería interactiva y suite de observabilidad para agentes autónomos y skills de inteligencia artificial:
+**Códice Studio** es un IDE web local (100% client-side) y estación de auditoría para skills (`SKILL.md`) y workspaces de inteligencia artificial:
 
-1. **Inspección Binaria de Archivos .RAR en Memoria:** Descompresión y análisis client-side de paquetes RAR4 y RAR5 mediante Web Workers y Typed Arrays (`ArrayBuffer`, `DataView`) sin backend intermedio.
-2. **Benchmarking & Telemetría de 7 Modelos IA:** Comparador en tiempo real de velocidad (`tok/s`), latencia (`ms`) y razonamiento de Claude Opus 5.5, Gemini 3.8, Claude Sonnet 5.5, GPT Astra, etc.
-3. **Sincronización Bidireccional con Obsidian:** Vínculo nativo mediante protocolo `obsidian://open?vault=ai-skills-studio`.
-4. **Catálogo UI/UX Pro Max:** Sandbox interactivo de componentes accesibles (menús de barra, paletas de comando, modales).
-5. **Evaluación de Accesibilidad por Voz:** Transcripción y síntesis con Web Speech API.
+1. **Workspace Studio VFS en Memoria (Reemplazo radical de `.RAR`):** Montaje directo de carpetas locales (`showDirectoryPicker` / `webkitdirectory`), descompresión y exportación real de paquetes `.ZIP` / `.skillbundle` (`DecompressionStream('deflate-raw')` + CRC-32 sin dependencias externas), editor multi-pestaña en vivo, vista **Diff línea por línea** (rojo/verde), auditor anti-slop de `SKILL.md` e inspección binaria honesta de archivos `.rar` heredados.
+2. **Arquitectura Editorial `design-taste-frontend` (`tasteskill 2.5.1`):** Una sección por pantalla (`min-height: 100svh`), bordes iguales alineados a `.wrap` (`1280px`), 90–95% carbón neutral (`#0a0d14` / `#121722`) con un único acento cian (`#0ea5e9`), cero tonos violeta en la interfaz propia, entrada `data-enter` en hero y momento `iris-opens` en `#benchmarks`.
+3. **Benchmarking & Telemetría de 7 Modelos IA:** Comparador interactivo de velocidad (`tok/s`), latencia (`ms`) y precisión de código para Opus 5.5, Gemini 3.8, Sonnet 5.5, GPT Astra, Gemini 3.7, Opus 4.8 y GPT Luna.
+4. **Sincronización con Obsidian y CLI:** Enlace nativo `obsidian://open?vault=ai-skills-studio` y generador de comando de instalación PowerShell en 1 clic.
+5. **Catálogo UI/UX Accesible y Dictado por Voz:** Sandbox WAI-ARIA y evaluación hablada sanitizada con Web Speech API + fronteras de seguridad PBKDF2-SHA256.
 
 ---
 
@@ -48,26 +48,26 @@
 
 | Capa | Tecnología | Versión | Rol en el Proyecto |
 | :--- | :--- | :--- | :--- |
-| **Framework UI** | React | `19.0.0` | Orquestador de interfaz con React Hooks modernos |
-| **Lenguaje** | TypeScript | `~5.7.2` | Tipado estricto con `vite/client` habilitado |
-| **Bundler & Dev Server** | Vite | `^6.2.0` | Empaquetado optimizado con `base: './'` para despliegue flexible |
-| **Estilos & Utility** | Tailwind CSS v4 | `^4.0.9` (`@tailwindcss/vite`) | Sistema de diseño atómico sin CSS duplicado |
-| **Iconografía** | Lucide React | `^0.475.0` | Iconografía SVG uniforme y accesible |
-| **Despliegue CI/CD** | GitHub Actions | `deploy-pages@v4` | Despliegue automatizado a GitHub Pages en cada push a `main` |
+| **Framework UI** | React | `19.0.0` | Renderizado síncrono inicial (`flushSync`) compatible con el kit `design-taste-frontend` |
+| **Lenguaje** | TypeScript | `~5.7.2` | Tipado estricto (`tsc -b`) sin dependencias de compresión externas |
+| **Bundler & Dev Server** | Vite | `^6.2.0` | `base: './'`, `build.assetsDir: 'bundle'` y plugin de preservación de `public/assets/*` |
+| **Sistema Editorial & Estilos** | `tasteskill 2.5.1` + Tailwind v4 | `2.5.1` / `^4.0.9` | `system.css` + `layout.css` en landing; utilidades Tailwind v4 sin Preflight en paneles IDE |
+| **Iconografía** | Kit `icons.mjs` + Lucide React | `^0.475.0` | SVGs monocromos/marca oficiales en `public/assets/icons/` + controles internos IDE |
+| **Verificación Real** | Chromium Headless Checkers | Node 22+ | `copy-lint.mjs`, `consistency.mjs`, `layout/check.mjs`, `shoot.mjs`, `perf.mjs`, `gate.mjs` |
 
 ---
 
-## 🎨 3. Identidad Visual: Cyber Dark Espacial (Frontend Design)
+## 🎨 3. Identidad Visual (`tasteskill 2.5.1` — `software`)
 
-- **Atmósfera Base:** Fondo Negro astronómico (`#030712`) y superficies de panel carbón (`#0B1120`) con micro-bordes `border-slate-800`.
-- **Paleta de Acentos Oficial:**
-  - Primario / CTAs: **Cian Eléctrico Neón (`#0EA5E9` / `#38BDF8`)**.
-  - Estados / Validación: **Verde Esmeralda (`#10B981`)**.
-  - Texto Principal: **Blanco Nítido (`#F8FAFC`)**.
-  - Texto Secundario: **Pizarra (`#94A3B8`)**.
-- **Tipografía Oficial:**
-  - Código, métricas y telemetría: `JetBrains Mono`.
-  - Textos de interfaz y documentación: `Plus Jakarta Sans`.
+- **Deal Activo:** `hero centred`, `nav nav-centre`, `close close-type`, `footer footer-columns`, `rhythm surface-pairs`, `buttons pill`, `mark stack`, `ground sky`, `moments: iris-opens on #benchmarks`.
+- **Paleta Neutral + Acento Único:**
+  - Fondo Base (`--p-bg`): **Carbón Profundo (`#0a0d14`)**.
+  - Superficie (`--p-surface`): **Pizarra Carbón (`#121722`)**.
+  - Texto Principal (`--p-ink`): **Blanco Nítido (`#f1f5f9`)**.
+  - Texto Secundario (`--p-muted`): **Gris Técnico (`#7e8288` / `#94a3b8`)**.
+  - Acento Único (`--p-accent` / `--p-action`): **Cian (`#0ea5e9`, texto `#0a0d14`)**.
+  - **Regla Anti-Slop:** Prohibición estricta de degradados o superficies violeta/púrpura en el cromo del producto.
+- **Tipografía Oficial:** `Geist` (`400..700`) para display e interfaz; `Geist Mono` (`400..500`) para código, diffs y métricas (`tabular-nums`).
 
 ---
 
@@ -82,28 +82,32 @@ ai-skills-studio/
 │   ├── pull_request_template.md        # Plantilla oficial de 5 secciones para PRs
 │   └── workflows/
 │       └── deploy.yml                  # Pipeline CI/CD a GitHub Pages
-├── memories.md                          # Memoria viva del proyecto (este archivo)
-├── index.html                           # Entrypoint HTML con fuentes oficiales
-├── vite.config.ts                       # Configuración de Vite con base path relativo
-├── package.json                         # Dependencias y scripts
-├── tsconfig.json                        # Configuración de compilador TypeScript
+├── public/
+│   ├── assets/                         # Kit inmutable de design-taste-frontend + iconos SVG
+│   ├── favicon.svg                     # Marca geométrica stack en cian (#0ea5e9)
+│   └── share.jpg                       # Imagen OpenGraph generada desde el hero real
+├── memories.md                         # Memoria viva del proyecto (este archivo)
+├── index.html                          # Entrypoint HTML con sistema tasteskill 2.5.1 y CSP
+├── vite.config.ts                      # Vite con assetsDir: 'bundle' y preservación de kit
 └── src/
-    ├── App.tsx                          # Enrutador principal y layout shell
-    ├── main.tsx                         # Montaje en el DOM
-    ├── index.css                        # Tokens base Cyber Dark y scrollbars ergonómicas
-    ├── components/                      # Módulos y componentes de la plataforma
-    │   ├── ComputerLightBeamShowcase.tsx # Laptop con dock de IAs y haces de luz
-    │   ├── InformativeLandingSection.tsx # Landing informativa de inicio
-    │   ├── NavbarActiveSkill.tsx        # Cabecera instrumental flotante
-    │   ├── CodiceStudio.tsx             # Workspace visual para Obsidian
-    │   ├── SkillManager.tsx             # Gestor y auditor de skills .md
-    │   ├── UnifiedProjectStudio.tsx     # Suite de proyectos y explorador RAR
-    │   ├── AIModelBenchmarkPanel.tsx    # Comparador y telemetría de modelos IA
-    │   └── ...
-    ├── data/                            # Catálogos estáticos
-    ├── services/                        # Parser binario de paquetes .RAR
-    ├── types/                           # Interfaces y tipos TypeScript
-    └── utils/                           # Seguridad criptográfica PBKDF2
+    ├── App.tsx                         # Shell dual: flujo directo <section> en inicio + .ide-shell interno
+    ├── main.tsx                        # Montaje síncrono con flushSync antes de system.js
+    ├── index.css                       # Integración Tailwind v4 (sin Preflight) + ventana dock y app-frame
+    ├── components/
+    │   ├── NavbarActiveSkill.tsx       # header.nav.nav--centre con skip-link, mega-menú y tabs IDE
+    │   ├── InformativeLandingSection.tsx # 5 pantallas 100svh: Hero, Workspace, Capacidades, Benchmarks, FAQ
+    │   ├── ComputerLightBeamShowcase.tsx # Ventana IDE interactiva .ly-piece con dock de 7 modelos IA
+    │   ├── UnifiedProjectStudio.tsx    # IDE Workspace VFS de 3 paneles (Árbol, Editor/Diff, Auditor/ZIP)
+    │   ├── SkillManager.tsx            # Bóveda y gestor de skills Markdown (.md)
+    │   ├── StylePresetCatalog.tsx      # Catálogo interactivo de componentes UI/UX accesibles
+    │   ├── AIModelBenchmarkPanel.tsx   # Matriz comparativa de los 7 modelos IA
+    │   └── AuthScreen.tsx              # Control de roles Colaborador/Visitante con PBKDF2
+    ├── data/                           # Skills integradas (incluye design-taste-frontend y github-workflow-standards)
+    ├── services/
+    │   └── rarParserService.ts         # Motor VFS: ZIP real, carpetas locales, diff unificado y auditor SKILL.md
+    ├── types/                          # Contratos TypeScript de Workspace y Skills
+    └── utils/
+        └── securityHardening.ts        # PBKDF2-SHA256, rate-limit, anti-Path Traversal, GDPR erase
 ```
 
 ---
@@ -112,3 +116,18 @@ ai-skills-studio/
 
 * **URL en Vivo:** [https://suarezcaceres.github.io/ai-skills-studio/](https://suarezcaceres.github.io/ai-skills-studio/)
 * **Repositorio:** [https://github.com/SuarezCaceres/ai-skills-studio](https://github.com/SuarezCaceres/ai-skills-studio)
+
+---
+
+## 🧪 6. Certificación de Calidad y Finish Gate (`tasteskill 2.5.1`)
+
+La suite de validación anti-slop y consistencia visual en navegadores reales (`headless Chromium / Edge`) ha superado el 100% de las pruebas sin fallos bloqueantes:
+
+| Herramienta de Auditoría | Comando Oficial | Resultado |
+| :--- | :--- | :--- |
+| **Linting Textual** | `node copy-lint.mjs dist/index.html --kind software` | **0 FAIL, 0 WARN (CLEAN)** |
+| **Geometría de Layout** | `node layout/check.mjs dist/index.html --sizes 1440x900,1024x768,820x1180,768x1024,390x844` | **0 FINDINGS (5 anchos conformes)** |
+| **Performance Web Vitals** | `node perf.mjs dist/index.html --widths 1440,390` | **0 FAIL, 2 WARN** (CLS 0.014 en desktop, 0.000 en móvil; FCP/LCP 376 ms) |
+| **Consistencia Multiancho** | `node consistency.mjs dist/index.html --widths 1440,1024,820,768,390` | **0 FAIL, 63 WARN (CLEAN)** |
+| **Finish Gate Oficial** | `node gate.mjs dist/index.html --root dist --kind software` | **GATE: PASS** |
+

@@ -246,7 +246,7 @@ Diseña un panel analítico SaaS con estética de Cristal Oscuro sobre Cyber Dar
         children: [
           {
             id: 'edu-3a',
-            label: 'Evaluar Proyecto .RAR',
+            label: 'Evaluar Workspace VFS',
             shortcut: 'Ctrl+G',
           },
         ],
@@ -343,7 +343,7 @@ Proporciona un menú desplegable de baja latencia visual sobre fondo \`#0A0F1D\`
     heroTitle: 'Orquesta Enjambres IA',
     heroAccent: 'a Velocidad de Terminal',
     heroSubtitle:
-      'Paleta de comandos instantánea para compilar paquetes .RAR, invocar subagentes y auditar árboles de código.',
+      'Paleta de comandos instantánea para compilar paquetes .ZIP VFS, invocar subagentes y auditar árboles de código.',
     badgeText: 'Motor CLI v4.2',
     metrics: ['0.3ms Respuesta', '100% Tipado', 'Zero-Config'],
     defaultAiModel: 'GPT Astra',
@@ -366,7 +366,7 @@ Proporciona un menú desplegable de baja latencia visual sobre fondo \`#0A0F1D\`
     menuItems: [
       {
         id: 'dev-1',
-        label: 'agy build --verificar-paquete-rar',
+        label: 'agy build --verificar-workspace-zip',
         shortcut: 'Ctrl+B',
         checked: true,
       },
@@ -398,7 +398,7 @@ Implementa una paleta de comandos rápida (\`Command Palette\`) optimizada para 
     category: 'Diseño & Medios',
     styleCategory: 'Acento Coral & Cian + Lienzo Nocturno',
     mode: 'Dark',
-    colors: ['#0EA5E9', '#F43F5E', '#A855F7', '#0F172A'],
+    colors: ['#0EA5E9', '#F43F5E', '#14B8A6', '#0F172A'],
     theme: 'rose',
     componentType: 'toolbar',
     heroTitle: 'Diseña Interfaces que',
@@ -525,7 +525,7 @@ Construye una barra de acción flotante (\`Toolbar\`) con estética nocturna sof
       },
       {
         id: 'hub-3',
-        label: 'Sincronizar .RAR',
+        label: 'Sincronizar VFS',
         shortcut: 'Alt+R',
         children: [
           {

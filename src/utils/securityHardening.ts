@@ -3,7 +3,7 @@ import { SkillDocument } from '../types/skill';
 
 /**
  * Fase S1 — Threat Model (STRIDE) & Fronteras de Confianza (OWASP Top 10 / LLM Top 10)
- * Documento ejecutable de arquitectura de seguridad para AI Skills & RAR Studio.
+ * Documento ejecutable de arquitectura de seguridad para Códice Studio (Workspace VFS).
  */
 export const SECURITY_TRUST_BOUNDARIES = [
   {
@@ -18,11 +18,11 @@ export const SECURITY_TRUST_BOUNDARIES = [
   },
   {
     id: 'TB-02',
-    boundary: ' Descompresión y Análisis Binario de Archivos .RAR (rarParserService)',
+    boundary: 'Descompresión y Análisis Binario de Workspaces VFS (.zip, .skillbundle, .md y legado .rar)',
     threats: ['Tampering', 'Denial of Service', 'Elevation of Privilege'],
     mitigations: [
-      'Validación estricta de tamaño máximo (25 MB) y lista blanca de extensiones (.rar)',
-      'Verificación de cabeceras mágicas RAR4/RAR5 (52 61 72 21 1A 07)',
+      'Validación estricta de tamaño máximo (25 MB) y lista blanca de extensiones permitidas',
+      'Verificación de cabeceras binarias ZIP/DEFLATE y detección honesta de RAR4/RAR5',
       'Sanitización anti-Path Traversal (../, ..\\, rutas absolutas y bytes nulos)',
     ],
   },
@@ -211,7 +211,7 @@ export function sanitizeUserText(input: string, maxLength = 500): string {
 
 /**
  * Previene ataques de Path Traversal (../, ..\, rutas absolutas o bytes nulos)
- * en nombres y rutas extraídas de paquetes comprimidos .RAR.
+ * en nombres y rutas extraídas de paquetes comprimidos Workspace VFS (.ZIP / legado .RAR).
  */
 export function sanitizeArchiveFilePath(rawPath: string): string {
   if (!rawPath || typeof rawPath !== 'string') {
