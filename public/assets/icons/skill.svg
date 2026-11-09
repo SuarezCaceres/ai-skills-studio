@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="skillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+  </defs>
+  <rect x="20" y="20" width="216" height="216" rx="44" fill="#0C1322" stroke="url(#skillGrad)" stroke-width="12"/>
+  <path d="M68 96L112 128L68 160" stroke="#0EA5E9" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M128 160H188" stroke="#38BDF8" stroke-width="16" stroke-linecap="round"/>
+  <path d="M172 72L180 88L196 96L180 104L172 120L164 104L148 96L164 88Z" fill="#38BDF8"/>
+</svg>
