@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppPageRoute, SpecificModelVersion } from '../types/workspace';
 import {
   ClaudeBrandIcon,
@@ -10,7 +10,6 @@ import {
   FileCode,
   Zap,
   Activity,
-  Cpu,
   Layers,
   Sparkles,
   ExternalLink,
@@ -174,7 +173,7 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
 }) => {
   const [localModel, setLocalModel] = useState<SpecificModelVersion>(activeModel);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeModel) {
       setLocalModel(activeModel);
     }
@@ -182,7 +181,6 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
 
   const effectiveModel = localModel || activeModel;
 
-  // Sincronizar con el modelo activo o mapear a uno de los 4 gigantes
   const activeStation =
     BIG_FOUR_MODELS.find((m) => m.version === effectiveModel) ||
     BIG_FOUR_MODELS.find(
@@ -201,50 +199,28 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
   const [hoveredStation, setHoveredStation] = useState<BigFourAIProfile | null>(
     null
   );
-  const [tilt, setTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-
-  // Manejador del micro-parallax orbital (3D Tilt suave hacia el puntero)
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    // Límites de inclinación elegantes de ±4.5 grados para evitar aberraciones ópticas
-    const tiltX = -(y / (rect.height / 2)) * 4.5;
-    const tiltY = (x / (rect.width / 2)) * 4.5;
-    setTilt({ x: tiltX, y: tiltY });
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setTilt({ x: 0, y: 0 });
-    setHoveredStation(null);
-  }, []);
 
   const displayedStation = hoveredStation || activeStation;
 
   return (
-    <div
-      className="relative w-full max-w-5xl mx-auto py-4 sm:py-6 select-none"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className="relative w-full max-w-5xl mx-auto py-2 sm:py-3 select-none">
       {/* ====================================================================
           1. HAZ DE LUZ VOLUMÉTRICO DINÁMICO SEGÚN EL MODELO DE IA ACTIVO
          ==================================================================== */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-16 sm:-top-24 h-72 sm:h-96 flex justify-center overflow-hidden transition-all duration-700"
+        className="pointer-events-none absolute inset-x-0 -top-12 sm:-top-20 h-64 sm:h-80 flex justify-center overflow-hidden transition-all duration-700"
       >
         {/* Cono central de luz volumétrica */}
         <div
           className="w-[85%] sm:w-[65%] h-full opacity-60 sm:opacity-75 blur-3xl transition-all duration-700"
           style={{
             background: displayedStation.beamGradient,
-            transform: 'perspective(400px) rotateX(35deg)',
           }}
         />
         {/* Rayo de luz focalizado */}
         <div
-          className="absolute top-10 w-44 sm:w-64 h-full blur-2xl opacity-40 transition-all duration-500"
+          className="absolute top-8 w-44 sm:w-64 h-full blur-2xl opacity-40 transition-all duration-500"
           style={{
             background: `radial-gradient(ellipse at 50% 0%, ${displayedStation.brandColor} 0%, transparent 70%)`,
           }}
@@ -253,7 +229,6 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
 
       {/* ====================================================================
           2. DOCK ORBITAL DE LOS TOP 4 GIGANTES DE IA (CLAUDE, GEMINI, GPT, DEEPSEEK)
-          Con micro-parallax, hover 3D y activación instantánea de telemetría
          ==================================================================== */}
       <div className="relative z-30 mb-2 sm:mb-2.5">
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3.5 px-2">
@@ -395,67 +370,73 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
       </div>
 
       {/* ====================================================================
-          4. CHASIS FÍSICO 3D DE LA LAPTOP (ESTILO MACBOOK PRO DARK CARBON)
-          Con tapa de aluminio, bisel OLED, pantalla de diff en vivo, bisagra,
-          teclado chiclet retroiluminado y trackpad de cristal esmerilado.
+          4. CHASIS MACBOOK PRO SPACE BLACK (REFERENCIA FOTOGRÁFICA OFICIAL)
+          Diseño frontal limpio, nítido y sin distorsión 3D forzada:
+          - Tapa con bisel ultra delgado y Notch de cámara FaceTime
+          - Pantalla OLED con editor de código y telemetría
+          - Bisagra unibody oculta con ventilación
+          - Base Magic Keyboard flanqueada por rejillas de altavoces
+          - Force Touch trackpad gigante de cristal
          ==================================================================== */}
-      <div
-        className="relative z-10 mx-auto w-full max-w-4xl transition-transform duration-150 ease-out"
-        style={{
-          transform: `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-          transformStyle: 'preserve-3d',
-        }}
-      >
+      <div className="relative z-10 mx-auto w-full max-w-4xl">
         {/* ------------------------------------------------------------------
-            4A. TAPA DE LA LAPTOP & PANTALLA OLED
+            4A. TAPA DE LA LAPTOP (LID) & PANTALLA LIQUID RETINA XDR CON NOTCH
            ------------------------------------------------------------------ */}
         <div
-          className="relative rounded-t-2xl sm:rounded-t-3xl border border-white/15 bg-[#121722] p-2 sm:p-2.5 pb-0 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] transition-all duration-500"
+          className="relative rounded-t-2xl sm:rounded-t-3xl border border-white/15 bg-[#151922] p-2 sm:p-2.5 pb-0 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.95)] transition-all duration-500"
           style={{
-            boxShadow: `0 20px 60px -10px ${displayedStation.glowShadow}, 0 25px 70px -15px rgba(0,0,0,0.95)`,
+            boxShadow: `0 15px 50px -10px ${displayedStation.glowShadow}, 0 20px 60px -10px rgba(0,0,0,0.95)`,
           }}
         >
-          {/* Muesca y Cámara FaceTime HD centrada en el bisel superior */}
-          <div className="absolute top-1 inset-x-0 flex items-center justify-center gap-1.5 pointer-events-none z-30">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#05070a] border border-white/20" />
-            <span className="h-1 w-1 rounded-full bg-emerald-400/90 shadow-sm shadow-emerald-400 animate-pulse" />
+          {/* EL ICÓNICO NOTCH DEL MACBOOK PRO (Centrado en el bisel superior) */}
+          <div className="absolute top-2 sm:top-2.5 inset-x-0 flex justify-center pointer-events-none z-30">
+            <div className="w-24 sm:w-32 h-3 sm:h-3.5 bg-[#05070c] rounded-b-md border-b border-x border-white/10 flex items-center justify-center gap-1.5 shadow-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#0a0f18] border border-white/20" />
+              <span className="h-1 w-1 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400 animate-pulse" />
+            </div>
           </div>
 
           {/* Marco Biselado de la Pantalla OLED */}
           <div className="relative rounded-t-xl overflow-hidden border border-white/10 bg-[#070b12]">
             {/* Barra de Ventana del Editor IDE */}
-            <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-[#0b101a] px-3 sm:px-4 py-2 text-xs">
-              {/* Botones Semáforo macOS */}
-              <div className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#ef4444]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#f59e0b]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#10b981]" />
+            <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-[#0b101a] px-3 sm:px-4 py-1.5 text-xs">
+              {/* Grupo Izquierdo: Botones Semáforo macOS + Título de Archivo */}
+              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#ef4444]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#f59e0b]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#10b981]" />
+                </div>
+
+                <div className="hidden sm:block h-3 w-px bg-white/15 shrink-0" />
+
+                <div className="flex items-center gap-1.5 min-w-0 font-mono text-[9.5px] sm:text-[11px] text-slate-300">
+                  <FileCode
+                    className="hidden sm:inline-block h-3.5 w-3.5 shrink-0"
+                    style={{ color: displayedStation.accentColor }}
+                  />
+                  <span className="hidden sm:inline font-semibold text-white">
+                    codice-workspace.zip
+                  </span>
+                  <span className="hidden sm:inline text-slate-500">/</span>
+                  <span className="font-semibold sm:font-normal text-white sm:text-slate-300 truncate max-w-[75px] sm:max-w-[220px]">
+                    {displayedStation.activeFile.split('/').pop()}
+                  </span>
+                </div>
               </div>
 
-              {/* Título de Archivo Activo en la Laptop */}
-              <div className="flex items-center gap-2 min-w-0 max-w-md truncate font-mono text-[11px] text-slate-300">
-                <FileCode
-                  className="h-3.5 w-3.5 shrink-0"
-                  style={{ color: displayedStation.accentColor }}
-                />
-                <span className="font-semibold text-white truncate">
-                  codice-workspace.zip
-                </span>
-                <span className="text-slate-500">/</span>
-                <span className="text-slate-300 truncate">
-                  {displayedStation.activeFile}
-                </span>
-              </div>
+              {/* Centro: Espacio libre para que el Notch de cámara encaje perfectamente sin tapar texto */}
+              <div className="w-24 sm:w-32 shrink-0 pointer-events-none" />
 
-              {/* Badge de Seguridad y Hash SHA-256 */}
-              <div className="hidden sm:flex items-center gap-1.5 font-mono text-[10px] text-emerald-400">
+              {/* Grupo Derecho: Badge de Seguridad y Hash SHA-256 */}
+              <div className="hidden sm:flex items-center gap-1.5 font-mono text-[10px] text-emerald-400 shrink-0">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
                 <span>SHA-256 verificado</span>
               </div>
             </div>
 
             {/* Viewport Interior de la Pantalla: Árbol VFS + Diff de Código en Vivo */}
-            <div className="flex flex-col md:flex-row min-h-[175px] sm:min-h-[195px] text-xs font-mono">
+            <div className="flex flex-col md:flex-row min-h-[170px] sm:min-h-[190px] text-xs font-mono">
               {/* Columna Izquierda: Árbol de archivos VFS */}
               <div className="hidden md:block w-44 lg:w-48 shrink-0 border-r border-white/10 bg-[#080d16]/80 p-2.5">
                 <div className="mb-1.5 flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -505,7 +486,7 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
                       {displayedStation.provider}
                     </strong>
                   </div>
-                  <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mb-1">
+                  <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden mb-1">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -580,148 +561,184 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
         </div>
 
         {/* ------------------------------------------------------------------
-            4B. BISAGRA DE PRECISIÓN UNIBODY
+            4B. BISAGRA UNIBODY METÁLICA DEL MACBOOK PRO
            ------------------------------------------------------------------ */}
-        <div className="relative mx-auto w-[92%] h-2 sm:h-2.5 bg-gradient-to-r from-[#0d121c] via-[#222c3e] to-[#0d121c] border-t border-b border-white/15 z-20 flex items-center justify-center">
+        <div className="relative mx-auto w-[92%] h-2 sm:h-2.5 bg-gradient-to-r from-[#0e121a] via-[#242c3d] to-[#0e121a] border-t border-b border-white/15 z-20 flex items-center justify-center">
           {/* Muesca central ergonómica de la bisagra */}
-          <div className="w-14 sm:w-20 h-0.5 rounded-full bg-[#0a0d14] border-t border-white/10" />
+          <div className="w-14 sm:w-20 h-0.5 rounded-full bg-[#080b11] border-t border-white/10" />
         </div>
 
         {/* ------------------------------------------------------------------
-            4C. BASE DEL TECLADO CHICLET Y TRACKPAD DE CRISTAL ESMERILADO
-            Construido en perspectiva isométrica elegante
+            4C. BASE UNIBODY DE ALUMINIO SPACE BLACK
+            Con altavoces laterales, Magic Keyboard y Force Touch trackpad
            ------------------------------------------------------------------ */}
         <div
-          className="relative rounded-b-2xl sm:rounded-b-3xl border-x border-b border-white/20 bg-gradient-to-b from-[#161c28] via-[#101520] to-[#0c1018] p-2.5 sm:p-3.5 shadow-2xl"
+          className="relative rounded-b-2xl sm:rounded-b-3xl border-x border-b border-white/20 bg-gradient-to-b from-[#161a24] via-[#11151e] to-[#0d1017] p-2.5 sm:p-3.5 shadow-2xl"
           style={{
             boxShadow: `0 25px 80px -15px rgba(0,0,0,0.95), 0 0 40px -10px ${displayedStation.glowShadow}`,
           }}
         >
-          {/* Bandeja rebajada del teclado chiclet */}
-          <div className="relative rounded-xl border border-white/10 bg-[#090d14] p-1.5 sm:p-2 shadow-inner space-y-1 font-mono text-[8.5px] sm:text-[9.5px] text-slate-300">
-            {/* Fila 1: Función */}
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <div className="w-8 sm:w-11 text-center rounded bg-[#131924] border border-white/5 py-0.5 sm:py-1 text-[7.5px] sm:text-[8.5px]">
-                esc
+          {/* Fila del Teclado: Altavoz Izquierdo + Magic Keyboard + Altavoz Derecho */}
+          <div className="flex items-stretch gap-2 sm:gap-3">
+            {/* Rejilla de altavoz izquierda (Perforación láser como en el MacBook Pro) */}
+            <div
+              aria-hidden="true"
+              className="hidden sm:flex flex-col justify-around py-3 w-5 sm:w-8 shrink-0 select-none opacity-30"
+            >
+              {Array.from({ length: 16 }).map((_, idx) => (
+                <div key={idx} className="flex justify-around gap-0.5">
+                  <span className="h-0.5 w-0.5 rounded-full bg-slate-400" />
+                  <span className="h-0.5 w-0.5 rounded-full bg-slate-400" />
+                </div>
+              ))}
+            </div>
+
+            {/* Bandeja rebajada del Magic Keyboard */}
+            <div className="flex-1 rounded-xl border border-white/10 bg-[#090c13] p-1.5 sm:p-2 shadow-inner space-y-1 font-mono text-[8.5px] sm:text-[9.5px] text-slate-300">
+              {/* Fila 1: Función + Touch ID Sensor */}
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <div className="w-8 sm:w-11 text-center rounded bg-[#131924] border border-white/5 py-0.5 sm:py-1 text-[7.5px] sm:text-[8.5px]">
+                  esc
+                </div>
+                <div className="flex-1 flex items-center gap-1 sm:gap-1.5">
+                  {['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'].map((f) => (
+                    <div
+                      key={f}
+                      className="flex-1 text-center rounded bg-[#131924] border border-white/5 py-0.5 sm:py-1 text-[7px] sm:text-[7.5px] text-slate-400"
+                    >
+                      {f}
+                    </div>
+                  ))}
+                </div>
+                {/* Touch ID Sensor (Con iluminación de color del modelo de IA activo) */}
+                <div
+                  title="Touch ID Sensor"
+                  className="w-7 sm:w-9 flex items-center justify-center rounded-md bg-[#0a0d14] border border-white/15 py-0.5 sm:py-1 cursor-pointer transition-all duration-300"
+                  style={{
+                    boxShadow: `0 0 8px ${displayedStation.glowShadow}`,
+                  }}
+                >
+                  <span
+                    className="h-1.5 w-1.5 rounded-full transition-colors duration-300"
+                    style={{
+                      backgroundColor: displayedStation.accentColor,
+                      boxShadow: `0 0 6px ${displayedStation.accentColor}`,
+                    }}
+                  />
+                </div>
               </div>
-              <div className="flex-1 flex items-center gap-1 sm:gap-1.5">
-                {['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'].map((f) => (
+
+              {/* Fila 2: Numérica */}
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                {['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='].map((k) => (
                   <div
-                    key={f}
-                    className="flex-1 text-center rounded bg-[#131924] border border-white/5 py-0.5 sm:py-1 text-[7px] sm:text-[7.5px] text-slate-400"
+                    key={k}
+                    className="flex-1 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1"
                   >
-                    {f}
+                    {k}
                   </div>
                 ))}
+                <div className="w-9 sm:w-12 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  delete
+                </div>
               </div>
-              <div className="w-7 sm:w-9 flex items-center justify-center rounded bg-[#131924] border border-white/5 py-0.5 sm:py-1">
-                <span
-                  className="h-1.5 w-1.5 rounded-full"
+
+              {/* Fila 3: QWERTY */}
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <div className="w-9 sm:w-12 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  tab
+                </div>
+                {['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']'].map((k) => (
+                  <div
+                    key={k}
+                    className="flex-1 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1"
+                  >
+                    {k}
+                  </div>
+                ))}
+                <div className="w-7 sm:w-9 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  \
+                </div>
+              </div>
+
+              {/* Fila 4: ASDF */}
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <div className="w-10 sm:w-14 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  caps
+                </div>
+                {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"].map((k) => (
+                  <div
+                    key={k}
+                    className="flex-1 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1"
+                  >
+                    {k}
+                  </div>
+                ))}
+                <div className="w-10 sm:w-14 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  return
+                </div>
+              </div>
+
+              {/* Fila 5: Barra Espaciadora y Modificadores */}
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <div className="w-7 sm:w-10 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  fn
+                </div>
+                <div className="w-7 sm:w-10 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  control
+                </div>
+                <div className="w-8 sm:w-11 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  option
+                </div>
+                <div className="w-9 sm:w-12 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  command ⌘
+                </div>
+                <div
+                  className="flex-1 rounded bg-[#182030] border border-white/10 py-0.5 sm:py-1 font-sans text-[7.5px] flex items-center justify-center transition-colors shadow-sm"
                   style={{
-                    backgroundColor: displayedStation.accentColor,
-                    boxShadow: `0 0 6px ${displayedStation.accentColor}`,
+                    boxShadow: `0 0 10px -2px ${displayedStation.glowShadow}`,
                   }}
-                />
+                >
+                  <span className="text-slate-500 font-mono tracking-widest text-[6.5px] sm:text-[7px] uppercase">
+                    Códice Studio
+                  </span>
+                </div>
+                <div className="w-9 sm:w-12 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  command ⌘
+                </div>
+                <div className="w-8 sm:w-11 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  option
+                </div>
+                <div className="w-9 sm:w-12 flex items-center justify-center gap-0.5 rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
+                  <span>◀</span>
+                  <span>▲▼</span>
+                  <span>▶</span>
+                </div>
               </div>
             </div>
 
-            {/* Fila 2: Numérica */}
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              {['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='].map((k) => (
-                <div
-                  key={k}
-                  className="flex-1 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1"
-                >
-                  {k}
+            {/* Rejilla de altavoz derecha (Perforación láser) */}
+            <div
+              aria-hidden="true"
+              className="hidden sm:flex flex-col justify-around py-3 w-5 sm:w-8 shrink-0 select-none opacity-30"
+            >
+              {Array.from({ length: 16 }).map((_, idx) => (
+                <div key={idx} className="flex justify-around gap-0.5">
+                  <span className="h-0.5 w-0.5 rounded-full bg-slate-400" />
+                  <span className="h-0.5 w-0.5 rounded-full bg-slate-400" />
                 </div>
               ))}
-              <div className="w-9 sm:w-12 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                delete
-              </div>
-            </div>
-
-            {/* Fila 3: QWERTY */}
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <div className="w-9 sm:w-12 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                tab
-              </div>
-              {['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']'].map((k) => (
-                <div
-                  key={k}
-                  className="flex-1 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1"
-                >
-                  {k}
-                </div>
-              ))}
-              <div className="w-7 sm:w-9 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                \
-              </div>
-            </div>
-
-            {/* Fila 4: ASDF */}
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <div className="w-10 sm:w-14 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                caps
-              </div>
-              {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"].map((k) => (
-                <div
-                  key={k}
-                  className="flex-1 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1"
-                >
-                  {k}
-                </div>
-              ))}
-              <div className="w-10 sm:w-14 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                return
-              </div>
-            </div>
-
-            {/* Fila 5: Barra Espaciadora y Modificadores */}
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <div className="w-7 sm:w-10 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                fn
-              </div>
-              <div className="w-7 sm:w-10 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                control
-              </div>
-              <div className="w-8 sm:w-11 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                option
-              </div>
-              <div className="w-9 sm:w-12 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                command ⌘
-              </div>
-              <div
-                className="flex-1 rounded bg-[#182030] border border-white/10 py-0.5 sm:py-1 font-sans text-[7.5px] flex items-center justify-center transition-colors shadow-sm"
-                style={{
-                  boxShadow: `0 0 10px -2px ${displayedStation.glowShadow}`,
-                }}
-              >
-                <span className="text-slate-500 font-mono tracking-widest text-[6.5px] sm:text-[7px] uppercase">
-                  Códice Studio
-                </span>
-              </div>
-              <div className="w-9 sm:w-12 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                command ⌘
-              </div>
-              <div className="w-8 sm:w-11 text-center rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                option
-              </div>
-              <div className="w-9 sm:w-12 flex items-center justify-center gap-0.5 rounded bg-[#151c28] border border-white/5 py-0.5 sm:py-1 text-[7.5px]">
-                <span>◀</span>
-                <span>▲▼</span>
-                <span>▶</span>
-              </div>
             </div>
           </div>
 
-          {/* Trackpad Háptico de Cristal Esmerilado */}
-          <div className="mt-2 sm:mt-2.5 flex justify-center">
-            <div className="w-36 sm:w-52 h-7 sm:h-8.5 rounded-lg border border-white/10 bg-[#0e131d]/90 shadow-inner flex items-center justify-center">
-              <span className="h-0.5 w-5 rounded-full bg-slate-700/60" />
+          {/* FORCE TOUCH TRACKPAD DE CRISTAL ESMERILADO */}
+          <div className="mt-2.5 sm:mt-3 flex justify-center">
+            <div className="w-48 sm:w-68 h-10 sm:h-13 rounded-xl border border-white/10 bg-[#0e131d]/90 shadow-inner flex items-center justify-center transition-colors">
+              <span className="h-0.5 w-6 rounded-full bg-slate-700/60" />
             </div>
           </div>
 
-          {/* Ranura frontal de apertura ergonómica (Thumb Notch) */}
+          {/* Ranura frontal de apertura ergonómica (Thumb Scoop Notch) */}
           <div className="absolute -bottom-1 inset-x-0 flex justify-center pointer-events-none">
             <div className="w-16 sm:w-24 h-1.5 rounded-b-md bg-[#0a0d14] border-b border-x border-white/15" />
           </div>

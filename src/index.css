@@ -118,18 +118,18 @@ main > :is(.hero, .section--hero) {
     justify-content: space-between !important;
     gap: 16px !important;
   }
-}
 
-.nav__links {
-  display: flex !important;
-  align-items: center !important;
-  gap: clamp(8px, 1.4vw, 20px) !important;
-  white-space: nowrap !important;
-}
+  .nav__links {
+    display: flex !important;
+    align-items: center !important;
+    gap: clamp(8px, 1.4vw, 20px) !important;
+    white-space: nowrap !important;
+  }
 
-.nav__item {
-  display: inline-flex !important;
-  white-space: nowrap !important;
+  .nav__item {
+    display: inline-flex !important;
+    white-space: nowrap !important;
+  }
 }
 
 .hero--centred .hero__window {
