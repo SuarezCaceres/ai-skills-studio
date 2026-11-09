@@ -136,12 +136,11 @@ main > :is(.hero, .section--hero) {
   height: auto !important;
   min-height: auto !important;
   max-height: none !important;
-  background:
-    radial-gradient(80% 60% at 50% 0%, rgb(14 165 233 / 0.12), transparent 70%),
-    linear-gradient(180deg, #0e1420 0%, #070a10 100%);
-  border: 1px solid rgb(241 245 249 / 0.12);
-  border-radius: var(--r-xl, 24px);
-  padding: clamp(16px, 2.5vw, 32px);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -229,33 +229,41 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
   return (
     <div className="relative w-full max-w-5xl mx-auto py-2 sm:py-3 select-none">
       {/* ====================================================================
-          1. HAZ DE LUZ VOLUMÉTRICO DINÁMICO QUE CAE HACIA LA MACBOOK PRO
+          1. HAZ DE LUZ VOLUMÉTRICO Y RESPLANDOR DIFUMINADO DE FONDO (FONDO ÚNICO)
          ==================================================================== */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-12 sm:-top-20 h-72 sm:h-96 flex justify-center overflow-hidden transition-all duration-700 z-0"
+        className="pointer-events-none absolute inset-x-0 -top-16 sm:-top-24 h-96 sm:h-[540px] flex justify-center overflow-hidden transition-all duration-700 z-0"
       >
-        {/* Cono central de luz volumétrica */}
+        {/* Cono de luz volumétrica difuminado */}
         <div
-          className="w-[85%] sm:w-[65%] h-full opacity-65 sm:opacity-80 blur-3xl transition-all duration-700"
+          className="w-[95%] sm:w-[80%] h-full opacity-70 sm:opacity-85 blur-3xl transition-all duration-700"
           style={{
             background: displayedStation.beamGradient,
           }}
         />
         {/* Rayo de luz focalizado */}
         <div
-          className="absolute top-8 w-48 sm:w-72 h-full blur-2xl opacity-45 transition-all duration-500"
+          className="absolute top-8 w-60 sm:w-84 h-full blur-2xl opacity-50 transition-all duration-500"
           style={{
             background: `radial-gradient(ellipse at 50% 0%, ${displayedStation.brandColor} 0%, transparent 70%)`,
+          }}
+        />
+        {/* Aura difuminada envolvente en el centro */}
+        <div
+          className="absolute top-44 w-[85%] h-72 rounded-full blur-[100px] opacity-35 transition-all duration-700"
+          style={{
+            backgroundColor: displayedStation.brandColor,
           }}
         />
       </div>
 
       {/* ====================================================================
           2. DOCK ORBITAL DE LOS 4 GIGANTES DE IA (CLAUDE, GEMINI, GPT, DEEPSEEK)
+          Con los iconos oficiales de cada IA y badges discretos
          ==================================================================== */}
       <div className="relative z-30 mb-2.5 sm:mb-3">
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-2">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 px-2">
           {BIG_FOUR_MODELS.map((model) => {
             const isSelected = activeStation.version === model.version;
             const isHovered = hoveredStation?.version === model.version;
@@ -270,67 +278,53 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
                 }}
                 onMouseEnter={() => setHoveredStation(model)}
                 onMouseLeave={() => setHoveredStation(null)}
-                className={`group relative flex items-center gap-2 sm:gap-2.5 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold backdrop-blur-xl transition-all duration-300 cursor-pointer border ${
+                className={`group relative flex items-center gap-2.5 sm:gap-3 rounded-2xl px-3.5 sm:px-4.5 py-2 sm:py-2.5 text-xs font-semibold backdrop-blur-xl transition-all duration-300 cursor-pointer border ${
                   isSelected
-                    ? 'border-white/35 text-white shadow-lg scale-105'
+                    ? 'border-white/40 text-white shadow-xl scale-105'
                     : 'border-white/10 text-slate-300 hover:text-white hover:border-white/25 hover:scale-102'
                 }`}
                 style={{
                   background: isSelected
-                    ? `linear-gradient(135deg, rgba(20,26,38,0.95) 0%, rgba(10,13,20,0.98) 100%)`
-                    : 'rgba(14, 19, 29, 0.75)',
+                    ? `linear-gradient(135deg, rgba(20,26,38,0.92) 0%, rgba(10,14,24,0.96) 100%)`
+                    : 'rgba(12, 17, 28, 0.65)',
                   boxShadow: isSelected
-                    ? `0 0 24px -2px ${model.glowShadow}, 0 10px 24px -6px rgba(0,0,0,0.8)`
+                    ? `0 0 24px -2px ${model.glowShadow}, 0 8px 24px -6px rgba(0,0,0,0.8)`
                     : isHovered
                       ? `0 0 16px -3px ${model.glowShadow}`
                       : 'none',
                 }}
               >
-                {/* Indicador LED con color de marca */}
-                <span
-                  className="inline-block h-2 w-2 rounded-full transition-transform group-hover:scale-125"
-                  style={{
-                    backgroundColor: model.brandColor,
-                    boxShadow: `0 0 8px ${model.brandColor}`,
-                  }}
-                />
-
-                {/* Icono de Marca Oficial */}
-                <div className="shrink-0 transition-transform group-hover:rotate-6">
+                {/* Icono Oficial de la IA (SVG genuino a todo color) */}
+                <div className="shrink-0 transition-transform duration-300 group-hover:scale-110">
                   {model.provider === 'Claude' && (
-                    <ClaudeBrandIcon className="h-4 w-4" />
+                    <ClaudeBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                   )}
                   {model.provider === 'Gemini' && (
-                    <GeminiBrandIcon className="h-4 w-4" />
+                    <GeminiBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                   )}
                   {model.provider === 'GPT' && (
-                    <GPTBrandIcon className="h-4 w-4" />
+                    <GPTBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                   )}
                   {model.provider === 'DeepSeek' && (
-                    <DeepSeekBrandIcon className="h-4 w-4" />
+                    <DeepSeekBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
                   )}
                 </div>
 
-                {/* Nombre y Métrica Clave */}
-                <span className="font-semibold tracking-tight">
-                  {model.shortLabel}
-                </span>
-
-                <span
-                  className="hidden sm:inline font-mono text-[10px] px-1.5 py-0.5 rounded border border-white/10"
-                  style={{
-                    color: model.accentColor,
-                    backgroundColor: 'rgba(255,255,255,0.03)',
-                  }}
-                >
-                  {model.speed}
-                </span>
+                {/* Nombre Oficial y Métrica de Inferencia */}
+                <div className="text-left flex flex-col">
+                  <span className="font-bold tracking-tight text-white text-xs sm:text-[13px] leading-tight">
+                    {model.shortLabel}
+                  </span>
+                  <span className="font-mono text-[9.5px] sm:text-[10px] text-slate-400">
+                    {model.speed}
+                  </span>
+                </div>
 
                 {/* Resplandor inferior activo */}
                 {isSelected && (
                   <span
                     aria-hidden="true"
-                    className="absolute -bottom-[1px] inset-x-4 h-[2px] rounded-full blur-[1px]"
+                    className="absolute -bottom-[1px] inset-x-4 h-[2px] rounded-full blur-[0.5px]"
                     style={{ backgroundColor: model.accentColor }}
                   />
                 )}
@@ -395,23 +389,21 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
 
       {/* ====================================================================
           4. IMAGEN INTERACTIVA DE MACBOOK PRO SPACE BLACK
-          Fotografía fotorrealista de MacBook Pro con:
-          - Pantalla OLED Liquid Retina interactiva incrustada en el display
-          - Hotspot táctil de Touch ID con sensor biométrico funcional
-          - Hotspot del Force Touch trackpad con respuesta háptica
+          Fundida suavemente en el haz de luz difuminado sin cajas ni doble fondo
          ==================================================================== */}
       <div className="relative z-10 mx-auto w-full max-w-4xl px-2">
-        <div
-          className="relative w-full aspect-[856/660] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl transition-all duration-500"
-          style={{
-            boxShadow: `0 25px 80px -15px rgba(0,0,0,0.95), 0 0 50px -10px ${displayedStation.glowShadow}`,
-          }}
-        >
-          {/* FOTOGRAFÍA FOTORREALISTA DE LA MACBOOK PRO */}
+        <div className="relative w-full aspect-[856/660]">
+          {/* FOTOGRAFÍA FOTORREALISTA DE LA MACBOOK PRO (Bordes fundidos en el difuminado) */}
           <img
             src={`${import.meta.env.BASE_URL}macbook-pro-tight.jpg`}
             alt="MacBook Pro Space Black fotorrealista"
             className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+            style={{
+              maskImage:
+                'radial-gradient(ellipse 94% 90% at 50% 50%, black 72%, transparent 100%)',
+              WebkitMaskImage:
+                'radial-gradient(ellipse 94% 90% at 50% 50%, black 72%, transparent 100%)',
+            }}
             loading="eager"
           />
 
