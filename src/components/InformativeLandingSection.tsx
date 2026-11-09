@@ -17,7 +17,7 @@ const HUB_DIAGRAM_JSON = JSON.stringify({
     icon: 'ui:layers',
   },
   spokes: [
-    { label: 'SKILL.md', icon: 'md' },
+    { label: 'SKILL.md', icon: 'skill' },
     { label: 'Paquete ZIP', icon: 'zip' },
     { label: 'Obsidian', icon: 'obsidian' },
     { label: 'Claude', icon: 'claude' },
@@ -31,6 +31,12 @@ declare global {
     __tasteUi?: {
       startAll: (doc: Document) => void;
     };
+    TPDiagram?: {
+      mount: (el: HTMLElement, spec: any, opts?: any) => any;
+      auto: (root?: Document | HTMLElement, opts?: any) => Promise<any[]>;
+      presets: (custom?: string) => Promise<any>;
+      ready: () => Promise<void>;
+    };
   }
 }
 
@@ -40,6 +46,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
 }) => {
   const [activeDesktopModel, setActiveDesktopModel] =
     useState<SpecificModelVersion>('Opus 5.5');
+  const diagramRef = React.useRef<HTMLDivElement | null>(null);
+  const diagramInstanceRef = React.useRef<{ destroy?: () => void } | null>(null);
 
   useEffect(() => {
     if (window.__tasteUi) {
@@ -47,6 +55,43 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         window.__tasteUi.startAll(document);
       } catch {}
     }
+
+    let isMounted = true;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+    let attempts = 0;
+
+    const setupDiagram = () => {
+      if (!isMounted || !diagramRef.current) return;
+      if (window.TPDiagram) {
+        try {
+          if (diagramInstanceRef.current?.destroy) {
+            diagramInstanceRef.current.destroy();
+          }
+          const parsedSpec = JSON.parse(HUB_DIAGRAM_JSON);
+          diagramInstanceRef.current = window.TPDiagram.mount(
+            diagramRef.current,
+            parsedSpec
+          );
+        } catch (e) {
+          console.error('Error mounting TPDiagram:', e);
+        }
+      } else if (attempts < 20) {
+        attempts++;
+        timerId = setTimeout(setupDiagram, 60);
+      }
+    };
+
+    setupDiagram();
+
+    return () => {
+      isMounted = false;
+      if (timerId) clearTimeout(timerId);
+      if (diagramInstanceRef.current?.destroy) {
+        try {
+          diagramInstanceRef.current.destroy();
+        } catch {}
+      }
+    };
   }, []);
 
   const handleModelClickInMockup = (version: SpecificModelVersion) => {
@@ -520,7 +565,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
             </div>
 
             <div className="span-6 start-7 panel">
-              <div className="dg" data-diagram>
+              <div ref={diagramRef} className="dg" data-diagram>
                 <script
                   type="application/json"
                   dangerouslySetInnerHTML={{ __html: HUB_DIAGRAM_JSON }}

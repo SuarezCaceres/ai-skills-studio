@@ -3,7 +3,7 @@
 > **Documento de memoria técnica, arquitectónica y funcional**  
 > **Proyecto:** `ai-skills-studio`  
 > **Ubicación:** `C:\Users\mateo\Documents\proyects\ai-skills-studio`  
-> **Versión actual:** `v2.2.0 (Workspace Studio VFS + Showcase Fotorrealista MacBook Pro & Anti-Slop tasteskill 2.5.1)`  
+> **Versión actual:** `v2.2.1 (Hub Diagram SKILL.md Restaurado + Workspace VFS + MacBook Pro Showcase)`  
 > **Rama activa:** `feat/tasteskill-workspace-overhaul` (`main` lista para PR)  
 > **Última actualización:** Noviembre 2026
 
@@ -168,4 +168,18 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
   - Restauración del fondo animado en canvas con nodos sinápticos, conexiones dinámicas reactivas al puntero y partículas en suspensión.
 - **Editor Moderno VS Code & Auditoría VFS:**
   - Integración de visualizador de código de 10 líneas, canalón fijo de números de línea sin desbordes y sincronización bidireccional con el Workspace.
+
+---
+
+## 🧩 9. Actualización v2.2.1 — Restauración del Diagrama Hub de Capacidades SKILL.md e Icono Vectorial
+
+- **Montaje React Determinista (`InformativeLandingSection.tsx`):**
+  - Corrección de la inicialización de `window.TPDiagram.mount()` en el ciclo de vida de React (`useEffect`), eliminando la dependencia con el evento `DOMContentLoaded` que dejaba la caja vacía.
+  - Limpieza de memoria en desmontaje (`destroy()`).
+- **Icono Vectorial de Skill (`skill.svg`):**
+  - Creación del nuevo glifo SVG oficial para `SKILL.md` con prompt directive (`>_`) y chispa cognitiva de IA en cian `#0ea5e9` y `#38bdf8`.
+  - Vinculación del nodo `SKILL.md` al icono `skill` en la especificación del diagrama hub.
+- **Integración Estética Cyber Dark (`index.css`):**
+  - Anulación del fondo claro por defecto de `.panel` (`rgb(198, 211, 223)`) y aplicación de superficie profunda `#121722` con gradiente radial y borde sutil de 1px.
+  - Adaptabilidad fluida probada en 1440px, 1024px, 768px y 390px.
 
