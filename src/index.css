@@ -133,7 +133,9 @@ main > :is(.hero, .section--hero) {
 }
 
 .hero--centred .hero__window {
-  min-height: clamp(580px, 72svh, 780px);
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
   background:
     radial-gradient(80% 60% at 50% 0%, rgb(14 165 233 / 0.12), transparent 70%),
     linear-gradient(180deg, #0e1420 0%, #070a10 100%);
