@@ -15,7 +15,7 @@ export interface UserAccount {
   createdAt: string;
 }
 
-export type AIModelFamily = 'Claude Opus' | 'Gemini' | 'Claude Sonnet' | 'GPT';
+export type AIModelFamily = 'Claude Opus' | 'Gemini' | 'Claude Sonnet' | 'GPT' | 'DeepSeek';
 
 export type SpecificModelVersion =
   | 'Opus 5.5'
@@ -24,7 +24,8 @@ export type SpecificModelVersion =
   | 'Gemini 3.7'
   | 'Sonnet 5.5'
   | 'GPT Astra'
-  | 'GPT Luna';
+  | 'GPT Luna'
+  | 'DeepSeek V3';
 
 export type PerformanceTier =
   | 'Ultra / Máximo'

@@ -249,13 +249,20 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                 Acceder
               </a>
             )}
-            <a
-              className="btn btn--primary"
-              href="#workspace"
-              onClick={(e) => handleOpenModule(e, 'estudio')}
-            >
-              Abrir<span className="hidden sm:inline"> Workspace</span>
-            </a>
+            {activePage !== 'estudio' ? (
+              <a
+                className="btn btn--primary"
+                href="#workspace"
+                onClick={(e) => handleOpenModule(e, 'estudio')}
+              >
+                Abrir<span className="hidden sm:inline"> Workspace</span>
+              </a>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-[11px] font-medium text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                VFS Activo
+              </span>
+            )}
           </div>
 
           <button

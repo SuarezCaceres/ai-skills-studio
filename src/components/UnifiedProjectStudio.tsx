@@ -8,6 +8,7 @@ import {
   Search,
   ChevronRight,
   ChevronDown,
+  ChevronUp,
   Save,
   Copy,
   Check,
@@ -22,6 +23,12 @@ import {
   Terminal,
   X,
   Layers,
+  Sparkles,
+  Sliders,
+  Palette,
+  Code2,
+  Eye,
+  Edit3,
 } from 'lucide-react';
 import {
   AppPageRoute,
@@ -70,13 +77,13 @@ interface UnifiedProjectStudioProps {
   onNavigatePage: (page: AppPageRoute) => void;
 }
 
-const LANGUAGE_BADGES: Record<CodeLanguage, { label: string; badgeClass: string }> = {
-  tsx: { label: 'TSX', badgeClass: 'border-[#0ea5e9]/40 bg-[#0ea5e9]/10 text-[#38bdf8]' },
-  typescript: { label: 'TS', badgeClass: 'border-sky-500/35 bg-sky-500/10 text-sky-300' },
-  css: { label: 'CSS', badgeClass: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300' },
-  markdown: { label: 'MD', badgeClass: 'border-amber-500/35 bg-amber-500/10 text-amber-300' },
-  json: { label: 'JSON', badgeClass: 'border-slate-500/40 bg-slate-500/15 text-slate-300' },
-  html: { label: 'HTML', badgeClass: 'border-rose-500/35 bg-rose-500/10 text-rose-300' },
+const LANGUAGE_BADGES: Record<CodeLanguage, { label: string; badgeClass: string; iconColor: string }> = {
+  tsx: { label: 'TSX', badgeClass: 'border-[#0ea5e9]/40 bg-[#0ea5e9]/10 text-[#38bdf8]', iconColor: 'text-cyan-400' },
+  typescript: { label: 'TS', badgeClass: 'border-sky-500/35 bg-sky-500/10 text-sky-300', iconColor: 'text-sky-400' },
+  css: { label: 'CSS', badgeClass: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300', iconColor: 'text-emerald-400' },
+  markdown: { label: 'MD', badgeClass: 'border-amber-500/35 bg-amber-500/10 text-amber-300', iconColor: 'text-amber-400' },
+  json: { label: 'JSON', badgeClass: 'border-slate-600/40 bg-slate-800/40 text-slate-300', iconColor: 'text-yellow-400' },
+  html: { label: 'HTML', badgeClass: 'border-rose-500/35 bg-rose-500/10 text-rose-300', iconColor: 'text-rose-400' },
 };
 
 const AVAILABLE_SKILLS = [
@@ -86,6 +93,169 @@ const AVAILABLE_SKILLS = [
   'ui-ux-pro-max',
   'frontend-design',
 ];
+
+const renderJsonValue = (val: string) => {
+  const tokens = val.split(/(".*?"|\b-?\d+(?:\.\d+)?\b|\b(?:true|false|null)\b|[{}\[\],:])/g).filter(Boolean);
+  return (
+    <span>
+      {tokens.map((token, idx) => {
+        if (/^".*"$/.test(token)) {
+          return <span key={idx} className="text-emerald-300">{token}</span>;
+        }
+        if (/^-?\d+(?:\.\d+)?$/.test(token)) {
+          return <span key={idx} className="text-amber-300">{token}</span>;
+        }
+        if (/^(?:true|false|null)$/.test(token)) {
+          return <span key={idx} className="text-purple-400 font-semibold">{token}</span>;
+        }
+        if (/^[{}[\],:]$/.test(token)) {
+          return <span key={idx} className="text-slate-500 font-medium">{token}</span>;
+        }
+        return <span key={idx} className="text-slate-300">{token}</span>;
+      })}
+    </span>
+  );
+};
+
+const renderHighlightedToken = (line: string, language: CodeLanguage) => {
+  if (!line) return <span>&nbsp;</span>;
+
+  // JSON Highlighting
+  if (language === 'json') {
+    const keyMatch = line.match(/^(\s*)(".*?")(\s*:)(.*)$/);
+    if (keyMatch) {
+      const [, indent, key, colon, rest] = keyMatch;
+      return (
+        <span>
+          <span className="whitespace-pre">{indent}</span>
+          <span className="text-sky-300 font-medium">{key}</span>
+          <span className="text-slate-500">{colon}</span>
+          {renderJsonValue(rest)}
+        </span>
+      );
+    }
+    return <span>{renderJsonValue(line)}</span>;
+  }
+
+  // Markdown Highlighting
+  if (language === 'markdown') {
+    if (line.startsWith('#')) {
+      const level = line.match(/^#+/)?.[0].length || 1;
+      return (
+        <span className={level === 1 ? 'text-sky-400 font-bold' : level === 2 ? 'text-cyan-300 font-semibold' : 'text-slate-100 font-semibold'}>
+          {line}
+        </span>
+      );
+    }
+    if (line.startsWith('---')) {
+      return <span className="text-purple-400 font-mono font-bold">{line}</span>;
+    }
+    if (/^[a-zA-Z0-9_-]+:/.test(line)) {
+      const colonIdx = line.indexOf(':');
+      const k = line.slice(0, colonIdx);
+      const v = line.slice(colonIdx);
+      return (
+        <span>
+          <span className="text-sky-300 font-medium">{k}</span>
+          <span className="text-slate-300">{v}</span>
+        </span>
+      );
+    }
+    if (/^\s*[-*+]\s+/.test(line) || /^\s*\d+\.\s+/.test(line)) {
+      const match = line.match(/^(\s*[-*+]|\s*\d+\.)(\s+.*)$/);
+      if (match) {
+        return (
+          <span>
+            <span className="text-amber-400 font-bold">{match[1]}</span>
+            <span className="text-slate-200">{match[2]}</span>
+          </span>
+        );
+      }
+    }
+    if (line.startsWith('```')) {
+      return <span className="text-emerald-400 font-mono font-semibold">{line}</span>;
+    }
+    if (/`[^`]+`/.test(line)) {
+      const parts = line.split(/(`[^`]+`)/g);
+      return (
+        <span>
+          {parts.map((p, i) =>
+            p.startsWith('`') && p.endsWith('`') ? (
+              <span key={i} className="text-sky-300 bg-slate-800/60 px-1 py-0.5 rounded font-mono">
+                {p}
+              </span>
+            ) : (
+              <span key={i} className="text-slate-200">{p}</span>
+            )
+          )}
+        </span>
+      );
+    }
+    return <span className="text-slate-200">{line}</span>;
+  }
+
+  // TypeScript / TSX Highlighting
+  if (language === 'typescript' || language === 'tsx') {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*')) {
+      return <span className="text-slate-500 italic">{line}</span>;
+    }
+    const parts = line.split(
+      /(\b(?:import|export|from|default|const|let|var|function|return|async|await|if|else|interface|type|class|new|extends|implements|typeof|as)\b|"[^"]*"|'[^']*'|`[^`]*`)/g
+    );
+    return (
+      <span>
+        {parts.map((part, i) => {
+          if (
+            /^(?:import|export|from|default|const|let|var|function|return|async|await|if|else|interface|type|class|new|extends|implements|typeof|as)$/.test(
+              part
+            )
+          ) {
+            return (
+              <span key={i} className="text-purple-400 font-semibold">
+                {part}
+              </span>
+            );
+          }
+          if (/^["'`].*["'`]$/.test(part)) {
+            return (
+              <span key={i} className="text-emerald-300">
+                {part}
+              </span>
+            );
+          }
+          return <span key={i} className="text-slate-200">{part}</span>;
+        })}
+      </span>
+    );
+  }
+
+  // CSS Highlighting
+  if (language === 'css') {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('/*')) {
+      return <span className="text-slate-500 italic">{line}</span>;
+    }
+    if (line.includes(':') && line.includes(';')) {
+      const colonIdx = line.indexOf(':');
+      const prop = line.slice(0, colonIdx);
+      const val = line.slice(colonIdx + 1);
+      return (
+        <span>
+          <span className="text-sky-300">{prop}</span>
+          <span className="text-slate-500">:</span>
+          <span className="text-emerald-300">{val}</span>
+        </span>
+      );
+    }
+    if (line.includes('{') || line.includes('}')) {
+      return <span className="text-sky-400 font-semibold">{line}</span>;
+    }
+    return <span className="text-slate-200">{line}</span>;
+  }
+
+  return <span className="text-slate-200">{line}</span>;
+};
 
 export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
   activeSkill,
@@ -107,6 +277,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
     activeRarPackage.files[0]?.id || ''
   );
   const [editorMode, setEditorMode] = useState<'code' | 'diff' | 'translate' | 'presets'>('code');
+  const [codeViewSubMode, setCodeViewSubMode] = useState<'highlight' | 'edit'>('highlight');
   const [searchQuery, setSearchQuery] = useState('');
   const [langFilter, setLangFilter] = useState<'all' | CodeLanguage>('all');
   const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
@@ -115,6 +286,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
     tone: 'info' | 'error';
     text: string;
   } | null>(null);
+
+  // Bottom drawer state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+  const [activeDrawerTab, setActiveDrawerTab] = useState<'audit' | 'composition' | 'cli'>('audit');
 
   const [showNewFileForm, setShowNewFileForm] = useState(false);
   const [newFilePath, setNewFilePath] = useState('skills/nueva-regla/SKILL.md');
@@ -206,6 +381,13 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
   const auditReport = useMemo(() => auditWorkspacePackage(workspace), [workspace]);
 
+  const auditSummary = useMemo(() => {
+    const passCount = auditReport.checks.filter((c) => c.status === 'pass').length;
+    const warnCount = auditReport.checks.filter((c) => c.status === 'warn').length;
+    const failCount = auditReport.checks.filter((c) => c.status === 'fail').length;
+    return { passCount, warnCount, failCount, total: auditReport.checks.length };
+  }, [auditReport]);
+
   const handleSelectFile = (fileId: string) => {
     setSelectedFileId(fileId);
     setOpenTabs((prev) => (prev.includes(fileId) ? prev : [...prev.slice(-5), fileId]));
@@ -247,7 +429,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
     const folder = parts.length > 1 ? parts.slice(0, -1).join('/') : 'src';
     const starter =
       newFileLang === 'markdown'
-        ? `---\nname: ${name.replace(/\.md$/i, '')}\ndescription: Directiva operativa para el agente.\n---\n\n# ${name.replace(/\.md$/i, '')}\n\n1. Describe qué valida o construye esta skill.\n`
+        ? `---\nname: ${name.replace(/\.md$/i, '')}\ndescription: Directiva operativa para el agente de IA.\n---\n\n# ${name.replace(/\.md$/i, '')}\n\n1. Define aquí las reglas operativas y validaciones de la skill.\n`
         : `// ${clean}\nexport const ready = true;\n`;
 
     const entry: RarFileEntry = {
@@ -413,7 +595,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
 
   return (
     <div
-      className="space-y-4"
+      className="ide-workspace-vfs space-y-3 font-sans"
       onDragOver={(e) => {
         e.preventDefault();
         setIsDraggingOver(true);
@@ -449,32 +631,34 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
       />
 
       {/* TOP WORKSPACE COMMAND BAR */}
-      <div
-        className={`flex flex-wrap items-center justify-between gap-3 rounded-md border px-4 py-3 transition ${
+      <header
+        className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 transition-colors duration-200 ${
           isDraggingOver
             ? 'border-[#0ea5e9] bg-[#121c2c]'
-            : 'border-slate-800 bg-[#121722]'
+            : 'border-slate-800/90 bg-[#121722]'
         }`}
       >
         <div className="flex flex-wrap items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded border border-slate-700 bg-[#0a0d14] text-[#0ea5e9]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-slate-700/80 bg-[#0a0d14] text-[#0ea5e9]">
             <FolderOpen className="h-4 w-4" />
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-base font-semibold text-white">
+              <h1 className="truncate text-sm sm:text-base font-semibold text-white tracking-tight">
                 {workspace.archiveName}
               </h1>
-              <span className="rounded border border-slate-700 bg-[#0a0d14] px-2 py-0.5 font-mono text-[11px] text-slate-300">
+              <span className="rounded-full border border-slate-700/80 bg-[#0a0d14] px-2 py-0.5 font-mono text-[11px] tabular-nums text-slate-300">
                 {workspace.files.length} archivos · {(workspace.totalSizeBytes / 1024).toFixed(1)} KB
               </span>
               {auditReport.modifiedCount > 0 && (
-                <span className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-[11px] text-amber-300">
+                <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-[11px] font-medium text-amber-300">
                   {auditReport.modifiedCount} modificado{auditReport.modifiedCount > 1 ? 's' : ''}
                 </span>
               )}
             </div>
-            <p className="truncate text-xs text-slate-400">{workspace.signatureDetected}</p>
+            <p className="truncate text-[11px] text-slate-400 mt-0.5">
+              {workspace.signatureDetected} · VFS en memoria de navegador
+            </p>
           </div>
         </div>
 
@@ -483,26 +667,26 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             type="button"
             disabled={isBusy}
             onClick={() => void handleOpenDirectoryPicker()}
-            className="inline-flex h-9 items-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white cursor-pointer"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-700/80 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white transition-all duration-150 cursor-pointer"
           >
             <FolderOpen className="h-3.5 w-3.5 text-[#0ea5e9]" />
-            <span>Abrir carpeta local</span>
+            <span>Abrir carpeta</span>
           </button>
 
           <button
             type="button"
             disabled={isBusy}
             onClick={() => archiveInputRef.current?.click()}
-            className="inline-flex h-9 items-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white cursor-pointer"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-700/80 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white transition-all duration-150 cursor-pointer"
           >
             <Upload className="h-3.5 w-3.5 text-[#0ea5e9]" />
-            <span>Importar .ZIP / archivo</span>
+            <span>Importar paquete ZIP</span>
           </button>
 
           <button
             type="button"
             onClick={handleExportZip}
-            className="inline-flex h-9 items-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white cursor-pointer"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-700/80 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white transition-all duration-150 cursor-pointer"
           >
             <Download className="h-3.5 w-3.5 text-emerald-400" />
             <span>Exportar .ZIP</span>
@@ -518,19 +702,19 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               onSaveRarProjectToBoveda(workspace);
               notify(`Workspace "${workspace.archiveName}" guardado en el catálogo.`);
             }}
-            className="inline-flex h-9 items-center gap-1.5 rounded bg-[#0ea5e9] px-3.5 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] cursor-pointer"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#0ea5e9] px-3 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] transition-all duration-150 cursor-pointer shadow-sm"
           >
             <Save className="h-3.5 w-3.5" />
             <span>Guardar en catálogo</span>
           </button>
         </div>
-      </div>
+      </header>
 
       {feedbackBanner && (
         <div
           role="status"
           aria-live="polite"
-          className={`flex items-center justify-between rounded border px-3.5 py-2 text-xs font-medium ${
+          className={`flex items-center justify-between rounded-md border px-3.5 py-2 text-xs font-medium ${
             feedbackBanner.tone === 'error'
               ? 'border-rose-500/40 bg-rose-950/30 text-rose-200'
               : 'border-[#0ea5e9]/40 bg-[#0ea5e9]/10 text-sky-200'
@@ -548,14 +732,15 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
         </div>
       )}
 
-      {/* 3-COLUMN IDE WORKSPACE GRID */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        {/* PANE 1: VIRTUAL FILE SYSTEM TREE */}
+      {/* 2-COLUMN MAIN IDE LAYOUT: TREE (LEFT) + STUDIO AREA (EDITOR + BOTTOM DRAWER) */}
+      <div className="flex flex-col lg:flex-row gap-3 min-h-[620px]">
+        {/* PANE 1: VIRTUAL FILE SYSTEM TREE (280px) */}
         <aside
           aria-label="Explorador de archivos del workspace"
-          className="flex flex-col rounded-md border border-slate-800 bg-[#121722] lg:col-span-3"
+          className="w-full lg:w-72 lg:shrink-0 flex flex-col rounded-lg border border-slate-800/80 bg-[#121722] overflow-hidden"
         >
-          <div className="space-y-2.5 border-b border-slate-800 p-3">
+          {/* Header controls: Search & Micro-filters */}
+          <div className="space-y-2 border-b border-slate-800/80 p-2.5 bg-[#0d1118]">
             <div className="flex items-center justify-between">
               <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 Árbol VFS
@@ -563,7 +748,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => setShowNewFileForm((v) => !v)}
-                className="inline-flex items-center gap-1 rounded border border-slate-700 bg-[#0a0d14] px-2 py-1 text-[11px] font-medium text-slate-200 hover:border-[#0ea5e9] hover:text-white cursor-pointer"
+                className="inline-flex items-center gap-1 rounded border border-slate-700/80 bg-[#0a0d14] px-2 py-0.5 text-[11px] font-medium text-slate-200 hover:border-[#0ea5e9] hover:text-white transition cursor-pointer"
               >
                 <Plus className="h-3 w-3 text-[#0ea5e9]" />
                 <span>Nuevo</span>
@@ -573,9 +758,9 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             {showNewFileForm && (
               <form
                 onSubmit={handleCreateFile}
-                className="space-y-2 rounded border border-slate-700 bg-[#0a0d14] p-2.5"
+                className="space-y-2 rounded-md border border-slate-700/80 bg-[#0a0d14] p-2"
               >
-                <label className="block text-[11px] text-slate-400" htmlFor="vfs-new-path">
+                <label className="block text-[11px] text-slate-400 font-medium" htmlFor="vfs-new-path">
                   Ruta del archivo
                 </label>
                 <input
@@ -583,14 +768,14 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   type="text"
                   value={newFilePath}
                   onChange={(e) => setNewFilePath(e.target.value)}
-                  className="w-full rounded border border-slate-700 bg-[#121722] px-2 py-1 font-mono text-xs text-white"
+                  className="w-full rounded border border-slate-700 bg-[#121722] px-2 py-1 font-mono text-xs text-white focus:border-[#0ea5e9] outline-none"
                 />
                 <div className="flex items-center gap-2">
                   <select
                     aria-label="Lenguaje del archivo"
                     value={newFileLang}
                     onChange={(e) => setNewFileLang(e.target.value as CodeLanguage)}
-                    className="flex-1 rounded border border-slate-700 bg-[#121722] px-2 py-1 text-xs text-slate-200"
+                    className="flex-1 rounded border border-slate-700 bg-[#121722] px-2 py-1 text-xs text-slate-200 outline-none"
                   >
                     <option value="markdown">Markdown (.md)</option>
                     <option value="typescript">TypeScript (.ts)</option>
@@ -600,7 +785,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   </select>
                   <button
                     type="submit"
-                    className="rounded bg-[#0ea5e9] px-2.5 py-1 text-xs font-semibold text-[#0a0d14] cursor-pointer"
+                    className="rounded bg-[#0ea5e9] px-2.5 py-1 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] cursor-pointer"
                   >
                     Crear
                   </button>
@@ -608,6 +793,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               </form>
             )}
 
+            {/* Search filter input */}
             <div className="relative">
               <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-slate-500" />
               <input
@@ -616,20 +802,21 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Filtrar ruta o código..."
                 aria-label="Filtrar archivos en el árbol VFS"
-                className="w-full rounded border border-slate-800 bg-[#0a0d14] py-1.5 pl-8 pr-2.5 text-xs text-slate-200 placeholder:text-slate-500 focus:border-[#0ea5e9]"
+                className="w-full rounded border border-slate-800/90 bg-[#0a0d14] py-1.5 pl-8 pr-2.5 text-xs text-slate-200 placeholder:text-slate-500 focus:border-[#0ea5e9] outline-none"
               />
             </div>
 
+            {/* Micro-filters strip (all, md, ts, tsx, css, json) */}
             <div className="flex flex-wrap gap-1">
-              {(['all', 'markdown', 'tsx', 'typescript', 'css', 'json'] as const).map((lang) => (
+              {(['all', 'markdown', 'typescript', 'tsx', 'css', 'json'] as const).map((lang) => (
                 <button
                   key={lang}
                   type="button"
                   onClick={() => setLangFilter(lang)}
-                  className={`rounded px-2 py-0.5 font-mono text-[11px] transition cursor-pointer ${
+                  className={`rounded px-1.5 py-0.5 font-mono text-[10px] transition-colors cursor-pointer ${
                     langFilter === lang
                       ? 'bg-[#0ea5e9] font-semibold text-[#0a0d14]'
-                      : 'bg-[#0a0d14] text-slate-400 hover:text-slate-200'
+                      : 'border border-slate-800/80 bg-[#0a0d14] text-slate-400 hover:text-slate-200 hover:border-slate-700'
                   }`}
                 >
                   {lang === 'all' ? 'Todos' : LANGUAGE_BADGES[lang].label}
@@ -638,7 +825,8 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             </div>
           </div>
 
-          <div className="max-h-[580px] flex-1 overflow-y-auto p-2 space-y-1.5">
+          {/* Tree list */}
+          <div className="ide-scroll flex-1 overflow-y-auto p-2 space-y-1 max-h-[580px] lg:max-h-[calc(100vh-280px)] min-h-[300px]">
             {Object.entries(groupedByFolder).map(([folder, files]) => {
               const isCollapsed = Boolean(collapsedFolders[folder]);
               return (
@@ -648,19 +836,22 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     onClick={() =>
                       setCollapsedFolders((prev) => ({ ...prev, [folder]: !prev[folder] }))
                     }
-                    className="flex w-full items-center gap-1.5 rounded px-2 py-1 text-left font-mono text-xs text-slate-400 hover:bg-[#0a0d14] hover:text-slate-200 cursor-pointer"
+                    className="flex w-full items-center gap-1.5 rounded px-2 py-1 text-left font-mono text-xs text-slate-400 hover:bg-[#171d2b] hover:text-slate-200 transition cursor-pointer"
                   >
                     {isCollapsed ? (
-                      <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+                      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-500" />
                     ) : (
-                      <ChevronDown className="h-3.5 w-3.5 shrink-0" />
+                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-500" />
                     )}
-                    <Folder className="h-3.5 w-3.5 shrink-0 text-slate-500" />
-                    <span className="truncate">{folder}</span>
+                    <Folder className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                    <span className="truncate text-slate-300 font-medium">{folder}</span>
+                    <span className="ml-auto text-[10px] text-slate-500 font-mono">
+                      {files.length}
+                    </span>
                   </button>
 
                   {!isCollapsed && (
-                    <div className="space-y-0.5 pl-3">
+                    <div className="ml-2.5 pl-2.5 border-l border-slate-800/80 space-y-0.5">
                       {files.map((file) => {
                         const isSelected = activeFile?.id === file.id;
                         const isAdded = file.originalContent === '';
@@ -673,10 +864,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                         return (
                           <div
                             key={file.id}
-                            className={`group flex items-center justify-between gap-1.5 rounded px-2 py-1.5 text-xs transition ${
+                            className={`group flex items-center justify-between gap-1.5 rounded px-2 py-1 text-xs transition duration-150 ${
                               isSelected
-                                ? 'bg-[#0ea5e9]/15 text-white ring-1 ring-[#0ea5e9]/45'
-                                : 'text-slate-300 hover:bg-[#0a0d14]'
+                                ? 'bg-[#0ea5e9]/12 text-white border-l-2 border-[#0ea5e9]'
+                                : 'text-slate-300 hover:bg-[#171d2b]'
                             }`}
                           >
                             <button
@@ -684,7 +875,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                               onClick={() => handleSelectFile(file.id)}
                               className="flex min-w-0 flex-1 items-center gap-2 text-left cursor-pointer"
                             >
-                              <FileCode className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                              <FileCode className={`h-3.5 w-3.5 shrink-0 ${badge.iconColor}`} />
                               <span className="truncate font-mono text-[12px]">{file.name}</span>
                             </button>
                             <div className="flex items-center gap-1 shrink-0">
@@ -705,7 +896,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                                 </span>
                               )}
                               <span
-                                className={`rounded border px-1.5 py-0.2 font-mono text-[10px] ${badge.badgeClass}`}
+                                className={`rounded border px-1.5 py-0 font-mono text-[10px] ${badge.badgeClass}`}
                               >
                                 {badge.label}
                               </span>
@@ -714,7 +905,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                                   type="button"
                                   onClick={() => handleDeleteFile(file.id)}
                                   aria-label={`Eliminar ${file.name}`}
-                                  className="hidden rounded p-0.5 text-slate-500 hover:text-rose-400 group-hover:inline-flex cursor-pointer"
+                                  className="opacity-0 group-hover:opacity-100 rounded p-0.5 text-slate-500 hover:text-rose-400 transition-opacity cursor-pointer"
                                 >
                                   <Trash2 className="h-3 w-3" />
                                 </button>
@@ -731,14 +922,14 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
           </div>
         </aside>
 
-        {/* PANE 2: MULTI-TAB CODE EDITOR, UNIFIED DIFF & TRANSLATOR */}
+        {/* PANE 2: CENTER STUDIO AREA (EXPANSIVE EDITOR + BOTTOM TELEMETRY DRAWER) */}
         <section
           aria-label="Editor de código y visor de diferencias"
-          className="flex flex-col rounded-md border border-slate-800 bg-[#121722] lg:col-span-6"
+          className="flex-1 min-w-0 flex flex-col rounded-lg border border-slate-800/80 bg-[#121722] overflow-hidden"
         >
           {/* Open Tabs Bar */}
-          <div className="flex items-center justify-between gap-2 border-b border-slate-800 bg-[#0d1118] px-2 pt-1.5">
-            <div className="flex items-center gap-1 overflow-x-auto">
+          <div className="ide-scroll flex items-center justify-between gap-2 border-b border-slate-800/80 bg-[#0d1118] px-2 pt-1.5 overflow-x-auto">
+            <div className="flex items-center gap-1">
               {openTabs.map((tabId) => {
                 const file = workspace.files.find((f) => f.id === tabId);
                 if (!file) return null;
@@ -755,19 +946,19 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') setSelectedFileId(file.id);
                     }}
-                    className={`flex items-center gap-2 rounded-t border-x border-t px-3 py-1.5 font-mono text-xs cursor-pointer ${
+                    className={`flex items-center gap-2 rounded-t-md border-x border-t px-3 py-1.5 font-mono text-xs cursor-pointer transition-colors ${
                       active
-                        ? 'border-slate-700 bg-[#121722] text-white'
-                        : 'border-transparent bg-transparent text-slate-400 hover:text-slate-200'
+                        ? 'border-t-2 border-t-[#0ea5e9] border-x-slate-700/80 bg-[#121722] text-white font-medium'
+                        : 'border-transparent bg-transparent text-slate-400 hover:text-slate-200 hover:bg-[#171d2b]/50'
                     }`}
                   >
-                    <span className="truncate max-w-[150px]">{file.name}</span>
+                    <span className="truncate max-w-[140px]">{file.name}</span>
                     {dirty && <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />}
                     <button
                       type="button"
                       onClick={(e) => handleCloseTab(e, file.id)}
                       aria-label={`Cerrar pestaña ${file.name}`}
-                      className="text-slate-500 hover:text-white cursor-pointer"
+                      className="text-slate-500 hover:text-white cursor-pointer ml-1"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -777,16 +968,16 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             </div>
           </div>
 
-          {/* Mode Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
-            <div className="flex items-center gap-1">
+          {/* Mode Switcher Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 px-3 py-2 bg-[#0f141f]">
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setEditorMode('code')}
-                className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
                   editorMode === 'code'
                     ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
-                    : 'bg-[#0a0d14] text-slate-300 hover:text-white'
+                    : 'border border-slate-700/80 bg-[#0a0d14] text-slate-300 hover:text-white hover:border-slate-600'
                 }`}
               >
                 <FileCode className="h-3.5 w-3.5" />
@@ -796,10 +987,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => setEditorMode('diff')}
-                className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
                   editorMode === 'diff'
                     ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
-                    : 'bg-[#0a0d14] text-slate-300 hover:text-white'
+                    : 'border border-slate-700/80 bg-[#0a0d14] text-slate-300 hover:text-white hover:border-slate-600'
                 }`}
               >
                 <GitCompare className="h-3.5 w-3.5" />
@@ -813,10 +1004,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                   type="button"
                   disabled={isTranslating}
                   onClick={() => void handleTranslateActiveFile()}
-                  className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
                     editorMode === 'translate'
                       ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
-                      : 'bg-[#0a0d14] text-slate-300 hover:text-white'
+                      : 'border border-slate-700/80 bg-[#0a0d14] text-slate-300 hover:text-white hover:border-slate-600'
                   }`}
                 >
                   <Languages className="h-3.5 w-3.5" />
@@ -827,10 +1018,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => setEditorMode('presets')}
-                className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
                   editorMode === 'presets'
                     ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
-                    : 'bg-[#0a0d14] text-slate-300 hover:text-white'
+                    : 'border border-slate-700/80 bg-[#0a0d14] text-slate-300 hover:text-white hover:border-slate-600'
                 }`}
               >
                 <Layers className="h-3.5 w-3.5" />
@@ -843,7 +1034,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 <button
                   type="button"
                   onClick={handleRevertActiveFile}
-                  className="inline-flex items-center gap-1 rounded border border-slate-700 bg-[#0a0d14] px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500 hover:text-white cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-md border border-slate-700/80 bg-[#0a0d14] px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer"
                 >
                   <RotateCcw className="h-3 w-3" />
                   <span>Revertir</span>
@@ -852,7 +1043,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
               <button
                 type="button"
                 onClick={() => void handleCopyActiveCode()}
-                className="inline-flex items-center gap-1 rounded border border-slate-700 bg-[#0a0d14] px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500 hover:text-white cursor-pointer"
+                className="inline-flex items-center gap-1 rounded-md border border-slate-700/80 bg-[#0a0d14] px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer"
               >
                 {copiedCode ? (
                   <>
@@ -869,10 +1060,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
             </div>
           </div>
 
-          {/* Active Editor Surface */}
-          <div className="flex-1 bg-[#0a0d14]">
+          {/* Active Editor Canvas */}
+          <div className="flex-1 bg-[#0a0d14] relative min-h-[380px]">
             {editorMode === 'presets' ? (
-              <div className="max-h-[560px] overflow-y-auto p-4">
+              <div className="ide-scroll max-h-[560px] overflow-y-auto p-4">
                 <StylePresetCatalog
                   skill={activeSkill}
                   isCollaboratorMode={isEditorMode}
@@ -903,25 +1094,99 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 Selecciona un archivo en el árbol VFS para inspeccionarlo o editarlo.
               </div>
             ) : editorMode === 'code' ? (
-              <div className="grid min-h-[520px] grid-cols-[44px_minmax(0,1fr)]">
-                <div
-                  aria-hidden="true"
-                  className="select-none border-r border-slate-800/80 bg-[#0d1118] py-3 pr-2 text-right font-mono text-xs leading-6 text-slate-600"
-                >
-                  {activeFile.content.split('\n').map((_, idx) => (
-                    <div key={idx}>{idx + 1}</div>
-                  ))}
+              <div className="flex flex-col flex-1 min-h-[460px]">
+                {/* Breadcrumb & Editor Mode Toolbar */}
+                <div className="flex flex-wrap items-center justify-between border-b border-slate-800/80 bg-[#090d14] px-3 py-1.5 font-mono text-[11px] text-slate-400 select-none">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Folder className="h-3 w-3 text-slate-500 shrink-0" />
+                    <span className="truncate">{workspace.archiveName}</span>
+                    <ChevronRight className="h-3 w-3 text-slate-600 shrink-0" />
+                    <span className="truncate text-slate-300 font-medium">{activeFile.path}</span>
+                    <span className="hidden sm:inline-block ml-2 rounded border border-slate-700/80 bg-[#0a0d14] px-1.5 py-0.2 text-[10px] text-slate-400">
+                      {LANGUAGE_BADGES[activeFile.language].label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="inline-flex rounded-md border border-slate-800 bg-[#0c1017] p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setCodeViewSubMode('highlight')}
+                        className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition cursor-pointer ${
+                          codeViewSubMode === 'highlight'
+                            ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Ver código con resaltado de sintaxis profesional"
+                      >
+                        <Eye className="h-3 w-3" />
+                        <span>Resaltado</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCodeViewSubMode('edit')}
+                        className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition cursor-pointer ${
+                          codeViewSubMode === 'edit'
+                            ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Editar código fuente en tiempo real"
+                      >
+                        <Edit3 className="h-3 w-3" />
+                        <span>Editar</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <textarea
-                  aria-label={`Editor de código para ${activeFile.path}`}
-                  value={activeFile.content}
-                  onChange={(e) => handleEditActiveFile(e.target.value)}
-                  spellCheck={false}
-                  className="min-h-[520px] w-full resize-y bg-[#0a0d14] p-3 font-mono text-xs leading-6 text-slate-100"
-                />
+
+                {/* Modern Editor Surface */}
+                {codeViewSubMode === 'highlight' ? (
+                  <div
+                    onDoubleClick={() => setCodeViewSubMode('edit')}
+                    className="ide-scroll flex flex-row min-h-[440px] max-h-[580px] overflow-auto bg-[#0a0d14] font-mono text-xs leading-6"
+                    title="Doble clic para editar directamente"
+                  >
+                    {/* Line Numbers Gutter */}
+                    <div className="w-12 shrink-0 select-none border-r border-slate-800/80 bg-[#0c1017] py-3 pr-3 pl-2 text-right font-mono text-xs leading-6 text-slate-600">
+                      {activeFile.content.split('\n').map((_, idx) => (
+                        <div key={idx} className="h-6 leading-6 tabular-nums">{idx + 1}</div>
+                      ))}
+                    </div>
+                    {/* Highlighted Code Lines */}
+                    <div className="flex-1 min-w-0 py-3 px-3 font-mono text-xs leading-6 overflow-x-auto">
+                      {activeFile.content.split('\n').map((line, idx) => (
+                        <div
+                          key={idx}
+                          className="h-6 leading-6 hover:bg-[#161d2b]/60 px-1 rounded flex items-center whitespace-pre font-mono transition-colors"
+                        >
+                          {renderHighlightedToken(line, activeFile.language)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="ide-scroll flex flex-row min-h-[440px] max-h-[580px] overflow-auto bg-[#0a0d14] font-mono text-xs leading-6">
+                    {/* Line Numbers Gutter */}
+                    <div className="w-12 shrink-0 select-none border-r border-slate-800/80 bg-[#0c1017] py-3 pr-3 pl-2 text-right font-mono text-xs leading-6 text-slate-600">
+                      {activeFile.content.split('\n').map((_, idx) => (
+                        <div key={idx} className="h-6 leading-6 tabular-nums">{idx + 1}</div>
+                      ))}
+                    </div>
+                    {/* Interactive Textarea */}
+                    <textarea
+                      aria-label={`Editor de código para ${activeFile.path}`}
+                      value={activeFile.content}
+                      onChange={(e) => handleEditActiveFile(e.target.value)}
+                      spellCheck={false}
+                      className="flex-1 min-w-0 bg-[#0a0d14] py-3 px-3 font-mono text-xs leading-6 text-slate-100 outline-none resize-none whitespace-pre overflow-x-auto"
+                      style={{
+                        minHeight: `${Math.max(440, activeFile.content.split('\n').length * 24 + 24)}px`,
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             ) : editorMode === 'diff' ? (
-              <div className="max-h-[560px] overflow-y-auto font-mono text-xs leading-6">
+              <div className="ide-scroll max-h-[500px] overflow-y-auto font-mono text-xs leading-6">
                 {diffStats.added === 0 && diffStats.removed === 0 && (
                   <div className="border-b border-slate-800 bg-[#0d1118] px-4 py-2 text-slate-400">
                     Sin cambios respecto a la captura inicial. Edita el archivo en «Código en vivo» para inspeccionar el diff línea por línea.
@@ -938,10 +1203,10 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                           : 'text-slate-400'
                     }`}
                   >
-                    <span className="w-9 shrink-0 select-none text-right pr-2 opacity-50">
+                    <span className="w-9 shrink-0 select-none text-right pr-2 opacity-50 tabular-nums">
                       {row.oldLine ?? ''}
                     </span>
-                    <span className="w-9 shrink-0 select-none text-right pr-3 opacity-50">
+                    <span className="w-9 shrink-0 select-none text-right pr-3 opacity-50 tabular-nums">
                       {row.newLine ?? ''}
                     </span>
                     <span className="w-5 shrink-0 select-none font-bold">
@@ -952,214 +1217,342 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="max-h-[560px] overflow-y-auto p-4 font-mono text-xs leading-6 text-slate-200 whitespace-pre-wrap">
+              <div className="ide-scroll max-h-[500px] overflow-y-auto p-4 font-mono text-xs leading-6 text-slate-200 whitespace-pre-wrap">
                 {translatedCache[activeFile.id] || activeFile.content}
               </div>
             )}
           </div>
 
+          {/* Status Bar */}
           {activeFile && (
-            <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 bg-[#0d1118] px-3 py-1.5 font-mono text-[11px] text-slate-400">
-              <span>{activeFile.path}</span>
-              <span>
-                {activeFile.content.split('\n').length} líneas · {activeFile.sizeBytes} B · UTF-8
-              </span>
-            </footer>
-          )}
-        </section>
-
-        {/* PANE 3: SKILL AUDITOR, TELEMETRY & WORKTREE / CLI EXPORT */}
-        <aside
-          aria-label="Auditoría de skill y exportación"
-          className="space-y-4 lg:col-span-3"
-        >
-          {/* Live Audit Card */}
-          <div className="rounded-md border border-slate-800 bg-[#121722] p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white">Auditoría en vivo</h2>
-              <span className="rounded border border-slate-700 bg-[#0a0d14] px-2 py-0.5 font-mono text-[11px] text-[#38bdf8]">
-                ~{auditReport.estimatedTokens.toLocaleString()} tok
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {auditReport.checks.map((chk) => (
-                <div
-                  key={chk.id}
-                  className="rounded border border-slate-800 bg-[#0a0d14] p-2.5 text-xs"
-                >
-                  <div className="flex items-center gap-1.5 font-medium text-slate-100">
-                    {chk.status === 'pass' && (
-                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
-                    )}
-                    {chk.status === 'warn' && (
-                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400" />
-                    )}
-                    {chk.status === 'fail' && (
-                      <XCircle className="h-3.5 w-3.5 shrink-0 text-rose-400" />
-                    )}
-                    <span>{chk.label}</span>
-                  </div>
-                  <p className="mt-1 text-[11px] text-slate-400">{chk.detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Language Breakdown & Runtime Target */}
-          <div className="rounded-md border border-slate-800 bg-[#121722] p-4 space-y-3">
-            <h2 className="text-sm font-semibold text-white">Composición y modelo</h2>
-
-            <div className="flex h-2 w-full overflow-hidden rounded bg-[#0a0d14]">
-              {workspace.metadata.predominantLanguages.map((lang) => (
-                <div
-                  key={lang.extension}
-                  style={{ width: `${lang.percentage}%`, backgroundColor: lang.color }}
-                  title={`${lang.language}: ${lang.percentage}%`}
-                />
-              ))}
-            </div>
-
-            <div className="flex flex-wrap gap-2 text-[11px] text-slate-300">
-              {workspace.metadata.predominantLanguages.map((lang) => (
-                <span key={lang.extension} className="inline-flex items-center gap-1 font-mono">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: lang.color }}
-                  />
-                  {lang.language} {lang.percentage}%
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/80 bg-[#0d1118] px-3 py-1.5 font-mono text-[11px] text-slate-400">
+              <span className="truncate max-w-[320px]">{activeFile.path}</span>
+              <div className="flex items-center gap-3">
+                <span className="tabular-nums">
+                  {activeFile.content.split('\n').length} líneas · {activeFile.sizeBytes} B · UTF-8
                 </span>
-              ))}
-            </div>
-
-            <div className="space-y-2 pt-1">
-              <label className="block text-xs text-slate-400" htmlFor="wks-model-select">
-                Modelo objetivo
-              </label>
-              <select
-                id="wks-model-select"
-                value={workspace.metadata.aiModelLabel}
-                onChange={(e) => {
-                  const label = e.target.value;
-                  const next = {
-                    ...workspace,
-                    metadata: { ...workspace.metadata, aiModelLabel: label },
-                  };
-                  commitWorkspace(next);
-                  onUpdateProjectMetadata(activeSkill.id, { aiModelLabel: label });
-                }}
-                className="w-full rounded border border-slate-700 bg-[#0a0d14] px-2.5 py-1.5 text-xs text-slate-100"
-              >
-                {AI_BENCHMARK_MODELS.map((m) => {
-                  const full = `${m.family} · ${m.version}`;
-                  return (
-                    <option key={m.id} value={full}>
-                      {full} ({m.speedTokensPerSec} tok/s)
-                    </option>
-                  );
-                })}
-              </select>
-
-              <label className="block text-xs text-slate-400" htmlFor="wks-skill-select">
-                Skill rectora
-              </label>
-              <select
-                id="wks-skill-select"
-                value={workspace.metadata.appliedSkill}
-                onChange={(e) => {
-                  const sk = e.target.value;
-                  const next = {
-                    ...workspace,
-                    metadata: { ...workspace.metadata, appliedSkill: sk },
-                  };
-                  commitWorkspace(next);
-                  onUpdateProjectMetadata(activeSkill.id, { appliedSkill: sk });
-                }}
-                className="w-full rounded border border-slate-700 bg-[#0a0d14] px-2.5 py-1.5 font-mono text-xs text-slate-100"
-              >
-                {AVAILABLE_SKILLS.map((sk) => (
-                  <option key={sk} value={sk}>
-                    {sk}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Extracted Palette Swatches */}
-            <div className="space-y-1.5 pt-1">
-              <span className="block text-xs text-slate-400">Tokens hexadecimales detectados</span>
-              <div className="flex flex-wrap gap-1.5">
-                {workspace.metadata.colorPalette.map((hex) => (
-                  <button
-                    key={hex}
-                    type="button"
-                    onClick={() => {
-                      void navigator.clipboard.writeText(hex);
-                      setCopiedHex(hex);
-                      setTimeout(() => setCopiedHex(null), 1400);
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-2 py-1 font-mono text-[11px] text-slate-200 hover:border-slate-500 cursor-pointer"
-                  >
-                    <span
-                      className="h-2.5 w-2.5 rounded-sm border border-white/15"
-                      style={{ backgroundColor: hex }}
-                    />
-                    <span>{copiedHex === hex ? 'Copiado' : hex}</span>
-                  </button>
-                ))}
+                <button
+                  type="button"
+                  onClick={() => setIsDrawerOpen((v) => !v)}
+                  className="inline-flex items-center gap-1 rounded border border-slate-700/80 bg-[#0a0d14] px-2 py-0.5 text-[10px] text-slate-300 hover:text-white hover:border-[#0ea5e9] transition cursor-pointer"
+                >
+                  <Terminal className="h-3 w-3 text-[#0ea5e9]" />
+                  <span>{isDrawerOpen ? 'Ocultar Terminal' : 'Mostrar Terminal'}</span>
+                  {isDrawerOpen ? (
+                    <ChevronDown className="h-3 w-3" />
+                  ) : (
+                    <ChevronUp className="h-3 w-3" />
+                  )}
+                </button>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* CLI Install & Obsidian Sync */}
-          <div className="rounded-md border border-slate-800 bg-[#121722] p-4 space-y-3">
-            <div className="flex items-center gap-1.5 text-sm font-semibold text-white">
-              <Terminal className="h-4 w-4 text-[#0ea5e9]" />
-              <h2>Instalación en entorno local</h2>
+          {/* COLLAPSIBLE BOTTOM DRAWER (TERMINAL / AUDIT / TELEMETRY / CLI) */}
+          <div className="border-t border-slate-800/80 bg-[#121722]">
+            {/* Drawer Header Strip / Tabs */}
+            <div className="flex items-center justify-between border-b border-slate-800/80 bg-[#0d1118] px-3 py-1.5">
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveDrawerTab('audit');
+                    setIsDrawerOpen(true);
+                  }}
+                  className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
+                    isDrawerOpen && activeDrawerTab === 'audit'
+                      ? 'bg-[#171d2b] text-white border-b-2 border-[#0ea5e9]'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <CheckCircle2
+                    className={`h-3.5 w-3.5 ${
+                      auditSummary.failCount > 0
+                        ? 'text-rose-400'
+                        : auditSummary.warnCount > 0
+                          ? 'text-amber-400'
+                          : 'text-emerald-400'
+                    }`}
+                  />
+                  <span>
+                    Auditoría en vivo ({auditSummary.passCount}/{auditSummary.total})
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveDrawerTab('composition');
+                    setIsDrawerOpen(true);
+                  }}
+                  className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
+                    isDrawerOpen && activeDrawerTab === 'composition'
+                      ? 'bg-[#171d2b] text-white border-b-2 border-[#0ea5e9]'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Sliders className="h-3.5 w-3.5 text-sky-400" />
+                  <span>Composición & Modelo</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveDrawerTab('cli');
+                    setIsDrawerOpen(true);
+                  }}
+                  className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
+                    isDrawerOpen && activeDrawerTab === 'cli'
+                      ? 'bg-[#171d2b] text-white border-b-2 border-[#0ea5e9]'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Terminal className="h-3.5 w-3.5 text-[#0ea5e9]" />
+                  <span>PowerShell CLI</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="rounded-full border border-slate-700/80 bg-[#0a0d14] px-2 py-0.5 font-mono text-[10px] tabular-nums text-[#38bdf8]">
+                  ~{auditReport.estimatedTokens.toLocaleString()} tok
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsDrawerOpen((v) => !v)}
+                  aria-label={isDrawerOpen ? 'Minimizar panel' : 'Expandir panel'}
+                  className="rounded p-1 text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+                >
+                  {isDrawerOpen ? (
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  ) : (
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  )}
+                </button>
+              </div>
             </div>
-            <p className="text-xs text-slate-400">
-              Exporta el paquete .ZIP y descomprímelo directamente en tu directorio de agentes:
-            </p>
-            <div className="rounded border border-slate-800 bg-[#0a0d14] p-2.5 font-mono text-[11px] text-slate-300 break-all">
-              {cliInstallCommand}
-            </div>
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => void handleCopyCli()}
-                className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded border border-slate-700 bg-[#0a0d14] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white cursor-pointer"
-              >
-                {copiedCli ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 text-emerald-400" />
-                    <span>Comando copiado</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5" />
-                    <span>Copiar comando PowerShell</span>
-                  </>
+
+            {/* Drawer Body */}
+            {isDrawerOpen && (
+              <div className="ide-scroll h-60 overflow-y-auto bg-[#0a0d14] p-3.5">
+                {/* TAB 1: AUDITORÍA EN VIVO */}
+                {activeDrawerTab === 'audit' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-slate-400 pb-1 border-b border-slate-800/60">
+                      <span>Validación de directivas e integridad de especificaciones de Skill</span>
+                      <span className="font-mono text-[11px] text-slate-300">
+                        {auditSummary.passCount} pass · {auditSummary.warnCount} warn · {auditSummary.failCount} fail
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {auditReport.checks.map((chk) => (
+                        <div
+                          key={chk.id}
+                          className="rounded-md border border-slate-800/80 bg-[#0d1118] p-2.5 text-xs"
+                        >
+                          <div className="flex items-center justify-between gap-1.5 font-medium text-slate-100">
+                            <div className="flex items-center gap-1.5 truncate">
+                              {chk.status === 'pass' && (
+                                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                              )}
+                              {chk.status === 'warn' && (
+                                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400" />
+                              )}
+                              {chk.status === 'fail' && (
+                                <XCircle className="h-3.5 w-3.5 shrink-0 text-rose-400" />
+                              )}
+                              <span className="truncate">{chk.label}</span>
+                            </div>
+                            <span className="shrink-0 font-mono text-[10px] uppercase text-slate-500">
+                              {chk.id}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[11px] text-slate-400 leading-relaxed">
+                            {chk.detail}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
-              </button>
 
-              <a
-                href="obsidian://open?vault=ai-skills-studio"
-                className="btn-obsidian-vault inline-flex h-9 w-full items-center justify-center gap-2 rounded px-3 text-xs font-medium"
-              >
-                <ObsidianBrandIcon className="h-3.5 w-3.5" />
-                <span>Sincronizar con Obsidian</span>
-              </a>
+                {/* TAB 2: COMPOSICIÓN & MODELO */}
+                {activeDrawerTab === 'composition' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Left: Languages & Hex Palette */}
+                    <div className="space-y-3">
+                      <div>
+                        <span className="block text-xs font-medium text-slate-300 mb-1.5">
+                          Desglose de lenguajes
+                        </span>
+                        <div className="flex h-2 w-full overflow-hidden rounded-full bg-[#121722]">
+                          {workspace.metadata.predominantLanguages.map((lang) => (
+                            <div
+                              key={lang.extension}
+                              style={{ width: `${lang.percentage}%`, backgroundColor: lang.color }}
+                              title={`${lang.language}: ${lang.percentage}%`}
+                            />
+                          ))}
+                        </div>
+                        <div className="flex flex-wrap gap-2 text-[11px] text-slate-300 mt-2">
+                          {workspace.metadata.predominantLanguages.map((lang) => (
+                            <span
+                              key={lang.extension}
+                              className="inline-flex items-center gap-1 font-mono tabular-nums"
+                            >
+                              <span
+                                className="h-2 w-2 rounded-full"
+                                style={{ backgroundColor: lang.color }}
+                              />
+                              {lang.language} {lang.percentage}%
+                            </span>
+                          ))}
+                        </div>
+                      </div>
 
-              <button
-                type="button"
-                onClick={() => onNavigatePage('boveda')}
-                className="inline-flex h-9 w-full items-center justify-center rounded border border-slate-800 bg-transparent px-3 text-xs text-slate-400 hover:text-white cursor-pointer"
-              >
-                Ir al repositorio de skills
-              </button>
-            </div>
+                      {/* Swatches */}
+                      <div>
+                        <span className="block text-xs font-medium text-slate-300 mb-1.5">
+                          Tokens de color detectados
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {workspace.metadata.colorPalette.map((hex) => (
+                            <button
+                              key={hex}
+                              type="button"
+                              onClick={() => {
+                                void navigator.clipboard.writeText(hex);
+                                setCopiedHex(hex);
+                                setTimeout(() => setCopiedHex(null), 1400);
+                              }}
+                              className="inline-flex items-center gap-1.5 rounded-md border border-slate-700/80 bg-[#0d1118] px-2 py-1 font-mono text-[11px] text-slate-200 hover:border-slate-500 transition cursor-pointer"
+                            >
+                              <span
+                                className="h-2.5 w-2.5 rounded-sm border border-white/15"
+                                style={{ backgroundColor: hex }}
+                              />
+                              <span>{copiedHex === hex ? 'Copiado' : hex}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Runtime Target Selectors */}
+                    <div className="space-y-2.5 border-t md:border-t-0 md:border-l border-slate-800/80 md:pl-4">
+                      <div>
+                        <label
+                          className="block text-xs font-medium text-slate-300 mb-1"
+                          htmlFor="wks-model-select"
+                        >
+                          Modelo objetivo
+                        </label>
+                        <select
+                          id="wks-model-select"
+                          value={workspace.metadata.aiModelLabel}
+                          onChange={(e) => {
+                            const label = e.target.value;
+                            const next = {
+                              ...workspace,
+                              metadata: { ...workspace.metadata, aiModelLabel: label },
+                            };
+                            commitWorkspace(next);
+                            onUpdateProjectMetadata(activeSkill.id, { aiModelLabel: label });
+                          }}
+                          className="w-full rounded-md border border-slate-700/80 bg-[#0d1118] px-2.5 py-1.5 text-xs text-slate-100 outline-none focus:border-[#0ea5e9]"
+                        >
+                          {AI_BENCHMARK_MODELS.map((m) => {
+                            const full = `${m.family} · ${m.version}`;
+                            return (
+                              <option key={m.id} value={full}>
+                                {full} ({m.speedTokensPerSec} tok/s)
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          className="block text-xs font-medium text-slate-300 mb-1"
+                          htmlFor="wks-skill-select"
+                        >
+                          Skill rectora aplicada
+                        </label>
+                        <select
+                          id="wks-skill-select"
+                          value={workspace.metadata.appliedSkill}
+                          onChange={(e) => {
+                            const sk = e.target.value;
+                            const next = {
+                              ...workspace,
+                              metadata: { ...workspace.metadata, appliedSkill: sk },
+                            };
+                            commitWorkspace(next);
+                            onUpdateProjectMetadata(activeSkill.id, { appliedSkill: sk });
+                          }}
+                          className="w-full rounded-md border border-slate-700/80 bg-[#0d1118] px-2.5 py-1.5 font-mono text-xs text-slate-100 outline-none focus:border-[#0ea5e9]"
+                        >
+                          {AVAILABLE_SKILLS.map((sk) => (
+                            <option key={sk} value={sk}>
+                              {sk}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 3: POWERSHELL CLI & LOCAL SYNC */}
+                {activeDrawerTab === 'cli' && (
+                  <div className="space-y-3">
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Descomprime y enlaza el workspace directamente con tu entorno de agentes locales o vault de notas:
+                    </p>
+                    <div className="rounded-md border border-slate-800/80 bg-[#0d1118] p-2.5 font-mono text-[11px] text-slate-300 break-all select-all">
+                      {cliInstallCommand}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => void handleCopyCli()}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-700/80 bg-[#0d1118] px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:text-white transition cursor-pointer"
+                      >
+                        {copiedCli ? (
+                          <>
+                            <Check className="h-3.5 w-3.5 text-emerald-400" />
+                            <span>Comando copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3.5 w-3.5" />
+                            <span>Copiar comando PowerShell</span>
+                          </>
+                        )}
+                      </button>
+
+                      <a
+                        href="obsidian://open?vault=ai-skills-studio"
+                        className="btn-obsidian-vault inline-flex h-8 items-center gap-2 rounded-md px-3 text-xs font-medium transition"
+                      >
+                        <ObsidianBrandIcon className="h-3.5 w-3.5" />
+                        <span>Sincronizar con Obsidian</span>
+                      </a>
+
+                      <button
+                        type="button"
+                        onClick={() => onNavigatePage('boveda')}
+                        className="inline-flex h-8 items-center rounded-md border border-slate-800/80 bg-transparent px-3 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition cursor-pointer"
+                      >
+                        Ir al repositorio de skills
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        </aside>
+        </section>
       </div>
     </div>
   );

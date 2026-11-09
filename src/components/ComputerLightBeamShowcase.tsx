@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppPageRoute, SpecificModelVersion } from '../types/workspace';
 import {
   ClaudeBrandIcon,
   GeminiBrandIcon,
   GPTBrandIcon,
+  DeepSeekBrandIcon,
 } from './BrandIcons';
+import {
+  FileCode,
+  Zap,
+  Activity,
+  Layers,
+  Sparkles,
+  ExternalLink,
+  Fingerprint,
+  Code2,
+  Terminal,
+} from 'lucide-react';
 
 interface ComputerLightBeamShowcaseProps {
   activeModel: SpecificModelVersion;
@@ -12,277 +24,573 @@ interface ComputerLightBeamShowcaseProps {
   onNavigatePage: (page: AppPageRoute) => void;
 }
 
-interface ModelStationSpec {
+interface DiffRow {
+  num: string;
+  type: 'info' | 'context' | 'del' | 'add';
+  text: string;
+}
+
+interface BigFourAIProfile {
   version: SpecificModelVersion;
   shortLabel: string;
-  provider: 'Claude' | 'Gemini' | 'GPT';
+  provider: 'Claude' | 'Gemini' | 'GPT' | 'DeepSeek';
+  brandColor: string;
+  accentColor: string;
+  glowShadow: string;
+  beamGradient: string;
   activeFile: string;
   speed: string;
   latency: string;
   context: string;
+  reasoningScore: string;
+  benchmarkHighlight: string;
+  specialty: string;
   skillApplied: string;
-  diffRemoved: string;
-  diffAdded: string;
+  diffLines: DiffRow[];
   summaryLine: string;
 }
 
-const MODEL_STATIONS: ModelStationSpec[] = [
+const BIG_FOUR_MODELS: BigFourAIProfile[] = [
   {
     version: 'Opus 5.5',
-    shortLabel: 'Opus 5.5',
+    shortLabel: 'Claude Opus 5.5',
     provider: 'Claude',
+    brandColor: '#d97757',
+    accentColor: '#f97316',
+    glowShadow: 'rgba(217, 119, 87, 0.40)',
+    beamGradient:
+      'linear-gradient(180deg, rgba(217, 119, 87, 0.45) 0%, rgba(249, 115, 22, 0.18) 50%, transparent 100%)',
     activeFile: 'skills/design-taste-frontend/SKILL.md',
     speed: '88 tok/s',
     latency: '420 ms',
     context: '200K tokens',
+    reasoningScore: '98.4%',
+    benchmarkHighlight: 'SWE-bench 52.4% · HumanEval 92.8%',
+    specialty: 'Arquitectura limpia, contratos TypeScript y estética anti-slop',
     skillApplied: 'design-taste-frontend',
-    diffRemoved: '- herogradient: purple',
-    diffAdded: '+ surface: #0a0d14 · accent: #0ea5e9',
+    diffLines: [
+      { num: '01', type: 'info', text: '@@ -12,6 +12,8 @@ export interface SkillDesignSpec {' },
+      { num: '02', type: 'del', text: '- herogradient: "purple-gradient",' },
+      { num: '03', type: 'add', text: '+ surface: "#0a0d14", // 92% dark carbon' },
+      { num: '04', type: 'add', text: '+ cardSurface: "#121722", // Swiss minimal' },
+      { num: '05', type: 'add', text: '+ accentFunctional: "#0ea5e9", // Cyan' },
+      { num: '06', type: 'context', text: '  strictContrastRatio: 14.8' },
+    ],
     summaryLine: 'Auditoría estructural y contratos TypeScript estrictos',
   },
   {
     version: 'Gemini 3.8',
-    shortLabel: 'Gemini 3.8',
+    shortLabel: 'Gemini 3.8 Pro',
     provider: 'Gemini',
+    brandColor: '#0ea5e9',
+    accentColor: '#38bdf8',
+    glowShadow: 'rgba(14, 165, 233, 0.42)',
+    beamGradient:
+      'linear-gradient(180deg, rgba(14, 165, 233, 0.45) 0%, rgba(56, 189, 248, 0.20) 50%, transparent 100%)',
     activeFile: 'src/services/rarParserService.ts',
     speed: '178 tok/s',
     latency: '210 ms',
     context: '2M tokens',
+    reasoningScore: '97.2%',
+    benchmarkHighlight: 'Long-Context 99.4% · SWE-bench 50.8%',
+    specialty: 'Descompresión VFS en navegador y contexto masivo 2M tokens',
     skillApplied: 'vfs-zip-engine',
-    diffRemoved: '- mockExtract("Orange.tsx")',
-    diffAdded: '+ DecompressionStream("deflate")',
-    summaryLine: 'Lectura íntegra de repositorios ZIP y carpetas completas',
-  },
-  {
-    version: 'Sonnet 5.5',
-    shortLabel: 'Sonnet 5.5',
-    provider: 'Claude',
-    activeFile: 'src/components/UnifiedProjectStudio.tsx',
-    speed: '128 tok/s',
-    latency: '290 ms',
-    context: '200K tokens',
-    skillApplied: 'ui-ux-pro-max',
-    diffRemoved: '- vista estática .rar',
-    diffAdded: '+ árbol VFS multi-pestaña',
-    summaryLine: 'Interfaces React 19 con menús accesibles por teclado',
+    diffLines: [
+      { num: '01', type: 'info', text: '@@ -44,6 +44,8 @@ async function mountVfsPackage(file) {' },
+      { num: '02', type: 'del', text: '- const rawBytes = mockExtractArchive(file);' },
+      { num: '03', type: 'add', text: '+ const decompressed = await file.stream().pipeThrough(stream);' },
+      { num: '04', type: 'add', text: '+ const sha256 = await crypto.subtle.digest("SHA-256", bytes);' },
+      { num: '05', type: 'add', text: '+ this.registerTelemetry("2M-context", sha256);' },
+      { num: '06', type: 'context', text: '  return verifyAndBuildVfsTree(decompressed, sha256);' },
+    ],
+    summaryLine: 'Lectura íntegra de repositorios ZIP y carpetas completas en memoria',
   },
   {
     version: 'GPT Astra',
     shortLabel: 'GPT Astra',
     provider: 'GPT',
+    brandColor: '#10b981',
+    accentColor: '#34d399',
+    glowShadow: 'rgba(16, 185, 129, 0.40)',
+    beamGradient:
+      'linear-gradient(180deg, rgba(16, 185, 129, 0.45) 0%, rgba(52, 211, 153, 0.18) 50%, transparent 100%)',
     activeFile: 'skills/github-workflow-standards/SKILL.md',
     speed: '142 tok/s',
     latency: '260 ms',
     context: '256K tokens',
+    reasoningScore: '96.5%',
+    benchmarkHighlight: 'Conventional Commits 99.2% · HumanEval 89.6%',
+    specialty: 'Trazabilidad semántica, Pull Requests estructurados y CI/CD',
     skillApplied: 'github-workflow-standards',
-    diffRemoved: '- commit: "update files"',
-    diffAdded: '+ feat(vfs): add zip engine',
-    summaryLine: 'Validación semántica de commits y trazabilidad de PR',
+    diffLines: [
+      { num: '01', type: 'info', text: '@@ -8,5 +8,7 @@ rule ConventionalCommits {' },
+      { num: '02', type: 'del', text: '- commitFormat: "free-form"' },
+      { num: '03', type: 'add', text: '+ commitFormat: "<type>(<scope>): <subject>"' },
+      { num: '04', type: 'add', text: '+ prSections: ["¿Qué?", "¿Por qué?", "¿Cómo?"]' },
+      { num: '05', type: 'add', text: '+ gitHubWorkflowIntegrity: "A++ verified";' },
+      { num: '06', type: 'context', text: '  strictEnforcement: true' },
+    ],
+    summaryLine: 'Validación semántica de commits y trazabilidad de Pull Requests',
   },
   {
-    version: 'Gemini 3.7',
-    shortLabel: 'Gemini 3.7',
-    provider: 'Gemini',
-    activeFile: 'src/utils/securityHardening.ts',
-    speed: '164 tok/s',
-    latency: '185 ms',
-    context: '1M tokens',
-    skillApplied: 'security-hardening',
-    diffRemoved: '- path sin validar',
-    diffAdded: '+ sanitizeArchiveEntryPath()',
-    summaryLine: 'Sanitización instantánea de rutas y hashes SHA-256',
-  },
-  {
-    version: 'Opus 4.8',
-    shortLabel: 'Opus 4.8',
-    provider: 'Claude',
-    activeFile: 'src/types/workspace.ts',
-    speed: '76 tok/s',
-    latency: '470 ms',
-    context: '200K tokens',
-    skillApplied: 'clean-architecture',
-    diffRemoved: '- formato propietario',
-    diffAdded: '+ sourceKind: "zip" | "folder"',
-    summaryLine: 'Invariantes de dominio e integridad entre módulos',
-  },
-  {
-    version: 'GPT Luna',
-    shortLabel: 'GPT Luna',
-    provider: 'GPT',
-    activeFile: 'src/index.css',
-    speed: '136 tok/s',
-    latency: '275 ms',
-    context: '256K tokens',
-    skillApplied: 'design-taste-frontend',
-    diffRemoved: '- sombras de neón',
-    diffAdded: '+ 92% carbón neutro #0a0d14',
-    summaryLine: 'Calibración de contraste AAA (14.8:1) en modo nocturno',
+    version: 'DeepSeek V3',
+    shortLabel: 'DeepSeek V3',
+    provider: 'DeepSeek',
+    brandColor: '#2563eb',
+    accentColor: '#60a5fa',
+    glowShadow: 'rgba(37, 99, 235, 0.44)',
+    beamGradient:
+      'linear-gradient(180deg, rgba(37, 99, 235, 0.45) 0%, rgba(96, 165, 250, 0.18) 50%, transparent 100%)',
+    activeFile: 'src/services/deepSeekMoEEngine.ts',
+    speed: '135 tok/s',
+    latency: '230 ms',
+    context: '128K tokens',
+    reasoningScore: '96.2%',
+    benchmarkHighlight: 'SWE-bench 49.2% · MoE Latent Attention 98%',
+    specialty: 'Inferencia MoE distribuida, compresión MLA y precisión matemática',
+    skillApplied: 'deepseek-moe-reasoning',
+    diffLines: [
+      { num: '01', type: 'info', text: '@@ -18,6 +18,8 @@ export class DeepSeekMoEInference {' },
+      { num: '02', type: 'del', text: '- private quantMode: "fp16-unoptimized";' },
+      { num: '03', type: 'add', text: '+ private quantMode: "mla-deepseek-fp8";' },
+      { num: '04', type: 'add', text: '+ private dynamicRoutingCache: Map<string, Tensor>;' },
+      { num: '05', type: 'add', text: '+ return this.multiHeadLatentAttention(tokens);' },
+      { num: '06', type: 'context', text: '  readonly activeExperts: number = 8;' },
+    ],
+    summaryLine: 'Inferencia MoE con Multi-Head Latent Attention y cuantización FP8',
   },
 ];
 
-const VFS_TREE_ITEMS = [
-  { name: 'taste-frontend.md', path: 'skills/design-taste-frontend/SKILL.md', status: 'M' },
-  { name: 'github-workflow.md', path: 'skills/github-workflow-standards/SKILL.md', status: 'A' },
-  { name: 'rarParserService.ts', path: 'src/services/rarParserService.ts', status: 'M' },
-  { name: 'UnifiedStudio.tsx', path: 'src/components/UnifiedProjectStudio.tsx', status: 'M' },
-  { name: 'securityHardening.ts', path: 'src/utils/securityHardening.ts', status: 'OK' },
+const VFS_TREE_PREVIEW = [
+  { name: 'SKILL.md', status: 'M' },
+  { name: 'rarParserService.ts', status: 'M' },
+  { name: 'UnifiedStudio.tsx', status: 'M' },
+  { name: 'securityHardening.ts', status: 'OK' },
+  { name: 'skill-bundle.json', status: 'A' },
 ];
-
-const ProviderMiniIcon: React.FC<{ provider: 'Claude' | 'Gemini' | 'GPT' }> = ({
-  provider,
-}) => {
-  if (provider === 'Claude') return <ClaudeBrandIcon className="h-4 w-4 shrink-0" />;
-  if (provider === 'Gemini') return <GeminiBrandIcon className="h-4 w-4 shrink-0" />;
-  return <GPTBrandIcon className="h-4 w-4 shrink-0" />;
-};
 
 export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps> = ({
   activeModel,
   onSelectModel,
   onNavigatePage,
 }) => {
-  const station =
-    MODEL_STATIONS.find((m) => m.version === activeModel) || MODEL_STATIONS[0];
+  const [localModel, setLocalModel] = useState<SpecificModelVersion>(activeModel);
+  const [touchIdPulse, setTouchIdPulse] = useState(false);
+  const [trackpadRipple, setTrackpadRipple] = useState(false);
+
+  useEffect(() => {
+    if (activeModel) {
+      setLocalModel(activeModel);
+    }
+  }, [activeModel]);
+
+  const effectiveModel = localModel || activeModel;
+
+  const activeStation =
+    BIG_FOUR_MODELS.find((m) => m.version === effectiveModel) ||
+    BIG_FOUR_MODELS.find(
+      (m) =>
+        (effectiveModel.includes('Opus') || effectiveModel.includes('Sonnet')) &&
+        m.provider === 'Claude'
+    ) ||
+    BIG_FOUR_MODELS.find(
+      (m) => effectiveModel.includes('Gemini') && m.provider === 'Gemini'
+    ) ||
+    BIG_FOUR_MODELS.find(
+      (m) => effectiveModel.includes('GPT') && m.provider === 'GPT'
+    ) ||
+    BIG_FOUR_MODELS[0];
+
+  const [hoveredStation, setHoveredStation] = useState<BigFourAIProfile | null>(
+    null
+  );
+
+  const displayedStation = hoveredStation || activeStation;
+
+  // Ciclo al siguiente modelo mediante el Touch ID interactivo
+  const handleTouchIdClick = () => {
+    setTouchIdPulse(true);
+    setTimeout(() => setTouchIdPulse(false), 600);
+
+    const currentIndex = BIG_FOUR_MODELS.findIndex(
+      (m) => m.version === activeStation.version
+    );
+    const nextIndex = (currentIndex + 1) % BIG_FOUR_MODELS.length;
+    const nextModel = BIG_FOUR_MODELS[nextIndex].version;
+    setLocalModel(nextModel);
+    onSelectModel(nextModel);
+  };
+
+  const handleTrackpadClick = () => {
+    setTrackpadRipple(true);
+    setTimeout(() => setTrackpadRipple(false), 500);
+  };
 
   return (
-    <div className="ly-piece cs-dock-win" data-ui="codice-dock" aria-hidden="true">
-      {/* Barra superior de ventana del IDE */}
-      <div className="cs-dock-win__bar">
-        <span className="cs-dock-win__dots">
-          <i />
-          <i />
-          <i />
-        </span>
-        <div className="flex items-center min-w-0 max-w-full overflow-hidden text-xs">
-          <span className="font-medium text-slate-200 truncate">
-            codice-workspace.zip
-          </span>
-          <span className="hidden sm:inline text-slate-400 truncate ml-1">
-            · {station.activeFile}
-          </span>
-        </div>
-        <span className="ml-auto hidden md:inline-flex items-center gap-2 font-mono text-xs text-slate-400 shrink-0">
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
-          <span>SHA-256 verificado</span>
-        </span>
+    <div className="relative w-full max-w-5xl mx-auto py-2 sm:py-3 select-none">
+      {/* ====================================================================
+          1. HAZ DE LUZ VOLUMÉTRICO Y RESPLANDOR DIFUMINADO DE FONDO (FONDO ÚNICO)
+         ==================================================================== */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 -top-16 sm:-top-24 h-96 sm:h-[540px] flex justify-center overflow-hidden transition-all duration-700 z-0"
+      >
+        {/* Cono de luz volumétrica difuminado */}
+        <div
+          className="w-[95%] sm:w-[80%] h-full opacity-70 sm:opacity-85 blur-3xl transition-all duration-700"
+          style={{
+            background: displayedStation.beamGradient,
+          }}
+        />
+        {/* Rayo de luz focalizado */}
+        <div
+          className="absolute top-8 w-60 sm:w-84 h-full blur-2xl opacity-50 transition-all duration-500"
+          style={{
+            background: `radial-gradient(ellipse at 50% 0%, ${displayedStation.brandColor} 0%, transparent 70%)`,
+          }}
+        />
+        {/* Aura difuminada envolvente en el centro */}
+        <div
+          className="absolute top-44 w-[85%] h-72 rounded-full blur-[100px] opacity-35 transition-all duration-700"
+          style={{
+            backgroundColor: displayedStation.brandColor,
+          }}
+        />
       </div>
 
-      {/* Dock interactivo de modelos fundacionales */}
-      <div className="cs-dock-win__dock hidden sm:flex">
-        {MODEL_STATIONS.map((item, idx) => {
-          const isSelected = item.version === station.version;
-          return (
-            <span
-              key={item.version}
-              role="presentation"
-              tabIndex={-1}
-              onClick={() => onSelectModel(item.version)}
-              className={`items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium whitespace-nowrap transition cursor-pointer border ${
-                idx >= 4 ? 'hidden xl:inline-flex' : idx >= 3 ? 'hidden lg:inline-flex' : 'inline-flex'
-              } ${
-                isSelected
-                  ? 'border-[#0ea5e9]/70 bg-[#0ea5e9]/15 text-white'
-                  : 'border-transparent bg-transparent text-slate-400 hover:bg-white/[0.04] hover:text-slate-200'
-              }`}
-            >
-              <ProviderMiniIcon provider={item.provider} />
-              <span className="truncate">{item.shortLabel}</span>
-            </span>
-          );
-        })}
-      </div>
+      {/* ====================================================================
+          2. DOCK ORBITAL DE LOS 4 GIGANTES DE IA (CLAUDE, GEMINI, GPT, DEEPSEEK)
+          Con los iconos oficiales de cada IA y badges discretos
+         ==================================================================== */}
+      <div className="relative z-30 mb-2.5 sm:mb-3">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 px-2">
+          {BIG_FOUR_MODELS.map((model) => {
+            const isSelected = activeStation.version === model.version;
+            const isHovered = hoveredStation?.version === model.version;
 
-      {/* Cuerpo de 3 paneles: Árbol VFS + Diff en vivo + Telemetría del modelo seleccionado */}
-      <div className="cs-dock-win__body">
-        {/* Panel 1: Árbol VFS */}
-        <div className="cs-dock-win__tree">
-          <div className="mb-1 flex items-center justify-between text-xs font-medium text-slate-400">
-            <span>Workspace VFS</span>
-            <span className="font-mono text-[11px] text-slate-500">5 archivos</span>
-          </div>
-          {VFS_TREE_ITEMS.map((entry) => {
-            const active = entry.path === station.activeFile;
             return (
-              <div
-                key={entry.path}
-                className={`flex items-center justify-between rounded px-2 py-0.5 text-xs font-mono min-w-0 ${
-                  active
-                    ? 'bg-[#162032] text-white border border-[#0ea5e9]/35'
-                    : 'text-slate-400'
+              <button
+                key={model.version}
+                type="button"
+                onClick={() => {
+                  setLocalModel(model.version);
+                  onSelectModel(model.version);
+                }}
+                onMouseEnter={() => setHoveredStation(model)}
+                onMouseLeave={() => setHoveredStation(null)}
+                className={`group relative flex items-center gap-2.5 sm:gap-3 rounded-2xl px-3.5 sm:px-4.5 py-2 sm:py-2.5 text-xs font-semibold backdrop-blur-xl transition-all duration-300 cursor-pointer border ${
+                  isSelected
+                    ? 'border-white/40 text-white shadow-xl scale-105'
+                    : 'border-white/10 text-slate-300 hover:text-white hover:border-white/25 hover:scale-102'
                 }`}
+                style={{
+                  background: isSelected
+                    ? `linear-gradient(135deg, rgba(20,26,38,0.92) 0%, rgba(10,14,24,0.96) 100%)`
+                    : 'rgba(12, 17, 28, 0.65)',
+                  boxShadow: isSelected
+                    ? `0 0 24px -2px ${model.glowShadow}, 0 8px 24px -6px rgba(0,0,0,0.8)`
+                    : isHovered
+                      ? `0 0 16px -3px ${model.glowShadow}`
+                      : 'none',
+                }}
               >
-                <span className="truncate min-w-0">{entry.name}</span>
-                <span
-                  className={`ml-2 text-[11px] shrink-0 font-medium ${
-                    entry.status === 'A'
-                      ? 'text-emerald-400'
-                      : entry.status === 'M'
-                        ? 'text-[#38bdf8]'
-                        : 'text-slate-500'
-                  }`}
-                >
-                  {entry.status}
-                </span>
-              </div>
+                {/* Icono Oficial de la IA (SVG genuino a todo color) */}
+                <div className="shrink-0 transition-transform duration-300 group-hover:scale-110">
+                  {model.provider === 'Claude' && (
+                    <ClaudeBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  )}
+                  {model.provider === 'Gemini' && (
+                    <GeminiBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  )}
+                  {model.provider === 'GPT' && (
+                    <GPTBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  )}
+                  {model.provider === 'DeepSeek' && (
+                    <DeepSeekBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  )}
+                </div>
+
+                {/* Nombre Oficial y Métrica de Inferencia */}
+                <div className="text-left flex flex-col">
+                  <span className="font-bold tracking-tight text-white text-xs sm:text-[13px] leading-tight">
+                    {model.shortLabel}
+                  </span>
+                  <span className="font-mono text-[9.5px] sm:text-[10px] text-slate-400">
+                    {model.speed}
+                  </span>
+                </div>
+
+                {/* Resplandor inferior activo */}
+                {isSelected && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -bottom-[1px] inset-x-4 h-[2px] rounded-full blur-[0.5px]"
+                    style={{ backgroundColor: model.accentColor }}
+                  />
+                )}
+              </button>
             );
           })}
         </div>
+      </div>
 
-        {/* Panel 2: Código / Diff en vivo */}
-        <div className="cs-dock-win__code">
-          <div className="mb-2 border-b border-slate-800/80 pb-1.5 text-xs text-slate-400 flex items-center justify-between min-w-0">
-            <span className="truncate">skill: <strong className="text-slate-200">{station.skillApplied}</strong></span>
-            <span className="text-emerald-400 font-mono text-[11px] shrink-0 ml-1">(+14 −4)</span>
+      {/* ====================================================================
+          3. FICHA FLOTANTE DE TELEMETRÍA Y BENCHMARK DE IA
+         ==================================================================== */}
+      <div className="relative z-20 mb-2 sm:mb-3 flex justify-center px-4">
+        <div
+          className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 w-full max-w-4xl rounded-xl border border-white/10 bg-[#0c111a]/90 backdrop-blur-md px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-mono text-slate-300 shadow-xl transition-all duration-300"
+          style={{
+            borderLeftColor: displayedStation.brandColor,
+            borderLeftWidth: '3px',
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span
+              className="font-bold tracking-tight text-white flex items-center gap-1.5"
+            >
+              <Sparkles
+                className="h-3.5 w-3.5"
+                style={{ color: displayedStation.accentColor }}
+              />
+              <span>{displayedStation.shortLabel}</span>
+            </span>
+            <span className="text-slate-500">|</span>
+            <span className="text-slate-400 truncate max-w-xs sm:max-w-md text-[11px]">
+              {displayedStation.specialty}
+            </span>
           </div>
-          <div className="space-y-1 min-w-0">
-            <div className="text-slate-500 truncate text-[11px] min-w-0">
-              01 &nbsp;--- a/{station.activeFile.split('/').pop()}
-            </div>
-            <div className="text-slate-500 truncate text-[11px] min-w-0">
-              02 &nbsp;+++ b/{station.activeFile.split('/').pop()}
-            </div>
-            <div className="rounded bg-rose-500/10 px-2 py-0.5 text-rose-300 truncate text-[11px] min-w-0">
-              03 &nbsp;{station.diffRemoved}
-            </div>
-            <div className="rounded bg-emerald-500/10 px-2 py-0.5 text-emerald-300 truncate text-[11px] min-w-0">
-              04 &nbsp;{station.diffAdded}
-            </div>
+
+          <div className="flex items-center gap-3 sm:gap-4 text-[11px] ml-auto shrink-0">
+            <span className="flex items-center gap-1">
+              <Zap className="h-3 w-3 text-amber-400" />
+              <strong className="text-white">{displayedStation.speed}</strong>
+            </span>
+            <span className="flex items-center gap-1">
+              <Activity className="h-3 w-3 text-cyan-400" />
+              <span>{displayedStation.latency}</span>
+            </span>
+            <span className="hidden md:flex items-center gap-1 text-slate-400">
+              <Layers className="h-3 w-3 text-emerald-400" />
+              <span>{displayedStation.context}</span>
+            </span>
+            <span
+              className="px-2 py-0.5 rounded font-bold text-[10px]"
+              style={{
+                backgroundColor: `${displayedStation.brandColor}22`,
+                color: displayedStation.accentColor,
+              }}
+            >
+              Razonamiento: {displayedStation.reasoningScore}
+            </span>
           </div>
         </div>
+      </div>
 
-        {/* Panel 3: Telemetría plana del modelo seleccionado (0 bordes anidados) */}
-        <div className="cs-dock-win__telemetry">
-          <div className="flex items-center gap-2 border-b border-slate-800/80 pb-2">
-            <ProviderMiniIcon provider={station.provider} />
-            <div className="min-w-0">
-              <div className="truncate text-xs font-semibold text-white">
-                {station.provider} · {station.version}
+      {/* ====================================================================
+          4. IMAGEN INTERACTIVA DE MACBOOK PRO SPACE BLACK
+          Fundida suavemente en el haz de luz difuminado sin cajas ni doble fondo
+         ==================================================================== */}
+      <div className="relative z-10 mx-auto w-full max-w-4xl px-2">
+        <div className="relative w-full aspect-[856/660]">
+          {/* FOTOGRAFÍA FOTORREALISTA DE LA MACBOOK PRO (Bordes fundidos en el difuminado) */}
+          <img
+            src={`${import.meta.env.BASE_URL}macbook-pro-tight.jpg`}
+            alt="MacBook Pro Space Black fotorrealista"
+            className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+            style={{
+              maskImage:
+                'radial-gradient(ellipse 94% 90% at 50% 50%, black 72%, transparent 100%)',
+              WebkitMaskImage:
+                'radial-gradient(ellipse 94% 90% at 50% 50%, black 72%, transparent 100%)',
+            }}
+            loading="eager"
+          />
+
+          {/* ================================================================
+              4A. PANTALLA OLED INTERACTIVA (ENCAPSULADA EN EL DISPLAY DE LA MAC)
+              Posicionada exactamente dentro del cristal Liquid Retina XDR:
+              left: 15.2%, width: 69.6%, top: 6.2%, height: 55.0%
+             ================================================================ */}
+          <div
+            className="absolute left-[15.2%] w-[69.6%] top-[6.2%] h-[55.0%] rounded-t-lg overflow-hidden flex flex-col bg-[#070b14]/95 text-slate-200 z-10 border border-white/10 shadow-[inset_0_0_24px_rgba(0,0,0,0.9)]"
+            style={{
+              boxShadow: `inset 0 0 20px ${displayedStation.glowShadow}, inset 0 0 40px rgba(0,0,0,0.95)`,
+            }}
+          >
+            {/* Barra Superior macOS del Editor IDE */}
+            <div className="flex items-center justify-between gap-1.5 border-b border-white/10 bg-[#090e18] px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] shrink-0">
+              {/* Botones Semáforo macOS */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-[#ef4444] transition-opacity hover:opacity-80" />
+                <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-[#f59e0b] transition-opacity hover:opacity-80" />
+                <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-[#10b981] transition-opacity hover:opacity-80" />
               </div>
-              <div className="truncate text-[11px] text-slate-400">
-                Auditoría local activa
+
+              {/* Título de Archivo y VFS */}
+              <div className="flex items-center gap-1.5 min-w-0 font-mono text-[9px] sm:text-[10.5px] text-slate-300 truncate">
+                <FileCode
+                  className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0"
+                  style={{ color: displayedStation.accentColor }}
+                />
+                <span className="hidden md:inline font-semibold text-white">
+                  codice-workspace.zip
+                </span>
+                <span className="hidden md:inline text-slate-500">/</span>
+                <span className="text-white font-medium truncate">
+                  {displayedStation.activeFile.split('/').pop()}
+                </span>
+              </div>
+
+              {/* Badge de Verificación SHA-256 */}
+              <div className="flex items-center gap-1 font-mono text-[8.5px] sm:text-[9.5px] text-emerald-400 shrink-0">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                <span className="hidden sm:inline">SHA-256 verificado</span>
+                <span className="sm:hidden">SHA-256</span>
+              </div>
+            </div>
+
+            {/* Viewport Interior del IDE: Árbol VFS + Diff de Código en Vivo */}
+            <div className="flex-1 min-h-0 flex flex-col md:flex-row font-mono text-xs overflow-hidden">
+              {/* Columna Izquierda: Árbol de archivos VFS (visible en pantallas medianas+) */}
+              <div className="hidden md:block w-36 lg:w-40 shrink-0 border-r border-white/10 bg-[#060a12]/90 p-2 overflow-y-auto">
+                <div className="mb-1 flex items-center justify-between text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                  <span>VFS Explorer</span>
+                  <span className="text-cyan-400 font-mono">5 items</span>
+                </div>
+                <div className="space-y-0.5">
+                  {VFS_TREE_PREVIEW.map((item) => {
+                    const isSelected = displayedStation.activeFile.endsWith(item.name);
+                    return (
+                      <div
+                        key={item.name}
+                        className={`flex items-center justify-between rounded px-1.5 py-0.5 text-[9px] transition-colors ${
+                          isSelected
+                            ? 'bg-white/10 text-white font-bold'
+                            : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                        style={{
+                          borderLeft: isSelected
+                            ? `2px solid ${displayedStation.brandColor}`
+                            : '2px solid transparent',
+                        }}
+                      >
+                        <span className="truncate">{item.name}</span>
+                        <span
+                          className={`text-[7.5px] px-1 rounded font-bold ${
+                            item.status === 'A'
+                              ? 'bg-emerald-500/20 text-emerald-300'
+                              : item.status === 'M'
+                                ? 'bg-amber-500/20 text-amber-300'
+                                : 'bg-slate-700/40 text-slate-400'
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Columna Central: Diff de Código en Vivo generado por la IA */}
+              <div className="flex-1 min-w-0 p-2 sm:p-2.5 flex flex-col justify-between overflow-hidden bg-[#050810]/80">
+                <div className="overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-1 mb-1 text-[9px] sm:text-[10px]">
+                    <span className="text-slate-400 truncate">
+                      skill:{' '}
+                      <strong className="text-white font-mono">
+                        {displayedStation.skillApplied}
+                      </strong>
+                    </span>
+                    <span className="text-emerald-400 font-bold text-[8.5px] sm:text-[9.5px] shrink-0">
+                      (+6 −1) · En vivo
+                    </span>
+                  </div>
+
+                  {/* Líneas de Diff Sintáctico */}
+                  <div className="space-y-0.5 font-mono text-[9px] sm:text-[10px] md:text-[10.5px] leading-tight">
+                    {displayedStation.diffLines.map((line, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-1.5 px-1.5 py-0.5 rounded truncate ${
+                          line.type === 'del'
+                            ? 'bg-rose-950/40 text-rose-300 border-l-2 border-rose-500'
+                            : line.type === 'add'
+                              ? 'bg-emerald-950/40 text-emerald-300 border-l-2 border-emerald-500'
+                              : line.type === 'info'
+                                ? 'bg-sky-950/30 text-sky-300'
+                                : 'text-slate-400'
+                        }`}
+                      >
+                        <span className="w-3 select-none text-[8px] sm:text-[8.5px] text-slate-600 font-mono text-right shrink-0">
+                          {line.num}
+                        </span>
+                        <span className="truncate">{line.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pie de pantalla de la laptop con telemetría de inferencia y CTA */}
+                <div className="mt-1 pt-1 border-t border-white/10 flex items-center justify-between text-[8.5px] sm:text-[9.5px] text-slate-400 shrink-0">
+                  <span className="truncate max-w-[65%]">
+                    {displayedStation.summaryLine}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onNavigatePage('estudio')}
+                    className="flex items-center gap-1 text-sky-400 hover:text-sky-300 font-semibold cursor-pointer shrink-0 ml-1"
+                  >
+                    <span>Editar en Workspace</span>
+                    <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div>
-              <div className="text-[11px] text-slate-400">Velocidad</div>
-              <div className="font-mono font-semibold text-white">{station.speed}</div>
-            </div>
-            <div>
-              <div className="text-[11px] text-slate-400">Primer token</div>
-              <div className="font-mono font-semibold text-white">{station.latency}</div>
-            </div>
-          </div>
+          {/* ================================================================
+              4B. HOTSPOT INTERACTIVO DE TOUCH ID EN EL TECLADO
+              Ubicado en la tecla Touch ID física de la foto (esquina sup-der)
+             ================================================================ */}
+          <button
+            type="button"
+            onClick={handleTouchIdClick}
+            title="Touch ID: Clic para alternar modelo de IA"
+            className="absolute left-[67.6%] top-[65.4%] w-[3.0%] h-[2.5%] rounded-[2px] cursor-pointer z-20 group transition-all bg-transparent border-0 p-0 outline-none focus:outline-none"
+          >
+            {/* Halo biométrico interactivo solo en clic o hover */}
+            <span
+              className={`absolute inset-0 rounded-[2px] transition-all duration-300 pointer-events-none ${
+                touchIdPulse
+                  ? 'ring-2 ring-white/90 scale-125 opacity-100'
+                  : 'group-hover:ring-1 group-hover:ring-white/40 opacity-0 group-hover:opacity-100'
+              }`}
+              style={{
+                boxShadow: touchIdPulse
+                  ? `0 0 14px ${displayedStation.accentColor}`
+                  : undefined,
+              }}
+            />
+          </button>
 
-          <div className="text-xs pt-1">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">Contexto</span>
-              <span className="font-mono text-[#38bdf8]">{station.context}</span>
-            </div>
-            <p className="mt-1 text-[11px] leading-snug text-slate-300">
-              {station.summaryLine}
-            </p>
+          {/* ================================================================
+              4C. HOTSPOT INTERACTIVO DEL FORCE TOUCH TRACKPAD
+              Ubicado en el trackpad físico de cristal de la fotografía
+             ================================================================ */}
+          <div
+            onClick={handleTrackpadClick}
+            title="Force Touch Trackpad: Clic para respuesta háptica"
+            className="absolute left-[35.5%] top-[78.0%] w-[29.0%] h-[18.0%] rounded-lg cursor-pointer z-20 group overflow-hidden"
+          >
+            {/* Efecto de onda háptica al hacer clic */}
+            {trackpadRipple && (
+              <span
+                className="absolute inset-0 bg-white/10 rounded-lg animate-ping opacity-60 pointer-events-none"
+              />
+            )}
+            <span className="absolute inset-0 rounded-lg border border-transparent group-hover:border-white/20 group-hover:bg-white/[0.03] transition-colors" />
           </div>
         </div>
       </div>

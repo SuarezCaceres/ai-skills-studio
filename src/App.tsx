@@ -17,6 +17,7 @@ import {
 import { AuthScreen } from './components/AuthScreen';
 import { TopStudioHeader } from './components/NavbarActiveSkill';
 import { InformativeLandingSection } from './components/InformativeLandingSection';
+import { NeuralAtmosphereBackground } from './components/NeuralAtmosphereBackground';
 
 const CodiceStudio = lazy(() =>
   import('./components/CodiceStudio').then((m) => ({
@@ -318,11 +319,14 @@ export function App() {
 
   if (showAuthScreen) {
     return (
-      <div className="min-h-screen bg-[#0a0d14] text-[#f1f5f9]">
-        <AuthScreen
-          onAuthenticated={handleAuthenticated}
-          onContinueAsPublic={() => setShowAuthScreen(false)}
-        />
+      <div className="relative min-h-screen bg-[#0a0d14] text-[#f1f5f9]">
+        <NeuralAtmosphereBackground />
+        <div className="relative z-10">
+          <AuthScreen
+            onAuthenticated={handleAuthenticated}
+            onContinueAsPublic={() => setShowAuthScreen(false)}
+          />
+        </div>
       </div>
     );
   }
@@ -333,6 +337,7 @@ export function App() {
   if (activePage === 'inicio') {
     return (
       <>
+        <NeuralAtmosphereBackground />
         <TopStudioHeader
           skills={skills}
           activeSkillId={activeSkill.id}
@@ -511,6 +516,7 @@ export function App() {
   /* MODO IDE INTERNO (activePage !== 'inicio'): estación de trabajo de ancho completo sin restricciones 100svh */
   return (
     <>
+      <NeuralAtmosphereBackground />
       <TopStudioHeader
         skills={skills}
         activeSkillId={activeSkill.id}
@@ -524,7 +530,7 @@ export function App() {
         selectedModelName={formattedModelLabel}
       />
 
-      <div className="ide-shell selection:bg-[#0ea5e9] selection:text-[#0a0d14]">
+      <div className="ide-shell selection:bg-[#0ea5e9] selection:text-[#0a0d14] relative z-10">
         {globalStatus && (
           <div
             role="status"
