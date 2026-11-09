@@ -26,6 +26,9 @@ import {
   Sparkles,
   Sliders,
   Palette,
+  Code2,
+  Eye,
+  Edit3,
 } from 'lucide-react';
 import {
   AppPageRoute,
@@ -91,6 +94,169 @@ const AVAILABLE_SKILLS = [
   'frontend-design',
 ];
 
+const renderJsonValue = (val: string) => {
+  const tokens = val.split(/(".*?"|\b-?\d+(?:\.\d+)?\b|\b(?:true|false|null)\b|[{}\[\],:])/g).filter(Boolean);
+  return (
+    <span>
+      {tokens.map((token, idx) => {
+        if (/^".*"$/.test(token)) {
+          return <span key={idx} className="text-emerald-300">{token}</span>;
+        }
+        if (/^-?\d+(?:\.\d+)?$/.test(token)) {
+          return <span key={idx} className="text-amber-300">{token}</span>;
+        }
+        if (/^(?:true|false|null)$/.test(token)) {
+          return <span key={idx} className="text-purple-400 font-semibold">{token}</span>;
+        }
+        if (/^[{}[\],:]$/.test(token)) {
+          return <span key={idx} className="text-slate-500 font-medium">{token}</span>;
+        }
+        return <span key={idx} className="text-slate-300">{token}</span>;
+      })}
+    </span>
+  );
+};
+
+const renderHighlightedToken = (line: string, language: CodeLanguage) => {
+  if (!line) return <span>&nbsp;</span>;
+
+  // JSON Highlighting
+  if (language === 'json') {
+    const keyMatch = line.match(/^(\s*)(".*?")(\s*:)(.*)$/);
+    if (keyMatch) {
+      const [, indent, key, colon, rest] = keyMatch;
+      return (
+        <span>
+          <span className="whitespace-pre">{indent}</span>
+          <span className="text-sky-300 font-medium">{key}</span>
+          <span className="text-slate-500">{colon}</span>
+          {renderJsonValue(rest)}
+        </span>
+      );
+    }
+    return <span>{renderJsonValue(line)}</span>;
+  }
+
+  // Markdown Highlighting
+  if (language === 'markdown') {
+    if (line.startsWith('#')) {
+      const level = line.match(/^#+/)?.[0].length || 1;
+      return (
+        <span className={level === 1 ? 'text-sky-400 font-bold' : level === 2 ? 'text-cyan-300 font-semibold' : 'text-slate-100 font-semibold'}>
+          {line}
+        </span>
+      );
+    }
+    if (line.startsWith('---')) {
+      return <span className="text-purple-400 font-mono font-bold">{line}</span>;
+    }
+    if (/^[a-zA-Z0-9_-]+:/.test(line)) {
+      const colonIdx = line.indexOf(':');
+      const k = line.slice(0, colonIdx);
+      const v = line.slice(colonIdx);
+      return (
+        <span>
+          <span className="text-sky-300 font-medium">{k}</span>
+          <span className="text-slate-300">{v}</span>
+        </span>
+      );
+    }
+    if (/^\s*[-*+]\s+/.test(line) || /^\s*\d+\.\s+/.test(line)) {
+      const match = line.match(/^(\s*[-*+]|\s*\d+\.)(\s+.*)$/);
+      if (match) {
+        return (
+          <span>
+            <span className="text-amber-400 font-bold">{match[1]}</span>
+            <span className="text-slate-200">{match[2]}</span>
+          </span>
+        );
+      }
+    }
+    if (line.startsWith('```')) {
+      return <span className="text-emerald-400 font-mono font-semibold">{line}</span>;
+    }
+    if (/`[^`]+`/.test(line)) {
+      const parts = line.split(/(`[^`]+`)/g);
+      return (
+        <span>
+          {parts.map((p, i) =>
+            p.startsWith('`') && p.endsWith('`') ? (
+              <span key={i} className="text-sky-300 bg-slate-800/60 px-1 py-0.5 rounded font-mono">
+                {p}
+              </span>
+            ) : (
+              <span key={i} className="text-slate-200">{p}</span>
+            )
+          )}
+        </span>
+      );
+    }
+    return <span className="text-slate-200">{line}</span>;
+  }
+
+  // TypeScript / TSX Highlighting
+  if (language === 'typescript' || language === 'tsx') {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*')) {
+      return <span className="text-slate-500 italic">{line}</span>;
+    }
+    const parts = line.split(
+      /(\b(?:import|export|from|default|const|let|var|function|return|async|await|if|else|interface|type|class|new|extends|implements|typeof|as)\b|"[^"]*"|'[^']*'|`[^`]*`)/g
+    );
+    return (
+      <span>
+        {parts.map((part, i) => {
+          if (
+            /^(?:import|export|from|default|const|let|var|function|return|async|await|if|else|interface|type|class|new|extends|implements|typeof|as)$/.test(
+              part
+            )
+          ) {
+            return (
+              <span key={i} className="text-purple-400 font-semibold">
+                {part}
+              </span>
+            );
+          }
+          if (/^["'`].*["'`]$/.test(part)) {
+            return (
+              <span key={i} className="text-emerald-300">
+                {part}
+              </span>
+            );
+          }
+          return <span key={i} className="text-slate-200">{part}</span>;
+        })}
+      </span>
+    );
+  }
+
+  // CSS Highlighting
+  if (language === 'css') {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('/*')) {
+      return <span className="text-slate-500 italic">{line}</span>;
+    }
+    if (line.includes(':') && line.includes(';')) {
+      const colonIdx = line.indexOf(':');
+      const prop = line.slice(0, colonIdx);
+      const val = line.slice(colonIdx + 1);
+      return (
+        <span>
+          <span className="text-sky-300">{prop}</span>
+          <span className="text-slate-500">:</span>
+          <span className="text-emerald-300">{val}</span>
+        </span>
+      );
+    }
+    if (line.includes('{') || line.includes('}')) {
+      return <span className="text-sky-400 font-semibold">{line}</span>;
+    }
+    return <span className="text-slate-200">{line}</span>;
+  }
+
+  return <span className="text-slate-200">{line}</span>;
+};
+
 export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
   activeSkill,
   activeRarPackage,
@@ -111,6 +277,7 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
     activeRarPackage.files[0]?.id || ''
   );
   const [editorMode, setEditorMode] = useState<'code' | 'diff' | 'translate' | 'presets'>('code');
+  const [codeViewSubMode, setCodeViewSubMode] = useState<'highlight' | 'edit'>('highlight');
   const [searchQuery, setSearchQuery] = useState('');
   const [langFilter, setLangFilter] = useState<'all' | CodeLanguage>('all');
   const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
@@ -927,22 +1094,96 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
                 Selecciona un archivo en el árbol VFS para inspeccionarlo o editarlo.
               </div>
             ) : editorMode === 'code' ? (
-              <div className="grid min-h-[420px] grid-cols-[44px_minmax(0,1fr)]">
-                <div
-                  aria-hidden="true"
-                  className="select-none border-r border-slate-800/80 bg-[#0d1118] py-3 pr-2 text-right font-mono text-xs leading-6 text-slate-600"
-                >
-                  {activeFile.content.split('\n').map((_, idx) => (
-                    <div key={idx}>{idx + 1}</div>
-                  ))}
+              <div className="flex flex-col flex-1 min-h-[460px]">
+                {/* Breadcrumb & Editor Mode Toolbar */}
+                <div className="flex flex-wrap items-center justify-between border-b border-slate-800/80 bg-[#090d14] px-3 py-1.5 font-mono text-[11px] text-slate-400 select-none">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Folder className="h-3 w-3 text-slate-500 shrink-0" />
+                    <span className="truncate">{workspace.archiveName}</span>
+                    <ChevronRight className="h-3 w-3 text-slate-600 shrink-0" />
+                    <span className="truncate text-slate-300 font-medium">{activeFile.path}</span>
+                    <span className="hidden sm:inline-block ml-2 rounded border border-slate-700/80 bg-[#0a0d14] px-1.5 py-0.2 text-[10px] text-slate-400">
+                      {LANGUAGE_BADGES[activeFile.language].label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="inline-flex rounded-md border border-slate-800 bg-[#0c1017] p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setCodeViewSubMode('highlight')}
+                        className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition cursor-pointer ${
+                          codeViewSubMode === 'highlight'
+                            ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Ver código con resaltado de sintaxis profesional"
+                      >
+                        <Eye className="h-3 w-3" />
+                        <span>Resaltado</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCodeViewSubMode('edit')}
+                        className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition cursor-pointer ${
+                          codeViewSubMode === 'edit'
+                            ? 'bg-[#0ea5e9] text-[#0a0d14] font-semibold'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                        title="Editar código fuente en tiempo real"
+                      >
+                        <Edit3 className="h-3 w-3" />
+                        <span>Editar</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <textarea
-                  aria-label={`Editor de código para ${activeFile.path}`}
-                  value={activeFile.content}
-                  onChange={(e) => handleEditActiveFile(e.target.value)}
-                  spellCheck={false}
-                  className="min-h-[420px] w-full resize-y bg-[#0a0d14] p-3 font-mono text-xs leading-6 text-slate-100 outline-none"
-                />
+
+                {/* Modern Editor Surface */}
+                {codeViewSubMode === 'highlight' ? (
+                  <div
+                    onDoubleClick={() => setCodeViewSubMode('edit')}
+                    className="ide-scroll flex flex-row min-h-[440px] max-h-[580px] overflow-auto bg-[#0a0d14] font-mono text-xs leading-6"
+                    title="Doble clic para editar directamente"
+                  >
+                    {/* Line Numbers Gutter */}
+                    <div className="w-12 shrink-0 select-none border-r border-slate-800/80 bg-[#0c1017] py-3 pr-3 pl-2 text-right font-mono text-xs leading-6 text-slate-600">
+                      {activeFile.content.split('\n').map((_, idx) => (
+                        <div key={idx} className="h-6 leading-6 tabular-nums">{idx + 1}</div>
+                      ))}
+                    </div>
+                    {/* Highlighted Code Lines */}
+                    <div className="flex-1 min-w-0 py-3 px-3 font-mono text-xs leading-6 overflow-x-auto">
+                      {activeFile.content.split('\n').map((line, idx) => (
+                        <div
+                          key={idx}
+                          className="h-6 leading-6 hover:bg-[#161d2b]/60 px-1 rounded flex items-center whitespace-pre font-mono transition-colors"
+                        >
+                          {renderHighlightedToken(line, activeFile.language)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="ide-scroll flex flex-row min-h-[440px] max-h-[580px] overflow-auto bg-[#0a0d14] font-mono text-xs leading-6">
+                    {/* Line Numbers Gutter */}
+                    <div className="w-12 shrink-0 select-none border-r border-slate-800/80 bg-[#0c1017] py-3 pr-3 pl-2 text-right font-mono text-xs leading-6 text-slate-600">
+                      {activeFile.content.split('\n').map((_, idx) => (
+                        <div key={idx} className="h-6 leading-6 tabular-nums">{idx + 1}</div>
+                      ))}
+                    </div>
+                    {/* Interactive Textarea */}
+                    <textarea
+                      aria-label={`Editor de código para ${activeFile.path}`}
+                      value={activeFile.content}
+                      onChange={(e) => handleEditActiveFile(e.target.value)}
+                      spellCheck={false}
+                      className="flex-1 min-w-0 bg-[#0a0d14] py-3 px-3 font-mono text-xs leading-6 text-slate-100 outline-none resize-none whitespace-pre overflow-x-auto"
+                      style={{
+                        minHeight: `${Math.max(440, activeFile.content.split('\n').length * 24 + 24)}px`,
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             ) : editorMode === 'diff' ? (
               <div className="ide-scroll max-h-[500px] overflow-y-auto font-mono text-xs leading-6">

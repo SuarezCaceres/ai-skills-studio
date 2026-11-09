@@ -433,6 +433,11 @@ html:is([data-buttons="pill"], [data-buttons="tonal"]) .btn--secondary {
    WORKSPACE VFS STUDIO (ui-ux-pro-max: Dark Mode OLED + Swiss Minimalism)
    ========================================================================== */
 
+/* Safeguard: Never let system.css .grid > * { grid-column: 1 / -1 } break workspace layouts */
+.ide-workspace-vfs .grid > * {
+  grid-column: auto !important;
+}
+
 :where(.ide-workspace-vfs button) {
   appearance: none;
   -webkit-appearance: none;
