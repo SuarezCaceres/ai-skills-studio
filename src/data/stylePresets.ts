@@ -72,6 +72,15 @@ function buildSevenModelVariations(
         'Enfoque en ergonomía visual, espaciado generoso y retroalimentación asistida por voz.',
       promptAdaptation: `## Optimización GPT Luna (${primarySpecialty})\n- Calibrar luminancias nocturnas suaves sobre \`#0A0F1D\` con resplandores cálidos en \`#38BDF8\`.`,
     },
+    'DeepSeek V3': {
+      modelName: 'DeepSeek V3',
+      family: 'DeepSeek',
+      tier: 'Ultra / Máximo · Inferencia MoE Distribuida',
+      visualDifference: `En "${presetTitle}", DeepSeek V3 introduce una paleta Azul Royal profundo (#2563EB) con énfasis en densidad de información algorítmica y métricas de precisión matemática.`,
+      structureDifference:
+        'Lógica modular basada en arquitectura Mixture-of-Experts con cálculo de latencia en sub-milisegundos y compresión MLA.',
+      promptAdaptation: `## Optimización DeepSeek V3 (${primarySpecialty})\n- Priorizar algoritmos de alto rendimiento, optimización matemática y contratos con tipado inmutable.`,
+    },
   };
 }
 

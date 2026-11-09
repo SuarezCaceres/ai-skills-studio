@@ -218,6 +218,37 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
       'Experiencias interactivas guiadas por voz y dictado',
     ],
   },
+  {
+    id: 'deepseek-v3',
+    name: 'DeepSeek · Modelo DeepSeek V3',
+    version: 'DeepSeek V3',
+    family: 'DeepSeek',
+    provider: 'DeepSeek AI',
+    tier: 'Cortex Supremo',
+    badgeColor: '#2563EB',
+    speedTokensPerSec: 135,
+    latencyMs: 230,
+    contextWindow: '128,000 Tokens',
+    reasoningScore: 97,
+    codingScore: 98,
+    processingCapacity: 98,
+    multimodalScore: 94,
+    visualFidelityScore: 97,
+    summary:
+      'Modelo de razonamiento algorítmico y matemático avanzado con arquitectura Mixture-of-Experts (MoE), compresión Multi-Head Latent Attention (MLA) y cuantización FP8.',
+    visualImpactNotes:
+      'Destaca por estructuras de datos altamente eficientes, densidad informativa y paleta en Azul Royal profundo con precisión matemática.',
+    strengths: [
+      'Inferencia MoE con 8 expertos activos por token y latencia ultra baja',
+      'Excelente desempeño en benchmarks de código (HumanEval y SWE-bench)',
+      'Optimización de memoria y cálculo numérico de alto impacto',
+    ],
+    recommendedFor: [
+      'Ingeniería algorítmica y optimización de rendimiento en cliente',
+      'Desarrollo de pipelines de inferencia y contratos de tipos estrictos',
+      'Modelado de arquitecturas distribuidas y procesamiento paralelo',
+    ],
+  },
 ];
 
 export const INITIAL_VISUAL_FEEDBACK_REVIEWS: VisualFeedbackReview[] = [

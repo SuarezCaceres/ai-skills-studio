@@ -1,4 +1,5 @@
 import {
+  AIModelFamily,
   LanguageBreakdownItem,
   RarArchivePackage,
   SpecificModelVersion,
@@ -45,7 +46,7 @@ export interface AppliedSkillDetail {
 
 export interface PresetModelVariation {
   modelName: PresetAIModelName;
-  family: 'Claude Opus' | 'Gemini' | 'Claude Sonnet' | 'GPT';
+  family: AIModelFamily;
   tier: string;
   visualDifference: string;
   structureDifference: string;

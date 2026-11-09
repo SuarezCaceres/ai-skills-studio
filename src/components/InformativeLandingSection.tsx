@@ -99,8 +99,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
 
             <div
               className="hero__window"
-              role="img"
-              aria-label="Workspace VFS mostrando árbol de archivos, diff de SKILL.md y selector interactivo de 7 modelos de IA"
+              role="region"
+              aria-label="Laptop 3D interactiva de ingeniería con haces de luz y dock de inteligencias artificiales"
             >
               <ComputerLightBeamShowcase
                 activeModel={activeDesktopModel}

@@ -380,3 +380,40 @@ export const ObsidianBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }
     </g>
   </svg>
 );
+
+/**
+ * Icono estilizado de DeepSeek AI (Ballena azul dinámica y fluida en gama royal blue oficial)
+ */
+export const DeepSeekBrandIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+  <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
+    <rect
+      x="1.5"
+      y="1.5"
+      width="33"
+      height="33"
+      rx="9"
+      fill="#121722"
+      stroke="#2563EB"
+      strokeOpacity="0.45"
+      strokeWidth="1.2"
+    />
+    <g transform="translate(6, 6)">
+      <path
+        d="M20.5 9.2C19.2 6.5 16.5 4.8 13.2 4.5C8.8 4.1 4.8 7.1 3.5 11.2C2.4 14.8 3.6 18.8 6.5 21.1C8.2 22.4 10.4 23 12.6 22.8C14.8 22.6 18.2 21.2 19.8 19.5C18.6 18.9 17.2 18.4 16 18C13.2 17.1 10.5 16.8 8.8 15.2C7.8 14.2 7.6 12.8 8.2 11.6C9.1 9.8 11.5 8.9 13.8 9.3C15.6 9.6 17.8 10.8 19.5 12.1C20.1 11.1 20.4 10.1 20.5 9.2Z"
+        fill="url(#deepseek_grad)"
+      />
+      <circle cx="9.2" cy="11.8" r="1.3" fill="#93C5FD" />
+      <path
+        d="M17.2 19.5C18.8 18.8 20.5 17.5 21.5 15.8C22.2 14.6 22.5 13.2 22.2 11.8C22 13 21.2 14.2 20.2 15C19.2 15.8 18 16.2 16.8 16.5C15.8 16.8 15 17.4 14.5 18.2C15.4 18.6 16.3 19.1 17.2 19.5Z"
+        fill="#60A5FA"
+      />
+    </g>
+    <defs>
+      <linearGradient id="deepseek_grad" x1="3" y1="4" x2="22" y2="23" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="50%" stopColor="#2563EB" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+    </defs>
+  </svg>
+);

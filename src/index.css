@@ -80,17 +80,76 @@ html:is([data-buttons="pill"], [data-buttons="tonal"]) .btn--secondary {
    LANDING VISUAL RECIPES (tasteskill 2.5.1 · page CSS strictly inside visuals)
    ========================================================================== */
 
-.hero--centred .hero__window {
-  min-height: clamp(420px, 52svh, 520px);
-  background:
-    radial-gradient(90% 80% at 50% 0%, rgb(14 165 233 / 0.16), transparent 72%),
-    linear-gradient(180deg, #152131 0%, #0d1420 100%);
-  border: 1px solid rgb(241 245 249 / 0.12);
-  border-radius: var(--r-lg);
-  padding: 18px;
+main > :is(.hero, .section--hero) {
+  height: auto !important;
+  min-height: 100svh;
+  overflow: visible !important;
+}
+
+.hero--centred .wrap {
+  height: auto !important;
+  min-height: calc(100svh - var(--nav));
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
+
+.hero--centred .hero-text {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: clamp(16px, 2.5vw, 28px) !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.hero--centred .hero__c {
+  text-align: center;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .nav--centre .nav__bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+  }
+}
+
+.nav__links {
+  display: flex !important;
+  align-items: center !important;
+  gap: clamp(8px, 1.4vw, 20px) !important;
+  white-space: nowrap !important;
+}
+
+.nav__item {
+  display: inline-flex !important;
+  white-space: nowrap !important;
+}
+
+.hero--centred .hero__window {
+  min-height: clamp(580px, 72svh, 780px);
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgb(14 165 233 / 0.12), transparent 70%),
+    linear-gradient(180deg, #0e1420 0%, #070a10 100%);
+  border: 1px solid rgb(241 245 249 / 0.12);
+  border-radius: var(--r-xl, 24px);
+  padding: clamp(16px, 2.5vw, 32px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  overflow: visible;
+}
+
+.hero--centred .hero__window .grid > * {
+  grid-column: auto !important;
 }
 
 .hero--centred .hero__window > .ly-piece.cs-dock-win {
