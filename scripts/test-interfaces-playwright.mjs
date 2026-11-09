@@ -63,7 +63,7 @@ async function runAudit() {
 
       // Open workspace module via top nav button or action button
       await page.evaluate(() => {
-        const openBtn = document.querySelector('.nav__actions a.btn--primary, a[href="#workspace"]');
+        const openBtn = document.querySelector('.nav__actions a.btn--primary');
         if (openBtn) openBtn.click();
       });
       await page.waitForTimeout(600);

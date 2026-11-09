@@ -429,6 +429,48 @@ html:is([data-buttons="pill"], [data-buttons="tonal"]) .btn--secondary {
   white-space: nowrap;
 }
 
+/* ==========================================================================
+   WORKSPACE VFS STUDIO (ui-ux-pro-max: Dark Mode OLED + Swiss Minimalism)
+   ========================================================================== */
+
+:where(.ide-workspace-vfs button) {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  border-width: 0;
+  border-style: solid;
+  border-color: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  box-sizing: border-box;
+}
+
+.ide-workspace-vfs button:focus-visible {
+  outline: 2px solid var(--color-cyan-primary, #0ea5e9) !important;
+  outline-offset: 2px !important;
+}
+
+.ide-workspace-vfs .ide-scroll::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.ide-workspace-vfs .ide-scroll::-webkit-scrollbar-track {
+  background: #0a0d14;
+}
+
+.ide-workspace-vfs .ide-scroll::-webkit-scrollbar-thumb {
+  background: #1e2638;
+  border-radius: 3px;
+}
+
+.ide-workspace-vfs .ide-scroll::-webkit-scrollbar-thumb:hover {
+  background: #2e3a52;
+}
+
 /* TasteSkill Mobile Height Calibration: maintain 1 screen (844px) stride */
 @media (max-width: 639px) {
   #capabilities {
