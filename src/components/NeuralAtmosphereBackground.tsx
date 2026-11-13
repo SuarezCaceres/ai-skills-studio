@@ -19,7 +19,7 @@ interface NeuralNode {
   vx: number;
   vy: number;
   baseRadius: number;
-  colorType: 'violet' | 'cyan' | 'lavender';
+  colorType: 'cyan' | 'sky' | 'slate';
   pulsePhase: number;
   pulseSpeed: number;
   highlight: number; // 0 (reposo) a 1 (activado por cercanía al cursor)
@@ -48,9 +48,9 @@ interface ShockwaveRipple {
 }
 
 /**
- * Atmósfera Visual y Red Neuronal Interactiva (Cyber Violet & Neural Matrix):
+ * Atmósfera Visual y Red Neuronal Interactiva (carbón y cian, sin violeta):
  * - Responde en tiempo real al movimiento y posición del mouse (repulsión, atracción, enlaces sinápticos).
- * - Enlaces de energía violeta neón (#8B5CF6 / #C084FC) y cian sináptico (#38BDF8) hacia el cursor.
+ * - Enlaces en cian (#0EA5E9 / #38BDF8) y gris pizarra (#94A3B8) hacia el cursor.
  * - Impulsos cuánticos y ondas de choque reactivas al clic.
  * - Micro-parallax suave en los glifos de ingeniería.
  * - 60-120 FPS sin bloquear la interacción de la UI (`pointer-events-none`).
@@ -111,17 +111,17 @@ export const NeuralAtmosphereBackground: React.FC = () => {
       return 78;
     };
 
-    // Inicializar nodos neuronales en tonos violeta, cian y lavanda neón
+    // Inicializar nodos neuronales en tonos cian y gris pizarra
     const nodeCount = calculateNodeCount();
     const nodes: NeuralNode[] = [];
 
-    const colorVariants: Array<'violet' | 'cyan' | 'lavender'> = [
-      'violet',
-      'violet',
+    const colorVariants: Array<'cyan' | 'sky' | 'slate'> = [
       'cyan',
-      'lavender',
-      'violet',
       'cyan',
+      'sky',
+      'slate',
+      'cyan',
+      'sky',
     ];
 
     for (let i = 0; i < nodeCount; i++) {
@@ -152,7 +152,7 @@ export const NeuralAtmosphereBackground: React.FC = () => {
           targetIdx,
           progress: 0,
           speed: 0.015 + Math.random() * 0.02,
-          color: Math.random() > 0.4 ? '#A855F7' : '#38BDF8',
+          color: Math.random() > 0.4 ? '#0EA5E9' : '#38BDF8',
         });
       }
     };
@@ -233,7 +233,7 @@ export const NeuralAtmosphereBackground: React.FC = () => {
         mouse.y += (mouse.targetY - mouse.y) * 0.06;
       }
 
-      // 1. Procesar Ondas de Choque (Ripples de Clic en Violeta/Cian)
+      // 1. Procesar Ondas de Choque (Ripples de Clic en Cian)
       for (let r = ripples.length - 1; r >= 0; r--) {
         const rip = ripples[r];
         rip.radius += 5.2;
@@ -242,7 +242,7 @@ export const NeuralAtmosphereBackground: React.FC = () => {
         ctx.save();
         ctx.beginPath();
         ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(168, 85, 247, ${rip.alpha * 0.7})`;
+        ctx.strokeStyle = `rgba(14, 165, 233, ${rip.alpha * 0.7})`;
         ctx.lineWidth = 1.8;
         ctx.stroke();
 
@@ -325,15 +325,12 @@ export const NeuralAtmosphereBackground: React.FC = () => {
             const activeAlpha = baseAlpha + combinedHighlight * 0.38;
 
             let strokeColor: string;
-            if (nodeA.colorType === 'violet' || nodeB.colorType === 'violet') {
-              strokeColor = `rgba(139, 92, 246, ${activeAlpha})`;
-            } else if (
-              nodeA.colorType === 'lavender' ||
-              nodeB.colorType === 'lavender'
-            ) {
-              strokeColor = `rgba(192, 132, 252, ${activeAlpha})`;
-            } else {
+            if (nodeA.colorType === 'cyan' || nodeB.colorType === 'cyan') {
+              strokeColor = `rgba(14, 165, 233, ${activeAlpha})`;
+            } else if (nodeA.colorType === 'sky' || nodeB.colorType === 'sky') {
               strokeColor = `rgba(56, 189, 248, ${activeAlpha * 0.95})`;
+            } else {
+              strokeColor = `rgba(148, 163, 184, ${activeAlpha * 0.8})`;
             }
 
             ctx.beginPath();
@@ -363,9 +360,9 @@ export const NeuralAtmosphereBackground: React.FC = () => {
               node.x,
               node.y
             );
-            grad.addColorStop(0, `rgba(168, 85, 247, ${lineAlpha})`);
-            grad.addColorStop(0.5, `rgba(139, 92, 246, ${lineAlpha * 0.85})`);
-            grad.addColorStop(1, `rgba(56, 189, 248, ${lineAlpha * 0.7})`);
+            grad.addColorStop(0, `rgba(14, 165, 233, ${lineAlpha})`);
+            grad.addColorStop(0.5, `rgba(56, 189, 248, ${lineAlpha * 0.85})`);
+            grad.addColorStop(1, `rgba(148, 163, 184, ${lineAlpha * 0.6})`);
 
             ctx.beginPath();
             ctx.moveTo(mouse.x, mouse.y);
@@ -386,9 +383,9 @@ export const NeuralAtmosphereBackground: React.FC = () => {
           mouse.y,
           32
         );
-        cursorGlow.addColorStop(0, 'rgba(168, 85, 247, 0.32)');
-        cursorGlow.addColorStop(0.5, 'rgba(56, 189, 248, 0.14)');
-        cursorGlow.addColorStop(1, 'rgba(7, 5, 14, 0)');
+        cursorGlow.addColorStop(0, 'rgba(14, 165, 233, 0.3)');
+        cursorGlow.addColorStop(0.5, 'rgba(56, 189, 248, 0.12)');
+        cursorGlow.addColorStop(1, 'rgba(10, 13, 20, 0)');
         ctx.fillStyle = cursorGlow;
         ctx.beginPath();
         ctx.arc(mouse.x, mouse.y, 32, 0, Math.PI * 2);
@@ -437,19 +434,19 @@ export const NeuralAtmosphereBackground: React.FC = () => {
 
         ctx.save();
 
-        let coreColor = '#8B5CF6';
-        let glowColor = 'rgba(139, 92, 246, 0.28)';
+        let coreColor = '#0EA5E9';
+        let glowColor = 'rgba(14, 165, 233, 0.26)';
 
-        if (node.colorType === 'cyan') {
+        if (node.colorType === 'sky') {
           coreColor = '#38BDF8';
           glowColor = 'rgba(56, 189, 248, 0.25)';
-        } else if (node.colorType === 'lavender') {
-          coreColor = '#C084FC';
-          glowColor = 'rgba(192, 132, 252, 0.28)';
+        } else if (node.colorType === 'slate') {
+          coreColor = '#94A3B8';
+          glowColor = 'rgba(148, 163, 184, 0.2)';
         }
 
         if (node.highlight > 0.05) {
-          glowColor = `rgba(168, 85, 247, ${0.3 + node.highlight * 0.55})`;
+          glowColor = `rgba(56, 189, 248, ${0.3 + node.highlight * 0.55})`;
         }
 
         // Halo difuso
@@ -493,12 +490,12 @@ export const NeuralAtmosphereBackground: React.FC = () => {
       }}
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none"
     >
-      {/* Capa 1: Gradiente base en Noche Obsidiana con Auras Violeta y Cian */}
+      {/* Capa 1: Gradiente base en carbón (#0a0d14 / #121722) con auras cian */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(circle at 18% 12%, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.05) 30%, transparent 60%), radial-gradient(circle at 82% 80%, rgba(56, 189, 248, 0.1) 0%, rgba(14, 165, 233, 0.03) 35%, transparent 65%), radial-gradient(circle at 75% 15%, rgba(192, 132, 252, 0.08) 0%, transparent 48%), linear-gradient(175deg, #07050E 0%, #0C081A 45%, #120D24 85%, #07050E 100%)',
+            'radial-gradient(circle at 18% 12%, rgba(14, 165, 233, 0.1) 0%, rgba(14, 165, 233, 0.03) 30%, transparent 60%), radial-gradient(circle at 82% 80%, rgba(56, 189, 248, 0.08) 0%, rgba(14, 165, 233, 0.02) 35%, transparent 65%), linear-gradient(175deg, #0a0d14 0%, #0c1018 45%, #121722 85%, #0a0d14 100%)',
         }}
       />
 
@@ -519,39 +516,39 @@ export const NeuralAtmosphereBackground: React.FC = () => {
         ref={glyphsContainerRef}
         className="absolute inset-0 transition-transform duration-300 ease-out will-change-transform"
       >
-        <div className="neural-floating-glyph absolute left-[4%] top-[15%] flex items-center gap-1.5 rounded-2xl border border-purple-500/30 bg-[#120D24]/70 px-3 py-2 backdrop-blur-xs">
-          <Braces className="h-5 w-5 text-[#C084FC]/80" />
-          <span className="font-mono text-xs font-bold tracking-widest text-purple-200/70">
+        <div className="neural-floating-glyph max-2xl:hidden absolute left-[4%] top-[15%] flex items-center gap-1.5 rounded-2xl border border-slate-700/60 bg-[#121722]/70 px-3 py-2 backdrop-blur-xs">
+          <Braces className="h-5 w-5 text-sky-300/80" />
+          <span className="font-mono text-xs font-bold tracking-widest text-slate-300/70">
             {'{ AI }'}
           </span>
         </div>
 
-        <div className="neural-floating-glyph-delayed absolute right-[5%] top-[16%] flex items-center gap-1.5 rounded-2xl border border-purple-500/30 bg-[#120D24]/70 px-3 py-2">
-          <Cpu className="h-5 w-5 text-[#8B5CF6]/80" />
-          <span className="font-mono text-[10px] font-semibold text-purple-200/60">
+        <div className="neural-floating-glyph-delayed max-2xl:hidden absolute right-[5%] top-[16%] flex items-center gap-1.5 rounded-2xl border border-slate-700/60 bg-[#121722]/70 px-3 py-2">
+          <Cpu className="h-5 w-5 text-sky-400/80" />
+          <span className="font-mono text-[10px] font-semibold text-slate-300/60">
             NEURAL·CORE
           </span>
         </div>
 
-        <div className="neural-floating-glyph-delayed absolute left-[3%] top-[52%] rounded-full border border-purple-500/30 bg-[#120D24]/60 p-2.5">
-          <Network className="h-5 w-5 text-[#A855F7]/70" />
+        <div className="neural-floating-glyph-delayed max-2xl:hidden absolute left-[3%] top-[52%] rounded-full border border-slate-700/60 bg-[#121722]/60 p-2.5">
+          <Network className="h-5 w-5 text-sky-300/70" />
         </div>
 
-        <div className="neural-floating-glyph absolute right-[3.5%] top-[48%] rounded-full border border-sky-500/30 bg-[#120D24]/60 p-2.5">
+        <div className="neural-floating-glyph max-2xl:hidden absolute right-[3.5%] top-[48%] rounded-full border border-slate-700/60 bg-[#121722]/60 p-2.5">
           <Settings className="h-5 w-5 text-sky-400/65" />
         </div>
 
-        <div className="neural-floating-glyph absolute bottom-[14%] left-[6%] flex items-center gap-1.5 rounded-2xl border border-purple-500/30 bg-[#120D24]/60 px-3 py-1.5">
-          <Code2 className="h-4 w-4 text-[#C084FC]/75" />
-          <span className="font-mono text-[11px] font-bold text-purple-200/65">
+        <div className="neural-floating-glyph max-2xl:hidden absolute bottom-[14%] left-[6%] flex items-center gap-1.5 rounded-2xl border border-slate-700/60 bg-[#121722]/60 px-3 py-1.5">
+          <Code2 className="h-4 w-4 text-sky-300/75" />
+          <span className="font-mono text-[11px] font-bold text-slate-300/65">
             {'</skills>'}
           </span>
         </div>
 
-        <div className="neural-floating-glyph-delayed absolute bottom-[12%] right-[7%] flex items-center gap-2 rounded-2xl border border-purple-500/30 bg-[#120D24]/60 px-3 py-1.5">
-          <Sparkles className="h-4 w-4 text-[#8B5CF6]/75" />
+        <div className="neural-floating-glyph-delayed max-2xl:hidden absolute bottom-[12%] right-[7%] flex items-center gap-2 rounded-2xl border border-slate-700/60 bg-[#121722]/60 px-3 py-1.5">
+          <Sparkles className="h-4 w-4 text-sky-400/75" />
           <Terminal className="h-4 w-4 text-sky-400/70" />
-          <Binary className="h-4 w-4 text-purple-200/60" />
+          <Binary className="h-4 w-4 text-slate-300/60" />
         </div>
       </div>
     </div>
