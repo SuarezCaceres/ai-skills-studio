@@ -23,6 +23,8 @@ const PORT = 5191;
 const WIDTH = 640;
 const HEIGHT = 400;
 const PADDING = 16;
+/** Fecha fija: las demos que dependen de «hoy» (Datepicker) salen iguales cada vez que se regeneran. */
+const FIXED_NOW = new Date('2026-11-15T12:00:00');
 const MAX_BYTES = 40 * 1024;
 
 const only = (process.argv.find((a) => a.startsWith('--only=')) ?? '').slice('--only='.length).split(',').filter(Boolean);
@@ -59,6 +61,7 @@ async function main() {
   const report = [];
   try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
+    await context.clock.setFixedTime(FIXED_NOW);
     await context.route('https://api.github.com/**', fakeGithub);
     const page = await context.newPage();
     const errors = [];
