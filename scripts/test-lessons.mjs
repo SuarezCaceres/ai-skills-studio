@@ -115,7 +115,8 @@ async function main() {
     console.log('\nVista de Códice');
     await openCodice(page, origin);
     await page.locator('#lessons-heading').waitFor();
-    check('Códice no tiene pestañas: Clases es la única vista', (await page.getByRole('tab').count()) === 0);
+    const tabNames = (await page.getByRole('tab').allInnerTexts()).map((t) => t.trim());
+    check('Códice tiene exactamente dos pestañas: Mis clases y Comunidad (Mis clases por defecto)', tabNames.join('|') === 'Mis clases|Comunidad' && (await page.getByRole('tab', { name: 'Mis clases' }).getAttribute('aria-selected')) === 'true', tabNames.join('|'));
     const body = await page.locator('body').innerText();
     check('Studio Engine ya no existe (ni su Run Pipeline ni su Live Sync)', !/Studio Engine|Run Pipeline|Live Sync/.test(body));
     check('las píldoras decorativas ya no están (Skills Vault, Model Matrix, Synaptic Hooks)', !/Skills Vault|Model Matrix|Synaptic Hooks/.test(body));

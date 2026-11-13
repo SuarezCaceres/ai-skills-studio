@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ArrowUpRight, Boxes, ListVideo, PlayCircle, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Boxes, Globe, ListVideo, PlayCircle, RefreshCw, Sparkles } from 'lucide-react';
 import type { Lesson } from '../../types/lessons';
+import type { ShareStatus } from '../../services/lessonSharing';
 import { thumbnailUrl } from '../../services/youtube';
 import { getComponentEntry } from '../../data/componentRegistry';
 import { PersonAvatar } from '../catalog/PersonAvatar';
@@ -45,17 +46,24 @@ function VideoBadge({ videos }: { videos: Lesson['videos'] }) {
   );
 }
 
+/** Lo que pinta la tarjeta: sirve para una clase local y para una de Comunidad (sin cuerpo). */
+export type LessonCardData = Omit<Lesson, 'bodyMarkdown'>;
+
 interface LessonCardProps {
-  lesson: Lesson;
+  lesson: LessonCardData;
   skills: UseSkillOptionsResult;
   onOpen: () => void;
+  /** Estado de compartida de una clase propia (solo se muestra «Compartida» y «Cambios sin compartir»). */
+  status?: ShareStatus;
+  /** Si se indica, es una clase de Comunidad: se muestra «De @login» y «Tuya» si es propia. */
+  community?: { own: boolean };
 }
 
 /**
  * Tarjeta de una clase (mismo lenguaje que `SkillCard`): el título es el único botón y cubre la
  * tarjeta; el enlace al perfil queda encima con `z-10`. Los chips de skills y componentes son texto.
  */
-export function LessonCard({ lesson, skills, onOpen }: LessonCardProps) {
+export function LessonCard({ lesson, skills, onOpen, status, community }: LessonCardProps) {
   const profile = safeHttpUrl(lesson.author.profileUrl);
   const when = shortDate(lesson.updatedAt);
   return (
@@ -65,17 +73,34 @@ export function LessonCard({ lesson, skills, onOpen }: LessonCardProps) {
 
         <div className="flex items-center gap-2.5">
           <PersonAvatar login={lesson.author.login} avatarUrl={lesson.author.avatarUrl} />
-          <p className="m-0 min-w-0 flex-1 truncate text-xs text-slate-400">
-            Subida por{' '}
-            {profile ? (
-              <a href={profile} target="_blank" rel="noopener noreferrer" className={`${LINK} font-semibold text-slate-200 hover:underline`}>
-                @{lesson.author.login}
-              </a>
-            ) : (
-              <span className="font-semibold text-slate-200">@{lesson.author.login}</span>
-            )}
-            {when && <span className="text-slate-500"> · {when}</span>}
-          </p>
+          {community ? (
+            <p className="m-0 flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-400">
+              <span className="inline-flex max-w-full items-center gap-1 rounded-full border border-slate-700 bg-[#0a0d14] px-2.5 py-0.5 font-medium text-slate-200">
+                De{' '}
+                {profile ? (
+                  <a href={profile} target="_blank" rel="noopener noreferrer" className={`${LINK} truncate font-semibold hover:underline`}>
+                    @{lesson.author.login}
+                  </a>
+                ) : (
+                  <span className="truncate font-semibold">@{lesson.author.login}</span>
+                )}
+              </span>
+              {community.own && <span className="rounded-full border border-[#0ea5e9]/50 bg-[#0ea5e9]/10 px-2.5 py-0.5 font-semibold text-[#38bdf8]">Tuya</span>}
+              {when && <span className="text-slate-500">{when}</span>}
+            </p>
+          ) : (
+            <p className="m-0 min-w-0 flex-1 truncate text-xs text-slate-400">
+              Subida por{' '}
+              {profile ? (
+                <a href={profile} target="_blank" rel="noopener noreferrer" className={`${LINK} font-semibold text-slate-200 hover:underline`}>
+                  @{lesson.author.login}
+                </a>
+              ) : (
+                <span className="font-semibold text-slate-200">@{lesson.author.login}</span>
+              )}
+              {when && <span className="text-slate-500"> · {when}</span>}
+            </p>
+          )}
           <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-600 transition-colors group-hover:text-[#38bdf8]" aria-hidden="true" />
         </div>
 
@@ -111,6 +136,18 @@ export function LessonCard({ lesson, skills, onOpen }: LessonCardProps) {
 
         <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-slate-800/80 pt-3 text-[11px]">
           <span className={`rounded-full border px-2.5 py-0.5 font-medium ${LEVEL_STYLE[lesson.level]}`}>{lesson.level}</span>
+          {status === 'shared' && (
+            <span data-testid="card-share-status" className="inline-flex items-center gap-1 rounded-full border border-[#0ea5e9]/50 bg-[#0ea5e9]/10 px-2.5 py-0.5 font-medium text-[#38bdf8]">
+              <Globe aria-hidden="true" className="h-3 w-3" />
+              Compartida
+            </span>
+          )}
+          {status === 'dirty' && (
+            <span data-testid="card-share-status" className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-950/30 px-2.5 py-0.5 font-medium text-amber-300">
+              <RefreshCw aria-hidden="true" className="h-3 w-3" />
+              Cambios sin compartir
+            </span>
+          )}
           {lesson.tags.map((tag) => (
             <span key={tag} className="font-mono text-slate-500">
               #{tag}
