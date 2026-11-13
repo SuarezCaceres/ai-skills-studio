@@ -77,7 +77,7 @@ async function main() {
 
     console.log('\nLista y estado inicial');
     check('Componentes no pide ninguna skill abierta', (await page.locator('#no-skill-heading').count()) === 0);
-    const rowNames = await page.locator('nav[aria-label="Componentes"] ul button > span:first-child').allInnerTexts();
+    const rowNames = await page.locator('nav[aria-label="Componentes"] ul button > span:last-child > span:first-child').allInnerTexts();
     check('la lista trae los 20 componentes', rowNames.length === 20, `hay ${rowNames.length}`);
     check('están todos los nombres pedidos', EXPECTED.every((n) => rowNames.includes(n)), rowNames.join(', '));
     check('el primero queda elegido (aria-current)', (await page.locator('nav[aria-label="Componentes"] button[aria-current="true"]').count()) === 1);
@@ -97,12 +97,12 @@ async function main() {
     check('el buscador filtra por nombre', (await page.locator('nav[aria-label="Componentes"] ul button').count()) === 1);
     await page.getByLabel('Buscar componente').fill('');
     await page.getByLabel('Filtrar por categoría').selectOption('Navegación');
-    const navRows = await page.locator('nav[aria-label="Componentes"] ul button > span:first-child').allInnerTexts();
+    const navRows = await page.locator('nav[aria-label="Componentes"] ul button > span:last-child > span:first-child').allInnerTexts();
     check('el filtro de categoría deja solo Navegación', navRows.sort().join() === ['Bottom Navigation', 'Breadcrumb', 'Dropdowns', 'Footer'].sort().join(), navRows.join(', '));
     await page.getByLabel('Filtrar por categoría').selectOption('todas');
 
     console.log('\nTeclado en la lista');
-    const order = await page.locator('nav[aria-label="Componentes"] ul button > span:first-child').allInnerTexts();
+    const order = await page.locator('nav[aria-label="Componentes"] ul button > span:last-child > span:first-child').allInnerTexts();
     await page.locator('nav[aria-label="Componentes"] ul button').first().focus();
     await page.keyboard.press('Home');
     check('Inicio elige el primero de la lista', (await page.locator('#component-name').innerText()) === order[0], order[0]);
@@ -180,6 +180,7 @@ async function main() {
     const after = await page.evaluate(() => document.activeElement?.getAttribute('aria-label'));
     check('Datepicker: flecha derecha avanza un día', before !== after && !!after, `${before} → ${after}`);
     await page.keyboard.press('Enter');
+    await stage(page).getByRole('grid').waitFor({ state: 'detached', timeout: 1500 }).catch(() => {});
     check('Datepicker: Enter elige el día y cierra', (await stage(page).getByRole('grid').count()) === 0 && (await stage(page).locator('input').first().inputValue()) !== '');
     const input = stage(page).locator('input').first();
     await input.fill('31/02/2025');
@@ -198,7 +199,10 @@ async function main() {
     await page.keyboard.press('ArrowRight');
     check('Gallery: flecha derecha cambia de imagen', (await stage(page).getByText(/3\/6/).count()) === 1);
     await page.keyboard.press('Escape');
-    check('Gallery: Escape cierra y devuelve el foco', (await stage(page).getByRole('dialog').count()) === 0 && (await page.evaluate(() => document.activeElement?.tagName)) === 'BUTTON');
+    const galleryFocus = await page
+      .waitForFunction(() => document.activeElement?.tagName === 'BUTTON' && document.activeElement.closest('ul[aria-label="Ilustraciones de ejemplo"]') !== null, null, { timeout: 1500 })
+      .then(() => true, () => false);
+    check('Gallery: Escape cierra y devuelve el foco a la miniatura', (await stage(page).getByRole('dialog').count()) === 0 && galleryFocus);
 
     // Forms
     await pick(page, 'Forms');

@@ -4,6 +4,7 @@ import type { ComponentAssignment, UiComponentCategory, UiComponentEntry } from 
 import { UI_COMPONENT_CATEGORIES } from '../../types/uiComponents';
 import { componentsByCategory } from '../../data/componentRegistry';
 import { AssignmentBadge } from './AssignmentBadge';
+import { ComponentThumb } from './ComponentThumb';
 import { ASSIGNMENT_FILTERS, matchesAssignmentFilter, type AssignmentFilter } from './assignmentInfo';
 
 interface ComponentSidebarProps {
@@ -179,14 +180,17 @@ export function ComponentSidebar({ entries, assignments, selectedId, onSelect }:
                           aria-current={active ? 'true' : undefined}
                           onClick={() => choose(entry.id)}
                           onKeyDown={(event) => onRowKeyDown(event, entry.id)}
-                          className={`flex w-full cursor-pointer flex-col items-start gap-1 rounded-lg border px-3 py-2 text-left transition-colors ${FOCUS} ${
+                          className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border px-2 py-2 text-left transition-colors ${FOCUS} ${
                             active
                               ? 'border-[#0ea5e9]/60 bg-[#0ea5e9]/10 text-white'
                               : 'border-transparent bg-transparent text-slate-300 hover:bg-white/5'
                           }`}
                         >
-                          <span className="text-sm font-semibold">{entry.name}</span>
-                          <AssignmentBadge assignment={assignments[entry.id]} />
+                          <ComponentThumb entry={entry} width={64} decorative />
+                          <span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+                            <span className="text-sm font-semibold">{entry.name}</span>
+                            <AssignmentBadge assignment={assignments[entry.id]} />
+                          </span>
                         </button>
                       </li>
                     );
