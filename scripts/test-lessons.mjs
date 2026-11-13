@@ -99,17 +99,13 @@ async function main() {
     page.on('pageerror', (e) => errors.push(String(e)));
     page.on('response', (r) => r.status() === 404 && errors.push(`404 ${r.url()}`));
 
-    console.log('\nPestañas de Códice');
+    console.log('\nVista de Códice');
     await openCodice(page, origin);
-    const tabs = await page.getByRole('tab').allInnerTexts();
-    check('hay dos pestañas reales: Clases y Studio Engine', tabs.map((t) => t.trim()).join('|') === 'Clases|Studio Engine', tabs.join('|'));
-    check('Clases es la pestaña por defecto', (await page.getByRole('tab', { name: 'Clases' }).getAttribute('aria-selected')) === 'true');
-    const body = await page.locator('body').innerText();
-    check('las píldoras decorativas ya no están (Skills Vault, Model Matrix, Synaptic Hooks)', !/Skills Vault|Model Matrix|Synaptic Hooks/.test(body));
-    await page.getByRole('tab', { name: 'Studio Engine' }).click();
-    check('Studio Engine conserva su contenido', (await page.getByText('Códice Neuronal').count()) >= 1);
-    await page.getByRole('tab', { name: 'Clases' }).click();
     await page.locator('#lessons-heading').waitFor();
+    check('Códice no tiene pestañas: Clases es la única vista', (await page.getByRole('tab').count()) === 0);
+    const body = await page.locator('body').innerText();
+    check('Studio Engine ya no existe (ni su Run Pipeline ni su Live Sync)', !/Studio Engine|Run Pipeline|Live Sync/.test(body));
+    check('las píldoras decorativas ya no están (Skills Vault, Model Matrix, Synaptic Hooks)', !/Skills Vault|Model Matrix|Synaptic Hooks/.test(body));
 
     console.log('\nSin sesión y sin clases');
     check('estado vacío con invitación a subir la primera', (await page.getByText('Todavía no hay clases en este navegador.').count()) === 1);

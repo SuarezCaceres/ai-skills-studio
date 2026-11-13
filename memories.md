@@ -283,7 +283,7 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
 - `Drawer` y el visor de `Gallery` se dibujan en un portal sobre `document.body` (sin portal quedaban bajo la cabecera fija, z-50).
 
 **Clases (Códice → Clases).**
-- Códice tiene dos pestañas reales: *Clases* (por defecto) y *Studio Engine* (el contenido de ejemplo de antes). Se retiraron las píldoras decorativas Skills Vault, Model Matrix y Synaptic Hooks.
+- Códice muestra solo *Clases*, sin pestañas. Se eliminó *Studio Engine* (su contenido de ejemplo y el código que solo usaba esa vista) y antes se habían retirado las píldoras decorativas Skills Vault, Model Matrix y Synaptic Hooks.
 - Modelo `Lesson` (`src/types/lessons.ts`) y `LessonsStore` (`src/services/lessonsStore.ts`): hoy `localStorage` (`ai_skills_studio_lessons_v1`), detrás de una interfaz para poder cambiar el almacenamiento. Todo lo leído o importado se sanea: el perfil del autor se reconstruye desde el login, `importLessons` nunca pisa la clase de otra persona y el cuerpo se pinta siempre con `SafeMarkdown` (el de `catalog/`, no hay otro).
 - Solo la persona que la subió puede editar o borrar (`canManageLesson`); subir requiere sesión. Exportar e importar JSON está en la lista.
 - `App` guarda `openLessonId` y `selectedComponentId` para volver al mismo punto tras saltar a una skill o a un componente; la skill vuelve con la etiqueta «Códice».
