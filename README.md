@@ -122,6 +122,16 @@ Cualquier persona con cuenta de GitHub puede registrar una skill pegando la URL 
 - Puesta en marcha (repo catálogo, OAuth App, Vercel y variables `VITE_*`): [`docs/catalog-setup.md`](docs/catalog-setup.md).
 - Pruebas: `npm test` incluye `scripts/test-catalog-integration.mjs`, que recorre el flujo en un navegador real con GitHub simulado.
 
+## 🧩 Componentes y Clases
+
+- **Componentes:** el kit del equipo vive en `src/components/ui-kit/` (20 componentes propios, sin código ni imágenes de terceros). La página lista los componentes en una barra lateral con buscador y filtros (Todos, Con skill, Con modelo, No asignados, y categoría). Cada uno muestra su vista previa en vivo, una captura generada a partir del propio componente, su código real (importado con `?raw`), notas de accesibilidad y la skill o el modelo de IA asignado; si no tiene, dice **No asignado**.
+- **Asignar** una skill del equipo o un modelo requiere sesión de GitHub y se guarda en `localStorage` (`ai_skills_studio_component_assignments_v1`). Ver es libre.
+- **Añadir un componente:** crea `src/components/ui-kit/<Nombre>.tsx` con un `export function Demo()`, añade una entrada a `src/data/componentRegistry.ts` y ejecuta `node scripts/capture-components.mjs` para generar su miniatura (`public/components/<id>.png`, ≤ 40 KB).
+- **Clases:** en Códice → *Clases* se suben explicaciones de lo que se ha hecho en el equipo (Markdown con vista previa en vivo, nivel, etiquetas y la skill y los componentes usados). Solo quien la subió puede editarla o borrarla. Por ahora se guardan en el navegador (`ai_skills_studio_lessons_v1`) y se pueden **exportar e importar como JSON**; compartirlas por GitHub queda pendiente. Desde un componente se ven las clases que lo mencionan.
+- Pruebas: `npm test` incluye `test-lessons-store.mjs`, `test-component-assignments.mjs`, `test-components-page.mjs`, `test-components-assign.mjs` y `test-lessons.mjs` (GitHub y OAuth simulados; nunca se toca `api.github.com`).
+
+---
+
 ## 🌿 Estrategia de Ramas en Git
 
 El repositorio sigue un flujo estructurado de dos ramas para garantizar estabilidad en producción:
@@ -212,14 +222,19 @@ ai-skills-studio/
 │   │   ├── catalog/                      # Catálogo, equipo, detalle, auditor, instalación y traducción
 │   │   ├── studio/                       # Barra de skill activa y estado vacío de los módulos
 │   │   ├── StylePresetCatalog.tsx        # Catálogo de componentes y presets
-│   │   ├── UIComponentPreview.tsx        # Previsualizador en vivo de UI/UX
+│   │   ├── components/                   # Página Componentes: lista lateral, detalle, asignación y miniaturas
+│   │   ├── lessons/                      # Pestaña Clases de Códice: lista, detalle, editor y selectores
+│   │   ├── ui-kit/                       # 20 componentes reales (React + Tailwind), cada uno con su Demo
 │   │   ├── UnifiedProjectStudio.tsx      # Inspector unificado de proyectos
 │   │   └── VoiceVisualFeedback.tsx       # Reconocimiento y síntesis por voz
 │   ├── data/                  # Catálogos estáticos y colecciones de datos
 │   │   ├── aiModelsData.ts               # Métricas de los modelos de IA
+│   │   ├── componentRegistry.ts          # Registro del kit: id, categoría, accesibilidad, demo y código
 │   │   ├── frameworkCollectionsData.tsx  # Colecciones de frameworks y píldoras
 │   │   └── stylePresets.ts               # Presets de componentes UI/UX
 │   ├── services/              # Lógica de procesamiento y servicios
+│   │   ├── componentAssignments.ts       # Skills y modelos de IA asignados a cada componente (local)
+│   │   ├── lessonsStore.ts               # Almacén de clases con validación, importar y exportar
 │   │   ├── rarParserService.ts           # Descompresor binario de paquetes .RAR
 │   │   ├── speechService.ts              # Servicio de voz Web Speech API
 │   │   └── translationService.ts         # Traducción algorítmica de Markdown

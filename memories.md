@@ -110,7 +110,9 @@ ai-skills-studio/
     │   ├── ContextEvidenceLogger.tsx   # Registro de contexto y evidencias
     │   ├── MarkdownViewerTranslator.tsx # Visor Markdown con traducción
     │   ├── NeuralAtmosphereBackground.tsx # Fondo canvas de red neuronal
-    │   ├── UIComponentPreview.tsx      # Vista previa de componentes UI
+    │   ├── components/                 # Página Componentes (lista, detalle, asignación, miniaturas)
+    │   ├── lessons/                    # Pestaña Clases de Códice
+    │   ├── ui-kit/                     # 20 componentes reales del kit
     │   └── VoiceVisualFeedback.tsx     # Retroalimentación visual del dictado por voz
     ├── data/                           # Skills integradas (incluye design-taste-frontend y github-workflow-standards)
     ├── services/
@@ -270,3 +272,21 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
 - Perfil: ruta `'perfil'` (`MemberProfilePage`), con `getProfile` ampliado (bio, empresa, ciudad, sitio https, repos, seguidores, alta) y `computeMemberStats` (`src/services/teamStats.ts`, cuenta por quien registró la skill). Se llega con "Ver perfil" en la vista del equipo o con el avatar de una tarjeta.
 - Pruebas: `test-skill-upload.mjs` (42, con GitHub simulado) cubre edición, conflictos, sincronización, perfil y utilidades de texto; el test de integración recorre el perfil.
 - **Login en desarrollo:** la OAuth App y la función de Vercel solo admiten `http://localhost:5173`. En otros puertos (5180, 5181…) el botón de GitHub falla; para probar el login hay que usar el 5173 o añadir el origen en ambos sitios.
+
+## 12. Componentes desde cero y Clases en Códice (worktree WT4, rama `feat/codice-clases-componentes`)
+
+**Componentes (ruta `'preview'`).**
+- Ya no depende de una copia de trabajo. `UIComponentPreview` se eliminó; `StylePresetCatalog` y `stylePresets` se conservan (los usa el Workspace).
+- Registro en `src/data/componentRegistry.ts`: cada entrada enlaza con `ui-kit/<Archivo>.tsx` (debe exportar `Demo`). La demo se carga diferida y el código se muestra con `?raw`, así nunca difiere de lo que se ve.
+- Miniaturas: `node scripts/capture-components.mjs` arranca Vite, fija el reloj (15-nov-2026), oculta el fondo decorativo y fotografía cada demo a 640×400 en `public/components/`. Si una pasa de 40 KB usa `scripts/lib/png-quantize.mjs` (paleta indexada con `zlib`, sin dependencias). Hay que regenerarlas si cambia el aspecto de un componente.
+- Asignaciones (skills + modelos de IA) en `localStorage` (`src/services/componentAssignments.ts`), con saneado estricto al leer. Asignar exige sesión de GitHub; sin asignación se muestra **No asignado**.
+- `Drawer` y el visor de `Gallery` se dibujan en un portal sobre `document.body` (sin portal quedaban bajo la cabecera fija, z-50).
+
+**Clases (Códice → Clases).**
+- Códice tiene dos pestañas reales: *Clases* (por defecto) y *Studio Engine* (el contenido de ejemplo de antes). Se retiraron las píldoras decorativas Skills Vault, Model Matrix y Synaptic Hooks.
+- Modelo `Lesson` (`src/types/lessons.ts`) y `LessonsStore` (`src/services/lessonsStore.ts`): hoy `localStorage` (`ai_skills_studio_lessons_v1`), detrás de una interfaz para poder cambiar el almacenamiento. Todo lo leído o importado se sanea: el perfil del autor se reconstruye desde el login, `importLessons` nunca pisa la clase de otra persona y el cuerpo se pinta siempre con `SafeMarkdown` (el de `catalog/`, no hay otro).
+- Solo la persona que la subió puede editar o borrar (`canManageLesson`); subir requiere sesión. Exportar e importar JSON está en la lista.
+- `App` guarda `openLessonId` y `selectedComponentId` para volver al mismo punto tras saltar a una skill o a un componente; la skill vuelve con la etiqueta «Códice».
+- Relación inversa: el detalle de cada componente lista las clases que lo mencionan.
+- **Pendiente (E5, necesita permiso):** compartir las clases por GitHub (`classes/<slug>/CLASE.md` en `<login>/codice-skills` + Issue de tipo `class`). Exige cambiar el workflow `codice-labeler.yml` del repo `codice-skills-catalog`.
+- Pruebas en `npm test`: `test-lessons-store.mjs`, `test-component-assignments.mjs`, `test-components-page.mjs`, `test-components-assign.mjs`, `test-lessons.mjs`. Los de interfaz simulan GitHub y el login (`scripts/lib/github-fixture.mjs`, redirección OAuth con `window.open` anulado).
