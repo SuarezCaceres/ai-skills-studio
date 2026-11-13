@@ -118,6 +118,7 @@ El proyecto implementa las directivas de seguridad **STRIDE** y revisión de **5
 Cualquier persona con cuenta de GitHub puede registrar una skill pegando la URL de su repo, votarla y reportar con qué modelo de IA funcionó. Cada skill muestra un auditor automático (scripts, `curl | sh`, rutas sensibles), el comando de instalación para Claude Code, Cursor y Gemini CLI fijado al commit auditado, y un botón que traduce el contenido al español.
 
 - Datos: Issues y reacciones de un repo catálogo en GitHub; login con OAuth mediante una función en Vercel (`api/github-oauth.ts`). El token solo vive en memoria.
+- Subir una skill: pegando la URL de un repo con `SKILL.md`, o desde tu equipo (un `.md` o una carpeta). En el segundo caso la app la sube en un único commit a `<tu-login>/codice-skills` (repo público que crea si no existe), revisa que no haya claves o tokens y la registra en el catálogo. Volver a subir la misma skill actualiza el commit y borra los archivos que ya no están.
 - Puesta en marcha (repo catálogo, OAuth App, Vercel y variables `VITE_*`): [`docs/catalog-setup.md`](docs/catalog-setup.md).
 - Pruebas: `npm test` incluye `scripts/test-catalog-integration.mjs`, que recorre el flujo en un navegador real con GitHub simulado.
 

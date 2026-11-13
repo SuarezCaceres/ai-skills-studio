@@ -102,6 +102,31 @@ export interface SkillAuditFinding {
   filePath?: string;
 }
 
+/** Archivo local listo para subir a GitHub. */
+export interface LocalSkillFile {
+  /** Ruta relativa dentro de la carpeta de la skill (`SKILL.md`, `scripts/run.md`, …). */
+  path: string;
+  sizeBytes: number;
+  /** Contenido codificado en base64 (sirve para texto y binarios). */
+  base64: string;
+}
+
+/** Skill leída del equipo local, validada y lista para publicar. */
+export interface LocalSkillBundle {
+  /** Nombre de la carpeta en el repo: `skills/<slug>`. Solo `a-z`, `0-9` y `-`. */
+  slug: string;
+  files: LocalSkillFile[];
+}
+
+export type PublishStep = 'repo' | 'upload' | 'register';
+
+export interface PublishProgress {
+  step: PublishStep;
+  message: string;
+  done?: number;
+  total?: number;
+}
+
 /** Sesión de GitHub en el cliente. El token nunca se persiste en disco. */
 export interface GithubSession {
   login: string;
@@ -125,4 +150,13 @@ export interface CatalogApi {
   ): Promise<SkillResultReport>;
   getVotes(skillId: string): Promise<SkillVotes>;
   toggleVote(skillId: string): Promise<SkillVotes>;
+  /**
+   * Sube una skill desde archivos locales al repo `<login>/codice-skills` de quien está
+   * logueado (lo crea si no existe) y la registra en el catálogo. Opcional: el mock de
+   * desarrollo no lo implementa.
+   */
+  publishLocalSkill?(
+    bundle: LocalSkillBundle,
+    onProgress?: (progress: PublishProgress) => void
+  ): Promise<CatalogSkill>;
 }
