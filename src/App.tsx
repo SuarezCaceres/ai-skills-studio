@@ -41,9 +41,9 @@ const UnifiedProjectStudio = lazy(() =>
     default: m.UnifiedProjectStudio,
   }))
 );
-const UIComponentPreview = lazy(() =>
-  import('./components/UIComponentPreview').then((m) => ({
-    default: m.UIComponentPreview,
+const ComponentsPage = lazy(() =>
+  import('./components/components/ComponentsPage').then((m) => ({
+    default: m.ComponentsPage,
   }))
 );
 const ContextEvidenceLogger = lazy(() =>
@@ -104,6 +104,9 @@ export function App() {
   >(null);
   // Pantalla a la que vuelve el detalle de una skill del catálogo (equipo o catálogo).
   const [detailBackPage, setDetailBackPage] = useState<AppPageRoute>('catalogo');
+
+  // Componente elegido en la página Componentes (se puede abrir desde otras pantallas).
+  const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
 
   const openCatalogSkill = (id: string, from: AppPageRoute) => {
     setSelectedCatalogSkillId(id);
@@ -575,26 +578,9 @@ export function App() {
                 </>
               )}
 
-              {activePage === 'preview' &&
-                (workingSkill ? (
-                  <>
-                    {skillBar}
-                    <UIComponentPreview
-                      skill={workingSkill}
-                      onUpdateSkill={handleUpdateSkill}
-                      onStatusChange={setGlobalStatus}
-                      isCollaboratorMode={isCollaboratorMode}
-                      currentUserName={currentUser?.fullName}
-                      onRequestLogin={() => setShowAuthScreen(true)}
-                    />
-                  </>
-                ) : (
-                  <NoSkillState
-                    module="Componentes"
-                    description="Aquí pruebas barras de menús y paletas accesibles con el estilo de una skill y guardas el resultado en su copia."
-                    onGoToTeam={() => setActivePage('boveda')}
-                  />
-                ))}
+              {activePage === 'preview' && (
+                <ComponentsPage selectedId={selectedComponentId} onSelect={setSelectedComponentId} />
+              )}
 
               {activePage === 'evidencias' &&
                 (workingSkill ? (
