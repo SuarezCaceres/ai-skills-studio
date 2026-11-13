@@ -14,7 +14,8 @@ import type {
   SkillVotes,
 } from '../types/catalog';
 import type { SpecificModelVersion } from '../types/workspace';
-import { SLUG_RE, UPLOAD_LIMITS, base64ToUtf8 as decodeBase64Text } from './skillUploadService';
+import { SLUG_RE, UPLOAD_LIMITS, base64ToUtf8 as decodeBase64Text, utf8ToBase64 } from './skillUploadService';
+import type { CommunityLesson, Lesson, LessonShare } from '../types/lessons';
 
 /**
  * Servicio de catálogo comunitario sobre la API de GitHub.
@@ -1355,6 +1356,291 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
     return registerResolved({ owner, repo: repoName, sha: commit.sha, path: `skills/${bundle.slug}` }, repoInfo);
   }
 
+  /* ---------- Clases compartidas ---------- */
+
+  // La lógica de compartir (y el almacén de clases) solo hace falta al usar estas funciones: se carga
+  // bajo demanda para no engordar el paquete principal.
+  type SharingLib = typeof import('./lessonSharing') & typeof import('./lessonsStore');
+  let sharingLib: Promise<SharingLib> | undefined;
+  const loadSharingLib = (): Promise<SharingLib> =>
+    (sharingLib ??= Promise.all([import('./lessonSharing'), import('./lessonsStore')]).then(([sharing, store]) => ({ ...sharing, ...store })));
+
+  /** Texto legible del Issue de una clase: el marcador va primero y el resto es solo para personas. */
+  function classIssueBody(L: SharingLib, lesson: Lesson, login: string, sha: string): string {
+    const plain = lesson.title.replace(/[<>]/g, '');
+    return [
+      L.buildClassMarker(lesson, { repo: `${login}/${PUBLISH_REPO}`, sha }),
+      `Clase compartida desde Códice Studio: **${plain}**`,
+      '',
+      `- Autor: @${login}`,
+      `- Repositorio: https://github.com/${login}/${PUBLISH_REPO}`,
+      `- Carpeta: \`${L.classDir(lesson.id)}\``,
+      `- Commit: \`${sha}\``,
+      '',
+      'Este Issue lo crea la app para que la clase aparezca en la pestaña Comunidad. Ciérralo para retirarla.',
+    ].join('\n');
+  }
+
+  /** Valida la clase y comprueba que es de quien tiene la sesión: nunca se comparte a nombre de otra persona. */
+  function ownedLesson(L: SharingLib, lesson: Lesson, session: GithubSession): Lesson {
+    if (!OWNER_RE.test(session.login)) {
+      throw new CatalogError('invalid_input', 'La cuenta de GitHub de la sesión no es válida.');
+    }
+    const clean = L.sanitizeLesson(lesson);
+    if (!clean) throw new CatalogError('invalid_input', 'La clase no es válida: revisa el título, el nivel y la explicación.');
+    if (clean.author.login.toLowerCase() !== session.login.toLowerCase()) {
+      throw new CatalogError('forbidden', `Solo puedes compartir tus propias clases. Esta es de @${clean.author.login}.`);
+    }
+    return clean;
+  }
+
+  /**
+   * Un único commit en `<login>/codice-skills` con los archivos dados (`content: null` = borrar).
+   * Con `createRepo` crea el repo público si no existe; sin él, si no existe o no hay nada que borrar,
+   * no hace nada y devuelve `null` (o el commit actual si no había nada que borrar).
+   */
+  async function commitClassFiles(
+    session: GithubSession,
+    changes: Array<{ path: string; content: string | null }>,
+    message: string,
+    createRepo: boolean
+  ): Promise<string | null> {
+    const token = session.token;
+    const owner = session.login;
+    const base = `/repos/${owner}/${PUBLISH_REPO}`;
+
+    let repoInfo: GhRepo;
+    try {
+      repoInfo = (await request<GhRepo>(base, { token, fresh: true })).data;
+    } catch (err) {
+      if (!(err instanceof CatalogError) || err.code !== 'not_found') throw err;
+      if (!createRepo) return null;
+      repoInfo = (
+        await request<GhRepo>('/user/repos', {
+          method: 'POST',
+          token,
+          body: { name: PUBLISH_REPO, description: 'Skills y clases publicadas desde Códice Studio', private: false, auto_init: true },
+        })
+      ).data;
+    }
+    if (repoInfo.private) {
+      throw new CatalogError(
+        'private_repo',
+        `${owner}/${PUBLISH_REPO} es un repositorio privado. Las clases compartidas se leen de repos públicos: hazlo público o bórralo.`
+      );
+    }
+    const branch = repoInfo.default_branch;
+    const head = await withRetry(
+      () => request<{ object: { sha: string } }>(`${base}/git/ref/heads/${encodePath(branch)}`, { token, fresh: true }),
+      createRepo ? 5 : 1,
+      800
+    );
+    const parentSha = head.data.object.sha;
+    const baseTree = (await request<{ tree: { sha: string } }>(`${base}/git/commits/${parentSha}`, { token, fresh: true })).data.tree.sha;
+
+    let effective = changes;
+    if (changes.some((c) => c.content === null)) {
+      // Borrar algo que no existe hace fallar al árbol: solo se borra lo que está.
+      const current = (await request<GhTree>(`${base}/git/trees/${baseTree}?recursive=1`, { token, fresh: true })).data;
+      const present = new Set(current.tree.filter((e) => e.type === 'blob').map((e) => e.path));
+      effective = changes.filter((c) => c.content !== null || present.has(c.path));
+      if (effective.length === 0) return parentSha;
+    }
+
+    const tree: Array<{ path: string; mode: string; type: string; sha: string | null }> = [];
+    for (const c of effective) {
+      if (c.content === null) {
+        tree.push({ path: c.path, mode: '100644', type: 'blob', sha: null });
+      } else {
+        const { data } = await request<{ sha: string }>(`${base}/git/blobs`, {
+          method: 'POST',
+          token,
+          body: { content: utf8ToBase64(c.content), encoding: 'base64' },
+        });
+        tree.push({ path: c.path, mode: '100644', type: 'blob', sha: data.sha });
+      }
+    }
+    const newTree = (await request<{ sha: string }>(`${base}/git/trees`, { method: 'POST', token, body: { base_tree: baseTree, tree } })).data;
+    const commit = (
+      await request<{ sha: string }>(`${base}/git/commits`, {
+        method: 'POST',
+        token,
+        body: { message: message.slice(0, 200), tree: newTree.sha, parents: [parentSha] },
+      })
+    ).data;
+    try {
+      await request<unknown>(`${base}/git/refs/heads/${encodePath(branch)}`, { method: 'PATCH', token, body: { sha: commit.sha, force: false } });
+    } catch (err) {
+      if (err instanceof CatalogError && err.code === 'github') {
+        throw new CatalogError('conflict', 'El repositorio cambió mientras compartías la clase. Vuelve a intentarlo.');
+      }
+      throw err;
+    }
+    cacheInvalidate([base]);
+    return commit.sha;
+  }
+
+  /** Issue `[class]` de esta persona para ese id, buscado por autor y marcador (no por etiqueta). */
+  async function findOwnClassIssue(L: SharingLib, repoPath: string, session: GithubSession, slug: string): Promise<GhIssue | null> {
+    for (let page = 1; page <= MAX_ISSUE_PAGES; page++) {
+      const qs = new URLSearchParams({
+        creator: session.login,
+        state: 'all',
+        per_page: '100',
+        page: String(page),
+        sort: 'created',
+        direction: 'desc',
+      });
+      const batch = (await request<GhIssue[]>(`/repos/${repoPath}/issues?${qs}`, { token: session.token, fresh: true })).data;
+      for (const issue of batch) {
+        if (issue.pull_request || issue.user?.login.toLowerCase() !== session.login.toLowerCase()) continue;
+        if (L.readClassMarker(issue.body)?.data.slug === slug) return issue;
+      }
+      if (batch.length < 100) break;
+    }
+    return null;
+  }
+
+  /** Crea el Issue ancla o actualiza (y reabre) el que ya existe; devuelve su número. */
+  async function upsertClassIssue(
+    L: SharingLib,
+    repoPath: string,
+    session: GithubSession,
+    lesson: Lesson,
+    sha: string,
+    knownNumber?: number
+  ): Promise<number> {
+    const token = session.token;
+    const title = `[class] ${session.login}/${lesson.id}`.slice(0, 250);
+    const body = classIssueBody(L, lesson, session.login, sha);
+    let number = knownNumber;
+    if (number === undefined) number = (await findOwnClassIssue(L, repoPath, session, lesson.id))?.number;
+    if (number !== undefined) {
+      try {
+        await request<GhIssue>(`/repos/${repoPath}/issues/${number}`, { method: 'PATCH', token, body: { title, body, state: 'open' } });
+        return number;
+      } catch (err) {
+        // El Issue ya no existe (lo borraron): se crea uno nuevo. Cualquier otro error se propaga.
+        if (!(err instanceof CatalogError) || err.code !== 'not_found') throw err;
+      }
+    }
+    const { data: issue } = await request<GhIssue>(`/repos/${repoPath}/issues`, {
+      method: 'POST',
+      token,
+      body: { title, body, labels: ['class', L.classLabel(lesson.id)] },
+    });
+    return issue.number;
+  }
+
+  async function publishClass(lesson: Lesson, knownNumber?: number): Promise<LessonShare> {
+    const repoPath = requireCatalog();
+    const session = requireSession();
+    const L = await loadSharingLib();
+    const clean = ownedLesson(L, lesson, session);
+    const files = L.buildSharedFiles(clean).map((f) => ({ path: f.path, content: f.content as string | null }));
+    const sha = await commitClassFiles(session, files, `Comparte la clase ${clean.id} desde Códice Studio`, true);
+    if (!sha) throw new CatalogError('github', 'No se pudo crear el commit de la clase.');
+    const issueNumber = await upsertClassIssue(L, repoPath, session, clean, sha, knownNumber);
+    cacheInvalidate([`/repos/${repoPath}/issues`]);
+    markWrite();
+    return {
+      repo: `${session.login}/${PUBLISH_REPO}`,
+      slug: clean.id,
+      issueNumber,
+      sha,
+      sharedAt: new Date().toISOString(),
+      contentHash: L.contentHash(clean),
+    };
+  }
+
+  async function unpublishClass(share: LessonShare): Promise<void> {
+    const repoPath = requireCatalog();
+    const session = requireSession();
+    const L = await loadSharingLib();
+    if (!share || !L.isValidLessonId(share.slug) || !Number.isSafeInteger(share.issueNumber) || share.issueNumber < 1) {
+      throw new CatalogError('invalid_input', 'El estado de la clase compartida no es válido.');
+    }
+    if (typeof share.repo !== 'string' || share.repo.toLowerCase() !== `${session.login}/${PUBLISH_REPO}`.toLowerCase()) {
+      throw new CatalogError('forbidden', 'Solo puedes retirar clases que compartiste desde tu propia cuenta.');
+    }
+    const dir = L.classDir(share.slug);
+    await commitClassFiles(
+      session,
+      [
+        { path: `${dir}/${L.CLASE_JSON}`, content: null },
+        { path: `${dir}/${L.CLASE_MD}`, content: null },
+      ],
+      `Retira la clase ${share.slug} desde Códice Studio`,
+      false
+    );
+    try {
+      await request<GhIssue>(`/repos/${repoPath}/issues/${share.issueNumber}`, {
+        method: 'PATCH',
+        token: session.token,
+        body: { state: 'closed' },
+      });
+    } catch (err) {
+      // Si el Issue ya no existe, la clase ya estaba retirada.
+      if (!(err instanceof CatalogError) || err.code !== 'not_found') throw err;
+    }
+    cacheInvalidate([`/repos/${repoPath}/issues`]);
+    markWrite();
+  }
+
+  async function listCommunity(): Promise<CommunityLesson[]> {
+    requireCatalog();
+    requireSession();
+    const L = await loadSharingLib();
+    const issues = await listIssues(['class'], 'open');
+    const lessons: CommunityLesson[] = [];
+    for (const issue of issues) {
+      const lesson = L.toCommunityLesson(issue);
+      if (lesson) lessons.push(lesson);
+    }
+    lessons.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt) || b.issueNumber - a.issueNumber);
+    // Si una persona tiene varios Issues para el mismo id, vale el más reciente.
+    const seen = new Set<string>();
+    return lessons.filter((l) => {
+      const key = `${l.repo.toLowerCase()}#${l.id}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  async function loadCommunityLesson(lesson: CommunityLesson): Promise<CommunityLesson> {
+    requireSession();
+    const L = await loadSharingLib();
+    const [owner, repo, extra] = String(lesson?.repo ?? '').split('/');
+    if (
+      !owner ||
+      repo !== PUBLISH_REPO ||
+      extra !== undefined ||
+      !OWNER_RE.test(owner) ||
+      owner.toLowerCase() !== lesson.author?.login?.toLowerCase() ||
+      !L.isValidLessonId(lesson.id) ||
+      !L.isGitSha(lesson.sha)
+    ) {
+      throw new CatalogError('invalid_input', 'La clase compartida no es válida.');
+    }
+    const dir = L.classDir(lesson.id);
+    const gone = () => new CatalogError('not_found', 'Esta clase ya no está disponible.');
+    let json: string;
+    let markdown: string;
+    try {
+      [json, markdown] = await Promise.all([
+        fetchRaw(owner, repo, `${dir}/${L.CLASE_JSON}`, lesson.sha),
+        fetchRaw(owner, repo, `${dir}/${L.CLASE_MD}`, lesson.sha),
+      ]);
+    } catch (err) {
+      if (err instanceof CatalogError && err.code === 'not_found') throw gone();
+      throw err;
+    }
+    const full = L.withSharedFiles(lesson, { json, markdown });
+    if (!full) throw gone();
+    return full;
+  }
+
   return {
     async registerSkillFromUrl(repoUrl) {
       requireCatalog();
@@ -1504,21 +1790,31 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
       }
     },
 
-    // TODO(C2): implementación real en la fase C2 (de momento el contrato lanza `not_configured`).
-    async shareLesson() {
-      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
+    shareLesson(lesson) {
+      return publishClass(lesson);
     },
-    async updateSharedLesson() {
-      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
+
+    async updateSharedLesson(lesson) {
+      requireSession();
+      if (!lesson?.shared) {
+        throw new CatalogError('invalid_input', 'Esta clase no está compartida todavía: usa «Compartir».');
+      }
+      if (lesson.shared.slug !== lesson.id) {
+        throw new CatalogError('invalid_input', 'El estado de la clase compartida no corresponde a esta clase.');
+      }
+      return publishClass(lesson, lesson.shared.issueNumber);
     },
-    async unshareLesson() {
-      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
+
+    unshareLesson(share) {
+      return unpublishClass(share);
     },
-    async listCommunityLessons() {
-      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
+
+    listCommunityLessons() {
+      return listCommunity();
     },
-    async getCommunityLesson() {
-      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
+
+    getCommunityLesson(lesson) {
+      return loadCommunityLesson(lesson);
     },
 
     async getSkillFileContent(skillId, filePath) {
