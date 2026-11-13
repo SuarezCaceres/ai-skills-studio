@@ -18,6 +18,7 @@ import { AuthScreen } from './components/AuthScreen';
 import { TopStudioHeader } from './components/NavbarActiveSkill';
 import { InformativeLandingSection } from './components/InformativeLandingSection';
 import { NeuralAtmosphereBackground } from './components/NeuralAtmosphereBackground';
+import { useCatalog } from './hooks/useCatalog';
 
 const CodiceStudio = lazy(() =>
   import('./components/CodiceStudio').then((m) => ({
@@ -49,6 +50,11 @@ const AIModelBenchmarkPanel = lazy(() =>
     default: m.AIModelBenchmarkPanel,
   }))
 );
+const CatalogDetailRoute = lazy(() =>
+  import('./components/catalog/CatalogDetailRoute').then((m) => ({
+    default: m.CatalogDetailRoute,
+  }))
+);
 
 const STORAGE_KEY = 'ai_skills_studio_vault_v4';
 const AUTH_SESSION_KEY = 'ai_skills_studio_session_v1';
@@ -64,6 +70,9 @@ export function App() {
   });
 
   const [showAuthScreen, setShowAuthScreen] = useState<boolean>(false);
+  // Sesión de GitHub (solo en memoria). Montar el hook aquí completa el regreso de
+  // OAuth (`?code&state`) al arrancar, también en el modo por redirección.
+  const { session: githubSession, signOut: signOutGithub } = useCatalog();
 
   const [skills, setSkills] = useState<SkillDocument[]>(() => {
     try {
@@ -88,6 +97,9 @@ export function App() {
     () => skills[0]?.id || ''
   );
   const [activePage, setActivePage] = useState<AppPageRoute>('inicio');
+  const [selectedCatalogSkillId, setSelectedCatalogSkillId] = useState<
+    string | null
+  >(null);
   const [selectedModelId, setSelectedModelId] = useState<string>(
     AI_BENCHMARK_MODELS[0].id
   );
@@ -134,7 +146,22 @@ export function App() {
     }
   };
 
+  // Al completarse el inicio de sesión con GitHub se entra como colaborador.
+  useEffect(() => {
+    if (!githubSession) return;
+    if (currentUser?.id === `gh-${githubSession.login}`) return;
+    handleAuthenticated({
+      id: `gh-${githubSession.login}`,
+      fullName: githubSession.login,
+      email: `${githubSession.login}@users.noreply.github.com`,
+      role: 'Colaborador · GitHub',
+      createdAt: new Date().toLocaleDateString(),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [githubSession]);
+
   const handleLogout = () => {
+    signOutGithub();
     setCurrentUser(null);
     setShowAuthScreen(false);
     setGlobalStatus('Sesión cerrada · Exploras en Modo Visitante');
@@ -147,6 +174,7 @@ export function App() {
   };
 
   const handleErasePersonalData = () => {
+    signOutGithub();
     eraseAllPersonalData();
     setCurrentUser(null);
     setShowAuthScreen(false);
@@ -575,6 +603,10 @@ export function App() {
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
                   onNavigatePage={setActivePage}
+                  onOpenCatalogSkill={(id) => {
+                    setSelectedCatalogSkillId(id);
+                    setActivePage('skill-detalle');
+                  }}
                 />
               )}
 
@@ -609,6 +641,14 @@ export function App() {
                   skill={activeSkill}
                   onUpdateSkill={handleUpdateSkill}
                   onStatusChange={setGlobalStatus}
+                />
+              )}
+
+              {activePage === 'skill-detalle' && (
+                <CatalogDetailRoute
+                  skillId={selectedCatalogSkillId}
+                  onBack={() => setActivePage('boveda')}
+                  onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}
 
