@@ -127,6 +127,24 @@ export interface PublishProgress {
   total?: number;
 }
 
+/** Cambio a un archivo de una skill ya publicada. */
+export interface SkillFileChange {
+  /** Ruta relativa dentro de la carpeta de la skill. */
+  path: string;
+  /** Contenido nuevo en base64, o `null` para borrar el archivo. */
+  base64: string | null;
+  /**
+   * Contenido (base64) que la persona vio al abrir el archivo. Si en GitHub ya es otro, el
+   * cambio se rechaza como conflicto en vez de pisar una edición hecha por otro lado.
+   */
+  expectBase64?: string;
+}
+
+export interface CommitSkillOptions {
+  /** Mensaje del commit; por defecto "Actualiza <skill> desde Códice Studio". */
+  message?: string;
+}
+
 /** Sesión de GitHub en el cliente. El token nunca se persiste en disco. */
 export interface GithubSession {
   login: string;
@@ -159,4 +177,19 @@ export interface CatalogApi {
     bundle: LocalSkillBundle,
     onProgress?: (progress: PublishProgress) => void
   ): Promise<CatalogSkill>;
+  /**
+   * Confirma cambios (un solo commit) sobre una skill que está en un repo de quien está
+   * logueado y actualiza su registro en el catálogo. Opcional: el mock no lo implementa.
+   */
+  commitSkillChanges?(
+    skillId: string,
+    changes: SkillFileChange[],
+    options?: CommitSkillOptions
+  ): Promise<CatalogSkill>;
+  /**
+   * Hace que el catálogo apunte al último commit del repo propio de quien está logueado. El
+   * catálogo lee cada skill fijada a un commit; si se editó por fuera (directo en GitHub), este
+   * paso la pone al día. Opcional: el mock no lo implementa.
+   */
+  syncSkillToLatest?(skillId: string): Promise<CatalogSkill>;
 }

@@ -7,7 +7,8 @@ export type AppPageRoute =
   | 'preview'
   | 'evidencias'
   | 'modelos-ia'
-  | 'skill-detalle';
+  | 'skill-detalle'
+  | 'perfil';
 
 export interface UserAccount {
   id: string;
