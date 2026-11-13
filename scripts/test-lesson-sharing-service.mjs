@@ -406,6 +406,17 @@ test('listar incluye también la clase propia y deja fuera las retiradas', async
   assert.deepEqual((await w.alice.listCommunityLessons()).map((l) => l.title), ['Dos']);
 });
 
+test('listar no usa la caché: lo que otra persona comparte después aparece al volver a pedir la lista', async () => {
+  const w = await world();
+  assert.deepEqual(await w.carol.listCommunityLessons(), []);
+  const before = w.machine.countCalls('labels=class');
+  // Otra instancia (otra persona, otro navegador): carol no hizo ninguna escritura que fuerce releer.
+  await w.alice.shareLesson(lessonBy('alice', { title: 'Compartida después' }));
+  const second = await w.carol.listCommunityLessons();
+  assert.deepEqual(second.map((l) => l.title), ['Compartida después']);
+  assert.ok(w.machine.countCalls('labels=class') > before, 'la segunda lista tuvo que ir a GitHub, no a la caché');
+});
+
 test('listar ignora Issues sin marcador, de otro tipo, pull requests y marcadores rotos', async () => {
   const w = await world();
   await w.alice.shareLesson(lessonBy('alice', { title: 'Buena' }));

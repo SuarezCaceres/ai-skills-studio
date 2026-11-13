@@ -855,7 +855,7 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
     freshUntil = Date.now() + 90_000;
   };
 
-  async function listIssues(labels: string[], state: 'open' | 'all'): Promise<GhIssue[]> {
+  async function listIssues(labels: string[], state: 'open' | 'all', options: { fresh?: boolean } = {}): Promise<GhIssue[]> {
     const repoPath = requireCatalog();
     const all: GhIssue[] = [];
     for (let page = 1; page <= MAX_ISSUE_PAGES; page++) {
@@ -868,7 +868,7 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
         direction: 'desc',
       });
       const batch = await cachedGet<GhIssue[]>(`/repos/${repoPath}/issues?${qs}`, TTL.issues, {
-        fresh: Date.now() < freshUntil,
+        fresh: options.fresh === true || Date.now() < freshUntil,
       });
       all.push(...batch.filter((i) => !i.pull_request));
       if (batch.length < 100) break;
@@ -1591,7 +1591,8 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
     requireCatalog();
     requireSession();
     const L = await loadSharingLib();
-    const issues = await listIssues(['class'], 'open');
+    // Sin caché: la lista solo se pide al abrir Comunidad o al pulsar «Actualizar lista», y debe mostrar lo último.
+    const issues = await listIssues(['class'], 'open', { fresh: true });
     const lessons: CommunityLesson[] = [];
     for (const issue of issues) {
       const lesson = L.toCommunityLesson(issue);
