@@ -35,7 +35,14 @@ export interface CatalogSkill {
   name: string;
   /** Descripción en inglés, tal como viene del frontmatter del SKILL.md. */
   description: string;
+  /** Dueño del repo de origen (por ejemplo `anthropics`). No es quien la registró. */
   author: SkillAuthor;
+  /**
+   * Quien registró la skill en el catálogo: el autor del Issue ancla en GitHub, que no se
+   * puede falsificar (a diferencia de lo que diga el cuerpo del Issue). Es la base de la
+   * vista del equipo y del "Subida por".
+   */
+  uploadedBy: SkillAuthor;
   /** `usuario/repo`. */
   repo: string;
   /** Carpeta de la skill dentro del repo (vacío si está en la raíz). */

@@ -92,7 +92,7 @@ const browser = await chromium.launch({ headless: true });
 \`\`\`
 `;
 
-const SKILLS: CatalogSkill[] = [
+const RAW_SKILLS: Array<Omit<CatalogSkill, 'uploadedBy'>> = [
   {
     id: 'SuarezCaceres/ai-skills-studio/skills/design-taste-frontend',
     name: 'design-taste-frontend',
@@ -168,6 +168,9 @@ const SKILLS: CatalogSkill[] = [
     registeredAt: '2026-11-05T12:00:00Z',
   },
 ];
+
+/** En el mock, quien sube la skill es su propio autor. */
+const SKILLS: CatalogSkill[] = RAW_SKILLS.map((s) => ({ ...s, uploadedBy: s.author }));
 
 const RESULTS: SkillResultReport[] = [
   {
@@ -250,6 +253,7 @@ export const mockCatalogApi: CatalogApi = {
       name,
       description: `Skill registered from ${owner}/${repo}.`,
       author: author(owner),
+      uploadedBy: author(MOCK_SESSION.login),
       repo: `${owner}/${repo}`,
       skillPath: path,
       license: null,
