@@ -2,10 +2,11 @@
 
 > **Documento de memoria técnica, arquitectónica y funcional**  
 > **Proyecto:** `ai-skills-studio`  
-> **Ubicación:** `C:\Users\mateo\Documents\proyects\ai-skills-studio`  
-> **Versión actual:** `v2.2.1 (Hub Diagram SKILL.md Restaurado + Workspace VFS + MacBook Pro Showcase)`  
-> **Rama activa:** `feat/tasteskill-workspace-overhaul` (`main` lista para PR)  
-> **Última actualización:** Noviembre 2026
+> **Ubicación:** `C:\Users\Sergio Suarez\Documents\ai-skills-studio`  
+> **Versión actual:** `v2.2.2 (Memoria sincronizada + Hub Diagram SKILL.md + Workspace VFS + MacBook Pro Showcase)`  
+> **Ramas:** `main` = producción (incluye PRs #1–#3 de `feat/tasteskill-workspace-overhaul`, ya fusionada). `testing` = rama de trabajo actual, alineada con `main` (`3c45fd2`).  
+> **Remotos:** `github` (https://github.com/SuarezCaceres/ai-skills-studio) y `origin` (GitLab).  
+> **Última actualización:** 12 de noviembre de 2026
 
 ---
 
@@ -38,7 +39,7 @@
 
 1. **Workspace Studio VFS en Memoria (Reemplazo radical de `.RAR`):** Montaje directo de carpetas locales (`showDirectoryPicker` / `webkitdirectory`), descompresión y exportación real de paquetes `.ZIP` / `.skillbundle` (`DecompressionStream('deflate-raw')` + CRC-32 sin dependencias externas), editor multi-pestaña en vivo, vista **Diff línea por línea** (rojo/verde), auditor anti-slop de `SKILL.md` e inspección binaria honesta de archivos `.rar` heredados.
 2. **Arquitectura Editorial `design-taste-frontend` (`tasteskill 2.5.1`):** Una sección por pantalla (`min-height: 100svh`), bordes iguales alineados a `.wrap` (`1280px`), 90–95% carbón neutral (`#0a0d14` / `#121722`) con un único acento cian (`#0ea5e9`), cero tonos violeta en la interfaz propia, entrada `data-enter` en hero y momento `iris-opens` en `#benchmarks`.
-3. **Benchmarking & Telemetría de 7 Modelos IA:** Comparador interactivo de velocidad (`tok/s`), latencia (`ms`) y precisión de código para Opus 5.5, Gemini 3.8, Sonnet 5.5, GPT Astra, Gemini 3.7, Opus 4.8 y GPT Luna.
+3. **Benchmarking & Telemetría de 8 Modelos IA** (`src/data/aiModelsData.ts`): Comparador interactivo de velocidad (`tok/s`), latencia (`ms`) y precisión de código para Opus 5.5, Opus 4.8, Gemini 3.8, Gemini 3.7, Sonnet 5.5, GPT Astra, GPT Luna y DeepSeek V3.
 4. **Sincronización con Obsidian y CLI:** Enlace nativo `obsidian://open?vault=ai-skills-studio` y generador de comando de instalación PowerShell en 1 clic.
 5. **Catálogo UI/UX Accesible y Dictado por Voz:** Sandbox WAI-ARIA y evaluación hablada sanitizada con Web Speech API + fronteras de seguridad PBKDF2-SHA256.
 
@@ -86,6 +87,8 @@ ai-skills-studio/
 │   ├── assets/                         # Kit inmutable de design-taste-frontend + iconos SVG
 │   ├── favicon.svg                     # Marca geométrica stack en cian (#0ea5e9)
 │   └── share.jpg                       # Imagen OpenGraph generada desde el hero real
+├── .gitlab-ci.yml                      # Pipeline CI/CD a GitLab Pages (solo rama main)
+├── scripts/                            # Pruebas Playwright (interfaces e interacciones)
 ├── memories.md                         # Memoria viva del proyecto (este archivo)
 ├── index.html                          # Entrypoint HTML con sistema tasteskill 2.5.1 y CSP
 ├── vite.config.ts                      # Vite con assetsDir: 'bundle' y preservación de kit
@@ -100,11 +103,20 @@ ai-skills-studio/
     │   ├── UnifiedProjectStudio.tsx    # IDE Workspace VFS de 3 paneles (Árbol, Editor/Diff, Auditor/ZIP)
     │   ├── SkillManager.tsx            # Bóveda y gestor de skills Markdown (.md)
     │   ├── StylePresetCatalog.tsx      # Catálogo interactivo de componentes UI/UX accesibles
-    │   ├── AIModelBenchmarkPanel.tsx   # Matriz comparativa de los 7 modelos IA
-    │   └── AuthScreen.tsx              # Control de roles Colaborador/Visitante con PBKDF2
+    │   ├── AIModelBenchmarkPanel.tsx   # Matriz comparativa de los 8 modelos IA
+    │   ├── AuthScreen.tsx              # Control de roles Colaborador/Visitante con PBKDF2
+    │   ├── BrandIcons.tsx              # Logos SVG oficiales de los modelos IA
+    │   ├── CodiceStudio.tsx            # Contenedor principal del estudio
+    │   ├── ContextEvidenceLogger.tsx   # Registro de contexto y evidencias
+    │   ├── MarkdownViewerTranslator.tsx # Visor Markdown con traducción
+    │   ├── NeuralAtmosphereBackground.tsx # Fondo canvas de red neuronal
+    │   ├── UIComponentPreview.tsx      # Vista previa de componentes UI
+    │   └── VoiceVisualFeedback.tsx     # Retroalimentación visual del dictado por voz
     ├── data/                           # Skills integradas (incluye design-taste-frontend y github-workflow-standards)
     ├── services/
-    │   └── rarParserService.ts         # Motor VFS: ZIP real, carpetas locales, diff unificado y auditor SKILL.md
+    │   ├── rarParserService.ts         # Motor VFS: ZIP real, carpetas locales, diff unificado y auditor SKILL.md
+    │   ├── speechService.ts            # Dictado por voz (Web Speech API)
+    │   └── translationService.ts       # Servicio de traducción
     ├── types/                          # Contratos TypeScript de Workspace y Skills
     └── utils/
         └── securityHardening.ts        # PBKDF2-SHA256, rate-limit, anti-Path Traversal, GDPR erase
@@ -114,14 +126,21 @@ ai-skills-studio/
 
 ## 🚀 5. Despliegue y URLs
 
-* **URL en Vivo:** [https://suarezcaceres.github.io/ai-skills-studio/](https://suarezcaceres.github.io/ai-skills-studio/)
-* **Repositorio:** [https://github.com/SuarezCaceres/ai-skills-studio](https://github.com/SuarezCaceres/ai-skills-studio)
+El proyecto se despliega en **dos plataformas** en paralelo:
+
+* **GitHub Pages (`.github/workflows/deploy.yml`):** [https://suarezcaceres.github.io/ai-skills-studio/](https://suarezcaceres.github.io/ai-skills-studio/)
+* **GitLab Pages (`.gitlab-ci.yml`, solo desde `main`):** [https://ai-skills-studio-3ce497.gitlab.io](https://ai-skills-studio-3ce497.gitlab.io) · alternativa: [https://suarezcaceres.gitlab.io/ai-skills-studio](https://suarezcaceres.gitlab.io/ai-skills-studio)
+* **Repositorio GitHub:** [https://github.com/SuarezCaceres/ai-skills-studio](https://github.com/SuarezCaceres/ai-skills-studio)
+* **Repositorio GitLab:** [https://gitlab.com/SuarezCaceres/ai-skills-studio](https://gitlab.com/SuarezCaceres/ai-skills-studio)
 
 ---
 
 ## 🧪 6. Certificación de Calidad y Finish Gate (`tasteskill 2.5.1`)
 
-La suite de validación anti-slop y consistencia visual en navegadores reales (`headless Chromium / Edge`) ha superado el 100% de las pruebas sin fallos bloqueantes:
+La suite de validación anti-slop y consistencia visual en navegadores reales (`headless Chromium / Edge`) superó el 100% de las pruebas sin fallos bloqueantes en su última ejecución registrada.
+
+> [!NOTE]
+> Los scripts del finish gate (`copy-lint.mjs`, `gate.mjs`, `layout/check.mjs`, `consistency.mjs`, `perf.mjs`, `shoot.mjs`) **no están versionados en este repo** (no existen en la raíz ni en `public/`); provienen del kit externo `design-taste-frontend`. Solo `npm test` (Playwright, en `scripts/`) es reproducible desde el repositorio. Los resultados de abajo son los registrados históricamente y no se reejecutaron en la v2.2.2.
 
 | Herramienta de Auditoría | Comando Oficial | Resultado |
 | :--- | :--- | :--- |
@@ -183,3 +202,13 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
   - Anulación del fondo claro por defecto de `.panel` (`rgb(198, 211, 223)`) y aplicación de superficie profunda `#121722` con gradiente radial y borde sutil de 1px.
   - Adaptabilidad fluida probada en 1440px, 1024px, 768px y 390px.
 
+
+---
+
+## 🔄 10. Actualización v2.2.2 — Sincronización de la memoria con el repositorio
+
+- Corregida la ruta local, el estado de ramas (`feat/tasteskill-workspace-overhaul` ya fusionada en `main`; trabajo en `testing`) y añadidos los remotos `github` y `origin`.
+- Documentado el despliegue dual (GitHub Pages + GitLab Pages).
+- Corregido el conteo de modelos de IA: son **8** (se incluía DeepSeek V3, omitido en la lista de 7).
+- Completado el árbol de directorios con los componentes y servicios que faltaban, `scripts/` y `.gitlab-ci.yml`.
+- Aclarado que los scripts del finish gate pertenecen al kit externo y no están en el repo.
