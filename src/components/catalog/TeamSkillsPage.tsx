@@ -7,6 +7,7 @@ import { TEAM_LOGINS, isTeamLogin } from '../../config/team';
 import { PersonAvatar } from './PersonAvatar';
 import { PublishSkillDialog } from './PublishSkillDialog';
 import { SkillCard, SkillCardSkeleton } from './SkillCard';
+import { relativeDate } from './format';
 
 interface TeamSkillsPageProps {
   /** Abre la página de detalle de la skill. */
@@ -15,6 +16,8 @@ interface TeamSkillsPageProps {
   onRequestLogin: () => void;
   /** Trae una copia de trabajo de la skill al estudio. */
   onOpenInStudio?: (id: string) => void;
+  /** Abre el perfil de un integrante. */
+  onOpenProfile?: (login: string) => void;
 }
 
 type ListState =
@@ -24,17 +27,6 @@ type ListState =
 
 const FOCUS =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]';
-
-function relativeDate(iso: string): string {
-  const t = Date.parse(iso);
-  if (Number.isNaN(t)) return '—';
-  const days = Math.floor((Date.now() - t) / 86_400_000);
-  if (days <= 0) return 'hoy';
-  if (days === 1) return 'ayer';
-  if (days < 30) return `hace ${days} días`;
-  const months = Math.floor(days / 30);
-  return months === 1 ? 'hace 1 mes' : `hace ${months} meses`;
-}
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
@@ -50,7 +42,7 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
  * Interfaz del equipo: las skills cuyo Issue ancla abrió alguna de las cuentas de
  * `TEAM_LOGINS`, con quién la subió, su GitHub y el repo de origen.
  */
-export function TeamSkillsPage({ onOpenSkill, onRequestLogin, onOpenInStudio }: TeamSkillsPageProps) {
+export function TeamSkillsPage({ onOpenSkill, onRequestLogin, onOpenInStudio, onOpenProfile }: TeamSkillsPageProps) {
   const { api, service, session } = useCatalog();
   const [state, setState] = useState<ListState>({ status: 'loading' });
   const [profiles, setProfiles] = useState<Record<string, GithubProfile | null>>({});
@@ -248,6 +240,28 @@ export function TeamSkillsPage({ onOpenSkill, onRequestLogin, onOpenInStudio }: 
             );
           })}
         </div>
+
+        {member !== 'todos' && onOpenProfile && (() => {
+          const m = members.find((x) => x.key === member);
+          if (!m) return null;
+          const profile = profiles[m.key];
+          return (
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-800 bg-[#0a0d14] p-3">
+              <PersonAvatar login={m.login} avatarUrl={m.avatarUrl} size={36} />
+              <div className="min-w-0 flex-1">
+                <p className="m-0 truncate text-sm font-semibold text-white">{m.name ?? `@${m.login}`}</p>
+                <p className="m-0 truncate text-xs text-slate-400">{profile?.bio ?? `${m.count} ${m.count === 1 ? 'skill subida' : 'skills subidas'}`}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onOpenProfile(m.login)}
+                className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-slate-700 bg-transparent px-3 text-xs font-semibold text-slate-100 transition hover:border-[#0ea5e9] hover:text-[#38bdf8] ${FOCUS}`}
+              >
+                Ver perfil
+              </button>
+            </div>
+          );
+        })()}
       </div>
 
       {state.status === 'loading' && (
@@ -323,6 +337,7 @@ export function TeamSkillsPage({ onOpenSkill, onRequestLogin, onOpenInStudio }: 
                   skill={skill}
                   onOpen={() => onOpenSkill(skill.id)}
                   onOpenInStudio={onOpenInStudio ? () => onOpenInStudio(skill.id) : undefined}
+                  onOpenProfile={onOpenProfile}
                 />
               ))}
             </ul>

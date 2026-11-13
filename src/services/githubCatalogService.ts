@@ -1,17 +1,19 @@
 import type {
   CatalogApi,
   CatalogSkill,
+  CommitSkillOptions,
   LocalSkillBundle,
   PublishProgress,
   CatalogSkillFile,
   GithubSession,
   ResultVerdict,
   SkillAuthor,
+  SkillFileChange,
   SkillResultReport,
   SkillVotes,
 } from '../types/catalog';
 import type { SpecificModelVersion } from '../types/workspace';
-import { SLUG_RE, UPLOAD_LIMITS } from './skillUploadService';
+import { SLUG_RE, UPLOAD_LIMITS, base64ToUtf8 as decodeBase64Text } from './skillUploadService';
 
 /**
  * Servicio de catálogo comunitario sobre la API de GitHub.
@@ -51,6 +53,7 @@ export type CatalogErrorCode =
   | 'too_large'
   | 'rate_limit'
   | 'forbidden'
+  | 'conflict'
   | 'network'
   | 'github';
 
@@ -436,6 +439,16 @@ interface GhUser {
   avatar_url?: string;
   html_url?: string;
 }
+interface GhProfileFields extends GhUser {
+  name?: string | null;
+  bio?: string | null;
+  company?: string | null;
+  location?: string | null;
+  blog?: string | null;
+  public_repos?: number;
+  followers?: number;
+  created_at?: string;
+}
 interface GhRepo {
   private: boolean;
   default_branch: string;
@@ -593,6 +606,15 @@ export interface GithubProfile {
   name: string | null;
   avatarUrl?: string;
   profileUrl: string;
+  bio: string | null;
+  company: string | null;
+  location: string | null;
+  /** Sitio web declarado, solo si es una URL https. */
+  website?: string;
+  publicRepos: number;
+  followers: number;
+  /** Alta de la cuenta en GitHub (ISO). */
+  joinedAt?: string;
 }
 
 export interface GithubCatalogApi extends CatalogApi {
@@ -1084,6 +1106,142 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
     }
   }
 
+  /** Pone el registro de una skill propia en el último commit de su repo (tras una edición externa). */
+  async function syncLatest(skillId: string): Promise<CatalogSkill> {
+    requireCatalog();
+    const session = requireSession();
+    const parsed = parseSkillId(skillId);
+    if (!parsed) throw new CatalogError('invalid_input', 'La skill no es válida.');
+    if (parsed.owner.toLowerCase() !== session.login.toLowerCase()) {
+      throw new CatalogError('forbidden', `Solo puedes actualizar skills de tu propio repositorio. Esta es de @${parsed.owner}.`);
+    }
+    const { owner, repo, skillPath } = parsed;
+    const base = `/repos/${owner}/${repo}`;
+    const repoInfo = (await request<GhRepo>(base, { token: session.token, fresh: true })).data;
+    if (repoInfo.private) throw new CatalogError('private_repo', 'El repositorio es privado: el catálogo solo lee repos públicos.');
+    const head = (
+      await request<{ object: { sha: string } }>(`${base}/git/ref/heads/${encodePath(repoInfo.default_branch)}`, {
+        token: session.token,
+        fresh: true,
+      })
+    ).data.object.sha;
+    cacheInvalidate([base]);
+    return registerResolved({ owner, repo, sha: head, path: skillPath, exact: true }, repoInfo);
+  }
+
+  /**
+   * Confirma cambios sobre una skill del repo de quien está logueado, en un solo commit sobre la
+   * rama por defecto, y actualiza su registro. Solo se puede editar un repo propio. Si el archivo
+   * ya no es lo que la persona abrió (alguien lo editó en GitHub), se rechaza como conflicto.
+   */
+  async function commitChanges(
+    skillId: string,
+    changes: SkillFileChange[],
+    options?: CommitSkillOptions
+  ): Promise<CatalogSkill> {
+    requireCatalog();
+    const session = requireSession();
+    const parsed = parseSkillId(skillId);
+    if (!parsed) throw new CatalogError('invalid_input', 'La skill no es válida.');
+    if (parsed.owner.toLowerCase() !== session.login.toLowerCase()) {
+      throw new CatalogError(
+        'forbidden',
+        `Solo puedes editar skills que están en tu propio repositorio. Esta es de @${parsed.owner}.`
+      );
+    }
+    if (changes.length === 0) throw new CatalogError('invalid_input', 'No hay cambios que guardar.');
+    const seen = new Set<string>();
+    for (const c of changes) {
+      const segs = c.path.split('/');
+      if (!c.path || c.path.startsWith('/') || c.path.includes('\\') || segs.some((x) => x === '' || x === '.' || x === '..' || x === '.git')) {
+        throw new CatalogError('invalid_input', `La ruta "${c.path}" no es válida.`);
+      }
+      if (seen.has(c.path)) throw new CatalogError('invalid_input', `El archivo "${c.path}" está repetido.`);
+      seen.add(c.path);
+      if (c.base64 === null && c.path === 'SKILL.md') {
+        throw new CatalogError('invalid_input', 'No se puede borrar el SKILL.md de una skill.');
+      }
+      if (c.base64 !== null) {
+        if (!/^[A-Za-z0-9+/]*={0,2}$/.test(c.base64)) throw new CatalogError('invalid_input', `El contenido de "${c.path}" no es válido.`);
+        if (Math.floor((c.base64.length * 3) / 4) > UPLOAD_LIMITS.maxFileBytes) {
+          throw new CatalogError('too_large', `${c.path} supera el tamaño máximo por archivo.`);
+        }
+      }
+    }
+
+    const token = session.token;
+    const { owner, repo, skillPath } = parsed;
+    const base = `/repos/${owner}/${repo}`;
+    const repoInfo = (await request<GhRepo>(base, { token, fresh: true })).data;
+    if (repoInfo.private) throw new CatalogError('private_repo', 'El repositorio es privado: el catálogo solo lee repos públicos.');
+    const branch = repoInfo.default_branch;
+    const parentSha = (await request<{ object: { sha: string } }>(`${base}/git/ref/heads/${encodePath(branch)}`, { token, fresh: true })).data.object.sha;
+    const baseTree = (await request<{ tree: { sha: string } }>(`${base}/git/commits/${parentSha}`, { token, fresh: true })).data.tree.sha;
+    const dir = skillPath ? `${skillPath}/` : '';
+
+    const normalize = (t: string) => t.replace(/\r\n/g, '\n').trim();
+    for (const c of changes) {
+      if (c.expectBase64 === undefined) continue;
+      let current: string | null = null;
+      try {
+        current = (
+          await request<string>(`${base}/contents/${encodePath(dir + c.path)}?ref=${parentSha}`, {
+            token,
+            accept: 'application/vnd.github.raw+json',
+            text: true,
+            fresh: true,
+          })
+        ).data;
+      } catch (err) {
+        if (!(err instanceof CatalogError) || err.code !== 'not_found') throw err;
+      }
+      if (current === null || normalize(current) !== normalize(decodeBase64Text(c.expectBase64))) {
+        throw new CatalogError(
+          'conflict',
+          `${c.path} cambió en GitHub desde que lo abriste. Recarga la skill y vuelve a hacer tu cambio para no pisar el otro.`
+        );
+      }
+    }
+
+    const tree: Array<{ path: string; mode: string; type: string; sha: string | null }> = [];
+    for (const c of changes) {
+      if (c.base64 === null) {
+        tree.push({ path: dir + c.path, mode: '100644', type: 'blob', sha: null });
+      } else {
+        const { data } = await request<{ sha: string }>(`${base}/git/blobs`, {
+          method: 'POST',
+          token,
+          body: { content: c.base64, encoding: 'base64' },
+        });
+        tree.push({ path: dir + c.path, mode: '100644', type: 'blob', sha: data.sha });
+      }
+    }
+    const newTree = (await request<{ sha: string }>(`${base}/git/trees`, { method: 'POST', token, body: { base_tree: baseTree, tree } })).data;
+    const name = skillPath ? skillPath.split('/').pop() : repo;
+    const commit = (
+      await request<{ sha: string }>(`${base}/git/commits`, {
+        method: 'POST',
+        token,
+        body: {
+          message: (options?.message ?? '').trim().slice(0, 200) || `Actualiza ${name} desde Códice Studio`,
+          tree: newTree.sha,
+          parents: [parentSha],
+        },
+      })
+    ).data;
+    try {
+      await request<unknown>(`${base}/git/refs/heads/${encodePath(branch)}`, { method: 'PATCH', token, body: { sha: commit.sha, force: false } });
+    } catch (err) {
+      if (err instanceof CatalogError && err.code === 'github') {
+        throw new CatalogError('conflict', 'El repositorio cambió mientras guardabas. Recarga la skill y vuelve a intentarlo.');
+      }
+      throw err;
+    }
+
+    cacheInvalidate([base]);
+    return registerResolved({ owner, repo, sha: commit.sha, path: skillPath, exact: true }, repoInfo);
+  }
+
   /**
    * Sube los archivos a `<login>/codice-skills` en un único commit (API de Git: blobs, árbol,
    * commit y referencia) y registra la skill. Si la carpeta ya existía, los archivos que ya no
@@ -1210,6 +1368,14 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
       return publishLocal(bundle, onProgress);
     },
 
+    async commitSkillChanges(skillId, changes, options) {
+      return commitChanges(skillId, changes, options);
+    },
+
+    async syncSkillToLatest(skillId) {
+      return syncLatest(skillId);
+    },
+
     async listSkills() {
       const anchors = await listAnchors();
       return anchors.map((a) => a.skill);
@@ -1316,9 +1482,21 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
       const wanted = login.trim();
       if (!OWNER_RE.test(wanted)) return null;
       try {
-        const u = await cachedGet<GhUser & { name?: string | null }>(`/users/${wanted}`, TTL.immutable);
+        const u = await cachedGet<GhProfileFields>(`/users/${wanted}`, TTL.immutable);
         const author = toAuthor(u);
-        return { login: author.login, name: u.name ? cleanText(u.name, 80) : null, avatarUrl: author.avatarUrl, profileUrl: author.profileUrl };
+        return {
+          login: author.login,
+          name: u.name ? cleanText(u.name, 80) : null,
+          avatarUrl: author.avatarUrl,
+          profileUrl: author.profileUrl,
+          bio: u.bio ? cleanText(u.bio, 280) : null,
+          company: u.company ? cleanText(u.company, 80) : null,
+          location: u.location ? cleanText(u.location, 80) : null,
+          website: safeHttpsUrl(u.blog?.startsWith('http') ? u.blog : u.blog ? `https://${u.blog}` : undefined),
+          publicRepos: typeof u.public_repos === 'number' ? u.public_repos : 0,
+          followers: typeof u.followers === 'number' ? u.followers : 0,
+          joinedAt: typeof u.created_at === 'string' ? u.created_at : undefined,
+        };
       } catch (err) {
         if (err instanceof CatalogError && err.code === 'not_found') return null;
         throw err;

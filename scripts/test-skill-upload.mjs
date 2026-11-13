@@ -16,6 +16,7 @@ const posix = (p) => join(ROOT, p).replace(/\\/g, '/');
 writeFileSync(
   entry,
   `export * from ${JSON.stringify(posix('src/services/skillUploadService.ts'))};
+export * from ${JSON.stringify(posix('src/services/teamStats.ts'))};
 export { createGithubCatalogService, CatalogError } from ${JSON.stringify(posix('src/services/githubCatalogService.ts'))};
 `
 );
@@ -170,6 +171,7 @@ function makeGithub({ owner: OWNER, catalog, existingRepo = false, privateRepo =
   let head = null;
   const issues = [];
   const calls = [];
+  const state = { failNextRefUpdate: false };
 
   const newTree = (entries) => {
     const sha = SHA(counter++);
@@ -198,6 +200,21 @@ function makeGithub({ owner: OWNER, catalog, existingRepo = false, privateRepo =
     const base = `/repos/${OWNER}/codice-skills`;
 
     if (p === base && method === 'GET') return repo ? json(repo) : notFound();
+    if (p === `/users/${OWNER}`) {
+      return json({
+        login: OWNER,
+        name: 'Alice Dev',
+        avatar_url: 'https://avatars.githubusercontent.com/u/1',
+        bio: 'Hago skills.',
+        company: 'Códice',
+        location: 'Quito',
+        blog: 'alice.dev',
+        public_repos: 7,
+        followers: 3,
+        created_at: '2020-01-01T00:00:00Z',
+      });
+    }
+    if (p.startsWith('/users/')) return notFound();
     if (p === '/user/repos' && method === 'POST') {
       makeRepo();
       return json(repo, 201);
@@ -229,11 +246,16 @@ function makeGithub({ owner: OWNER, catalog, existingRepo = false, privateRepo =
       return json({ sha }, 201);
     }
     if (p === `${base}/git/refs/heads/main` && method === 'PATCH') {
+      if (state.failNextRefUpdate) {
+        state.failNextRefUpdate = false;
+        return json({ message: 'Update is not a fast forward' }, 422);
+      }
       head = body.sha;
       return json({ ref: 'refs/heads/main', object: { sha: head } });
     }
     if (p.startsWith(`${base}/contents/`)) {
-      const sha = u.searchParams.get('ref');
+      const ref = u.searchParams.get('ref');
+      const sha = commits.has(ref) ? ref : head;
       const path = p.slice(`${base}/contents/`.length);
       const e = trees.get(commits.get(sha).tree).get(path);
       return e ? new Response(blobs.get(e.sha).toString('utf8'), { status: 200 }) : notFound();
@@ -267,9 +289,26 @@ function makeGithub({ owner: OWNER, catalog, existingRepo = false, privateRepo =
     return json({ message: `sin simular: ${method} ${p}` }, 500);
   };
 
+  // Imita a alguien que edita un archivo directamente en GitHub.
+  const externalCommit = (path, text) => {
+    const blob = SHA(counter++);
+    blobs.set(blob, Buffer.from(text));
+    const entries = new Map(trees.get(commits.get(head).tree));
+    entries.set(path, { sha: blob });
+    const tree = newTree(entries);
+    head = SHA(counter++);
+    commits.set(head, { tree, parents: [], message: 'edición externa' });
+  };
+
   return {
     fake,
     calls,
+    state,
+    externalCommit,
+    commitMessage: (sha) => commits.get(sha).message,
+    get head() {
+      return head;
+    },
     issues,
     headTree: () => trees.get(commits.get(head).tree),
     blobText: (sha) => blobs.get(sha).toString('utf8'),
@@ -405,6 +444,194 @@ await test('un paquete inválido se rechaza antes de tocar GitHub', () =>
 await test('sin sesión pide iniciar sesión con GitHub', async () => {
   const svc = m.createGithubCatalogService({ getSession: () => null, catalogRepo: 'test/catalog' });
   await assert.rejects(svc.publishLocalSkill(bundleOf('x', [['SKILL.md', SKILL_V1]])), (e) => e.code === 'auth_required');
+});
+
+
+/* ===================================================================== */
+console.log('commitSkillChanges (editar una skill propia)');
+
+const b64 = (t) => Buffer.from(t).toString('base64');
+const postCommits = (gh) => gh.calls.filter((c) => c.startsWith('POST') && c.endsWith('/git/commits')).length;
+
+async function published(gh, svc, owner) {
+  const created = await svc.publishLocalSkill(bundleOf('pdf-tools', [['SKILL.md', SKILL_V1], ['notes.md', 'mis notas']]));
+  return { id: `${owner}/codice-skills/skills/pdf-tools`, created };
+}
+
+await test('edita solo SKILL.md en un commit, conserva lo demás y actualiza el catálogo', () =>
+  withGithub({}, async (gh, svc, owner) => {
+    const { id, created } = await published(gh, svc, owner);
+    const V2 = SKILL_V1.replace('v1', 'v2');
+    const before = postCommits(gh);
+    const notesBlob = gh.headTree().get('skills/pdf-tools/notes.md').sha;
+    const updated = await svc.commitSkillChanges(id, [{ path: 'SKILL.md', base64: b64(V2), expectBase64: b64(SKILL_V1) }], { message: 'Corrige la intro' });
+    assert.equal(postCommits(gh) - before, 1, 'un solo commit');
+    assert.equal(gh.commitMessage(gh.head), 'Corrige la intro');
+    const tree = gh.headTree();
+    assert.equal(gh.blobText(tree.get('skills/pdf-tools/SKILL.md').sha), V2);
+    assert.equal(tree.get('skills/pdf-tools/notes.md').sha, notesBlob, 'notes.md no se toca');
+    assert.notEqual(updated.commitSha, created.commitSha);
+    assert.equal(gh.issues.length, 1, 'el mismo Issue');
+    assert.equal((await svc.listSkills())[0].commitSha, updated.commitSha);
+    assert.match((await svc.getSkill(id)).markdown, /v2/);
+  }));
+
+await test('el mensaje del commit tiene un valor por defecto', () =>
+  withGithub({}, async (gh, svc, owner) => {
+    const { id } = await published(gh, svc, owner);
+    await svc.commitSkillChanges(id, [{ path: 'SKILL.md', base64: b64(SKILL_V1 + 'x') }]);
+    assert.equal(gh.commitMessage(gh.head), 'Actualiza pdf-tools desde Códice Studio');
+  }));
+
+await test('detecta una edición hecha en GitHub y no la pisa (conflicto)', () =>
+  withGithub({}, async (gh, svc, owner) => {
+    const { id } = await published(gh, svc, owner);
+    gh.externalCommit('skills/pdf-tools/SKILL.md', 'alguien editó esto directamente en GitHub');
+    const before = postCommits(gh);
+    await assert.rejects(
+      svc.commitSkillChanges(id, [{ path: 'SKILL.md', base64: b64(SKILL_V1 + 'mi cambio'), expectBase64: b64(SKILL_V1) }]),
+      (e) => e.code === 'conflict' && /cambió en GitHub/.test(e.message)
+    );
+    assert.equal(postCommits(gh), before, 'no debe crear commits');
+    assert.equal(gh.blobText(gh.headTree().get('skills/pdf-tools/SKILL.md').sha), 'alguien editó esto directamente en GitHub');
+  }));
+
+await test('si la rama se mueve mientras se guarda, avisa como conflicto', () =>
+  withGithub({}, async (gh, svc, owner) => {
+    const { id } = await published(gh, svc, owner);
+    gh.state.failNextRefUpdate = true;
+    await assert.rejects(svc.commitSkillChanges(id, [{ path: 'SKILL.md', base64: b64(SKILL_V1 + 'z') }]), (e) => e.code === 'conflict' && /cambió mientras guardabas/.test(e.message));
+  }));
+
+await test('solo se pueden editar skills del propio repositorio (sin tocar la red)', () =>
+  withGithub({}, async (gh, svc) => {
+    await assert.rejects(svc.commitSkillChanges('otra-persona/repo/skills/x', [{ path: 'SKILL.md', base64: b64('x') }]), (e) => e.code === 'forbidden' && /@otra-persona/.test(e.message));
+    assert.equal(gh.calls.length, 0);
+  }));
+
+await test('puede borrar un archivo extra, pero no el SKILL.md', () =>
+  withGithub({}, async (gh, svc, owner) => {
+    const { id } = await published(gh, svc, owner);
+    await assert.rejects(svc.commitSkillChanges(id, [{ path: 'SKILL.md', base64: null }]), (e) => e.code === 'invalid_input');
+    await svc.commitSkillChanges(id, [{ path: 'notes.md', base64: null }]);
+    assert.ok(!gh.headTree().has('skills/pdf-tools/notes.md'));
+    assert.ok(gh.headTree().has('skills/pdf-tools/SKILL.md'));
+  }));
+
+await test('rechaza rutas peligrosas, repetidas o sin cambios antes de tocar GitHub', () =>
+  withGithub({}, async (gh, svc, owner) => {
+    const id = `${owner}/codice-skills/skills/pdf-tools`;
+    const bad = [
+      [],
+      [{ path: '../x.md', base64: b64('x') }],
+      [{ path: '.git/config', base64: b64('x') }],
+      [{ path: 'a.md', base64: b64('x') }, { path: 'a.md', base64: b64('y') }],
+      [{ path: 'a.md', base64: '<script>' }],
+    ];
+    for (const changes of bad) await assert.rejects(svc.commitSkillChanges(id, changes), (e) => e.code === 'invalid_input');
+    assert.equal(gh.calls.length, 0);
+  }));
+
+await test('tras una edición externa, sincronizar pone el catálogo al día y permite volver a guardar', () =>
+  withGithub({}, async (gh, svc, owner) => {
+    const { id, created } = await published(gh, svc, owner);
+    gh.externalCommit('skills/pdf-tools/SKILL.md', 'texto nuevo escrito directamente en GitHub');
+    // El catálogo sigue fijado al commit viejo: leerla muestra la versión anterior.
+    assert.match((await svc.getSkill(id)).markdown, /v1/);
+    const synced = await svc.syncSkillToLatest(id);
+    assert.notEqual(synced.commitSha, created.commitSha);
+    assert.equal(synced.commitSha, gh.head);
+    assert.equal((await svc.listSkills())[0].commitSha, gh.head);
+    assert.equal(gh.issues.length, 1, 'el mismo Issue');
+    const opened = await svc.getSkill(id);
+    assert.equal(opened.markdown.trim(), 'texto nuevo escrito directamente en GitHub');
+    // Con la versión nueva a la vista, ya se puede guardar sin conflicto.
+    const saved = await svc.commitSkillChanges(id, [{ path: 'SKILL.md', base64: b64('mi cambio sobre el nuevo'), expectBase64: b64(opened.markdown) }]);
+    assert.equal(gh.blobText(gh.headTree().get('skills/pdf-tools/SKILL.md').sha), 'mi cambio sobre el nuevo');
+    assert.equal(saved.commitSha, gh.head);
+  }));
+
+await test('sincronizar solo funciona con skills del propio repositorio y con sesión', async () => {
+  await withGithub({}, async (gh, svc) => {
+    await assert.rejects(svc.syncSkillToLatest('otra-persona/repo/skills/x'), (e) => e.code === 'forbidden');
+    assert.equal(gh.calls.length, 0);
+  });
+  const anon = m.createGithubCatalogService({ getSession: () => null, catalogRepo: 'test/catalog' });
+  await assert.rejects(anon.syncSkillToLatest('a/b/c'), (e) => e.code === 'auth_required');
+});
+
+console.log('getProfile');
+
+await test('devuelve los datos públicos y normaliza el sitio web', () =>
+  withGithub({}, async (gh, svc, owner) => {
+    const prof = await svc.getProfile(owner);
+    assert.equal(prof.login, owner);
+    assert.equal(prof.name, 'Alice Dev');
+    assert.equal(prof.bio, 'Hago skills.');
+    assert.equal(prof.location, 'Quito');
+    assert.equal(prof.website, 'https://alice.dev/');
+    assert.equal(prof.publicRepos, 7);
+    assert.equal(prof.followers, 3);
+    assert.equal(prof.joinedAt, '2020-01-01T00:00:00Z');
+  }));
+await test('una cuenta que no existe o un login inválido devuelven null', () =>
+  withGithub({}, async (gh, svc) => {
+    assert.equal(await svc.getProfile('no-existe-nadie'), null);
+    assert.equal(await svc.getProfile('../x'), null);
+  }));
+
+console.log('texto de SKILL.md');
+
+await test('utf8ToBase64 y base64ToUtf8 conservan acentos y emojis', () => {
+  const t = 'Diseño rápido · ñandú 🚀';
+  assert.equal(m.base64ToUtf8(m.utf8ToBase64(t)), t);
+  assert.equal(m.utf8ToBase64('abc'), Buffer.from('abc').toString('base64'));
+});
+await test('buildSkillMd arma el frontmatter y se vuelve a leer igual', async () => {
+  const md = m.buildSkillMd({ name: 'mi-skill', description: 'Hace: cosas   útiles  ', body: '# Hola\n\nCuerpo' });
+  assert.match(md, /^---\nname: mi-skill\ndescription: "Hace: cosas útiles"\n---\n\n# Hola/);
+  const d = await m.readLocalSkill([f('mi-skill.md', md)]);
+  assert.equal(d.name, 'mi-skill');
+  assert.equal(d.description, 'Hace: cosas útiles');
+});
+await test('checkSkillText separa errores de avisos', () => {
+  assert.deepEqual(m.checkSkillText('   ').errors, ['El SKILL.md está vacío.']);
+  assert.ok(m.checkSkillText(MD + 'ghp_' + 'A'.repeat(36)).errors.some((e) => /token de GitHub/.test(e)));
+  assert.ok(m.checkSkillText('x'.repeat(200_001)).errors.some((e) => /caracteres/.test(e)));
+  const sinFront = m.checkSkillText('# solo cuerpo');
+  assert.equal(sinFront.errors.length, 0);
+  assert.ok(sinFront.warnings.some((w) => /frontmatter/.test(w)));
+  const incompleto = m.checkSkillText('---\nname: x\n---\ncuerpo');
+  assert.ok(incompleto.warnings.some((w) => /description/.test(w)));
+  const ok = m.checkSkillText(MD);
+  assert.deepEqual([ok.errors.length, ok.warnings.length, ok.name], [0, 0, 'PDF Tools']);
+});
+
+
+console.log('computeMemberStats');
+
+const mk = (id, login, category, hasScripts, registeredAt, repo = 'o/r') => ({
+  id, name: id, description: '', author: { login: 'o', profileUrl: '' }, uploadedBy: { login, profileUrl: '' },
+  repo, skillPath: id, license: null, category, hasScripts, commitSha: 'a'.repeat(40), markdown: '', files: [], registeredAt,
+});
+
+await test('cuenta por quien registró la skill, sin distinguir mayúsculas', () => {
+  const all = [
+    mk('a', 'Alice', 'diseño', true, '2026-11-01T10:00:00Z', 'alice/x'),
+    mk('b', 'alice', 'diseño', false, '2026-11-05T10:00:00Z', 'alice/x'),
+    mk('c', 'ALICE', 'meta', false, '2026-11-03T10:00:00Z', 'otros/y'),
+    mk('d', 'bob', 'meta', true, '2026-11-09T10:00:00Z'),
+  ];
+  const st = m.computeMemberStats(all, 'alice');
+  assert.equal(st.skills, 3);
+  assert.deepEqual(st.categories, [{ name: 'diseño', count: 2 }, { name: 'meta', count: 1 }]);
+  assert.equal(st.withScripts, 1);
+  assert.deepEqual(st.repos, ['alice/x', 'otros/y']);
+  assert.equal(st.lastUploadAt, '2026-11-05T10:00:00.000Z');
+});
+await test('sin skills devuelve ceros y sin fecha', () => {
+  const st = m.computeMemberStats([mk('a', 'bob', 'x', false, '2026-11-01T00:00:00Z')], 'alice');
+  assert.deepEqual([st.skills, st.categories.length, st.withScripts, st.repos.length, st.lastUploadAt], [0, 0, 0, 0, undefined]);
 });
 
 rmSync(dir, { recursive: true, force: true });

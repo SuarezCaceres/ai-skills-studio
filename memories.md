@@ -261,3 +261,12 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
 - GitHub tarda unos segundos en listar un Issue nuevo y responde las lecturas con `max-age=60`: el servicio relee sin caché 90 s tras escribir y recuerda 5 min lo recién registrado (`recentAnchors`) para que la skill se abra al instante.
 - Los archivos subidos pierden el bit ejecutable (modo 100644). El permiso `public_repo` de la OAuth App alcanza para crear el repo y hacer commits.
 - Pruebas: `scripts/test-skill-upload.mjs` (lectura local y publicación contra un GitHub simulado en memoria; cada prueba usa su propia cuenta porque la caché del servicio es global al módulo).
+
+**Fase 4 (rama `feat/team-skills-phase4`): crear y editar en la app, y perfil por integrante.**
+- `PublishSkillDialog` tiene la pestaña "Escribir aquí" (nombre → carpeta, descripción, contenido con vista previa); publica con el mismo `publishLocalSkill` (`buildSkillMd` arma el frontmatter).
+- `SkillEditorDialog` edita el `SKILL.md` de una skill **propia** (el botón "Editar" solo sale a quien la subió y si el repo es suyo). `commitSkillChanges` (servicio) hace un único commit con la API de Git sobre la rama por defecto y actualiza el Issue ancla. Si el archivo en GitHub ya no es el que se abrió (`expectBase64`) o la rama se movió, lanza `conflict`; no pisa nada.
+- El catálogo lee cada skill **fijada a un commit**. Tras una edición externa el registro queda en el commit viejo: `syncSkillToLatest` lo pone en el último commit del repo propio. "Recargar la skill" del editor lo llama antes de releer; sin eso la persona quedaba atrapada en conflictos.
+- `SafeMarkdown` salió de `SkillDetailPage` a `src/components/catalog/SafeMarkdown.tsx` (lo usan el detalle, el editor y el diálogo de escribir).
+- Perfil: ruta `'perfil'` (`MemberProfilePage`), con `getProfile` ampliado (bio, empresa, ciudad, sitio https, repos, seguidores, alta) y `computeMemberStats` (`src/services/teamStats.ts`, cuenta por quien registró la skill). Se llega con "Ver perfil" en la vista del equipo o con el avatar de una tarjeta.
+- Pruebas: `test-skill-upload.mjs` (42, con GitHub simulado) cubre edición, conflictos, sincronización, perfil y utilidades de texto; el test de integración recorre el perfil.
+- **Login en desarrollo:** la OAuth App y la función de Vercel solo admiten `http://localhost:5173`. En otros puertos (5180, 5181…) el botón de GitHub falla; para probar el login hay que usar el 5173 o añadir el origen en ambos sitios.
