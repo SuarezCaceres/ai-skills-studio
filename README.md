@@ -113,6 +113,14 @@ El proyecto implementa las directivas de seguridad **STRIDE** y revisión de **5
 
 ---
 
+## 🌐 Catálogo Comunitario de Skills
+
+Cualquier persona con cuenta de GitHub puede registrar una skill pegando la URL de su repo, votarla y reportar con qué modelo de IA funcionó. Cada skill muestra un auditor automático (scripts, `curl | sh`, rutas sensibles), el comando de instalación para Claude Code, Cursor y Gemini CLI fijado al commit auditado, y un botón que traduce el contenido al español.
+
+- Datos: Issues y reacciones de un repo catálogo en GitHub; login con OAuth mediante una función en Vercel (`api/github-oauth.ts`). El token solo vive en memoria.
+- Puesta en marcha (repo catálogo, OAuth App, Vercel y variables `VITE_*`): [`docs/catalog-setup.md`](docs/catalog-setup.md).
+- Pruebas: `npm test` incluye `scripts/test-catalog-integration.mjs`, que recorre el flujo en un navegador real con GitHub simulado.
+
 ## 🌿 Estrategia de Ramas en Git
 
 El repositorio sigue un flujo estructurado de dos ramas para garantizar estabilidad en producción:

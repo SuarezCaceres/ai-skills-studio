@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UserAccount } from '../types/workspace';
+import { useCatalog } from '../hooks/useCatalog';
 import {
   hashPasswordPBKDF2,
   checkLoginRateLimit,
@@ -19,6 +20,7 @@ import {
   Cpu,
   FolderArchive,
   BookOpen,
+  Github,
 } from 'lucide-react';
 
 interface AuthScreenProps {
@@ -34,12 +36,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 }) => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('sergio@aistudio.dev');
-  const [password, setPassword] = useState('CodiceStudio2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState('Editor Autorizado · Full-Stack Architect');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [emailTouchedError, setEmailTouchedError] = useState<string | null>(null);
+  const { oauthConfigured, signingIn, authError, signIn } = useCatalog();
+
+  // La entrada como colaborador al completarse el OAuth la gestiona `App` (observa la sesión de GitHub).
 
   const loadStoredUsers = (): Array<UserAccount & { passwordHash: string }> => {
     try {
@@ -48,16 +53,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
     } catch {
       // Fallback
     }
-    return [
-      {
-        id: 'usr-default-1',
-        fullName: 'Sergio Suarez',
-        email: 'sergio@aistudio.dev',
-        role: 'Editor Autorizado · Full-Stack Architect',
-        createdAt: '05/11/2026',
-        passwordHash: 'pbkdf2_sha256$default_editor_seeded',
-      },
-    ];
+    return [];
   };
 
   const handleEmailBlur = () => {
@@ -132,23 +128,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       return;
     }
 
-    const defaultEditorHash =
-      cleanEmail === 'sergio@aistudio.dev'
-        ? await hashPasswordPBKDF2('CodiceStudio2026!', 'sergio@aistudio.dev')
-        : '';
-
-    const matched = users.find((u) => {
-      if (u.email.toLowerCase() !== cleanEmail) return false;
-      if (u.passwordHash === candidateHash) return true;
-      if (
-        u.id === 'usr-default-1' &&
-        cleanEmail === 'sergio@aistudio.dev' &&
-        candidateHash === defaultEditorHash
-      ) {
-        return true;
-      }
-      return false;
-    });
+    const matched = users.find(
+      (u) => u.email.toLowerCase() === cleanEmail && u.passwordHash === candidateHash
+    );
 
     if (!matched) {
       recordFailedLoginAttempt(cleanEmail);
@@ -159,7 +141,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
         );
       } else {
         setErrorMessage(
-          'Credenciales inválidas. Verifica tu correo y contraseña o utiliza el acceso de demostración.'
+          'Credenciales inválidas. Verifica tu correo y contraseña o entra con GitHub.'
         );
       }
       return;
@@ -281,6 +263,30 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 <span>{errorMessage}</span>
               </div>
             )}
+
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  void signIn();
+                }}
+                disabled={!oauthConfigured || signingIn}
+                className="w-full h-12 rounded-xl bg-[#0EA5E9] hover:brightness-110 text-[#0a0d14] font-extrabold text-sm flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Github className="w-4 h-4" aria-hidden="true" />
+                <span>{signingIn ? 'Esperando a GitHub…' : 'Entrar con GitHub'}</span>
+              </button>
+              {!oauthConfigured && (
+                <p className="text-[11px] text-slate-400">
+                  El inicio de sesión con GitHub aún no está configurado en este despliegue.
+                </p>
+              )}
+              {authError && (
+                <p role="alert" className="text-[11px] text-rose-300">
+                  {authError}
+                </p>
+              )}
+            </div>
 
             <form
               onSubmit={handleSubmit}
@@ -429,21 +435,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 <ShieldCheck className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
                 Control de Acceso por Roles
               </span>
-              <button
-                type="button"
-                onClick={() =>
-                  onAuthenticated({
-                    id: 'usr-demo',
-                    fullName: 'Sergio Suarez',
-                    email: 'sergio@aistudio.dev',
-                    role: 'Editor Autorizado · Full-Stack Architect',
-                    createdAt: '05/11/2026',
-                  })
-                }
-                className="text-[#38BDF8] hover:underline font-bold cursor-pointer"
-              >
-                Acceso Rápido Demo Editor (1-Clic) →
-              </button>
             </div>
           </div>
         </div>

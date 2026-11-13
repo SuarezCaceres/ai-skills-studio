@@ -2,10 +2,12 @@ export type AppPageRoute =
   | 'inicio'
   | 'codice-studio'
   | 'boveda'
+  | 'catalogo'
   | 'estudio'
   | 'preview'
   | 'evidencias'
-  | 'modelos-ia';
+  | 'modelos-ia'
+  | 'skill-detalle';
 
 export interface UserAccount {
   id: string;
