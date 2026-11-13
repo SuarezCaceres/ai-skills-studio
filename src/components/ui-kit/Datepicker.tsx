@@ -20,7 +20,9 @@ const weekdayIndex = (d: Date) => (d.getDay() + 6) % 7;
 const formatShort = (d: Date) =>
   `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 const formatLong = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-const monthTitle = new Intl.DateTimeFormat('es', { month: 'long', year: 'numeric' });
+const monthFormat = new Intl.DateTimeFormat('es', { month: 'long', year: 'numeric' });
+/** «noviembre de 2026» → «Noviembre de 2026» (solo la primera letra, no las preposiciones). */
+const monthTitle = { format: (d: Date) => monthFormat.format(d).replace(/^./, (c) => c.toUpperCase()) };
 
 /** Convierte «d/m/aaaa» en fecha; devuelve `null` si no es una fecha real. */
 export function parseDate(text: string): Date | null {
@@ -116,7 +118,7 @@ export function Calendar({ value, min, max, onSelect, onEscape }: CalendarProps)
         <button type="button" className={nav} onClick={() => setFocused(clamp(addMonths(focused, -1)))} aria-label="Mes anterior">
           <ChevronLeft aria-hidden="true" className="h-4 w-4" />
         </button>
-        <p id={`${gridId}-title`} aria-live="polite" className="m-0 text-sm font-semibold capitalize text-white">
+        <p id={`${gridId}-title`} aria-live="polite" className="m-0 text-sm font-semibold text-white">
           {monthTitle.format(focused)}
         </p>
         <button type="button" className={nav} onClick={() => setFocused(clamp(addMonths(focused, 1)))} aria-label="Mes siguiente">
