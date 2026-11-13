@@ -23,13 +23,13 @@ import type {
   SkillResultReport,
   SkillVotes,
 } from '../../types/catalog';
-import { mockCatalogApi } from './mockCatalogApi';
 import { SkillSidebar } from './SkillSidebar';
 import { ResultsByModel, safeHttpUrl } from './ResultsByModel';
 import { ReportResultForm } from './ReportResultForm';
 import type { ReportInput } from './ReportResultForm';
 import { MoreFromAuthor } from './MoreFromAuthor';
 import { PublishSkillDialog } from './PublishSkillDialog';
+import { TranslateButton } from './TranslateButton';
 
 /* ==========================================================================
    Render de Markdown NO confiable
@@ -421,10 +421,11 @@ export interface SkillDetailPageProps {
   skillId: string | null;
   onBack: () => void;
   /**
-   * Props opcionales (no rompen la firma usada por App.tsx): la integración
-   * final inyecta aquí los servicios reales y los paneles del WT3.
+   * `api` es obligatoria: la ruta de integración (`CatalogDetailRoute`) inyecta el
+   * servicio real de GitHub. El mock de desarrollo no se importa desde aquí para
+   * que no entre en el bundle de producción.
    */
-  api?: CatalogApi;
+  api: CatalogApi;
   session?: GithubSession | null;
   onRequestLogin?: () => void;
   renderAudit?: (skill: CatalogSkill) => ReactNode;
@@ -450,7 +451,7 @@ function errorMessage(err: unknown, fallback: string): string {
 export function SkillDetailPage({
   skillId,
   onBack,
-  api = mockCatalogApi,
+  api,
   session = null,
   onRequestLogin,
   renderAudit,
@@ -465,6 +466,7 @@ export function SkillDetailPage({
   const [voting, setVoting] = useState(false);
   const [tab, setTab] = useState<TabId>('resumen');
   const [publishOpen, setPublishOpen] = useState(false);
+  const [translated, setTranslated] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ resumen: null, archivos: null });
 
@@ -482,6 +484,7 @@ export function SkillDetailPage({
     let cancelled = false;
     setSkillState({ status: 'loading' });
     setTab('resumen');
+    setTranslated(null);
     api
       .getSkill(currentId)
       .then((skill) => {
@@ -678,7 +681,7 @@ export function SkillDetailPage({
         </button>
       </div>
 
-      <div className="[display:grid] min-w-0 gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="[display:grid] min-w-0 gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:[grid-template-rows:auto_1fr]">
         {/* Ficha lateral: primero en el DOM para móvil, columna derecha en escritorio. */}
         <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
           <div className="lg:sticky lg:top-20">
@@ -793,9 +796,16 @@ export function SkillDetailPage({
             >
               {tab === 'resumen' && (
                 <div className="space-y-10">
-                  <article lang="en" aria-label="Contenido de SKILL.md" className="min-w-0">
-                    <SafeMarkdown source={skill.markdown} />
-                  </article>
+                  <div className="space-y-4">
+                    <TranslateButton key={skill.id} markdown={skill.markdown} onChange={setTranslated} />
+                    <article
+                      lang={translated === null ? 'en' : 'es'}
+                      aria-label={translated === null ? 'Contenido de SKILL.md' : 'Contenido de SKILL.md traducido al español'}
+                      className="min-w-0"
+                    >
+                      <SafeMarkdown source={translated ?? skill.markdown} />
+                    </article>
+                  </div>
                   <ResultsByModel
                     results={resultsState.status === 'ready' ? resultsState.results : []}
                     loading={resultsState.status === 'loading'}

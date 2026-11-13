@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { UserAccount } from '../types/workspace';
 import { useCatalog } from '../hooks/useCatalog';
 import {
@@ -42,22 +42,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [emailTouchedError, setEmailTouchedError] = useState<string | null>(null);
-  const { session, oauthConfigured, signingIn, authError, signIn } = useCatalog();
+  const { oauthConfigured, signingIn, authError, signIn } = useCatalog();
 
-  // Al completarse el OAuth (ventana emergente o regreso por redirección) se entra como colaborador.
-  // Se ignora una sesión de GitHub previa al montaje (p. ej. tras cerrar sesión en la app).
-  const initialToken = useRef(session?.token);
-  useEffect(() => {
-    if (!session || session.token === initialToken.current) return;
-    onAuthenticated({
-      id: `gh-${session.login}`,
-      fullName: session.login,
-      email: `${session.login}@users.noreply.github.com`,
-      role: 'Colaborador · GitHub',
-      createdAt: new Date().toLocaleDateString(),
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  // La entrada como colaborador al completarse el OAuth la gestiona `App` (observa la sesión de GitHub).
 
   const loadStoredUsers = (): Array<UserAccount & { passwordHash: string }> => {
     try {

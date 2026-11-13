@@ -7,6 +7,7 @@ import {
 } from '../types/skill';
 import { AppPageRoute } from '../types/workspace';
 import { ObsidianBrandIcon } from './BrandIcons';
+import { CatalogSection } from './catalog/CatalogSection';
 import {
   FileText,
   Plus,
@@ -43,6 +44,8 @@ interface SkillManagerProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onNavigatePage: (page: AppPageRoute) => void;
+  /** Abre el detalle de una skill del catálogo comunitario. */
+  onOpenCatalogSkill: (id: string) => void;
 }
 
 export const SkillManager: React.FC<SkillManagerProps> = ({
@@ -59,6 +62,7 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
   searchQuery,
   onSearchChange,
   onNavigatePage,
+  onOpenCatalogSkill,
 }) => {
   const activeSkill = skills.find((s) => s.id === activeSkillId) || skills[0];
 
@@ -406,6 +410,11 @@ Define las directrices de arquitectura, calidad de código y diseño de interfaz
             )}
           </div>
         </div>
+
+        <CatalogSection
+          onOpenSkill={onOpenCatalogSkill}
+          onRequestLogin={onRequestLogin}
+        />
 
         {/* BUSCADOR Y FILTROS ORDENADOS */}
         <div className="rounded-lg border border-slate-800 bg-[#121722] p-3 space-y-3">
