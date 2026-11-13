@@ -869,6 +869,7 @@ export function SkillDetailPage({
         onClose={() => setPublishOpen(false)}
         onRequestLogin={onRequestLogin}
         onRegister={(url) => api.registerSkillFromUrl(url)}
+        onPublishLocal={api.publishLocalSkill ? (bundle, onProgress) => api.publishLocalSkill!(bundle, onProgress) : undefined}
         onRegistered={(created) => setCurrentId(created.id)}
       />
     </>

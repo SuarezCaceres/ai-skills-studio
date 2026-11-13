@@ -296,6 +296,7 @@ export function CatalogPage({ onOpenSkill, onRequestLogin, onOpenInStudio }: Cat
         onClose={() => setPublishOpen(false)}
         onRequestLogin={onRequestLogin}
         onRegister={(url) => api.registerSkillFromUrl(url)}
+        onPublishLocal={api.publishLocalSkill ? (bundle, onProgress) => api.publishLocalSkill!(bundle, onProgress) : undefined}
         onRegistered={(created) => {
           load();
           onOpenSkill(created.id);
