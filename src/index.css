@@ -132,6 +132,27 @@ main > :is(.hero, .section--hero) {
   }
 }
 
+/* Portátil pequeño (1024-1130): con la pestaña "Catálogo" la barra se ajusta para no salirse. */
+@media (min-width: 1024px) and (max-width: 1130px) {
+  .nav--centre .nav__bar {
+    gap: 8px !important;
+  }
+
+  .nav__link {
+    font-size: 14px !important;
+    padding: 0 6px !important;
+  }
+
+  .nav__actions {
+    gap: 8px !important;
+  }
+
+  .nav__actions .btn {
+    padding-inline: 12px !important;
+    font-size: 14px !important;
+  }
+}
+
 .hero--centred .hero__window {
   height: auto !important;
   min-height: auto !important;

@@ -50,6 +50,11 @@ const AIModelBenchmarkPanel = lazy(() =>
     default: m.AIModelBenchmarkPanel,
   }))
 );
+const CatalogPage = lazy(() =>
+  import('./components/catalog/CatalogPage').then((m) => ({
+    default: m.CatalogPage,
+  }))
+);
 const CatalogDetailRoute = lazy(() =>
   import('./components/catalog/CatalogDetailRoute').then((m) => ({
     default: m.CatalogDetailRoute,
@@ -377,6 +382,7 @@ export function App() {
           onLogout={handleLogout}
           onErasePersonalData={handleErasePersonalData}
           selectedModelName={formattedModelLabel}
+          githubAvatarUrl={githubSession?.avatarUrl}
         />
 
         <main id="top">
@@ -556,6 +562,7 @@ export function App() {
         onLogout={handleLogout}
         onErasePersonalData={handleErasePersonalData}
         selectedModelName={formattedModelLabel}
+          githubAvatarUrl={githubSession?.avatarUrl}
       />
 
       <div className="ide-shell selection:bg-[#0ea5e9] selection:text-[#0a0d14] relative z-10">
@@ -603,10 +610,16 @@ export function App() {
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
                   onNavigatePage={setActivePage}
-                  onOpenCatalogSkill={(id) => {
+                />
+              )}
+
+              {activePage === 'catalogo' && (
+                <CatalogPage
+                  onOpenSkill={(id) => {
                     setSelectedCatalogSkillId(id);
                     setActivePage('skill-detalle');
                   }}
+                  onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}
 
@@ -647,7 +660,7 @@ export function App() {
               {activePage === 'skill-detalle' && (
                 <CatalogDetailRoute
                   skillId={selectedCatalogSkillId}
-                  onBack={() => setActivePage('boveda')}
+                  onBack={() => setActivePage('catalogo')}
                   onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}

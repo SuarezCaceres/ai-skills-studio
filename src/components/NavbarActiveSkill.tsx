@@ -12,6 +12,8 @@ import {
   X,
   Trash2,
   Check,
+  Github,
+  Users,
 } from 'lucide-react';
 import { SkillDocument } from '../types/skill';
 import { AppPageRoute, UserAccount } from '../types/workspace';
@@ -28,6 +30,8 @@ export interface StudioNavigationProps {
   onLogout: () => void;
   onErasePersonalData?: () => void;
   selectedModelName: string;
+  /** Avatar de la sesión de GitHub, si la hay. */
+  githubAvatarUrl?: string;
 }
 
 export const PAGE_NAV_ITEMS: {
@@ -57,6 +61,13 @@ export const PAGE_NAV_ITEMS: {
     subtitle: 'Repositorio y editor de directivas SKILL.md',
     shortLabel: 'Skills',
     icon: BookOpen,
+  },
+  {
+    id: 'catalogo',
+    label: 'Catálogo',
+    subtitle: 'Skills de la comunidad, votos y resultados por modelo',
+    shortLabel: 'Catálogo',
+    icon: Users,
   },
   {
     id: 'codice-studio',
@@ -99,6 +110,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
   onLogout,
   onErasePersonalData,
   selectedModelName,
+  githubAvatarUrl,
 }) => {
   const [collaboratorDrawerOpen, setCollaboratorDrawerOpen] = useState(false);
   const isLanding = activePage === 'inicio';
@@ -165,8 +177,11 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                       <a href="#workspace" onClick={(e) => handleOpenModule(e, 'estudio')}>
                         Workspace VFS<span>Paquetes ZIP, carpetas y diff</span>
                       </a>
+                      <a href="#workspace" onClick={(e) => handleOpenModule(e, 'catalogo')}>
+                        Catálogo comunitario<span>Skills de GitHub, votos y auditoría</span>
+                      </a>
                       <a href="#workspace" onClick={(e) => handleOpenModule(e, 'boveda')}>
-                        Catálogo de skills<span>Archivos SKILL.md y auditoría</span>
+                        Mis skills<span>Archivos SKILL.md y editor local</span>
                       </a>
                       <a href="#capabilities" onClick={(e) => handleOpenModule(e, 'codice-studio')}>
                         Códice de notas<span>Vínculo directo con Obsidian</span>
@@ -210,7 +225,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
             </nav>
           ) : (
             <nav className="nav__links" aria-label="Módulos del estudio">
-              {PAGE_NAV_ITEMS.slice(0, 6).map((item) => (
+              {PAGE_NAV_ITEMS.slice(0, 7).map((item) => (
                 <div className="nav__item" key={item.id}>
                   <a
                     className="nav__link"
@@ -228,26 +243,44 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
           <div className="nav__actions">
             {currentUser ? (
               <a
-                className="nav__link"
+                className="nav__link inline-flex items-center gap-2"
                 href="#workspace"
+                aria-label={`Sesión de ${currentUser.fullName}`}
                 onClick={(e) => {
                   e.preventDefault();
                   setCollaboratorDrawerOpen(true);
                 }}
               >
+                {githubAvatarUrl ? (
+                  <img
+                    src={githubAvatarUrl}
+                    alt=""
+                    width={22}
+                    height={22}
+                    referrerPolicy="no-referrer"
+                    className="h-[22px] w-[22px] rounded-full border border-slate-700"
+                  />
+                ) : currentUser.id.startsWith('gh-') ? (
+                  <Github className="h-4 w-4" aria-hidden="true" />
+                ) : null}
                 {currentUser.fullName.split(' ')[0]}
               </a>
             ) : (
-              <a
-                className="nav__link"
-                href="#workspace"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onRequestLogin();
-                }}
-              >
-                Acceder
-              </a>
+              <>
+                <a
+                  className="btn btn--secondary btn--sm inline-flex items-center gap-1.5"
+                  aria-label="Entrar con GitHub"
+                  href="#workspace"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onRequestLogin();
+                  }}
+                >
+                  <Github className="h-4 w-4" aria-hidden="true" />
+                  <span className="hidden min-[1500px]:inline">Entrar con </span>
+                  <span className="hidden min-[1440px]:inline">GitHub</span>
+                </a>
+              </>
             )}
             {activePage !== 'estudio' ? (
               <a
@@ -255,10 +288,10 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                 href="#workspace"
                 onClick={(e) => handleOpenModule(e, 'estudio')}
               >
-                Abrir<span className="hidden sm:inline"> Workspace</span>
+                Abrir<span className="hidden min-[1440px]:inline"> Workspace</span>
               </a>
             ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-[11px] font-medium text-emerald-400">
+              <span className="hidden min-[1180px]:inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-[11px] font-medium text-emerald-400">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 VFS Activo
               </span>
