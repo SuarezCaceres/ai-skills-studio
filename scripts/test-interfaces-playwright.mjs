@@ -11,6 +11,18 @@ const SHOTS_DIR = resolve(ROOT, 'shots', 'audit');
 
 mkdirSync(SHOTS_DIR, { recursive: true });
 
+// GitHub simulado: el build puede traer el catálogo real configurado y las pruebas no deben
+// gastar la cuota anónima (60/h por IP). Catálogo vacío y perfiles sin avatar.
+async function fakeGithub(route) {
+  const { pathname } = new URL(route.request().url());
+  if (pathname.startsWith('/users/')) {
+    const login = pathname.split('/')[2];
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ login, name: null }) });
+  }
+  return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+}
+
+
 async function runAudit() {
   console.log('⚡ Launching Vite preview server via Programmatic Node API on port', PORT);
   const previewServer = await preview({
@@ -49,6 +61,7 @@ async function runAudit() {
       const context = await browser.newContext({
         viewport: { width: vp.width, height: vp.height },
       });
+      await context.route('https://api.github.com/**', fakeGithub);
       const page = await context.newPage();
 
       page.on('console', (msg) => {

@@ -346,8 +346,13 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs font-medium text-slate-400">Skill activa en estudio</p>
+                <p className="text-xs font-medium text-slate-400">Copias de trabajo en este navegador</p>
                 <div className="space-y-1.5">
+                  {skills.length === 0 && (
+                    <p className="m-0 rounded border border-dashed border-slate-700 px-3 py-2.5 text-xs text-slate-400">
+                      Aún no abriste ninguna skill en el estudio. Hazlo desde Skills con &quot;Abrir en estudio&quot;.
+                    </p>
+                  )}
                   {skills.map((skill) => {
                     const selected = skill.id === activeSkillId;
                     return (

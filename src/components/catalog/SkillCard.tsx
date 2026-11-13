@@ -1,4 +1,4 @@
-import { ArrowUpRight, Scale, ShieldAlert } from 'lucide-react';
+import { ArrowUpRight, FolderOpen, Scale, ShieldAlert } from 'lucide-react';
 import type { CatalogSkill } from '../../types/catalog';
 import { PersonAvatar } from './PersonAvatar';
 import { safeHttpUrl } from './ResultsByModel';
@@ -6,6 +6,8 @@ import { safeHttpUrl } from './ResultsByModel';
 interface SkillCardProps {
   skill: CatalogSkill;
   onOpen: () => void;
+  /** Si se pasa, muestra "Abrir en estudio" (trae una copia de trabajo al navegador). */
+  onOpenInStudio?: () => void;
 }
 
 const LINK =
@@ -22,7 +24,7 @@ function shortDate(iso: string): string {
  * de qué repo viene. El título es el botón que cubre toda la tarjeta; los enlaces a GitHub
  * quedan por encima (`z-10`) para no anidar controles interactivos.
  */
-export function SkillCard({ skill, onOpen }: SkillCardProps) {
+export function SkillCard({ skill, onOpen, onOpenInStudio }: SkillCardProps) {
   const uploader = skill.uploadedBy;
   const profileUrl = safeHttpUrl(uploader.profileUrl);
   const when = shortDate(skill.registeredAt);
@@ -91,10 +93,23 @@ export function SkillCard({ skill, onOpen }: SkillCardProps) {
             </span>
           )}
           {skill.license && (
-            <span className="ml-auto inline-flex items-center gap-1 font-mono text-slate-500">
+            <span
+              className={`${onOpenInStudio ? '' : 'ml-auto '}inline-flex items-center gap-1 font-mono text-slate-500`}
+            >
               <Scale className="h-3 w-3" aria-hidden="true" />
               {skill.license}
             </span>
+          )}
+          {onOpenInStudio && (
+            <button
+              type="button"
+              onClick={onOpenInStudio}
+              aria-label={`Abrir ${skill.name} en estudio`}
+              className={`${LINK} ml-auto inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-700 bg-transparent px-3 py-1 font-sans text-[11px] font-semibold text-slate-200 transition hover:border-[#0ea5e9] hover:text-[#38bdf8]`}
+            >
+              <FolderOpen className="h-3 w-3" aria-hidden="true" />
+              Abrir en estudio
+            </button>
           )}
         </div>
       </article>

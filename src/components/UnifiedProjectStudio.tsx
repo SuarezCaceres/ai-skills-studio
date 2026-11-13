@@ -9,7 +9,6 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  Save,
   Copy,
   Check,
   Plus,
@@ -58,7 +57,6 @@ interface UnifiedProjectStudioProps {
   isEditorMode: boolean;
   onRequestLogin: () => void;
   onUpdateRarPackage: (pkg: RarArchivePackage) => void;
-  onSaveRarProjectToBoveda: (pkg: RarArchivePackage) => void;
   onUpdateSkill: (skill: SkillDocument) => void;
   onUpdateSkillMarkdown: (
     skillId: string,
@@ -263,7 +261,6 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
   isEditorMode,
   onRequestLogin,
   onUpdateRarPackage,
-  onSaveRarProjectToBoveda,
   onUpdateSkill,
   onUpdateSkillMarkdown,
   onUpdateProjectMetadata,
@@ -690,22 +687,6 @@ export const UnifiedProjectStudio: React.FC<UnifiedProjectStudioProps> = ({
           >
             <Download className="h-3.5 w-3.5 text-emerald-400" />
             <span>Exportar .ZIP</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (!isEditorMode) {
-                onRequestLogin();
-                return;
-              }
-              onSaveRarProjectToBoveda(workspace);
-              notify(`Workspace "${workspace.archiveName}" guardado en el catálogo.`);
-            }}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#0ea5e9] px-3 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] transition-all duration-150 cursor-pointer shadow-sm"
-          >
-            <Save className="h-3.5 w-3.5" />
-            <span>Guardar en catálogo</span>
           </button>
         </div>
       </header>

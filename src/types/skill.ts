@@ -107,6 +107,20 @@ export interface SkillFicha {
   collaborators: string[];
 }
 
+/** De dónde viene una copia de trabajo: la skill del equipo en el catálogo. */
+export interface SkillOrigin {
+  /** `CatalogSkill.id` (`owner/repo/ruta`). */
+  catalogId: string;
+  repo: string;
+  skillPath: string;
+  /** Commit del que se leyó el contenido. */
+  commitSha: string;
+  uploadedByLogin: string;
+  uploadedByAvatarUrl?: string;
+  uploadedByProfileUrl: string;
+  fetchedAt: string;
+}
+
 export interface SkillDocument {
   id: string;
   filename: string;
@@ -132,4 +146,6 @@ export interface SkillDocument {
   predominantLanguages?: LanguageBreakdownItem[];
   colorPalette?: string[];
   rarPackage?: RarArchivePackage;
+  /** Presente en las copias de trabajo traídas desde el catálogo del equipo. */
+  origin?: SkillOrigin;
 }
