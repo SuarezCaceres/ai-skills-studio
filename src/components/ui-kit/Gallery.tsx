@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 export interface GalleryImage {
@@ -13,7 +14,7 @@ interface GalleryProps {
   images: GalleryImage[];
   /** Nombre de la galería para lectores de pantalla. */
   label: string;
-  /** `true` limita el visor a la caja `relative` más cercana (útil para previsualizarlo). */
+  /** `true` limita el visor a la caja `relative` más cercana (útil para previsualizarlo); si no, se dibuja en un portal sobre `document.body`. */
   contained?: boolean;
 }
 
@@ -77,6 +78,39 @@ export function Gallery({ images, label, contained = false }: GalleryProps) {
   const nav =
     'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-slate-600 bg-black/60 text-white hover:border-[#0ea5e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]';
 
+  const overlay = image ? (
+    <div className={`${contained ? 'absolute z-10' : 'fixed z-[60]'} inset-0`}>
+      <div aria-hidden="true" onClick={close} className="absolute inset-0 bg-black/85" />
+      <div
+        ref={viewer}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onKeyDown={onKeyDown}
+        className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4"
+      >
+        <p id={titleId} className="sr-only">
+          {label}: imagen {(current ?? 0) + 1} de {count}
+        </p>
+        <button data-close type="button" onClick={close} aria-label="Cerrar visor" className={`${nav} absolute right-3 top-3`}>
+          <X aria-hidden="true" className="h-5 w-5" />
+        </button>
+        <div className="flex min-h-0 w-full max-w-2xl flex-1 items-center justify-center gap-3">
+          <button type="button" onClick={() => step(-1)} aria-label="Imagen anterior" className={nav}>
+            <ChevronLeft aria-hidden="true" className="h-5 w-5" />
+          </button>
+          <img src={image.src} alt={image.alt} className="max-h-full min-w-0 flex-1 rounded-lg object-contain" />
+          <button type="button" onClick={() => step(1)} aria-label="Imagen siguiente" className={nav}>
+            <ChevronRight aria-hidden="true" className="h-5 w-5" />
+          </button>
+        </div>
+        <p className="m-0 text-center text-sm text-slate-200" aria-live="polite">
+          {image.caption ?? image.alt} <span className="text-slate-500">· {(current ?? 0) + 1}/{count}</span>
+        </p>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <>
       <ul aria-label={label} className="m-0 [display:grid] list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3">
@@ -94,38 +128,7 @@ export function Gallery({ images, label, contained = false }: GalleryProps) {
         ))}
       </ul>
 
-      {image && (
-        <div className={`${contained ? 'absolute' : 'fixed'} inset-0 z-40`}>
-          <div aria-hidden="true" onClick={close} className="absolute inset-0 bg-black/85" />
-          <div
-            ref={viewer}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            onKeyDown={onKeyDown}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4"
-          >
-            <p id={titleId} className="sr-only">
-              {label}: imagen {(current ?? 0) + 1} de {count}
-            </p>
-            <button data-close type="button" onClick={close} aria-label="Cerrar visor" className={`${nav} absolute right-3 top-3`}>
-              <X aria-hidden="true" className="h-5 w-5" />
-            </button>
-            <div className="flex min-h-0 w-full max-w-2xl flex-1 items-center justify-center gap-3">
-              <button type="button" onClick={() => step(-1)} aria-label="Imagen anterior" className={nav}>
-                <ChevronLeft aria-hidden="true" className="h-5 w-5" />
-              </button>
-              <img src={image.src} alt={image.alt} className="max-h-full min-w-0 flex-1 rounded-lg object-contain" />
-              <button type="button" onClick={() => step(1)} aria-label="Imagen siguiente" className={nav}>
-                <ChevronRight aria-hidden="true" className="h-5 w-5" />
-              </button>
-            </div>
-            <p className="m-0 text-center text-sm text-slate-200" aria-live="polite">
-              {image.caption ?? image.alt} <span className="text-slate-500">· {(current ?? 0) + 1}/{count}</span>
-            </p>
-          </div>
-        </div>
-      )}
+      {overlay && (contained ? overlay : createPortal(overlay, document.body))}
     </>
   );
 }

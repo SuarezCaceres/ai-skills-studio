@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 const FOCUSABLE =
@@ -12,7 +13,8 @@ interface DrawerProps {
   children: ReactNode;
   footer?: ReactNode;
   /**
-   * `false` (por defecto) cubre toda la ventana (`fixed`). `true` lo limita al contenedor
+   * `false` (por defecto) cubre toda la ventana (`fixed`) y se dibuja en un portal sobre `document.body`,
+   * para quedar por encima de cualquier cabecera o contexto de apilamiento. `true` lo limita al contenedor
    * `relative` más cercano: sirve para previsualizarlo dentro de una caja.
    */
   contained?: boolean;
@@ -37,7 +39,8 @@ export function Drawer({ open, onClose, title, side = 'right', children, footer,
 
   if (!open) return null;
 
-  const position = contained ? 'absolute' : 'fixed';
+  // A pantalla completa debe quedar por encima de cualquier cabecera fija (z-50 en esta app).
+  const layer = contained ? 'absolute z-10' : 'fixed z-[60]';
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') {
@@ -59,8 +62,8 @@ export function Drawer({ open, onClose, title, side = 'right', children, footer,
     }
   };
 
-  return (
-    <div className={`${position} inset-0 z-40 overflow-hidden`}>
+  const content = (
+    <div className={`${layer} inset-0 overflow-hidden`}>
       <div aria-hidden="true" onClick={onClose} className="absolute inset-0 bg-black/60" />
       <div
         ref={panel}
@@ -91,6 +94,8 @@ export function Drawer({ open, onClose, title, side = 'right', children, footer,
       </div>
     </div>
   );
+
+  return contained ? content : createPortal(content, document.body);
 }
 
 /** Demo del registro: abre dos paneles (derecha e izquierda) dentro de una caja de pruebas. */
