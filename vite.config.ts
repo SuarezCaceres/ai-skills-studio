@@ -1,4 +1,4 @@
-import { defineConfig, Plugin } from 'vite';
+import { defineConfig, loadEnv, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import fs from 'node:fs';
@@ -10,6 +10,30 @@ const securityHeaders = {
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), geolocation=(), payment=()',
 };
+
+/**
+ * Rellena `connect-src` de la CSP de `index.html` con los únicos orígenes a los que
+ * la app hace `fetch`: la API de GitHub, la función de Vercel que intercambia el
+ * código OAuth (derivada de `VITE_GITHUB_OAUTH_URL`) y la API de Gemini (traducción
+ * con la clave de la persona). Sin esto `default-src 'self'` bloquearía el catálogo.
+ */
+function cspConnectSrc(oauthUrl: string): Plugin {
+  const origins = ["'self'", 'https://api.github.com', 'https://generativelanguage.googleapis.com'];
+  try {
+    const origin = new URL(oauthUrl).origin;
+    if (origin.startsWith('https://') || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      origins.push(origin);
+    }
+  } catch {
+    // Sin función de OAuth configurada: la app funciona en modo solo lectura.
+  }
+  return {
+    name: 'csp-connect-src',
+    transformIndexHtml(html) {
+      return html.replace('__CSP_CONNECT_SRC__', origins.join(' '));
+    },
+  };
+}
 
 function preservePublicKitAssets(): Plugin[] {
   return [
@@ -93,9 +117,11 @@ function preservePublicKitAssets(): Plugin[] {
   ];
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_');
+  return {
   base: './',
-  plugins: [...preservePublicKitAssets(), react(), tailwindcss()],
+  plugins: [...preservePublicKitAssets(), cspConnectSrc(env.VITE_GITHUB_OAUTH_URL ?? ''), react(), tailwindcss()],
   server: {
     port: 5173,
     host: true,
@@ -119,4 +145,5 @@ export default defineConfig({
       },
     },
   },
+  };
 });
