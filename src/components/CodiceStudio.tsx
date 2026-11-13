@@ -18,7 +18,9 @@ import {
   CheckCircle2,
   Lock,
   ArrowUpRight,
+  BookOpen,
 } from 'lucide-react';
+import { LessonsSection } from './lessons/LessonsSection';
 
 interface SkillItem {
   id: string;
@@ -131,7 +133,30 @@ export function sanitizeArchiveStream(entryPath: string): string {
   },
 ];
 
-export const CodiceStudio: React.FC = () => {
+interface CodiceStudioProps {
+  /** Clase abierta en la pestaña «Clases» (la guarda `App`). */
+  openLessonId?: string | null;
+  onOpenLesson?: (id: string | null) => void;
+  onOpenSkill?: (id: string) => void;
+  onOpenComponent?: (id: string) => void;
+  onRequestLogin?: () => void;
+}
+
+type CodiceSection = 'clases' | 'engine';
+
+const SECTIONS: Array<{ id: CodiceSection; label: string }> = [
+  { id: 'clases', label: 'Clases' },
+  { id: 'engine', label: 'Studio Engine' },
+];
+
+export const CodiceStudio: React.FC<CodiceStudioProps> = ({
+  openLessonId = null,
+  onOpenLesson = () => undefined,
+  onOpenSkill = () => undefined,
+  onOpenComponent = () => undefined,
+  onRequestLogin = () => undefined,
+}) => {
+  const [section, setSection] = useState<CodiceSection>('clases');
   const [selectedSkillId, setSelectedSkillId] = useState<string>(SAMPLE_SKILLS[0].id);
   const [activeTab, setActiveTab] = useState<'prompt' | 'typescript' | 'telemetry'>('prompt');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -228,35 +253,40 @@ export const CodiceStudio: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-[10px] text-[#94A3B8]/70 hidden sm:block tracking-wider uppercase">
-                  Workspace VFS &amp; Skills Vault
+                  Workspace VFS &amp; Clases del equipo
                 </p>
               </div>
             </div>
 
             {/* Enlaces de Navegación Limpios */}
-            <nav className="hidden md:flex items-center gap-1 bg-[#121722] border border-slate-800 px-2 py-1 rounded-full shadow-inner">
-              {[
-                { label: 'Studio Engine', active: true },
-                { label: 'Skills Vault', active: false },
-                { label: 'Model Matrix', active: false },
-                { label: 'Synaptic Hooks', active: false },
-              ].map((item) => (
+            <div
+              role="tablist"
+              aria-label="Secciones de Códice"
+              className="flex items-center gap-1 bg-[#121722] border border-slate-800 px-2 py-1 rounded-full shadow-inner"
+            >
+              {SECTIONS.map((item) => (
                 <button
-                  key={item.label}
+                  key={item.id}
+                  id={`codice-tab-${item.id}`}
                   type="button"
-                  className={`px-3.5 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
-                    item.active
-                      ? 'bg-sky-500/15 text-[#38BDF8] border border-sky-400/30 shadow-[0_0_12px_rgba(14,165,233,0.2)]'
-                      : 'text-[#94A3B8] hover:text-white hover:bg-white/[0.04]'
+                  role="tab"
+                  aria-selected={section === item.id}
+                  aria-controls={`codice-panel-${item.id}`}
+                  onClick={() => setSection(item.id)}
+                  className={`px-3.5 py-1 text-xs font-medium rounded-full transition-all duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9] ${
+                    section === item.id
+                      ? 'bg-sky-500/15 text-[#38BDF8] border border-sky-400/30'
+                      : 'bg-transparent text-[#94A3B8] border border-transparent hover:text-white hover:bg-white/[0.04]'
                   }`}
                 >
+                  {item.id === 'clases' && <BookOpen aria-hidden="true" className="mr-1.5 inline h-3.5 w-3.5 align-[-2px]" />}
                   {item.label}
                 </button>
               ))}
-            </nav>
+            </div>
 
             {/* Estado del Usuario y CTA Neón */}
-            <div className="flex items-center gap-3">
+            <div className={`items-center gap-3 ${section === 'engine' ? 'flex' : 'hidden'}`}>
               {/* Badge de Estado: Verde Esmeralda Suave estricto */}
               <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-[11px] font-mono text-emerald-300">
                 <span className="relative flex h-2 w-2">
@@ -289,7 +319,28 @@ export const CodiceStudio: React.FC = () => {
           3. HERO & SUBTÍTULO CARBON + CIAN
           ========================================================================
         */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {section === 'clases' ? (
+          <div
+            id="codice-panel-clases"
+            role="tabpanel"
+            aria-labelledby="codice-tab-clases"
+            className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
+          >
+            <LessonsSection
+              openLessonId={openLessonId}
+              onOpenLesson={onOpenLesson}
+              onOpenSkill={onOpenSkill}
+              onOpenComponent={onOpenComponent}
+              onRequestLogin={onRequestLogin}
+            />
+          </div>
+        ) : (
+        <div
+          id="codice-panel-engine"
+          role="tabpanel"
+          aria-labelledby="codice-tab-engine"
+          className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8"
+        >
           <section className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs text-sky-300">
               <Activity className="w-3.5 h-3.5 text-sky-400" />
@@ -592,7 +643,8 @@ export const CodiceStudio: React.FC = () => {
               </div>
             </div>
           </div>
-        </main>
+        </div>
+        )}
       </div>
     </div>
   );
