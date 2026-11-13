@@ -7,7 +7,6 @@ import {
 } from '../types/skill';
 import { AppPageRoute } from '../types/workspace';
 import { ObsidianBrandIcon } from './BrandIcons';
-import { CatalogSection } from './catalog/CatalogSection';
 import {
   FileText,
   Plus,
@@ -28,6 +27,7 @@ import {
   Lock,
   ShieldCheck,
   ExternalLink,
+  Users,
 } from 'lucide-react';
 
 interface SkillManagerProps {
@@ -44,8 +44,6 @@ interface SkillManagerProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onNavigatePage: (page: AppPageRoute) => void;
-  /** Abre el detalle de una skill del catálogo comunitario. */
-  onOpenCatalogSkill: (id: string) => void;
 }
 
 export const SkillManager: React.FC<SkillManagerProps> = ({
@@ -62,7 +60,6 @@ export const SkillManager: React.FC<SkillManagerProps> = ({
   searchQuery,
   onSearchChange,
   onNavigatePage,
-  onOpenCatalogSkill,
 }) => {
   const activeSkill = skills.find((s) => s.id === activeSkillId) || skills[0];
 
@@ -328,6 +325,14 @@ Define las directrices de arquitectura, calidad de código y diseño de interfaz
               onChange={handleImportMd}
               className="hidden"
             />
+            <button
+              type="button"
+              onClick={() => onNavigatePage('catalogo')}
+              className="h-9 px-3.5 rounded-md bg-[#121722] hover:bg-slate-800 border border-slate-700 hover:border-[#0ea5e9] text-xs font-medium text-slate-200 flex items-center gap-2 transition cursor-pointer"
+            >
+              <Users className="w-3.5 h-3.5 text-[#0ea5e9]" aria-hidden="true" />
+              <span>Catálogo comunitario</span>
+            </button>
             {isEditorMode ? (
               <>
                 <button
@@ -410,11 +415,6 @@ Define las directrices de arquitectura, calidad de código y diseño de interfaz
             )}
           </div>
         </div>
-
-        <CatalogSection
-          onOpenSkill={onOpenCatalogSkill}
-          onRequestLogin={onRequestLogin}
-        />
 
         {/* BUSCADOR Y FILTROS ORDENADOS */}
         <div className="rounded-lg border border-slate-800 bg-[#121722] p-3 space-y-3">
@@ -521,7 +521,7 @@ Define las directrices de arquitectura, calidad de código y diseño de interfaz
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="[display:grid] grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div>
                 <label
                   htmlFor="skill-name-input"
@@ -646,172 +646,144 @@ Define las directrices de arquitectura, calidad de código y diseño de interfaz
         )}
 
         {/* LISTA DE PROYECTOS Y SKILLS */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between px-1 font-mono text-xs text-slate-400">
             <span>
               {filteredSkills.length}{' '}
               {filteredSkills.length === 1 ? 'elemento' : 'elementos'} en el Códice Neuronal
             </span>
-            <span className="text-slate-500 text-[11px]">
-              Haz clic para seleccionar o abrir en Workspace
+            <span className="hidden text-[11px] text-slate-500 sm:inline">
+              Haz clic en una tarjeta para activarla
             </span>
           </div>
 
-          <div className="rounded-lg border border-slate-800 bg-[#121722] overflow-hidden divide-y divide-slate-800/80">
-            {filteredSkills.map((skill) => {
-              const isActive = skill.id === activeSkillId;
-              const palette = skill.colorPalette || [
-                '#0a0d14',
-                '#121722',
-                '#0ea5e9',
-                '#38bdf8',
-              ];
-              const langs = skill.predominantLanguages || [];
+          {filteredSkills.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-700 bg-[#121722] p-10 text-center text-sm text-slate-300">
+              Ninguna skill coincide con tu búsqueda.
+            </div>
+          ) : (
+            <ul className="m-0 [display:grid] list-none gap-4 p-0 md:grid-cols-2 xl:grid-cols-3">
+              {filteredSkills.map((skill) => {
+                const isActive = skill.id === activeSkillId;
+                const langs = (skill.predominantLanguages || []).slice(0, 4);
+                const langTotal = langs.reduce((sum, l) => sum + l.percentage, 0) || 1;
+                const KindIcon =
+                  skill.kind === 'proyecto' ? FolderArchive : skill.kind === 'repo' ? Code2 : FileText;
 
-              return (
-                <article
-                  key={skill.id}
-                  onClick={() => {
-                    onSelectSkill(skill.id);
-                  }}
-                  className={`p-4 transition-all duration-150 flex flex-col lg:flex-row lg:items-center justify-between gap-4 cursor-pointer hover:bg-[#161c2a] ${
-                    isActive ? 'bg-[#0ea5e9]/10 border-l-2 border-[#0ea5e9]' : ''
-                  }`}
-                >
-                  <div className="flex items-start gap-3.5 min-w-0 flex-1">
-                    <div
-                      className={`w-9 h-9 rounded-md border flex items-center justify-center shrink-0 mt-0.5 ${
+                return (
+                  <li key={skill.id} className="min-w-0">
+                    <article
+                      onClick={() => onSelectSkill(skill.id)}
+                      className={`flex h-full cursor-pointer flex-col gap-4 rounded-xl border p-5 transition-colors ${
                         isActive
-                          ? 'bg-[#0ea5e9] border-[#0ea5e9] text-[#0a0d14]'
-                          : 'bg-[#0a0d14] border-slate-700 text-[#38bdf8]'
+                          ? 'border-[#0ea5e9] bg-[#0ea5e9]/[0.07]'
+                          : 'border-slate-800 bg-[#121722] hover:border-slate-600 hover:bg-[#141b29]'
                       }`}
                     >
-                      {skill.kind === 'proyecto' ? (
-                        <FolderArchive className="w-4 h-4" aria-hidden="true" />
-                      ) : skill.kind === 'repo' ? (
-                        <Code2 className="w-4 h-4" aria-hidden="true" />
-                      ) : (
-                        <FileText className="w-4 h-4" aria-hidden="true" />
-                      )}
-                    </div>
-
-                    <div className="space-y-1.5 min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="text-sm font-semibold text-white leading-snug">
-                          {skill.name}
-                        </h2>
-
-                        {skill.kind === 'proyecto' && (
-                          <Crown
-                            className="w-3.5 h-3.5 text-[#38bdf8] shrink-0"
-                            aria-hidden="true"
-                          />
-                        )}
-
-                        <span className="text-[10px] font-mono font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0a0d14] text-slate-300 border border-slate-800 whitespace-nowrap">
-                          {skill.kind === 'guia' ? 'GUÍA TÉCNICA' : 'WORKSPACE VFS'}
-                        </span>
-
+                      <div className="flex items-center gap-2.5">
                         <span
-                          className={`text-[10px] font-mono font-medium uppercase tracking-wider px-2 py-0.5 rounded-full border whitespace-nowrap ${getLevelBadgeStyle(
-                            skill.level
-                          )}`}
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${
+                            isActive
+                              ? 'border-[#0ea5e9] bg-[#0ea5e9] text-[#0a0d14]'
+                              : 'border-slate-700 bg-[#0a0d14] text-[#38bdf8]'
+                          }`}
                         >
-                          {skill.level}
+                          <KindIcon className="h-4 w-4" aria-hidden="true" />
                         </span>
-
+                        <span className="min-w-0 flex-1 truncate font-mono text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                          {skill.kind === 'guia' ? 'Guía técnica' : skill.kind === 'repo' ? 'Repositorio' : 'Workspace VFS'}
+                        </span>
                         {isActive && (
-                          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0ea5e9] text-[#0a0d14] flex items-center gap-1 whitespace-nowrap">
-                            <Check className="w-3 h-3" aria-hidden="true" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[#0ea5e9] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#0a0d14]">
+                            <Check className="h-3 w-3" aria-hidden="true" />
                             Activo
                           </span>
                         )}
                       </div>
 
-                      <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                        {skill.summary}
-                      </p>
+                      <div className="min-w-0">
+                        <h2 className="m-0 text-base font-semibold leading-snug text-white">{skill.name}</h2>
+                        <p className="mb-0 mt-2 line-clamp-3 text-sm leading-relaxed text-slate-400">
+                          {skill.summary}
+                        </p>
+                      </div>
 
-                      {/* Metadatos técnicos */}
-                      <div className="pt-0.5 flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#0a0d14] text-slate-200 border border-slate-700">
-                          <Cpu className="w-3 h-3 text-[#0ea5e9]" />
+                      {langs.length > 0 && (
+                        <div>
+                          <div
+                            className="flex h-1.5 overflow-hidden rounded-full bg-[#0a0d14]"
+                            role="img"
+                            aria-label={`Lenguajes: ${langs.map((l) => `${l.language} ${l.percentage}%`).join(', ')}`}
+                          >
+                            {langs.map((l) => (
+                              <span
+                                key={l.language}
+                                style={{ width: `${(l.percentage / langTotal) * 100}%`, backgroundColor: l.color }}
+                              />
+                            ))}
+                          </div>
+                          <p className="mb-0 mt-1.5 truncate font-mono text-[11px] text-slate-500">
+                            {langs.map((l) => `${l.language} ${l.percentage}%`).join(' · ')}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                        <span
+                          className={`rounded-full border px-2.5 py-0.5 font-medium ${getLevelBadgeStyle(skill.level)}`}
+                        >
+                          {skill.level}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-[#0a0d14] px-2.5 py-0.5 text-slate-200">
+                          <Cpu className="h-3 w-3 text-[#0ea5e9]" aria-hidden="true" />
                           {skill.aiModelLabel || 'Opus 5.5'}
                         </span>
-
-                        <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#0a0d14] text-[#38bdf8] border border-[#38bdf8]/35">
-                          <Sparkles className="w-3 h-3 text-[#38bdf8]" />
+                        <span className="truncate rounded-full border border-[#38bdf8]/35 bg-[#0a0d14] px-2.5 py-0.5 font-mono text-[#38bdf8]">
                           #{skill.appliedSkill || 'ui-ux-pro-max'}
                         </span>
-
-                        {langs.slice(0, 3).map((l) => (
-                          <span
-                            key={l.language}
-                            className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0a0d14] text-slate-300 border border-slate-800 tabular-nums"
-                          >
-                            <span
-                              className="w-2 h-2 rounded-full"
-                              style={{ backgroundColor: l.color }}
-                            />
-                            {l.language} {l.percentage}%
-                          </span>
-                        ))}
-
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0a0d14] text-slate-400 border border-slate-800">
-                          <span>Paleta:</span>
-                          {palette.slice(0, 5).map((hex) => (
-                            <span
-                              key={hex}
-                              title={hex}
-                              className="w-2.5 h-2.5 rounded-full border border-white/20"
-                              style={{ backgroundColor: hex }}
-                            />
-                          ))}
-                        </span>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0 self-end lg:self-center">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectSkill(skill.id);
-                        onNavigatePage('estudio');
-                      }}
-                      className="px-3 py-1.5 rounded-md bg-[#0ea5e9] hover:bg-[#38bdf8] text-[#0a0d14] text-xs font-semibold transition cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
-                    >
-                      <span>Abrir en Workspace</span>
-                      <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => handleDownloadMd(skill, e)}
-                      aria-label={`Descargar ${skill.filename}`}
-                      className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
-                    >
-                      <Download className="w-4 h-4" aria-hidden="true" />
-                    </button>
-                    {isEditorMode && skills.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteSkill(skill.id);
-                        }}
-                        aria-label={`Eliminar ${skill.filename}`}
-                        className="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" aria-hidden="true" />
-                      </button>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                      <div className="mt-auto flex items-center gap-1.5 border-t border-slate-800/80 pt-3">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectSkill(skill.id);
+                            onNavigatePage('estudio');
+                          }}
+                          className="inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 bg-[#0ea5e9] px-3 py-2 text-xs font-semibold text-[#0a0d14] transition hover:bg-[#38bdf8]"
+                        >
+                          <span>Abrir en Workspace</span>
+                          <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDownloadMd(skill, e)}
+                          aria-label={`Descargar ${skill.filename}`}
+                          className="cursor-pointer rounded-lg border-0 bg-transparent p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+                        >
+                          <Download className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                        {isEditorMode && skills.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteSkill(skill.id);
+                            }}
+                            aria-label={`Eliminar ${skill.filename}`}
+                            className="cursor-pointer rounded-lg border-0 bg-transparent p-2 text-slate-400 transition hover:bg-rose-950/40 hover:text-rose-400"
+                          >
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </section>
     </div>

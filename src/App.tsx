@@ -50,6 +50,11 @@ const AIModelBenchmarkPanel = lazy(() =>
     default: m.AIModelBenchmarkPanel,
   }))
 );
+const CatalogPage = lazy(() =>
+  import('./components/catalog/CatalogPage').then((m) => ({
+    default: m.CatalogPage,
+  }))
+);
 const CatalogDetailRoute = lazy(() =>
   import('./components/catalog/CatalogDetailRoute').then((m) => ({
     default: m.CatalogDetailRoute,
@@ -62,8 +67,10 @@ const AUTH_SESSION_KEY = 'ai_skills_studio_session_v1';
 export function App() {
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
     try {
-      const savedUser = localStorage.getItem(AUTH_SESSION_KEY);
-      return parseSecureSessionPayload(savedUser);
+      const savedUser = parseSecureSessionPayload(localStorage.getItem(AUTH_SESSION_KEY));
+      // El token de GitHub solo vive en memoria: tras recargar, un usuario de GitHub guardado
+      // quedaría "dentro" sin poder votar ni publicar. Se descarta para pedir entrar de nuevo.
+      return savedUser && savedUser.id.startsWith('gh-') ? null : savedUser;
     } catch {
       return null;
     }
@@ -377,6 +384,7 @@ export function App() {
           onLogout={handleLogout}
           onErasePersonalData={handleErasePersonalData}
           selectedModelName={formattedModelLabel}
+          githubAvatarUrl={githubSession?.avatarUrl}
         />
 
         <main id="top">
@@ -556,6 +564,7 @@ export function App() {
         onLogout={handleLogout}
         onErasePersonalData={handleErasePersonalData}
         selectedModelName={formattedModelLabel}
+          githubAvatarUrl={githubSession?.avatarUrl}
       />
 
       <div className="ide-shell selection:bg-[#0ea5e9] selection:text-[#0a0d14] relative z-10">
@@ -603,10 +612,16 @@ export function App() {
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
                   onNavigatePage={setActivePage}
-                  onOpenCatalogSkill={(id) => {
+                />
+              )}
+
+              {activePage === 'catalogo' && (
+                <CatalogPage
+                  onOpenSkill={(id) => {
                     setSelectedCatalogSkillId(id);
                     setActivePage('skill-detalle');
                   }}
+                  onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}
 
@@ -647,7 +662,7 @@ export function App() {
               {activePage === 'skill-detalle' && (
                 <CatalogDetailRoute
                   skillId={selectedCatalogSkillId}
-                  onBack={() => setActivePage('boveda')}
+                  onBack={() => setActivePage('catalogo')}
                   onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}

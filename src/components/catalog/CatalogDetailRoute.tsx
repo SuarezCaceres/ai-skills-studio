@@ -25,7 +25,7 @@ export function CatalogDetailRoute({ skillId, onBack, onRequestLogin }: CatalogD
       api={api}
       session={session}
       onRequestLogin={onRequestLogin}
-      renderAudit={(skill) => <AuditBadge skill={skill} />}
+      renderAudit={(skill) => <AuditBadge skill={skill} compact />}
       renderInstall={(skill) => <InstallPanel skill={skill} />}
     />
   );

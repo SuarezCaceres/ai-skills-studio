@@ -590,7 +590,7 @@ export function SkillDetailPage({
       className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-transparent px-1 py-1 text-sm font-medium text-[#38bdf8] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
     >
       <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-      Skills
+      Catálogo
     </button>
   );
 

@@ -70,7 +70,7 @@ Notas: solo reacciona a `opened` (no a ediciones) y nunca interpola el contenido
 
 1. GitHub → *Settings → Developer settings → OAuth Apps → New OAuth App*.
 2. **Homepage URL**: la URL pública del sitio, p. ej. `https://suarezcaceres.github.io/ai-skills-studio/`.
-3. **Authorization callback URL**: la **misma URL del sitio** (la app vuelve a su propia página con `?code=...&state=...`). Para desarrollo local crea una segunda OAuth App con `http://localhost:5173/` (una OAuth App admite una sola callback).
+3. **Authorization callback URL**: la **misma URL del sitio** (la app vuelve a su propia página con `?code=...&state=...`). GitHub ahora admite varias *Redirect URIs* en la misma OAuth App: añade también `http://localhost:5173/` para desarrollo local (y `ALLOWED_ORIGINS` en Vercel debe incluir ambos orígenes).
 4. Copia el **Client ID** (público) y genera un **Client secret** (privado: solo irá a Vercel).
 5. Permisos: la app pide el alcance `public_repo`, necesario para crear Issues y reacciones en un repo público. Es un alcance amplio (escritura en los repos públicos de quien entra); está documentado para que los usuarios lo sepan. Pueden revocarlo en *GitHub → Settings → Applications*.
 
@@ -124,7 +124,7 @@ connect-src 'self' https://api.github.com https://TU-PROYECTO.vercel.app;
 
 ## Comportamiento y límites que conviene conocer
 
-- **Lecturas públicas sin token**: el límite anónimo de GitHub es de 60 peticiones por hora por IP. El servicio cachea en memoria y `localStorage` (TTL de 30 s a 24 h según el dato) y, si se agota el límite, reutiliza la caché caducada y muestra un mensaje con la hora de renovación. Iniciar sesión sube el límite a 5000/h.
+- **Límite de peticiones**: sin sesión, GitHub permite 60 por hora por IP; las pruebas automáticas contra GitHub real comparten esa cuota con quien las lanza. Con sesión, las lecturas públicas también llevan el token y cuentan en el límite de 5000/h de la persona. Tras votar, la app relee sin la caché HTTP del navegador (GitHub responde con `max-age=60`). El servicio cachea en memoria y `localStorage` (TTL de 30 s a 24 h según el dato) y, si se agota el límite, reutiliza la caché caducada y muestra un mensaje con la hora de renovación. Iniciar sesión sube el límite a 5000/h.
 - **Token solo en memoria**: no se guarda en `localStorage`, `sessionStorage` ni cookies. Recargar la página cierra la sesión.
 - **Estado anti-CSRF y PKCE**: cada intento usa un `state` aleatorio de un solo uso (caduca a los 10 min) y un `code_verifier` PKCE.
 - **Contenido no confiable**: el `SKILL.md` y los archivos de repos externos se leen como texto, con límite de tamaño, y nunca se ejecutan. El Markdown debe sanitizarse antes de renderizarlo.

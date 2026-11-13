@@ -2,6 +2,7 @@ export type AppPageRoute =
   | 'inicio'
   | 'codice-studio'
   | 'boveda'
+  | 'catalogo'
   | 'estudio'
   | 'preview'
   | 'evidencias'

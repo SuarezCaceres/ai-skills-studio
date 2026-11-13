@@ -319,6 +319,27 @@ export const AuditBadge: React.FC<AuditBadgeProps> = ({ findings, skill, compact
   const { Icon } = style;
   const dangerCount = list.filter((f) => f.severity === 'danger').length;
   const warnCount = list.filter((f) => f.severity === 'warn').length;
+  const important = list.filter((f) => f.severity !== 'info');
+  const infoNotes = list.filter((f) => f.severity === 'info');
+
+  const renderFinding = (f: SkillAuditFinding) => (
+    <li key={f.id} className="text-xs leading-relaxed text-slate-300">
+      <span
+        className={`mr-1.5 inline-block rounded px-1 font-mono text-[10px] uppercase ${
+          f.severity === 'danger'
+            ? 'bg-rose-500/20 text-rose-300'
+            : f.severity === 'warn'
+              ? 'bg-amber-500/20 text-amber-300'
+              : 'bg-slate-700/60 text-slate-300'
+        }`}
+      >
+        {f.severity === 'danger' ? 'alto' : f.severity === 'warn' ? 'medio' : 'info'}
+      </span>
+      <span className="font-medium text-slate-100">{f.label}</span>
+      {f.filePath && <span className="break-all font-mono text-slate-400"> · {f.filePath}</span>}
+      <span className="block pl-0.5 text-slate-400">{f.detail}</span>
+    </li>
+  );
 
   return (
     <div
@@ -336,27 +357,14 @@ export const AuditBadge: React.FC<AuditBadgeProps> = ({ findings, skill, compact
           {dangerCount === 0 && warnCount === 0 && list.length > 0 && `${list.length} nota${list.length > 1 ? 's' : ''}`}
         </span>
       </div>
-      {!compact && list.length > 0 && (
-        <ul className="mt-2 space-y-1.5">
-          {list.map((f) => (
-            <li key={f.id} className="text-xs leading-relaxed text-slate-300">
-              <span
-                className={`mr-1.5 inline-block rounded px-1 font-mono text-[10px] uppercase ${
-                  f.severity === 'danger'
-                    ? 'bg-rose-500/20 text-rose-300'
-                    : f.severity === 'warn'
-                      ? 'bg-amber-500/20 text-amber-300'
-                      : 'bg-slate-700/60 text-slate-300'
-                }`}
-              >
-                {f.severity === 'danger' ? 'alto' : f.severity === 'warn' ? 'medio' : 'info'}
-              </span>
-              <span className="font-medium text-slate-100">{f.label}</span>
-              {f.filePath && <span className="font-mono text-slate-400"> · {f.filePath}</span>}
-              <span className="block pl-0.5 text-slate-400">{f.detail}</span>
-            </li>
-          ))}
-        </ul>
+      {!compact && important.length > 0 && <ul className="mt-2 space-y-1.5">{important.map(renderFinding)}</ul>}
+      {!compact && infoNotes.length > 0 && (
+        <details className="mt-2 group">
+          <summary className="cursor-pointer text-xs text-slate-400 hover:text-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]">
+            {infoNotes.length} nota{infoNotes.length > 1 ? 's' : ''} informativa{infoNotes.length > 1 ? 's' : ''}
+          </summary>
+          <ul className="mt-2 space-y-1.5">{infoNotes.map(renderFinding)}</ul>
+        </details>
       )}
       {!compact && list.length === 0 && (
         <p className="mt-1 text-xs text-slate-400">

@@ -2,7 +2,7 @@
  * Prueba de integración del catálogo comunitario (navegador real + GitHub simulado).
  *
  * Compila la app con un catálogo configurado, intercepta `https://api.github.com`
- * con datos de prueba y recorre: Bóveda -> sección del catálogo -> detalle ->
+ * con datos de prueba y recorre: página del catálogo -> detalle ->
  * auditoría -> instalación -> traducción -> volver. Verifica además que la CSP
  * (`connect-src`) deja pasar las peticiones y que no hay errores de consola.
  *
@@ -134,21 +134,26 @@ async function main() {
       delete self.LanguageDetector;
     });
 
-    console.log('\nBóveda y sección del catálogo');
+    console.log('\nPágina del catálogo');
     await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' });
     await page.locator('.nav__actions a.btn--primary').click();
-    await page.locator('.nav__links a:has-text("Skills")').click();
-    await page.locator('#catalog-heading').waitFor();
-    const card = page.locator('section[aria-labelledby="catalog-heading"] button:has-text("demo-skill")');
+    check('la cabecera muestra "Entrar con GitHub"', await page.locator('.nav__actions a:has-text("GitHub")').isVisible());
+    await page.locator('.nav__links a:has-text("Catálogo")').click();
+    await page.locator('#catalog-page-heading').waitFor();
+    const card = page.locator('section[aria-labelledby="catalog-page-heading"] button:has-text("demo-skill")');
     await card.waitFor({ timeout: 8000 });
-    check('la skill del catálogo aparece en la Bóveda', true);
+    check('la skill del catálogo aparece en la página', true);
     check('la tarjeta avisa que la skill incluye scripts', await card.locator('text=Incluye scripts').count() > 0);
-    await page.screenshot({ path: join(SHOTS_DIR, 'boveda-1440.png') });
+    await page.locator('#catalog-search-input').fill('zzz-no-existe');
+    check('el buscador filtra y muestra el estado vacío', await page.locator('text=Ninguna skill coincide').isVisible());
+    await page.getByRole('button', { name: 'Quitar filtros' }).click();
+    check('quitar filtros recupera la skill', await card.isVisible());
+    await page.screenshot({ path: join(SHOTS_DIR, 'catalogo-1440.png') });
 
     console.log('\nDetalle de la skill');
     await card.click();
     await page.locator('h1:has-text("demo-skill")').waitFor({ timeout: 8000 });
-    check('se abre el detalle desde la Bóveda', true);
+    check('se abre el detalle desde el catálogo', true);
     check('el HTML crudo del SKILL.md no se ejecuta', (await page.evaluate(() => window.__pwned)) === undefined);
     check('el <script> del SKILL.md se muestra como texto', (await page.locator('article >> text=<script>').count()) > 0);
 
@@ -174,9 +179,9 @@ async function main() {
     check('la clave no se guarda en localStorage', (await page.evaluate(() => JSON.stringify({ ...localStorage }))).indexOf('AIza') === -1);
 
     console.log('\nVolver y vista móvil');
-    await page.getByRole('button', { name: /Skills/ }).first().click();
-    await page.locator('#catalog-heading').waitFor();
-    check('"Skills" vuelve a la Bóveda', true);
+    await page.getByRole('button', { name: /Catálogo/ }).first().click();
+    await page.locator('#catalog-page-heading').waitFor();
+    check('"Catálogo" vuelve a la página del catálogo', true);
 
     await page.setViewportSize({ width: 390, height: 844 });
     await card.click();
