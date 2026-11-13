@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "node scripts/test-interfaces-playwright.mjs && node scripts/test-interactions-playwright.mjs && node scripts/test-catalog-install-translate.mjs && node scripts/test-catalog-integration.mjs && node scripts/test-component-assignments.mjs && node scripts/test-components-page.mjs && node scripts/test-components-assign.mjs"
+    "test": "node scripts/test-interfaces-playwright.mjs && node scripts/test-interactions-playwright.mjs && node scripts/test-catalog-install-translate.mjs && node scripts/test-skill-upload.mjs && node scripts/test-catalog-integration.mjs && node scripts/test-component-assignments.mjs && node scripts/test-components-page.mjs && node scripts/test-components-assign.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.475.0",

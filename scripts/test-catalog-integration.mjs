@@ -79,7 +79,17 @@ async function fakeGithub(route) {
   if (p === '/repos/test/catalog/issues/1') return route.fulfill(json(anchorIssue));
   if (p === '/users/SuarezCaceres') {
     return route.fulfill(
-      json({ login: 'SuarezCaceres', name: 'Sergio Mateo', avatar_url: 'https://avatars.githubusercontent.com/u/1?v=4' })
+      json({
+        login: 'SuarezCaceres',
+        name: 'Sergio Mateo',
+        avatar_url: 'https://avatars.githubusercontent.com/u/1?v=4',
+        bio: 'Construyo Códice Studio.',
+        location: 'Quito',
+        blog: 'https://sergio.example.dev',
+        public_repos: 12,
+        followers: 5,
+        created_at: '2019-05-01T00:00:00Z',
+      })
     );
   }
   if (p === '/repos/acme/tools') {
@@ -175,6 +185,33 @@ async function main() {
     await page.getByRole('button', { name: /Skills del equipo/ }).click();
     await page.locator('#team-heading').waitFor();
     check('el detalle vuelve a la vista del equipo', true);
+
+    console.log('\nPerfil de un integrante');
+    await page.getByRole('button', { name: /@SuarezCaceres/ }).first().click();
+    await page.getByRole('button', { name: 'Ver perfil' }).click();
+    await page.locator('#member-heading').waitFor({ timeout: 8000 });
+    check('el perfil muestra el nombre real de GitHub', (await page.locator('#member-heading').innerText()) === 'Sergio Mateo');
+    const profileText = await page.locator('section[aria-labelledby="member-heading"]').innerText();
+    check('el perfil muestra bio, ciudad y datos de GitHub', ['Construyo Códice Studio.', 'Quito', '12 repos públicos', '5 seguidores', 'En GitHub desde 2019'].every((t) => profileText.includes(t)));
+    check('el perfil enlaza a GitHub y al sitio web', (await page.locator('a[href="https://github.com/SuarezCaceres"]').count()) >= 1 && (await page.locator('a[href="https://sergio.example.dev/"]').count()) === 1);
+    check('el perfil cuenta sus skills subidas', /Skills subidas\s*\n?\s*1/.test(profileText.replace(/\n+/g, ' ').replace(/SKILLS SUBIDAS/i, 'Skills subidas')));
+    check('el perfil lista la skill con su repo de origen', profileText.includes('demo-skill') && profileText.includes('acme/tools'));
+    check('el perfil no ofrece "Subir una skill" a quien no es esa persona', (await page.getByRole('button', { name: 'Subir una skill' }).count()) === 0);
+    await page.screenshot({ path: join(SHOTS_DIR, 'perfil-1440.png') });
+    await page.getByRole('button', { name: 'Skills del equipo' }).first().click();
+    await page.locator('#team-heading').waitFor();
+    check('desde el perfil se vuelve a la vista del equipo', true);
+    await page.getByRole('button', { name: 'Ver el perfil de @SuarezCaceres' }).first().click();
+    await page.locator('#member-heading').waitFor();
+    check('el avatar de una tarjeta abre el perfil', true);
+    await page.getByRole('button', { name: 'demo-skill', exact: true }).first().click();
+    await page.locator('h1:has-text("demo-skill")').waitFor();
+    check('desde el perfil, abrir una skill vuelve con la etiqueta "Perfil"', (await page.getByRole('button', { name: 'Perfil', exact: true }).count()) === 1);
+    await page.getByRole('button', { name: 'Perfil', exact: true }).click();
+    await page.locator('#member-heading').waitFor();
+    check('y "Perfil" regresa al perfil', true);
+    await page.locator('.nav__links a:has-text("Skills")').click();
+    await page.locator('#team-heading').waitFor();
 
     console.log('\nPágina del catálogo');
     await page.locator('.nav__links a:has-text("Catálogo")').click();

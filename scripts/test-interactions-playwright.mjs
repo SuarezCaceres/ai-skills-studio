@@ -88,12 +88,10 @@ async function fakeGithub(route) {
     await page.locator('#team-heading').waitFor();
     const headingText = await page.locator('#team-heading').innerText();
     console.log(`4️⃣ Skills del equipo loaded: "${headingText}"`);
-    // La lista carga de forma asíncrona: se espera al estado vacío en vez de comprobarlo al instante.
-    try {
-      await page.locator('text=Nadie del equipo ha subido skills todavía').waitFor({ timeout: 5000 });
-    } catch {
+    // La lista tarda un instante en cargar: se espera al estado vacío en vez de comprobarlo al vuelo.
+    await page.locator('text=Nadie del equipo ha subido skills todavía').waitFor({ timeout: 8000 }).catch(() => {
       throw new Error('La vista del equipo debía mostrar el estado vacío con el catálogo simulado vacío');
-    }
+    });
     console.log('   Estado vacío del equipo correcto');
 
     // 5. Componentes ya no necesita una skill: abre el kit con su lista lateral

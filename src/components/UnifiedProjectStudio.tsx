@@ -104,7 +104,7 @@ const renderJsonValue = (val: string) => {
           return <span key={idx} className="text-amber-300">{token}</span>;
         }
         if (/^(?:true|false|null)$/.test(token)) {
-          return <span key={idx} className="text-purple-400 font-semibold">{token}</span>;
+          return <span key={idx} className="text-sky-300 font-semibold">{token}</span>;
         }
         if (/^[{}[\],:]$/.test(token)) {
           return <span key={idx} className="text-slate-500 font-medium">{token}</span>;
@@ -146,7 +146,7 @@ const renderHighlightedToken = (line: string, language: CodeLanguage) => {
       );
     }
     if (line.startsWith('---')) {
-      return <span className="text-purple-400 font-mono font-bold">{line}</span>;
+      return <span className="text-sky-300 font-mono font-bold">{line}</span>;
     }
     if (/^[a-zA-Z0-9_-]+:/.test(line)) {
       const colonIdx = line.indexOf(':');
@@ -210,7 +210,7 @@ const renderHighlightedToken = (line: string, language: CodeLanguage) => {
             )
           ) {
             return (
-              <span key={i} className="text-purple-400 font-semibold">
+              <span key={i} className="text-sky-300 font-semibold">
                 {part}
               </span>
             );
