@@ -62,6 +62,7 @@ async function githubApi(route) {
   const labels = url.searchParams.get('labels') ?? '';
   if (p === `/repos/${TEST_CATALOG_REPO}/issues`) return route.fulfill(json(labels.includes('result') ? [] : [anchorIssue]));
   if (p === `/repos/${TEST_CATALOG_REPO}/issues/1`) return route.fulfill(json(anchorIssue));
+  if (p === `/repos/${TEST_CATALOG_REPO}/issues/1/reactions`) return route.fulfill(json([]));
   if (p === '/user') return route.fulfill(json({ login: TEAM_LOGIN, avatar_url: AVATAR }));
   if (p === `/users/${TEAM_LOGIN}`) return route.fulfill(json({ login: TEAM_LOGIN, name: 'Sergio Mateo', avatar_url: AVATAR }));
   if (p.startsWith('/users/')) return route.fulfill(json({ login: p.split('/')[2], name: null }));
