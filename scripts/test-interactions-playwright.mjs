@@ -94,8 +94,16 @@ async function fakeGithub(route) {
     });
     console.log('   Estado vacío del equipo correcto');
 
-    // 5. Módulos que exigen una skill abierta en el estudio
-    for (const [link, module] of [['Componentes', 'Componentes'], ['Modelos', 'Modelos']]) {
+    // 5. Componentes ya no necesita una skill: abre el kit con su lista lateral
+    await page.locator('.nav__links a:has-text("Componentes")').click();
+    await page.locator('#components-heading').waitFor();
+    if ((await page.locator('#no-skill-heading').count()) !== 0) {
+      throw new Error('Componentes no debe pedir una skill abierta');
+    }
+    console.log('5️⃣ Componentes abre su lista sin necesitar una skill');
+
+    // 6. Módulos que sí exigen una skill abierta en el estudio
+    for (const [link, module] of [['Modelos', 'Modelos']]) {
       await page.locator(`.nav__links a:has-text("${link}")`).click();
       await page.locator('#no-skill-heading').waitFor();
       const title = await page.locator('#no-skill-heading').innerText();
