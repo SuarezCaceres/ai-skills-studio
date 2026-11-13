@@ -102,17 +102,17 @@ Son valores públicos (se incrustan en el bundle); **no** pongas aquí ningún s
 | `VITE_GITHUB_OAUTH_URL` | `https://TU-PROYECTO.vercel.app/api/github-oauth` |
 
 - **Local**: crea `.env.local` (ignorado por git) con las tres variables y ejecuta `npm run dev`.
-- **GitHub Pages**: define las tres como *Repository variables* (*Settings → Secrets and variables → Actions → Variables*) y pásalas al paso `Build` de `.github/workflows/deploy.yml` con `env: VITE_CATALOG_REPO: ${{ vars.VITE_CATALOG_REPO }}` (y las otras dos). Ese archivo no lo modifica esta rama; hazlo en la integración.
+- **GitHub Pages**: define las tres como *Repository variables* (*Settings → Secrets and variables → Actions → Variables*) y pásalas al paso `Build` de `.github/workflows/deploy.yml` con `env: VITE_CATALOG_REPO: ${{ vars.VITE_CATALOG_REPO }}` (y las otras dos). Ese paso ya está en `.github/workflows/deploy.yml`: solo falta definir las variables en el repo.
 
 ## 5. Política de seguridad de contenido (CSP)
 
-El `index.html` actual usa `default-src 'self'`, así que el navegador bloquearía las peticiones a GitHub. En la integración hay que añadir a la meta CSP:
+El `index.html` usa `default-src 'self'`, así que sin `connect-src` el navegador bloquearía las peticiones a GitHub. `vite.config.ts` rellena esa directiva al compilar (con `api.github.com`, la API de Gemini y el origen de `VITE_GITHUB_OAUTH_URL`), así que no hay que editar nada a mano. El resultado equivale a:
 
 ```
 connect-src 'self' https://api.github.com https://TU-PROYECTO.vercel.app;
 ```
 
-(La ventana emergente de login navega a `github.com`, pero eso no pasa por `connect-src`.) Esta rama no toca `index.html`.
+(La ventana emergente de login navega a `github.com`, pero eso no pasa por `connect-src`.) Si cambias la URL de la función de Vercel, vuelve a compilar para que el CSP la incluya.
 
 ## 6. Verificación manual (checklist)
 

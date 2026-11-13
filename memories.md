@@ -230,3 +230,13 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
 | **WT3** instalar, traducir y auditoría | `feat/catalog-install-translate` | `src/components/catalog/InstallPanel.tsx`, `TranslateButton.tsx`, `AuditBadge.tsx`, `src/services/installCommandService.ts`, `src/services/translationService.ts` |
 
 **Integración final (secuencial):** fusionar WT1, luego WT3 y luego WT2 en `testing`; conectar `SkillDetailPage` con los servicios reales y abrir el detalle desde `SkillManager`.
+
+**Integración (rama `feat/catalog-integration`, hecha):** se fusionaron WT1, WT3 y WT2 sin conflictos y se conectó todo:
+- `CatalogDetailRoute.tsx` une `SkillDetailPage` con `useCatalog` (servicio real y sesión) y con `AuditBadge` + `InstallPanel`; `SkillDetailPage` ya no importa el mock (`api` es obligatoria) y trae el `TranslateButton` con el texto traducido sanitizado. `mockCatalogApi.ts` queda solo como dato de desarrollo y no entra al bundle.
+- `CatalogSection.tsx` lista el catálogo dentro de `SkillManager` y abre el detalle (`selectedCatalogSkillId` + ruta `'skill-detalle'`); también permite publicar una skill por URL.
+- `App.tsx` monta `useCatalog` al arrancar (completa el regreso de OAuth por redirección), entra como colaborador cuando aparece la sesión de GitHub y la cierra en el logout y en el borrado de datos.
+- CSP: `index.html` lleva `connect-src __CSP_CONNECT_SRC__` y `vite.config.ts` lo rellena con `api.github.com`, la API de Gemini y el origen de `VITE_GITHUB_OAUTH_URL`.
+- `deploy.yml` pasa `VITE_CATALOG_REPO`, `VITE_GITHUB_CLIENT_ID` y `VITE_GITHUB_OAUTH_URL` desde *Repository variables*.
+- Pruebas: `npm test` ahora incluye `test-catalog-install-translate.mjs` y `test-catalog-integration.mjs` (navegador real con GitHub simulado; verifica CSP, auditoría, instalación y traducción).
+- Lección: la clase `.grid` del kit rompe los grids de Tailwind; usar `[display:grid]`.
+- Pendiente manual: crear el repo catálogo, la OAuth App y el proyecto de Vercel (`docs/catalog-setup.md`) y definir las tres variables del repo.
