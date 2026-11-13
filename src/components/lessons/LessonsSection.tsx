@@ -4,10 +4,17 @@ import { useCatalog } from '../../hooks/useCatalog';
 import { COMPONENT_REGISTRY, getComponentEntry } from '../../data/componentRegistry';
 import { LESSON_LEVELS, type Lesson, type LessonDraft } from '../../types/lessons';
 import { canManageLesson, createLesson, updateLesson } from '../../services/lessonsStore';
+import { shareStatus } from '../../services/lessonSharing';
+import { CommunityDetail } from './CommunityDetail';
+import { CommunityPanel } from './CommunityPanel';
 import { LessonCard } from './LessonCard';
 import { LessonDetail } from './LessonDetail';
 import { LessonEditor } from './LessonEditor';
+import { LessonsTabs, panelId, tabId, type LessonsTab } from './LessonsTabs';
+import { SharePanel } from './SharePanel';
+import { useCommunityLessons, communityKey } from './useCommunityLessons';
 import { useLessons, useSkillOptions } from './useLessons';
+import { useShareLesson } from './useShareLesson';
 
 interface LessonsSectionProps {
   /** Clase abierta (la guarda `App` para recuperarla al volver desde una skill o un componente). */
@@ -29,9 +36,15 @@ type Editing = null | 'new' | string;
  * Ver es libre; subir, editar y borrar requieren sesión de GitHub y solo sobre las propias.
  */
 export function LessonsSection({ openLessonId, onOpenLesson, onOpenSkill, onOpenComponent, onRequestLogin }: LessonsSectionProps) {
-  const { session } = useCatalog();
+  const { session, service } = useCatalog();
   const { lessons, storageFailed, save, remove, exportJson, importJson } = useLessons();
   const skills = useSkillOptions();
+  const sharing = useShareLesson(service, save);
+  const [tab, setTab] = useState<LessonsTab>('mis-clases');
+  // Comunidad no pide nada a GitHub hasta que se abre por primera vez.
+  const [visitedCommunity, setVisitedCommunity] = useState(false);
+  const community = useCommunityLessons(service, session, visitedCommunity);
+  const [communityOpen, setCommunityOpen] = useState<string | null>(null);
   const [editing, setEditing] = useState<Editing>(null);
   const [query, setQuery] = useState('');
   const [tag, setTag] = useState('');
@@ -59,6 +72,12 @@ export function LessonsSection({ openLessonId, onOpenLesson, onOpenSkill, onOpen
     );
   }, [lessons, query, tag, level, skillFilter, componentFilter]);
   const filtering = Boolean(query.trim() || tag || level || skillFilter || componentFilter);
+
+  const changeTab = (next: LessonsTab) => {
+    setNotice(null);
+    setTab(next);
+    if (next === 'comunidad') setVisitedCommunity(true);
+  };
 
   const startNew = () => {
     if (!session) return onRequestLogin();
@@ -159,8 +178,39 @@ export function LessonsSection({ openLessonId, onOpenLesson, onOpenSkill, onOpen
           }}
           onOpenSkill={onOpenSkill}
           onOpenComponent={onOpenComponent}
+          extra={
+            session && canManageLesson(opened, session.login) ? (
+              <SharePanel
+                lesson={opened}
+                login={session.login}
+                sharing={sharing}
+                onRequestLogin={onRequestLogin}
+                onDone={(op) =>
+                  setNotice({
+                    kind: 'ok',
+                    text: op === 'share' ? 'Clase compartida en Comunidad.' : op === 'update' ? 'Se actualizó lo compartido.' : 'La clase se retiró de Comunidad.',
+                  })
+                }
+              />
+            ) : undefined
+          }
         />
       </>
+    );
+  }
+
+  /* ---------- Detalle de una clase de Comunidad (solo lectura) ---------- */
+  if (communityOpen !== null) {
+    return (
+      <CommunityDetail
+        key={communityOpen}
+        summary={community.lessons.find((l) => communityKey(l) === communityOpen)}
+        service={service}
+        skills={skills}
+        onBack={() => setCommunityOpen(null)}
+        onOpenSkill={onOpenSkill}
+        onOpenComponent={onOpenComponent}
+      />
     );
   }
 
@@ -177,10 +227,12 @@ export function LessonsSection({ openLessonId, onOpenLesson, onOpenSkill, onOpen
             Clases
           </h1>
           <p className="m-0 text-sm leading-relaxed text-slate-400">
-            Explicaciones de lo que se ha hecho en el equipo: «¿Qué es un hook?», «Cómo trabajar con worktrees», «Cómo trabajé con esta skill».
-            Cada clase puede enlazar la skill y los componentes que se usaron.
+            {tab === 'mis-clases'
+              ? 'Explicaciones de lo que se ha hecho en el equipo: «¿Qué es un hook?», «Cómo trabajar con worktrees», «Cómo trabajé con esta skill». Cada clase puede enlazar la skill y los componentes que se usaron.'
+              : 'Las clases que comparten otras personas, para aprender de lo que hicieron. Son de solo lectura.'}
           </p>
         </div>
+        {tab === 'mis-clases' && (
         <div className="flex flex-wrap items-center gap-2">
           {session ? (
             <span className="inline-flex h-9 items-center gap-2 rounded-full border border-slate-700 bg-[#121722] px-3 text-xs text-slate-300">
@@ -201,9 +253,17 @@ export function LessonsSection({ openLessonId, onOpenLesson, onOpenSkill, onOpen
             {session ? 'Subir clase' : 'Entrar con GitHub para subir'}
           </button>
         </div>
+        )}
       </header>
 
+      <LessonsTabs value={tab} onChange={changeTab} />
+
       {notice && <Notice notice={notice} onClose={() => setNotice(null)} />}
+
+      {tab === 'comunidad' ? (
+        <CommunityPanel community={community} session={session} skills={skills} onOpen={setCommunityOpen} onRequestLogin={onRequestLogin} />
+      ) : (
+      <div role="tabpanel" id={panelId('mis-clases')} aria-labelledby={tabId('mis-clases')} className="space-y-6">
       {storageFailed && (
         <p role="alert" className="m-0 flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/30 p-3 text-xs text-amber-200">
           <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
@@ -284,9 +344,11 @@ export function LessonsSection({ openLessonId, onOpenLesson, onOpenSkill, onOpen
       ) : (
         <ul className="m-0 [display:grid] list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((lesson) => (
-            <LessonCard key={lesson.id} lesson={lesson} skills={skills} onOpen={() => onOpenLesson(lesson.id)} />
+            <LessonCard key={lesson.id} lesson={lesson} skills={skills} status={shareStatus(lesson)} onOpen={() => onOpenLesson(lesson.id)} />
           ))}
         </ul>
+      )}
+      </div>
       )}
     </section>
   );
