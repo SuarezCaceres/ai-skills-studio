@@ -248,8 +248,8 @@ async function main() {
     await page.screenshot({ path: join(SHOTS_DIR, 'estudio-1440.png') });
 
     await page.locator('.nav__links a:has-text("Componentes")').click();
-    await bar.waitFor();
-    check('Componentes funciona con la copia (no muestra estado vacío)', (await page.locator('#no-skill-heading').count()) === 0);
+    await page.locator('#components-heading').waitFor();
+    check('Componentes se abre con la copia y no pide ninguna skill', (await page.locator('#no-skill-heading').count()) === 0);
     await page.locator('.nav__links a:has-text("Modelos")').click();
     await bar.waitFor();
     check('Modelos funciona con la copia (no muestra estado vacío)', (await page.locator('#no-skill-heading').count()) === 0);
@@ -263,8 +263,11 @@ async function main() {
 
     await page.getByRole('button', { name: /Quitar la copia de demo-skill/ }).click();
     await page.locator('.nav__links a:has-text("Componentes")').click();
+    await page.locator('#components-heading').waitFor();
+    check('sin copia de trabajo, Componentes sigue funcionando', (await page.locator('#no-skill-heading').count()) === 0);
+    await page.locator('.nav__links a:has-text("Modelos")').click();
     await page.locator('#no-skill-heading').waitFor();
-    check('al quitar la copia, Componentes vuelve a pedir una skill', true);
+    check('sin copia de trabajo, Modelos vuelve a pedir una skill', true);
 
     const csp = errors.filter((e) => /Content Security Policy|Refused to connect/i.test(e));
     check('la CSP no bloquea ninguna petición', csp.length === 0, csp.join(' | '));
