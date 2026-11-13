@@ -169,7 +169,7 @@ async function main() {
     check('el buscador vacía la lista', await page.locator('text=Ninguna skill coincide').isVisible());
     await page.getByRole('button', { name: 'Quitar filtros' }).click();
     await page.screenshot({ path: join(SHOTS_DIR, 'equipo-1440.png') });
-    await teamCard.getByRole('button', { name: 'demo-skill' }).click();
+    await teamCard.getByRole('button', { name: 'demo-skill', exact: true }).click();
     await page.locator('h1:has-text("demo-skill")').waitFor();
     check('el detalle muestra "Subida por"', await page.locator('text=Subida por').first().isVisible());
     await page.getByRole('button', { name: /Skills del equipo/ }).click();
@@ -228,6 +228,43 @@ async function main() {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
     check('sin desbordamiento horizontal a 390 px', !overflow);
     await page.screenshot({ path: join(SHOTS_DIR, 'detalle-390.png'), fullPage: true });
+
+    console.log('\nAbrir en estudio (copia de trabajo)');
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.getByRole('button', { name: 'Abrir en estudio' }).first().click();
+    const bar = page.getByRole('region', { name: 'Skill activa del estudio' });
+    await bar.waitFor({ timeout: 8000 });
+    const barText = await bar.innerText();
+    check('abre el Workspace con la barra de la skill activa', barText.includes('demo-skill'));
+    check('la barra dice quién la subió y de qué repo', barText.includes('subida por @SuarezCaceres') && barText.includes('acme/tools'));
+    check(
+      'el Workspace monta los archivos de la skill (SKILL.md)',
+      (await page.locator('aside[aria-label="Explorador de archivos del workspace"]').innerText()).includes('SKILL.md')
+    );
+    check(
+      'ya no existe "Guardar en catálogo" (la creación local se retiró)',
+      (await page.getByRole('button', { name: /Guardar en catálogo/ }).count()) === 0
+    );
+    await page.screenshot({ path: join(SHOTS_DIR, 'estudio-1440.png') });
+
+    await page.locator('.nav__links a:has-text("Componentes")').click();
+    await bar.waitFor();
+    check('Componentes funciona con la copia (no muestra estado vacío)', (await page.locator('#no-skill-heading').count()) === 0);
+    await page.locator('.nav__links a:has-text("Modelos")').click();
+    await bar.waitFor();
+    check('Modelos funciona con la copia (no muestra estado vacío)', (await page.locator('#no-skill-heading').count()) === 0);
+
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    const stored = await page.evaluate(() => localStorage.getItem('ai_skills_studio_workcopies_v1') ?? '');
+    check('la copia de trabajo queda guardada en el navegador', stored.includes('team:acme/tools/demo'));
+    await page.locator('.nav__actions a.btn--primary').click();
+    await page.getByRole('region', { name: 'Skill activa del estudio' }).waitFor({ timeout: 8000 });
+    check('tras recargar la copia sigue activa', true);
+
+    await page.getByRole('button', { name: /Quitar la copia de demo-skill/ }).click();
+    await page.locator('.nav__links a:has-text("Componentes")').click();
+    await page.locator('#no-skill-heading').waitFor();
+    check('al quitar la copia, Componentes vuelve a pedir una skill', true);
 
     const csp = errors.filter((e) => /Content Security Policy|Refused to connect/i.test(e));
     check('la CSP no bloquea ninguna petición', csp.length === 0, csp.join(' | '));

@@ -13,6 +13,8 @@ interface TeamSkillsPageProps {
   onOpenSkill: (id: string) => void;
   /** Abre la pantalla de acceso (inicio de sesión con GitHub). */
   onRequestLogin: () => void;
+  /** Trae una copia de trabajo de la skill al estudio. */
+  onOpenInStudio?: (id: string) => void;
 }
 
 type ListState =
@@ -48,7 +50,7 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
  * Interfaz del equipo: las skills cuyo Issue ancla abrió alguna de las cuentas de
  * `TEAM_LOGINS`, con quién la subió, su GitHub y el repo de origen.
  */
-export function TeamSkillsPage({ onOpenSkill, onRequestLogin }: TeamSkillsPageProps) {
+export function TeamSkillsPage({ onOpenSkill, onRequestLogin, onOpenInStudio }: TeamSkillsPageProps) {
   const { api, service, session } = useCatalog();
   const [state, setState] = useState<ListState>({ status: 'loading' });
   const [profiles, setProfiles] = useState<Record<string, GithubProfile | null>>({});
@@ -316,7 +318,12 @@ export function TeamSkillsPage({ onOpenSkill, onRequestLogin }: TeamSkillsPagePr
           ) : (
             <ul className="m-0 [display:grid] list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
               {visible.map((skill) => (
-                <SkillCard key={skill.id} skill={skill} onOpen={() => onOpenSkill(skill.id)} />
+                <SkillCard
+                  key={skill.id}
+                  skill={skill}
+                  onOpen={() => onOpenSkill(skill.id)}
+                  onOpenInStudio={onOpenInStudio ? () => onOpenInStudio(skill.id) : undefined}
+                />
               ))}
             </ul>
           )}

@@ -288,7 +288,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                       <li className="ui-win__row" data-row>
                         <span className="ui-avatar" data-tone="1">CS</span>
                         <span className="ui-win__who">Códice Auditor</span>
-                        <span className="ui-win__sub">initialSkills.ts · Catálogo</span>
+                        <span className="ui-win__sub">team.ts · Equipo</span>
                         <span className="ui-win__st is-done" data-st>Verificado</span>
                         <span className="ui-win__age">34m</span>
                       </li>

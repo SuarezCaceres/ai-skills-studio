@@ -9,6 +9,8 @@ interface CatalogDetailRouteProps {
   onBack: () => void;
   /** Texto del botón de volver (por defecto "Catálogo"). */
   backLabel?: string;
+  /** Trae una copia de trabajo de la skill al estudio. */
+  onOpenInStudio?: (skillId: string) => void;
   /** Abre la pantalla de acceso (el inicio de sesión con GitHub vive allí). */
   onRequestLogin: () => void;
 }
@@ -18,13 +20,14 @@ interface CatalogDetailRouteProps {
  * servicio real de GitHub (`useCatalog`) y con los paneles de auditoría e
  * instalación. La traducción se integra dentro de `SkillDetailPage`.
  */
-export function CatalogDetailRoute({ skillId, onBack, backLabel, onRequestLogin }: CatalogDetailRouteProps) {
+export function CatalogDetailRoute({ skillId, onBack, backLabel, onOpenInStudio, onRequestLogin }: CatalogDetailRouteProps) {
   const { api, session } = useCatalog();
   return (
     <SkillDetailPage
       skillId={skillId}
       onBack={onBack}
       backLabel={backLabel}
+      onOpenInStudio={onOpenInStudio ? (skill) => onOpenInStudio(skill.id) : undefined}
       api={api}
       session={session}
       onRequestLogin={onRequestLogin}

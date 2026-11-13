@@ -246,3 +246,10 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
 - Los integrantes se definen en `src/config/team.ts` (`TEAM_LOGINS`); avatar y nombre salen de `getProfile` (caché de 24 h).
 - `TeamSkillsPage` (cabecera con totales, chips por integrante, buscador) y `SkillCard` compartida con el catálogo: "Subida por @x", enlace a su GitHub y al repo de origen. El título es el botón que cubre la tarjeta y los enlaces quedan por encima.
 - Plan por fases acordado: 1) vista de equipo y autor; 2) "Abrir en estudio" (copia de trabajo), estados vacíos y retirar ejemplos, creación local y login local; 3) subir `.md` o carpeta al repo propio de quien sube (`<login>/codice-skills`) y registrarlo; 4) crear/editar en la app con commit y perfil por integrante.
+
+**Fase 2 (rama `feat/team-skills-phase2`): estudio con copias de trabajo.**
+- "Abrir en estudio" (en tarjetas y detalle) trae la skill del equipo al navegador: `SKILL.md` y hasta 12 archivos de texto de ≤100 KB. Se guarda como `SkillDocument` con `origin` en `localStorage` (`ai_skills_studio_workcopies_v1`), id `team:<owner/repo/ruta>`. Lógica en `src/utils/workingCopy.ts`.
+- Workspace, Componentes, Capturas y Modelos trabajan sobre la copia activa; la barra `ActiveSkillBar` permite cambiar o quitar copias. Componentes, Capturas y Modelos muestran `NoSkillState` sin copia. El Workspace usa un paquete suelto (`createScratchSkill`) y conserva el paquete de demostración `DEFAULT_RAR_PACKAGE`.
+- Se eliminaron: skills de ejemplo (`initialSkills.ts`), `SkillManager`, `SkillsHub`, la creación local (importar .md, nueva skill, "Guardar en catálogo") y el login local con contraseña (PBKDF2, rate limit y sesión guardada). La única identidad es la sesión de GitHub en memoria.
+- El dato antiguo `ai_skills_studio_vault_v4` no se borra (queda sin leer); las claves de cuentas locales sí se limpian al arrancar.
+- Lección: los tests no deben tocar `api.github.com` real; el build puede traer el catálogo configurado (`.env.local`) y los scripts lo interceptan.

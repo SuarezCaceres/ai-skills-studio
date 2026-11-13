@@ -22,6 +22,18 @@ async function testInteractions() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 
+// GitHub simulado: el build puede traer el catálogo real configurado y las pruebas no deben
+// gastar la cuota anónima (60/h por IP). Catálogo vacío y perfiles sin avatar.
+async function fakeGithub(route) {
+  const { pathname } = new URL(route.request().url());
+  if (pathname.startsWith('/users/')) {
+    const login = pathname.split('/')[2];
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ login, name: null }) });
+  }
+  return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+}
+  await page.route('https://api.github.com/**', fakeGithub);
+
   const errors = [];
   page.on('console', (msg) => {
     if (msg.type() === 'error') errors.push(msg.text());
@@ -70,41 +82,27 @@ async function testInteractions() {
       console.log('   Switched back to Code view');
     }
 
-    // 3. Navigate to Skills / Bóveda
+    // 3. Skills: ahora es la interfaz del equipo
     const skillsNavLink = page.locator('.nav__links a:has-text("Skills")');
     await skillsNavLink.click();
-    await page.getByRole('tab', { name: 'Locales' }).click();
-    await page.waitForTimeout(500);
-
-    const skillsHeading = page.locator('#boveda-heading');
-    const headingText = await skillsHeading.innerText();
-    console.log(`4️⃣ Skills Catalog loaded: "${headingText}"`);
-
-    // Test filter: Workspaces VFS (.ZIP)
-    const vfsFilterBtn = page.locator('button:has-text("Workspaces VFS (.ZIP)")');
-    if (await vfsFilterBtn.isVisible()) {
-      await vfsFilterBtn.click();
-      await page.waitForTimeout(300);
-      console.log('   Applied filter: Workspaces VFS');
+    await page.locator('#team-heading').waitFor();
+    const headingText = await page.locator('#team-heading').innerText();
+    console.log(`4️⃣ Skills del equipo loaded: "${headingText}"`);
+    if (!(await page.locator('text=Nadie del equipo ha subido skills todavía').isVisible())) {
+      throw new Error('La vista del equipo debía mostrar el estado vacío con el catálogo simulado vacío');
     }
+    console.log('   Estado vacío del equipo correcto');
 
-    // Test filter: All
-    const allFilterBtn = page.locator('button:has-text("Todo")').first();
-    if (await allFilterBtn.isVisible()) {
-      await allFilterBtn.click();
-      await page.waitForTimeout(300);
-      console.log('   Reset filter: Todo');
+    // 5. Módulos que exigen una skill abierta en el estudio
+    for (const [link, module] of [['Componentes', 'Componentes'], ['Modelos', 'Modelos']]) {
+      await page.locator(`.nav__links a:has-text("${link}")`).click();
+      await page.locator('#no-skill-heading').waitFor();
+      const title = await page.locator('#no-skill-heading').innerText();
+      if (!title.includes(`${module} necesita una skill`)) {
+        throw new Error(`Estado vacío inesperado en ${link}: "${title}"`);
+      }
+      console.log(`5️⃣ ${link} sin skill muestra su estado vacío`);
     }
-
-    // Test search filter
-    const searchInput = page.locator('#vault-search-input');
-    await searchInput.fill('tasteskill');
-    await page.waitForTimeout(300);
-    const searchResults = page.locator('article');
-    const searchCount = await searchResults.count();
-    console.log(`   Search for "tasteskill" returned ${searchCount} items`);
-    await searchInput.fill('');
-    await page.waitForTimeout(200);
 
     console.log('\n✅ All interaction tests passed flawlessly!');
     if (errors.length > 0) {

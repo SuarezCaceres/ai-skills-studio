@@ -70,7 +70,7 @@ flowchart TD
 
     subgraph ENGINE["Motor de Procesamiento en Cliente"]
         RAR["rarParserService (Web Workers / DataView)"]
-        CRYPTO["Web Crypto API (PBKDF2 + SHA-256)"]
+        CRYPTO["Web Crypto API (PKCE de GitHub OAuth)"]
         SPEECH["Web Speech API (STT & TTS en Español)"]
         TRANSLATE["translationService (Algoritmo AST Markdown)"]
     end
@@ -94,7 +94,7 @@ flowchart TD
 | **Bundler & Dev** | `Vite 6.2.0` | Servidor de desarrollo ultrarrápido con HMR (`< 400ms`) y compilación para producción en `~2.0s`. |
 | **Estilos** | `Tailwind CSS 4.0.9` | Directivas `@theme`, variables semánticas, animaciones fluidas y clases de utilidad. |
 | **Iconografía** | `lucide-react 0.475.0` | Iconos vectoriales consistentes sin emojis para controles técnicos. |
-| **Criptografía** | `Web Crypto API (Subtle)` | Hashing de credenciales con `PBKDF2`, `SHA-256`, 100,000 iteraciones y salt criptográfico por usuario. |
+| **Criptografía** | `Web Crypto API (Subtle)` | `SHA-256` para el desafío PKCE del inicio de sesión con GitHub. No hay contraseñas ni cuentas locales. |
 | **Audio** | `Web Speech API` | Transcripción por voz (`webkitSpeechRecognition`) y síntesis de voz en tiempo real. |
 | **CI/CD** | `GitLab CI/CD` | Pipeline automatizado con caché de dependencias `.npm` y compilación en runner Alpine Linux. |
 
@@ -104,10 +104,10 @@ flowchart TD
 
 El proyecto implementa las directivas de seguridad **STRIDE** y revisión de **5 Ejes de Calidad**:
 
-* **SEC-01 (Contraseñas Seguras):** Las contraseñas nunca se almacenan en texto plano; se derivan usando PBKDF2-SHA256 con 100k iteraciones.
-* **SEC-02 (Rate Limiting en Frontend):** Bloqueo automático tras 5 intentos fallidos en 5 minutos para evitar ataques de fuerza bruta.
+* **SEC-01 (Identidad con GitHub):** No existen contraseñas ni cuentas locales. El login es OAuth con PKCE y un `state` de un solo uso; el client secret vive solo en la función serverless de Vercel.
+* **SEC-02 (Límite de peticiones):** El catálogo cachea las lecturas y reutiliza la caché si GitHub aplica su límite; con sesión usa el límite de 5000/h de la persona.
 * **SEC-03 (Anti-Path Traversal & DoS):** Validación estricta de nombres de archivo dentro del `.rar` neutralizando secuencias `../` y limitando el tamaño a 25 MB.
-* **SEC-04 (Sesiones con TTL):** Sesiones locales con expiración automática de 12 horas y opción de borrado completo de datos personales (GDPR).
+* **SEC-04 (Token solo en memoria):** El token de GitHub no se guarda en `localStorage`, `sessionStorage` ni cookies, y hay un borrado completo de datos locales y copias de trabajo (GDPR).
 * **SEC-05 (CSP Strict):** Cabeceras `Content-Security-Policy`, `X-Content-Type-Options: nosniff` y `X-Frame-Options: DENY`.
 * **CR-04 (Performance Bundle):** División de módulos con carga diferida (`React.lazy`), manteniendo el paquete principal en menos de 350 kB.
 
@@ -199,7 +199,7 @@ ai-skills-studio/
 │   ├── index.css              # Variables de tema Cyber Dark y animaciones
 │   ├── components/            # Componentes visuales y módulos funcionales
 │   │   ├── AIModelBenchmarkPanel.tsx    # Comparador y radar de los 7 modelos IA
-│   │   ├── AuthScreen.tsx               # Modal de inicio de sesión con PBKDF2
+│   │   ├── AuthScreen.tsx               # Acceso: visitante o entrar con GitHub
 │   │   ├── BrandIcons.tsx               # SVGs oficiales temáticos (Claude, Gemini, GPT)
 │   │   ├── CodiceStudio.tsx             # Suite Cyber Dark de alta densidad
 │   │   ├── ContextEvidenceLogger.tsx     # Galería visual de capturas y evidencias
@@ -208,7 +208,8 @@ ai-skills-studio/
 │   │   ├── NavbarActiveSkill.tsx         # Barra de navegación flotante y drawer
 │   │   ├── NeuralAtmosphereBackground.tsx# Canvas 2D con red neuronal reactiva
 │   │   ├── RarArchiveExplorer.tsx        # Explorador y visor de archivos .RAR
-│   │   ├── SkillManager.tsx              # Gestor y editor de skills de IA
+│   │   ├── catalog/                      # Catálogo, equipo, detalle, auditor, instalación y traducción
+│   │   ├── studio/                       # Barra de skill activa y estado vacío de los módulos
 │   │   ├── StylePresetCatalog.tsx        # Catálogo de componentes y presets
 │   │   ├── UIComponentPreview.tsx        # Previsualizador en vivo de UI/UX
 │   │   ├── UnifiedProjectStudio.tsx      # Inspector unificado de proyectos
@@ -216,7 +217,6 @@ ai-skills-studio/
 │   ├── data/                  # Catálogos estáticos y colecciones de datos
 │   │   ├── aiModelsData.ts               # Métricas de los modelos de IA
 │   │   ├── frameworkCollectionsData.tsx  # Colecciones de frameworks y píldoras
-│   │   ├── initialSkills.ts              # Skills predeterminadas del sistema
 │   │   └── stylePresets.ts               # Presets de componentes UI/UX
 │   ├── services/              # Lógica de procesamiento y servicios
 │   │   ├── rarParserService.ts           # Descompresor binario de paquetes .RAR
@@ -226,7 +226,8 @@ ai-skills-studio/
 │   │   ├── skill.ts                      # Interfaces de skills y componentes
 │   │   └── workspace.ts                  # Rutas, modelos y cuentas de usuario
 │   └── utils/                 # Utilidades de seguridad y validación
-│       └── securityHardening.ts          # PBKDF2, rate limiting, anti-traversal
+│       ├── securityHardening.ts          # Sanitización, anti-traversal y borrado de datos
+│       └── workingCopy.ts                # Copias de trabajo de las skills del equipo
 ```
 
 ---
