@@ -422,6 +422,8 @@ export interface SkillDetailPageProps {
   onBack: () => void;
   /** Texto del botón de volver. */
   backLabel?: string;
+  /** Si se pasa, muestra "Abrir en estudio" en la cabecera. */
+  onOpenInStudio?: (skill: CatalogSkill) => void;
   /**
    * `api` es obligatoria: la ruta de integración (`CatalogDetailRoute`) inyecta el
    * servicio real de GitHub. El mock de desarrollo no se importa desde aquí para
@@ -454,6 +456,7 @@ export function SkillDetailPage({
   skillId,
   onBack,
   backLabel = 'Catálogo',
+  onOpenInStudio,
   api,
   session = null,
   onRequestLogin,
@@ -675,6 +678,17 @@ export function SkillDetailPage({
       </p>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         {backButton}
+        <div className="flex flex-wrap items-center gap-2">
+        {onOpenInStudio && (
+          <button
+            type="button"
+            onClick={() => onOpenInStudio(skill)}
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border-0 bg-[#0ea5e9] px-4 py-1.5 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+          >
+            <FolderOpen className="h-3.5 w-3.5" aria-hidden="true" />
+            Abrir en estudio
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setPublishOpen(true)}
@@ -683,6 +697,7 @@ export function SkillDetailPage({
           <Plus className="h-3.5 w-3.5" aria-hidden="true" />
           Publicar una skill
         </button>
+        </div>
       </div>
 
       <div className="[display:grid] min-w-0 gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:[grid-template-rows:auto_1fr]">

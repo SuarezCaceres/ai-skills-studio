@@ -1,4 +1,3 @@
-import { UserAccount } from '../types/workspace';
 import { SkillDocument } from '../types/skill';
 
 /**
@@ -8,12 +7,12 @@ import { SkillDocument } from '../types/skill';
 export const SECURITY_TRUST_BOUNDARIES = [
   {
     id: 'TB-01',
-    boundary: 'Autenticación y Registro de Colaboradores (AuthScreen)',
-    threats: ['Spoofing', 'Information Disclosure', 'Denial of Service'],
+    boundary: 'Autenticación con GitHub (AuthScreen y función de Vercel)',
+    threats: ['Spoofing', 'Information Disclosure', 'Elevation of Privilege'],
     mitigations: [
-      'Derivación de contraseñas con PBKDF2-SHA256 (100,000 iteraciones) vía Web Crypto API',
-      'Rate limiting estricto de máximo 5 intentos fallidos por ventana de 5 minutos',
-      'Mensajes de error genéricos sin revelar existencia de cuentas ni trazas internas',
+      'OAuth con PKCE y estado anti-CSRF de un solo uso; el client secret solo vive en la función serverless',
+      'La función solo responde a los orígenes de ALLOWED_ORIGINS y valida code, redirect_uri y code_verifier',
+      'Sin contraseñas ni cuentas locales: la identidad es la cuenta de GitHub',
     ],
   },
   {
@@ -40,8 +39,8 @@ export const SECURITY_TRUST_BOUNDARIES = [
     boundary: 'Persistencia de Sesión y Privacidad de Datos Personales (GDPR / CCPA)',
     threats: ['Information Disclosure', 'Repudiation'],
     mitigations: [
-      'Sesiones con TTL explícito de 12 horas y validación de esquema sin passwordHash',
-      'Función de borrado total e irreversible de PII (eraseAllPersonalData)',
+      'El token de GitHub solo vive en memoria: no se guarda en localStorage, sessionStorage ni cookies',
+      'Función de borrado total e irreversible de datos locales y copias de trabajo (eraseAllPersonalData)',
     ],
   },
 ] as const;
@@ -50,140 +49,6 @@ const RATE_LIMIT_STORAGE_KEY = 'ai_orange_auth_ratelimit_v1';
 const USERS_STORAGE_KEY = 'ai_skills_studio_users_v2';
 const SESSION_STORAGE_KEY = 'ai_orange_studio_session_v1';
 const FEEDBACK_STORAGE_KEY = 'ai_studio_visual_feedback_reviews_v2';
-
-const MAX_LOGIN_ATTEMPTS = 5;
-const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutos
-const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 horas
-
-const inMemoryRateLimitStore = new Map<string, number[]>();
-
-function loadRateLimitRecord(identifier: string): number[] {
-  const key = identifier.trim().toLowerCase() || 'anonymous';
-  try {
-    const raw = sessionStorage.getItem(RATE_LIMIT_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as Record<string, number[]>;
-      if (parsed && Array.isArray(parsed[key])) {
-        return parsed[key];
-      }
-    }
-  } catch {
-    // Fallback a memoria si sessionStorage está restringido
-  }
-  return inMemoryRateLimitStore.get(key) || [];
-}
-
-function saveRateLimitRecord(identifier: string, timestamps: number[]): void {
-  const key = identifier.trim().toLowerCase() || 'anonymous';
-  inMemoryRateLimitStore.set(key, timestamps);
-  try {
-    const raw = sessionStorage.getItem(RATE_LIMIT_STORAGE_KEY);
-    const parsed: Record<string, number[]> = raw ? JSON.parse(raw) : {};
-    parsed[key] = timestamps;
-    sessionStorage.setItem(RATE_LIMIT_STORAGE_KEY, JSON.stringify(parsed));
-  } catch {
-    // Ignorar errores de cuota en sessionStorage
-  }
-}
-
-/**
- * Deriva un hash criptográfico seguro con PBKDF2-SHA256 usando Web Crypto API.
- * Nunca almacena ni retorna la contraseña en texto plano.
- */
-export async function hashPasswordPBKDF2(
-  password: string,
-  emailSalt: string
-): Promise<string> {
-  const normalizedSalt = `ai-skills-studio::v1::${emailSalt.trim().toLowerCase()}`;
-  const encoder = new TextEncoder();
-  const passwordBytes = encoder.encode(password);
-  const saltBytes = encoder.encode(normalizedSalt);
-
-  if (globalThis.crypto && globalThis.crypto.subtle) {
-    const keyMaterial = await globalThis.crypto.subtle.importKey(
-      'raw',
-      passwordBytes,
-      { name: 'PBKDF2' },
-      false,
-      ['deriveBits']
-    );
-
-    const derivedBits = await globalThis.crypto.subtle.deriveBits(
-      {
-        name: 'PBKDF2',
-        salt: saltBytes,
-        iterations: 100000,
-        hash: 'SHA-256',
-      },
-      keyMaterial,
-      256
-    );
-
-    const hashArray = Array.from(new Uint8Array(derivedBits));
-    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-    return `pbkdf2_sha256$100000$${hashHex}`;
-  }
-
-  // Fallback determinístico seguro si Web Crypto API no está disponible en el entorno de test
-  let h1 = 0xdeadbeef ^ saltBytes.length;
-  let h2 = 0x41c6ce57 ^ passwordBytes.length;
-  const combined = `${normalizedSalt}::${password}`;
-  for (let i = 0; i < combined.length; i++) {
-    const ch = combined.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  const hex =
-    (h1 >>> 0).toString(16).padStart(8, '0') +
-    (h2 >>> 0).toString(16).padStart(8, '0');
-  return `pbkdf2_fallback$${hex}`;
-}
-
-/**
- * Verifica si el identificador (correo) puede intentar iniciar sesión según la ventana de 5 minutos.
- */
-export function checkLoginRateLimit(identifier: string): {
-  allowed: boolean;
-  retryAfterSeconds: number;
-} {
-  const now = Date.now();
-  const recentAttempts = loadRateLimitRecord(identifier).filter(
-    (ts) => now - ts < RATE_LIMIT_WINDOW_MS
-  );
-  saveRateLimitRecord(identifier, recentAttempts);
-
-  if (recentAttempts.length >= MAX_LOGIN_ATTEMPTS) {
-    const oldestAttempt = recentAttempts[0];
-    const retryAfterSeconds = Math.max(
-      1,
-      Math.ceil((oldestAttempt + RATE_LIMIT_WINDOW_MS - now) / 1000)
-    );
-    return { allowed: false, retryAfterSeconds };
-  }
-
-  return { allowed: true, retryAfterSeconds: 0 };
-}
-
-/**
- * Registra un intento fallido de inicio de sesión para el control de fuerza bruta.
- */
-export function recordFailedLoginAttempt(identifier: string): void {
-  const now = Date.now();
-  const recentAttempts = loadRateLimitRecord(identifier).filter(
-    (ts) => now - ts < RATE_LIMIT_WINDOW_MS
-  );
-  recentAttempts.push(now);
-  saveRateLimitRecord(identifier, recentAttempts);
-}
-
-/**
- * Restablece el contador de intentos fallidos tras una autenticación exitosa.
- */
-export function resetLoginAttempts(identifier: string): void {
-  saveRateLimitRecord(identifier, []);
-}
 
 /**
  * Sanitiza entradas de texto de usuario o transcripciones de voz:
@@ -294,92 +159,6 @@ export function validateUploadFile(
   return { valid: true };
 }
 
-interface SecureSessionEnvelope {
-  version: 1;
-  issuedAt: number;
-  expiresAt: number;
-  user: UserAccount;
-}
-
-/**
- * Crea un payload de sesión con tiempo de expiración (TTL 12h) y sin campos sensibles.
- */
-export function createSecureSessionPayload(user: UserAccount): string {
-  const now = Date.now();
-  const cleanUser: UserAccount = {
-    id: sanitizeUserText(user.id, 80),
-    fullName: sanitizeUserText(user.fullName, 120),
-    email: sanitizeUserText(user.email, 160).toLowerCase(),
-    role: sanitizeUserText(user.role, 120),
-    createdAt: sanitizeUserText(user.createdAt, 40),
-  };
-
-  const envelope: SecureSessionEnvelope = {
-    version: 1,
-    issuedAt: now,
-    expiresAt: now + SESSION_TTL_MS,
-    user: cleanUser,
-  };
-
-  return JSON.stringify(envelope);
-}
-
-/**
- * Valida el esquema y la expiración (TTL) del payload de sesión almacenado.
- */
-export function parseSecureSessionPayload(raw: string | null): UserAccount | null {
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw) as Partial<SecureSessionEnvelope> & Partial<UserAccount>;
-
-    if (parsed && parsed.version === 1 && parsed.user && typeof parsed.expiresAt === 'number') {
-      if (Date.now() > parsed.expiresAt) {
-        return null;
-      }
-      const u = parsed.user;
-      if (
-        typeof u.id === 'string' &&
-        typeof u.fullName === 'string' &&
-        typeof u.email === 'string' &&
-        typeof u.role === 'string' &&
-        typeof u.createdAt === 'string'
-      ) {
-        return {
-          id: sanitizeUserText(u.id, 80),
-          fullName: sanitizeUserText(u.fullName, 120),
-          email: sanitizeUserText(u.email, 160).toLowerCase(),
-          role: sanitizeUserText(u.role, 120),
-          createdAt: sanitizeUserText(u.createdAt, 40),
-        };
-      }
-      return null;
-    }
-
-    // Compatibilidad con sesiones previas validando estrictamente los campos permitidos
-    if (
-      parsed &&
-      typeof parsed.id === 'string' &&
-      typeof parsed.fullName === 'string' &&
-      typeof parsed.email === 'string' &&
-      typeof parsed.role === 'string' &&
-      typeof parsed.createdAt === 'string'
-    ) {
-      return {
-        id: sanitizeUserText(parsed.id, 80),
-        fullName: sanitizeUserText(parsed.fullName, 120),
-        email: sanitizeUserText(parsed.email, 160).toLowerCase(),
-        role: sanitizeUserText(parsed.role, 120),
-        createdAt: sanitizeUserText(parsed.createdAt, 40),
-      };
-    }
-  } catch {
-    return null;
-  }
-
-  return null;
-}
-
 /**
  * Type Guard explícito en la frontera de persistencia (localStorage) para validar
  * que la lista de documentos SkillDocument hidratada cumpla el contrato estructural.
@@ -421,7 +200,6 @@ export function isValidSkillDocumentArray(
  * cuentas locales, sesiones activas, reseñas de voz y contadores de autenticación.
  */
 export function eraseAllPersonalData(): void {
-  inMemoryRateLimitStore.clear();
   try {
     localStorage.removeItem(USERS_STORAGE_KEY);
     localStorage.removeItem(SESSION_STORAGE_KEY);
