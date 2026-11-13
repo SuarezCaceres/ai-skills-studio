@@ -6,6 +6,7 @@ import { PersonAvatar } from '../catalog/PersonAvatar';
 import { SafeMarkdown } from '../catalog/SafeMarkdown';
 import { safeHttpUrl } from '../catalog/ResultsByModel';
 import { ComponentThumb } from '../components/ComponentThumb';
+import { LessonVideos } from './LessonVideos';
 import { LEVEL_STYLE, shortDate } from './LessonCard';
 import type { UseSkillOptionsResult } from './useLessons';
 
@@ -105,6 +106,8 @@ export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDele
           </div>
         )}
       </header>
+
+      <LessonVideos key={lesson.id} lessonTitle={lesson.title} videos={lesson.videos} />
 
       <div className="[display:grid] items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section aria-label="Explicación" className="min-w-0 rounded-xl border border-slate-800 bg-[#121722] p-5 sm:p-6">
