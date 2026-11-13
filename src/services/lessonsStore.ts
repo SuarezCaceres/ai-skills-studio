@@ -1,4 +1,5 @@
-import { LESSON_LEVELS, type Lesson, type LessonAuthor, type LessonDraft } from '../types/lessons';
+import { LESSON_LEVELS, type Lesson, type LessonAuthor, type LessonDraft, type LessonVideo } from '../types/lessons';
+import { isValidYouTubeId } from './youtube';
 
 /**
  * Almacén de clases. Todo el acceso a datos pasa por la interfaz `LessonsStore`, para poder
@@ -17,6 +18,8 @@ export const LIMITS = {
   tag: 24,
   skills: 20,
   components: 20,
+  videos: 12,
+  videoTitle: 80,
   lessons: 500,
 } as const;
 
@@ -42,6 +45,7 @@ const LESSON_ID = /^[a-z0-9][a-z0-9-]{0,79}$/;
 const SKILL_ID = /^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+(\/[^\u0000-\u001f]*)?$/;
 const COMPONENT_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const LOGIN = /^[A-Za-z0-9-]{1,39}$/;
+const VIDEO_PART_ID = /^[a-z0-9][a-z0-9-]{0,31}$/;
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
@@ -103,6 +107,34 @@ function httpsUrl(value: unknown): string | undefined {
   }
 }
 
+/** Siguiente id libre para una parte de video: `v1`, `v2`… */
+export function uniqueVideoId(taken: Iterable<string>): string {
+  const used = new Set(taken);
+  let n = 1;
+  while (used.has(`v${n}`)) n++;
+  return `v${n}`;
+}
+
+/** Partes de video válidas (tipo, ID de YouTube, título) y sin ids repetidos; el resto se descarta. */
+function cleanVideos(value: unknown): LessonVideo[] {
+  if (!Array.isArray(value)) return [];
+  const videos: LessonVideo[] = [];
+  const ids = new Set<string>();
+  for (const item of value) {
+    if (!isRecord(item) || !isValidYouTubeId(item.kind, item.youtubeId)) continue;
+    const id = typeof item.id === 'string' && VIDEO_PART_ID.test(item.id) && !ids.has(item.id) ? item.id : uniqueVideoId(ids);
+    ids.add(id);
+    videos.push({
+      id,
+      kind: item.kind as LessonVideo['kind'],
+      youtubeId: item.youtubeId as string,
+      title: clean(item.title, LIMITS.videoTitle),
+    });
+    if (videos.length >= LIMITS.videos) break;
+  }
+  return videos;
+}
+
 function cleanAuthor(value: unknown): LessonAuthor | null {
   if (!isRecord(value) || typeof value.login !== 'string' || !LOGIN.test(value.login)) return null;
   const avatar = httpsUrl(value.avatarUrl);
@@ -139,6 +171,7 @@ export function sanitizeLesson(raw: unknown, now: Date = new Date()): Lesson | n
     bodyMarkdown: body,
     skillIds: cleanIds(raw.skillIds, SKILL_ID, LIMITS.skills),
     componentIds: cleanIds(raw.componentIds, COMPONENT_ID, LIMITS.components),
+    videos: cleanVideos(raw.videos),
     author,
     createdAt,
     updatedAt: cleanDate(raw.updatedAt, createdAt),
@@ -147,7 +180,7 @@ export function sanitizeLesson(raw: unknown, now: Date = new Date()): Lesson | n
 
 /* ---------------- Validación del formulario ---------------- */
 
-export type DraftErrors = Partial<Record<'title' | 'summary' | 'body' | 'tags' | 'skillIds' | 'componentIds', string>>;
+export type DraftErrors = Partial<Record<'title' | 'summary' | 'body' | 'tags' | 'skillIds' | 'componentIds' | 'videos', string>>;
 
 export function validateDraft(draft: LessonDraft): DraftErrors {
   const errors: DraftErrors = {};
@@ -163,6 +196,12 @@ export function validateDraft(draft: LessonDraft): DraftErrors {
   if (draft.tags.length > LIMITS.tags) errors.tags = `Como máximo ${LIMITS.tags} etiquetas.`;
   if (draft.skillIds.length > LIMITS.skills) errors.skillIds = `Como máximo ${LIMITS.skills} skills.`;
   if (draft.componentIds.length > LIMITS.components) errors.componentIds = `Como máximo ${LIMITS.components} componentes.`;
+  const videos = Array.isArray(draft.videos) ? draft.videos : [];
+  if (videos.length > LIMITS.videos) errors.videos = `Como máximo ${LIMITS.videos} partes de video.`;
+  else if (videos.some((v) => !isValidYouTubeId(v?.kind, v?.youtubeId))) errors.videos = 'Hay una parte de video con un enlace no válido.';
+  else if (videos.some((v) => typeof v.title === 'string' && v.title.trim().length > LIMITS.videoTitle)) {
+    errors.videos = `El título de cada parte admite como máximo ${LIMITS.videoTitle} caracteres.`;
+  }
   return errors;
 }
 

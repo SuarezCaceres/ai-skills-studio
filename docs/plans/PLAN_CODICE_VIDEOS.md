@@ -18,7 +18,7 @@ Rama: `feat/codice-mejoras-y-limpieza` (sale de `origin/main`). Es un plan, no e
 
 - **Se guarda el ID, no el link.** Al pegar un link se extrae `kind` (`video` o `playlist`) y el `id` validado (11 caracteres `[A-Za-z0-9_-]` para video; `[A-Za-z0-9_-]{10,64}` para lista). El `src` del iframe se construye solo a partir de ese ID. Así un JSON importado no puede meter una URL arbitraria en el iframe.
 - **Solo hosts de YouTube:** `youtube.com`, `www.`, `m.`, `youtu.be` y `youtube-nocookie.com`. Cualquier otro se rechaza con un mensaje claro.
-- **Link con `v=` y `list=` a la vez:** se toma como video suelto. Una lista solo se crea con `/playlist?list=`.
+- **Link con `v=` y `list=` a la vez:** se toma como video suelto. Una lista se crea con `/playlist?list=` o con un `watch?list=` sin `v=`.
 - **Carga diferida:** el detalle muestra la miniatura con un botón de play y solo crea el iframe al hacer clic. Menos peticiones a terceros y pruebas deterministas.
 - **Límite:** 12 partes por clase; título de parte de hasta 80 caracteres.
 - **Sin migración:** `videos` es un campo nuevo y opcional, así que la clave `ai_skills_studio_lessons_v1` y el formato de exportación `version: 1` se mantienen. Una clase exportada con videos e importada en una versión vieja los pierde sin error.
