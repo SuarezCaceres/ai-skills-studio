@@ -420,6 +420,8 @@ export interface SkillDetailPageProps {
   /** `CatalogSkill.id` seleccionado, o null si no hay ninguno. */
   skillId: string | null;
   onBack: () => void;
+  /** Texto del botón de volver. */
+  backLabel?: string;
   /**
    * `api` es obligatoria: la ruta de integración (`CatalogDetailRoute`) inyecta el
    * servicio real de GitHub. El mock de desarrollo no se importa desde aquí para
@@ -451,6 +453,7 @@ function errorMessage(err: unknown, fallback: string): string {
 export function SkillDetailPage({
   skillId,
   onBack,
+  backLabel = 'Catálogo',
   api,
   session = null,
   onRequestLogin,
@@ -590,7 +593,7 @@ export function SkillDetailPage({
       className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-transparent px-1 py-1 text-sm font-medium text-[#38bdf8] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
     >
       <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-      Catálogo
+      {backLabel}
     </button>
   );
 
@@ -659,8 +662,9 @@ export function SkillDetailPage({
   }
 
   const { skill } = skillState;
-  const profileUrl = safeHttpUrl(skill.author.profileUrl);
-  const avatarUrl = safeHttpUrl(skill.author.avatarUrl);
+  const uploader = skill.uploadedBy;
+  const profileUrl = safeHttpUrl(uploader.profileUrl);
+  const avatarUrl = safeHttpUrl(uploader.avatarUrl);
   const panelId = (id: TabId) => `${uid}-panel-${id}`;
   const tabId = (id: TabId) => `${uid}-tab-${id}`;
 
@@ -720,10 +724,10 @@ export function SkillDetailPage({
                 aria-hidden="true"
                 className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-700 bg-[#121722] text-[10px] font-bold uppercase text-slate-300"
               >
-                {skill.author.login.slice(0, 1)}
+                {uploader.login.slice(0, 1)}
               </span>
             )}
-            <span>por</span>
+            <span>Subida por</span>
             {profileUrl ? (
               <a
                 href={profileUrl}
@@ -731,10 +735,10 @@ export function SkillDetailPage({
                 rel="noopener noreferrer"
                 className="font-semibold text-slate-200 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
               >
-                @{skill.author.login}
+                @{uploader.login}
               </a>
             ) : (
-              <span className="font-semibold text-slate-200">@{skill.author.login}</span>
+              <span className="font-semibold text-slate-200">@{uploader.login}</span>
             )}
           </p>
           <p

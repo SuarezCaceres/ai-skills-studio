@@ -73,6 +73,7 @@ async function testInteractions() {
     // 3. Navigate to Skills / Bóveda
     const skillsNavLink = page.locator('.nav__links a:has-text("Skills")');
     await skillsNavLink.click();
+    await page.getByRole('tab', { name: 'Locales' }).click();
     await page.waitForTimeout(500);
 
     const skillsHeading = page.locator('#boveda-heading');
