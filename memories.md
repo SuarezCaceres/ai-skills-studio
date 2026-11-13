@@ -212,3 +212,21 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
 - Corregido el conteo de modelos de IA: son **8** (se incluía DeepSeek V3, omitido en la lista de 7).
 - Completado el árbol de directorios con los componentes y servicios que faltaban, `scripts/` y `.gitlab-ci.yml`.
 - Aclarado que los scripts del finish gate pertenecen al kit externo y no están en el repo.
+
+---
+
+## 🌐 11. Catálogo comunitario de skills — Fases y límites de archivos por worktree
+
+**Objetivo:** que cualquiera con cuenta de GitHub registre su skill (pegando la URL de su repo), reporte resultados por modelo de IA y vea cómo instalarla, con un botón para traducir su contenido al español antes de instalar. Plan completo: `.claude/plans/zazzy-plotting-lerdorf.md` (copia local del autor).
+
+**Decisiones:** catálogo en GitHub; resultados y votos en Issues y reacciones del repo catálogo; login con OAuth de GitHub mediante una función serverless en Vercel; auditor automático con aviso visible; traducción solo traduce (no resume).
+
+**Fase 0 (rama `feat/catalog-contracts`, hecha):** contratos en `src/types/catalog.ts`, ruta `'skill-detalle'` en `AppPageRoute`, estado `selectedCatalogSkillId` y marcador `src/components/catalog/SkillDetailPage.tsx` en `App.tsx`. **Después de la fase 0, ningún worktree edita `App.tsx`, `src/types/catalog.ts` ni `src/types/workspace.ts`** sin coordinar.
+
+| Worktree | Rama | Archivos propios (no tocar los de otro) |
+| :--- | :--- | :--- |
+| **WT1** datos, GitHub y auth | `feat/catalog-github-backend` | `src/services/githubCatalogService.ts`, `src/services/githubAuthService.ts`, `src/hooks/useCatalog.ts`, `api/github-oauth.ts`, `docs/catalog-setup.md`, `src/components/AuthScreen.tsx` (retirar usuario semilla y acceso demo) |
+| **WT2** interfaz de detalle | `feat/catalog-detail-ui` | `src/components/catalog/SkillDetailPage.tsx`, `SkillSidebar.tsx`, `ResultsByModel.tsx`, `ReportResultForm.tsx`, `MoreFromAuthor.tsx`, `PublishSkillDialog.tsx` |
+| **WT3** instalar, traducir y auditoría | `feat/catalog-install-translate` | `src/components/catalog/InstallPanel.tsx`, `TranslateButton.tsx`, `AuditBadge.tsx`, `src/services/installCommandService.ts`, `src/services/translationService.ts` |
+
+**Integración final (secuencial):** fusionar WT1, luego WT3 y luego WT2 en `testing`; conectar `SkillDetailPage` con los servicios reales y abrir el detalle desde `SkillManager`.

@@ -5,7 +5,8 @@ export type AppPageRoute =
   | 'estudio'
   | 'preview'
   | 'evidencias'
-  | 'modelos-ia';
+  | 'modelos-ia'
+  | 'skill-detalle';
 
 export interface UserAccount {
   id: string;

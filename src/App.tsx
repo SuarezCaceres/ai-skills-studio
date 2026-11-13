@@ -49,6 +49,11 @@ const AIModelBenchmarkPanel = lazy(() =>
     default: m.AIModelBenchmarkPanel,
   }))
 );
+const SkillDetailPage = lazy(() =>
+  import('./components/catalog/SkillDetailPage').then((m) => ({
+    default: m.SkillDetailPage,
+  }))
+);
 
 const STORAGE_KEY = 'ai_skills_studio_vault_v4';
 const AUTH_SESSION_KEY = 'ai_skills_studio_session_v1';
@@ -88,6 +93,9 @@ export function App() {
     () => skills[0]?.id || ''
   );
   const [activePage, setActivePage] = useState<AppPageRoute>('inicio');
+  const [selectedCatalogSkillId, setSelectedCatalogSkillId] = useState<
+    string | null
+  >(null);
   const [selectedModelId, setSelectedModelId] = useState<string>(
     AI_BENCHMARK_MODELS[0].id
   );
@@ -609,6 +617,13 @@ export function App() {
                   skill={activeSkill}
                   onUpdateSkill={handleUpdateSkill}
                   onStatusChange={setGlobalStatus}
+                />
+              )}
+
+              {activePage === 'skill-detalle' && (
+                <SkillDetailPage
+                  skillId={selectedCatalogSkillId}
+                  onBack={() => setActivePage('boveda')}
                 />
               )}
 
