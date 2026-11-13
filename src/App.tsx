@@ -41,9 +41,9 @@ const UnifiedProjectStudio = lazy(() =>
     default: m.UnifiedProjectStudio,
   }))
 );
-const UIComponentPreview = lazy(() =>
-  import('./components/UIComponentPreview').then((m) => ({
-    default: m.UIComponentPreview,
+const ComponentsPage = lazy(() =>
+  import('./components/components/ComponentsPage').then((m) => ({
+    default: m.ComponentsPage,
   }))
 );
 const ContextEvidenceLogger = lazy(() =>
@@ -109,6 +109,11 @@ export function App() {
   >(null);
   // Pantalla a la que vuelve el detalle de una skill del catálogo (equipo o catálogo).
   const [detailBackPage, setDetailBackPage] = useState<AppPageRoute>('catalogo');
+
+  // Componente elegido en la página Componentes (se puede abrir desde otras pantallas).
+  const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
+  // Clase abierta en Códice → Clases; se conserva al saltar a una skill o a un componente y volver.
+  const [openLessonId, setOpenLessonId] = useState<string | null>(null);
 
   const openCatalogSkill = (id: string, from: AppPageRoute) => {
     setSelectedCatalogSkillId(id);
@@ -555,7 +560,18 @@ export function App() {
                 </div>
               }
             >
-              {activePage === 'codice-studio' && <CodiceStudio />}
+              {activePage === 'codice-studio' && (
+                <CodiceStudio
+                  openLessonId={openLessonId}
+                  onOpenLesson={setOpenLessonId}
+                  onOpenSkill={(id) => openCatalogSkill(id, 'codice-studio')}
+                  onOpenComponent={(id) => {
+                    setSelectedComponentId(id);
+                    setActivePage('preview');
+                  }}
+                  onRequestLogin={() => setShowAuthScreen(true)}
+                />
+              )}
 
               {activePage === 'boveda' && (
                 <TeamSkillsPage
@@ -601,26 +617,18 @@ export function App() {
                 </>
               )}
 
-              {activePage === 'preview' &&
-                (workingSkill ? (
-                  <>
-                    {skillBar}
-                    <UIComponentPreview
-                      skill={workingSkill}
-                      onUpdateSkill={handleUpdateSkill}
-                      onStatusChange={setGlobalStatus}
-                      isCollaboratorMode={isCollaboratorMode}
-                      currentUserName={currentUser?.fullName}
-                      onRequestLogin={() => setShowAuthScreen(true)}
-                    />
-                  </>
-                ) : (
-                  <NoSkillState
-                    module="Componentes"
-                    description="Aquí pruebas barras de menús y paletas accesibles con el estilo de una skill y guardas el resultado en su copia."
-                    onGoToTeam={() => setActivePage('boveda')}
-                  />
-                ))}
+              {activePage === 'preview' && (
+                <ComponentsPage
+                  selectedId={selectedComponentId}
+                  onSelect={setSelectedComponentId}
+                  onOpenSkill={(id) => openCatalogSkill(id, 'preview')}
+                  onRequestLogin={() => setShowAuthScreen(true)}
+                  onOpenLesson={(id) => {
+                    setOpenLessonId(id);
+                    setActivePage('codice-studio');
+                  }}
+                />
+              )}
 
               {activePage === 'evidencias' &&
                 (workingSkill ? (
@@ -649,9 +657,13 @@ export function App() {
                       ? 'Skills del equipo'
                       : detailBackPage === 'perfil'
                         ? 'Perfil'
-                        : detailBackPage === 'catalogo'
-                          ? 'Catálogo'
-                          : 'Volver'
+                        : detailBackPage === 'codice-studio'
+                          ? 'Códice'
+                          : detailBackPage === 'preview'
+                          ? 'Componentes'
+                          : detailBackPage === 'catalogo'
+                            ? 'Catálogo'
+                            : 'Volver'
                   }
                   onOpenInStudio={openInStudio}
                   onRequestLogin={() => setShowAuthScreen(true)}
