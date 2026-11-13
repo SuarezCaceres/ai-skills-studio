@@ -67,8 +67,10 @@ const AUTH_SESSION_KEY = 'ai_skills_studio_session_v1';
 export function App() {
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
     try {
-      const savedUser = localStorage.getItem(AUTH_SESSION_KEY);
-      return parseSecureSessionPayload(savedUser);
+      const savedUser = parseSecureSessionPayload(localStorage.getItem(AUTH_SESSION_KEY));
+      // El token de GitHub solo vive en memoria: tras recargar, un usuario de GitHub guardado
+      // quedaría "dentro" sin poder votar ni publicar. Se descarta para pedir entrar de nuevo.
+      return savedUser && savedUser.id.startsWith('gh-') ? null : savedUser;
     } catch {
       return null;
     }

@@ -347,6 +347,8 @@ interface RequestOptions {
   /** Pide el cuerpo como texto crudo (contenido de archivos, SHA). */
   accept?: string;
   text?: boolean;
+  /** Salta la caché HTTP del navegador (GitHub responde con `max-age=60`): para releer tras una escritura. */
+  fresh?: boolean;
 }
 
 interface HttpResult<T> {
@@ -374,6 +376,7 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<Http
       method: opts.method ?? 'GET',
       headers,
       body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      cache: opts.fresh ? 'no-store' : undefined,
     });
   } catch {
     throw new CatalogError('network', 'No se pudo conectar con GitHub. Revisa tu conexión e inténtalo de nuevo.');
@@ -613,16 +616,37 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
   };
 
   /** GET público con caché, deduplicación y reutilización de caché caducada si hay rate limit o red caída. */
-  async function cachedGet<T>(path: string, ttlMs: number, opts: Pick<RequestOptions, 'accept' | 'text'> = {}): Promise<T> {
+  async function cachedGet<T>(
+    path: string,
+    ttlMs: number,
+    opts: Pick<RequestOptions, 'accept' | 'text' | 'fresh'> = {}
+  ): Promise<T> {
     const key = `GET ${path}${opts.accept ? ` @${opts.accept}` : ''}`;
-    const fresh = cacheRead(key, false);
-    if (fresh.hit) return fresh.value as T;
-    const pending = inflight.get(key);
-    if (pending) return pending as Promise<T>;
+    if (!opts.fresh) {
+      const cached = cacheRead(key, false);
+      if (cached.hit) return cached.value as T;
+      const pending = inflight.get(key);
+      if (pending) return pending as Promise<T>;
+    }
 
     const task = (async () => {
       try {
-        const { data } = await request<T>(path, opts);
+        // Con sesión, las lecturas públicas también llevan el token: así cuentan en el límite
+        // de 5000/h de la persona y no en el anónimo de 60/h de su IP. Los datos son públicos,
+        // por eso la caché no distingue entre sesión y visitante.
+        const token = options.getSession()?.token;
+        let result: HttpResult<T>;
+        try {
+          result = await request<T>(path, { ...opts, token });
+        } catch (err) {
+          // Token caducado o revocado: la lectura pública debe seguir funcionando sin él.
+          if (token && err instanceof CatalogError && err.code === 'auth_required') {
+            result = await request<T>(path, opts);
+          } else {
+            throw err;
+          }
+        }
+        const { data } = result;
         cacheWrite(key, data, ttlMs);
         return data;
       } catch (err) {
@@ -850,7 +874,7 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
     for (let page = 1; page <= 5; page++) {
       const { data } = await request<GhReaction[]>(
         `/repos/${repoPath}/issues/${issueNumber}/reactions?content=%2B1&per_page=100&page=${page}`,
-        { token: session.token }
+        { token: session.token, fresh: true }
       );
       const mine = data.find((r) => r.user?.login.toLowerCase() === session.login.toLowerCase());
       if (mine) return mine;
@@ -859,12 +883,12 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
     return undefined;
   }
 
-  async function votesFor(anchor: Anchor, withSession: boolean): Promise<SkillVotes> {
+  async function votesFor(anchor: Anchor, withSession: boolean, fresh = false): Promise<SkillVotes> {
     const repoPath = requireCatalog();
-    const fresh = await cachedGet<GhIssue>(`/repos/${repoPath}/issues/${anchor.issue.number}`, TTL.votes);
+    const issue = await cachedGet<GhIssue>(`/repos/${repoPath}/issues/${anchor.issue.number}`, TTL.votes, { fresh });
     const session = options.getSession();
     const mine = withSession && session ? await myReaction(anchor.issue.number, session) : undefined;
-    return { skillId: anchor.skill.id, count: fresh.reactions?.['+1'] ?? 0, votedByMe: Boolean(mine) };
+    return { skillId: anchor.skill.id, count: issue.reactions?.['+1'] ?? 0, votedByMe: Boolean(mine) };
   }
 
   /* ---------- API pública ---------- */
@@ -1024,7 +1048,7 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
         });
       }
       cacheInvalidate([`/repos/${repoPath}/issues/${n}`]);
-      return votesFor(anchor, true);
+      return votesFor(anchor, true, true);
     },
 
     async getSkillFileContent(skillId, filePath) {
