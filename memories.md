@@ -253,3 +253,11 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
 - Se eliminaron: skills de ejemplo (`initialSkills.ts`), `SkillManager`, `SkillsHub`, la creación local (importar .md, nueva skill, "Guardar en catálogo") y el login local con contraseña (PBKDF2, rate limit y sesión guardada). La única identidad es la sesión de GitHub en memoria.
 - El dato antiguo `ai_skills_studio_vault_v4` no se borra (queda sin leer); las claves de cuentas locales sí se limpian al arrancar.
 - Lección: los tests no deben tocar `api.github.com` real; el build puede traer el catálogo configurado (`.env.local`) y los scripts lo interceptan.
+
+**Fase 3 (rama `feat/team-skills-phase3`): subir desde el equipo local.**
+- `PublishSkillDialog` tiene la pestaña "Desde mi equipo": un `.md` suelto (se sube como `SKILL.md`) o una carpeta (`webkitdirectory`). `skillUploadService.readLocalSkill` valida sin red: ignora `.git`, `node_modules` y `.env*`, rechaza rutas con `..`, más de 50 archivos, 1 MB por archivo y 5 MB en total, y detiene claves privadas y tokens (GitHub, AWS, `sk-`, Slack, Google) sin mostrar su valor.
+- `publishLocalSkill` (en `githubCatalogService`) crea `<login>/codice-skills` público si no existe y sube todo en un solo commit con la API de Git (blobs, árbol, commit y ref) a `skills/<slug>/`; los archivos que ya no están se borran. Después registra la skill con `registerResolved`, fijando el commit nuevo.
+- Volver a subir una skill propia actualiza su Issue ancla (mismo número) al commit nuevo. Quien no es su autor no puede cambiarla.
+- GitHub tarda unos segundos en listar un Issue nuevo y responde las lecturas con `max-age=60`: el servicio relee sin caché 90 s tras escribir y recuerda 5 min lo recién registrado (`recentAnchors`) para que la skill se abra al instante.
+- Los archivos subidos pierden el bit ejecutable (modo 100644). El permiso `public_repo` de la OAuth App alcanza para crear el repo y hacer commits.
+- Pruebas: `scripts/test-skill-upload.mjs` (lectura local y publicación contra un GitHub simulado en memoria; cada prueba usa su propia cuenta porque la caché del servicio es global al módulo).
