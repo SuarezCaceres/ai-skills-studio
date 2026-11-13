@@ -1,20 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  AlertCircle,
-  ArrowUpRight,
-  Github,
-  Loader2,
-  Plus,
-  RefreshCw,
-  Scale,
-  Search,
-  ShieldAlert,
-  X,
-} from 'lucide-react';
+import { AlertCircle, Github, Loader2, Plus, RefreshCw, Search, X } from 'lucide-react';
 import { useCatalog } from '../../hooks/useCatalog';
 import type { CatalogSkill } from '../../types/catalog';
 import { PublishSkillDialog } from './PublishSkillDialog';
-import { safeHttpUrl } from './ResultsByModel';
+import { SkillCard, SkillCardSkeleton } from './SkillCard';
 
 interface CatalogPageProps {
   /** Abre la página de detalle de la skill del catálogo. */
@@ -32,99 +21,6 @@ type SortKey = 'recientes' | 'nombre';
 
 const FOCUS =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]';
-
-function AuthorAvatar({ skill }: { skill: CatalogSkill }) {
-  const src = safeHttpUrl(skill.author.avatarUrl);
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt=""
-        width={28}
-        height={28}
-        loading="lazy"
-        referrerPolicy="no-referrer"
-        className="h-7 w-7 shrink-0 rounded-full border border-slate-700 bg-[#0a0d14]"
-      />
-    );
-  }
-  return (
-    <span
-      aria-hidden="true"
-      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-[#0a0d14] text-xs font-bold uppercase text-slate-300"
-    >
-      {skill.author.login.slice(0, 1)}
-    </span>
-  );
-}
-
-function SkillCard({ skill, onOpen }: { skill: CatalogSkill; onOpen: () => void }) {
-  return (
-    <li className="min-w-0">
-      <button
-        type="button"
-        onClick={onOpen}
-        className={`group flex h-full w-full min-w-0 cursor-pointer flex-col gap-4 rounded-xl border border-slate-800 bg-[#121722] p-5 text-left transition-colors hover:border-[#0ea5e9]/70 hover:bg-[#141b29] ${FOCUS}`}
-      >
-        <span className="flex items-center gap-2.5">
-          <AuthorAvatar skill={skill} />
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-xs font-medium text-slate-200">@{skill.author.login}</span>
-            <span className="block truncate font-mono text-[11px] text-slate-500">{skill.repo}</span>
-          </span>
-          <ArrowUpRight
-            className="h-4 w-4 shrink-0 text-slate-600 transition-colors group-hover:text-[#38bdf8]"
-            aria-hidden="true"
-          />
-        </span>
-
-        <span className="block min-w-0">
-          <span className="block break-words font-mono text-base font-semibold leading-snug text-white">
-            {skill.name}
-          </span>
-          <span lang="en" className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-400">
-            {skill.description || 'Sin descripción.'}
-          </span>
-        </span>
-
-        <span className="mt-auto flex flex-wrap items-center gap-2 border-t border-slate-800/80 pt-3 text-[11px]">
-          <span className="rounded-full border border-[#0ea5e9]/35 bg-[#0ea5e9]/10 px-2.5 py-0.5 font-medium text-[#38bdf8]">
-            {skill.category}
-          </span>
-          {skill.hasScripts && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/35 bg-amber-950/30 px-2.5 py-0.5 font-medium text-amber-300">
-              <ShieldAlert className="h-3 w-3" aria-hidden="true" />
-              Incluye scripts
-            </span>
-          )}
-          {skill.license && (
-            <span className="ml-auto inline-flex items-center gap-1 font-mono text-slate-500">
-              <Scale className="h-3 w-3" aria-hidden="true" />
-              {skill.license}
-            </span>
-          )}
-        </span>
-      </button>
-    </li>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <li aria-hidden="true" className="rounded-xl border border-slate-800 bg-[#121722] p-5">
-      <div className="flex items-center gap-2.5">
-        <div className="h-7 w-7 animate-pulse rounded-full bg-slate-800" />
-        <div className="h-3 w-28 animate-pulse rounded bg-slate-800" />
-      </div>
-      <div className="mt-5 h-4 w-2/3 animate-pulse rounded bg-slate-800" />
-      <div className="mt-3 space-y-2">
-        <div className="h-3 animate-pulse rounded bg-slate-800/80" />
-        <div className="h-3 animate-pulse rounded bg-slate-800/80" />
-        <div className="h-3 w-1/2 animate-pulse rounded bg-slate-800/80" />
-      </div>
-    </li>
-  );
-}
 
 /**
  * Página del catálogo comunitario: lista las skills registradas en el repo
@@ -310,7 +206,7 @@ export function CatalogPage({ onOpenSkill, onRequestLogin }: CatalogPageProps) {
           <p className="sr-only">Cargando el catálogo…</p>
           <ul className="m-0 [display:grid] list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }, (_, i) => (
-              <SkeletonCard key={i} />
+              <SkillCardSkeleton key={i} />
             ))}
           </ul>
         </div>

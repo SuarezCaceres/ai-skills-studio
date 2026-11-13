@@ -60,7 +60,8 @@ const anchorIssue = {
   html_url: 'https://github.com/test/catalog/issues/1',
   body: `<!-- codice:v1 ${JSON.stringify(marker)} -->\nSkill registrada`,
   created_at: '2026-11-01T10:00:00Z',
-  user: { login: 'acme' },
+  // Quien registra la skill (equipo); el dueño del repo de origen es `acme`.
+  user: { login: 'SuarezCaceres', avatar_url: 'https://avatars.githubusercontent.com/u/1?v=4' },
   labels: ['skill', `skill:${SKILL_ID}`],
   reactions: { '+1': 3 },
 };
@@ -76,6 +77,11 @@ async function fakeGithub(route) {
     return route.fulfill(json(labels.includes('result') ? [] : [anchorIssue]));
   }
   if (p === '/repos/test/catalog/issues/1') return route.fulfill(json(anchorIssue));
+  if (p === '/users/SuarezCaceres') {
+    return route.fulfill(
+      json({ login: 'SuarezCaceres', name: 'Sergio Mateo', avatar_url: 'https://avatars.githubusercontent.com/u/1?v=4' })
+    );
+  }
   if (p === '/repos/acme/tools') {
     return route.fulfill(
       json({ private: false, default_branch: 'main', topics: ['demo'], license: { spdx_id: 'MIT' }, owner: { login: 'acme' } })
@@ -128,22 +134,55 @@ async function main() {
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
     page.on('pageerror', (e) => errors.push(String(e)));
     await page.route('https://api.github.com/**', fakeGithub);
+    // Avatares: imagen mínima para no depender de la red.
+    const PNG = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+      'base64'
+    );
+    await page.route('https://avatars.githubusercontent.com/**', (r) =>
+      r.fulfill({ status: 200, contentType: 'image/png', body: PNG })
+    );
     // El Chromium de Playwright expone `Translator` pero no resuelve el modelo: se quita para probar el camino con Gemini.
     await page.addInitScript(() => {
       delete self.Translator;
       delete self.LanguageDetector;
     });
 
-    console.log('\nPágina del catálogo');
     await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' });
     await page.locator('.nav__actions a.btn--primary').click();
     check('la cabecera muestra "Entrar con GitHub"', await page.locator('.nav__actions a:has-text("GitHub")').isVisible());
+
+    console.log('\nSkills del equipo');
+    await page.locator('.nav__links a:has-text("Skills")').click();
+    await page.locator('#team-heading').waitFor();
+    const teamCard = page.locator('section[aria-labelledby="team-heading"] article:has-text("demo-skill")');
+    await teamCard.waitFor({ timeout: 8000 });
+    check('la skill aparece en la vista del equipo', true);
+    check('la tarjeta dice "Subida por @SuarezCaceres"', (await teamCard.innerText()).includes('Subida por @SuarezCaceres'));
+    check('la tarjeta enlaza al perfil de quien la subió', (await teamCard.locator('a[href="https://github.com/SuarezCaceres"]').count()) === 1);
+    check('la tarjeta enlaza al repo de origen (acme/tools)', (await teamCard.locator('a[href="https://github.com/acme/tools"]').count()) === 1);
+    const chip = page.getByRole('button', { name: /@SuarezCaceres/ }).first();
+    check('el filtro del equipo muestra a @SuarezCaceres con su contador', (await chip.innerText()).includes('1'));
+    await chip.click();
+    check('filtrar por integrante mantiene su skill', await teamCard.isVisible());
+    await page.locator('#team-search-input').fill('zzz-no-existe');
+    check('el buscador vacía la lista', await page.locator('text=Ninguna skill coincide').isVisible());
+    await page.getByRole('button', { name: 'Quitar filtros' }).click();
+    await page.screenshot({ path: join(SHOTS_DIR, 'equipo-1440.png') });
+    await teamCard.getByRole('button', { name: 'demo-skill' }).click();
+    await page.locator('h1:has-text("demo-skill")').waitFor();
+    check('el detalle muestra "Subida por"', await page.locator('text=Subida por').first().isVisible());
+    await page.getByRole('button', { name: /Skills del equipo/ }).click();
+    await page.locator('#team-heading').waitFor();
+    check('el detalle vuelve a la vista del equipo', true);
+
+    console.log('\nPágina del catálogo');
     await page.locator('.nav__links a:has-text("Catálogo")').click();
     await page.locator('#catalog-page-heading').waitFor();
     const card = page.locator('section[aria-labelledby="catalog-page-heading"] button:has-text("demo-skill")');
     await card.waitFor({ timeout: 8000 });
     check('la skill del catálogo aparece en la página', true);
-    check('la tarjeta avisa que la skill incluye scripts', await card.locator('text=Incluye scripts').count() > 0);
+    check('la tarjeta avisa que la skill incluye scripts', await page.locator('section[aria-labelledby="catalog-page-heading"] article:has-text("demo-skill") >> text=Incluye scripts').count() > 0);
     await page.locator('#catalog-search-input').fill('zzz-no-existe');
     check('el buscador filtra y muestra el estado vacío', await page.locator('text=Ninguna skill coincide').isVisible());
     await page.getByRole('button', { name: 'Quitar filtros' }).click();

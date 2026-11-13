@@ -30,6 +30,11 @@ const SkillManager = lazy(() =>
     default: m.SkillManager,
   }))
 );
+const SkillsHub = lazy(() =>
+  import('./components/SkillsHub').then((m) => ({
+    default: m.SkillsHub,
+  }))
+);
 const UnifiedProjectStudio = lazy(() =>
   import('./components/UnifiedProjectStudio').then((m) => ({
     default: m.UnifiedProjectStudio,
@@ -107,6 +112,14 @@ export function App() {
   const [selectedCatalogSkillId, setSelectedCatalogSkillId] = useState<
     string | null
   >(null);
+  // Pantalla a la que vuelve el detalle de una skill del catálogo (equipo o catálogo).
+  const [detailBackPage, setDetailBackPage] = useState<AppPageRoute>('catalogo');
+
+  const openCatalogSkill = (id: string, from: AppPageRoute) => {
+    setSelectedCatalogSkillId(id);
+    setDetailBackPage(from);
+    setActivePage('skill-detalle');
+  };
   const [selectedModelId, setSelectedModelId] = useState<string>(
     AI_BENCHMARK_MODELS[0].id
   );
@@ -598,29 +611,32 @@ export function App() {
               {activePage === 'codice-studio' && <CodiceStudio />}
 
               {activePage === 'boveda' && (
-                <SkillManager
-                  skills={skills}
-                  activeSkillId={activeSkill.id}
-                  isEditorMode={isCollaboratorMode}
-                  currentUserName={currentUser?.fullName}
+                <SkillsHub
+                  onOpenCatalogSkill={(id) => openCatalogSkill(id, 'boveda')}
                   onRequestLogin={() => setShowAuthScreen(true)}
-                  onSelectSkill={handleSelectSkill}
-                  onCreateSkill={handleCreateSkill}
-                  onUpdateSkill={handleUpdateSkill}
-                  onDeleteSkill={handleDeleteSkill}
-                  onStatusChange={setGlobalStatus}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  onNavigatePage={setActivePage}
+                  renderLocal={() => (
+                    <SkillManager
+                      skills={skills}
+                      activeSkillId={activeSkill.id}
+                      isEditorMode={isCollaboratorMode}
+                      currentUserName={currentUser?.fullName}
+                      onRequestLogin={() => setShowAuthScreen(true)}
+                      onSelectSkill={handleSelectSkill}
+                      onCreateSkill={handleCreateSkill}
+                      onUpdateSkill={handleUpdateSkill}
+                      onDeleteSkill={handleDeleteSkill}
+                      onStatusChange={setGlobalStatus}
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                      onNavigatePage={setActivePage}
+                    />
+                  )}
                 />
               )}
 
               {activePage === 'catalogo' && (
                 <CatalogPage
-                  onOpenSkill={(id) => {
-                    setSelectedCatalogSkillId(id);
-                    setActivePage('skill-detalle');
-                  }}
+                  onOpenSkill={(id) => openCatalogSkill(id, 'catalogo')}
                   onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}
@@ -662,7 +678,8 @@ export function App() {
               {activePage === 'skill-detalle' && (
                 <CatalogDetailRoute
                   skillId={selectedCatalogSkillId}
-                  onBack={() => setActivePage('catalogo')}
+                  onBack={() => setActivePage(detailBackPage)}
+                  backLabel={detailBackPage === 'boveda' ? 'Skills del equipo' : 'Catálogo'}
                   onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}

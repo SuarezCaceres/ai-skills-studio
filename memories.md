@@ -240,3 +240,9 @@ La suite de validación anti-slop y consistencia visual en navegadores reales (`
 - Pruebas: `npm test` ahora incluye `test-catalog-install-translate.mjs` y `test-catalog-integration.mjs` (navegador real con GitHub simulado; verifica CSP, auditoría, instalación y traducción).
 - Lección: la clase `.grid` del kit rompe los grids de Tailwind; usar `[display:grid]`.
 - Pendiente manual: crear el repo catálogo, la OAuth App y el proyecto de Vercel (`docs/catalog-setup.md`) y definir las tres variables del repo.
+
+**Skills del equipo (Fase 1, rama `feat/team-skills`):** la pestaña Skills abre por defecto la interfaz del equipo (`SkillsHub` con pestañas "Equipo" y "Locales").
+- `CatalogSkill.uploadedBy` es el autor del Issue ancla en GitHub (verificado por GitHub); `author` sigue siendo el dueño del repo de origen. El filtro del equipo usa `uploadedBy`, nunca lo que diga el marcador del Issue.
+- Los integrantes se definen en `src/config/team.ts` (`TEAM_LOGINS`); avatar y nombre salen de `getProfile` (caché de 24 h).
+- `TeamSkillsPage` (cabecera con totales, chips por integrante, buscador) y `SkillCard` compartida con el catálogo: "Subida por @x", enlace a su GitHub y al repo de origen. El título es el botón que cubre la tarjeta y los enlaces quedan por encima.
+- Plan por fases acordado: 1) vista de equipo y autor; 2) "Abrir en estudio" (copia de trabajo), estados vacíos y retirar ejemplos, creación local y login local; 3) subir `.md` o carpeta al repo propio de quien sube (`<login>/codice-skills`) y registrarlo; 4) crear/editar en la app con commit y perfil por integrante.

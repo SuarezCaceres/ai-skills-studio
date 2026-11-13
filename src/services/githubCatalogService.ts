@@ -559,6 +559,8 @@ function skillFromSnapshot(data: Record<string, unknown>, createdAt: string): Ca
       avatarUrl: avatar && avatar.startsWith('https://avatars.githubusercontent.com/') ? avatar.slice(0, 300) : undefined,
       profileUrl: `https://github.com/${login}`,
     },
+    // Provisional: `listAnchors` lo sustituye por el autor real del Issue.
+    uploadedBy: { login, profileUrl: `https://github.com/${login}` },
     repo,
     skillPath,
     license: license || null,
@@ -582,9 +584,19 @@ export interface CatalogServiceOptions {
   getSession: () => GithubSession | null;
 }
 
+/** Datos públicos de una cuenta de GitHub para mostrar a un integrante del equipo. */
+export interface GithubProfile {
+  login: string;
+  name: string | null;
+  avatarUrl?: string;
+  profileUrl: string;
+}
+
 export interface GithubCatalogApi extends CatalogApi {
   /** Contenido de un archivo de la skill (lectura bajo demanda para la pestaña "Archivos"). */
   getSkillFileContent(skillId: string, filePath: string): Promise<string>;
+  /** Perfil público (avatar y nombre) de una cuenta; `null` si no existe. Con caché de 24 h. */
+  getProfile(login: string): Promise<GithubProfile | null>;
 }
 
 const TTL = {
@@ -790,6 +802,8 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
       name: cleanText(fm.name, 100) || dirName,
       description: cleanText(fm.description, 600),
       author,
+      // Provisional: quien registra lo fija `getSkill` / `registerSkillFromUrl`.
+      uploadedBy: author,
       repo: `${owner}/${repo}`,
       skillPath,
       license: spdx && spdx !== 'NOASSERTION' ? spdx : null,
@@ -836,10 +850,11 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
     for (const issue of [...issues].reverse()) {
       const marker = readMarker(issue.body);
       if (!marker || marker.kind !== 'skill') continue;
-      const skill = skillFromSnapshot(marker.data, issue.created_at);
-      if (!skill || seen.has(skill.id.toLowerCase())) continue;
-      seen.add(skill.id.toLowerCase());
-      anchors.push({ issue, skill });
+      const snapshot = skillFromSnapshot(marker.data, issue.created_at);
+      if (!snapshot || seen.has(snapshot.id.toLowerCase())) continue;
+      seen.add(snapshot.id.toLowerCase());
+      // Se usa el autor del Issue (verificado por GitHub), no lo que declare el marcador.
+      anchors.push({ issue, skill: { ...snapshot, uploadedBy: toAuthor(issue.user) } });
     }
     return anchors.reverse();
   }
@@ -900,11 +915,12 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
     const [owner, repo] = snap.repo.split('/');
     try {
       const repoInfo = await fetchRepo(owner, repo);
-      return await buildSkill(
+      const built = await buildSkill(
         { owner, repo, sha: snap.commitSha, path: snap.skillPath, exact: true },
         repoInfo,
         snap.registeredAt
       );
+      return { ...built, uploadedBy: snap.uploadedBy };
     } catch (err) {
       // Repo borrado o hecho privado: se muestra la instantánea guardada.
       if (err instanceof CatalogError && ['not_found', 'private_repo', 'no_skill_md'].includes(err.code)) return snap;
@@ -923,7 +939,7 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
       const skill = await buildSkill({ owner: parsed.owner, repo: parsed.repo, sha, path }, repoInfo, new Date().toISOString());
 
       const existing = await findAnchor(skill.id);
-      if (existing) return { ...skill, registeredAt: existing.issue.created_at };
+      if (existing) return { ...skill, uploadedBy: existing.skill.uploadedBy, registeredAt: existing.issue.created_at };
 
       const body = [
         buildMarker({
@@ -946,7 +962,11 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
         body: { title: `[skill] ${skill.id}`.slice(0, 250), body, labels: ['skill', skillLabel(skill.id)] },
       });
       cacheInvalidate([`/repos/${repoPath}/issues`]);
-      return { ...skill, registeredAt: issue.created_at };
+      return {
+        ...skill,
+        uploadedBy: toAuthor(issue.user ?? { login: session.login, avatar_url: session.avatarUrl }),
+        registeredAt: issue.created_at,
+      };
     },
 
     async listSkills() {
@@ -1049,6 +1069,19 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
       }
       cacheInvalidate([`/repos/${repoPath}/issues/${n}`]);
       return votesFor(anchor, true, true);
+    },
+
+    async getProfile(login) {
+      const wanted = login.trim();
+      if (!OWNER_RE.test(wanted)) return null;
+      try {
+        const u = await cachedGet<GhUser & { name?: string | null }>(`/users/${wanted}`, TTL.immutable);
+        const author = toAuthor(u);
+        return { login: author.login, name: u.name ? cleanText(u.name, 80) : null, avatarUrl: author.avatarUrl, profileUrl: author.profileUrl };
+      } catch (err) {
+        if (err instanceof CatalogError && err.code === 'not_found') return null;
+        throw err;
+      }
     },
 
     async getSkillFileContent(skillId, filePath) {
