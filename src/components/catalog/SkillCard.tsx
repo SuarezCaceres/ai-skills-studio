@@ -8,6 +8,8 @@ interface SkillCardProps {
   onOpen: () => void;
   /** Si se pasa, muestra "Abrir en estudio" (trae una copia de trabajo al navegador). */
   onOpenInStudio?: () => void;
+  /** Si se pasa, el avatar de quien la subió abre su perfil dentro de la app. */
+  onOpenProfile?: (login: string) => void;
 }
 
 const LINK =
@@ -24,7 +26,7 @@ function shortDate(iso: string): string {
  * de qué repo viene. El título es el botón que cubre toda la tarjeta; los enlaces a GitHub
  * quedan por encima (`z-10`) para no anidar controles interactivos.
  */
-export function SkillCard({ skill, onOpen, onOpenInStudio }: SkillCardProps) {
+export function SkillCard({ skill, onOpen, onOpenInStudio, onOpenProfile }: SkillCardProps) {
   const uploader = skill.uploadedBy;
   const profileUrl = safeHttpUrl(uploader.profileUrl);
   const when = shortDate(skill.registeredAt);
@@ -33,7 +35,19 @@ export function SkillCard({ skill, onOpen, onOpenInStudio }: SkillCardProps) {
     <li className="min-w-0">
       <article className="group relative flex h-full min-w-0 flex-col gap-4 rounded-xl border border-slate-800 bg-[#121722] p-5 transition-colors hover:border-[#0ea5e9]/70 hover:bg-[#141b29] focus-within:border-[#0ea5e9]/70">
         <div className="flex items-center gap-2.5">
-          <PersonAvatar login={uploader.login} avatarUrl={uploader.avatarUrl} />
+          {onOpenProfile ? (
+            <button
+              type="button"
+              onClick={() => onOpenProfile(uploader.login)}
+              aria-label={`Ver el perfil de @${uploader.login}`}
+              title="Ver perfil"
+              className={`${LINK} shrink-0 cursor-pointer rounded-full border-0 bg-transparent p-0`}
+            >
+              <PersonAvatar login={uploader.login} avatarUrl={uploader.avatarUrl} />
+            </button>
+          ) : (
+            <PersonAvatar login={uploader.login} avatarUrl={uploader.avatarUrl} />
+          )}
           <div className="min-w-0 flex-1">
             <p className="m-0 truncate text-xs text-slate-400">
               Subida por{' '}

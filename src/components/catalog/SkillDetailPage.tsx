@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   FileText,
   FolderOpen,
+  Pencil,
   Plus,
 } from 'lucide-react';
 import type {
@@ -28,6 +29,8 @@ import type { ReportInput } from './ReportResultForm';
 import { MoreFromAuthor } from './MoreFromAuthor';
 import { PublishSkillDialog } from './PublishSkillDialog';
 import { MAX_MARKDOWN_CHARS, SafeMarkdown } from './SafeMarkdown';
+import { SkillEditorDialog } from './SkillEditorDialog';
+import { utf8ToBase64 } from '../../services/skillUploadService';
 import { TranslateButton } from './TranslateButton';
 
 /* ==========================================================================
@@ -174,6 +177,7 @@ export function SkillDetailPage({
   const [voting, setVoting] = useState(false);
   const [tab, setTab] = useState<TabId>('resumen');
   const [publishOpen, setPublishOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [translated, setTranslated] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ resumen: null, archivos: null });
@@ -367,6 +371,12 @@ export function SkillDetailPage({
   }
 
   const { skill } = skillState;
+  const me = session?.login.toLowerCase();
+  const canEdit =
+    Boolean(me) &&
+    Boolean(api.commitSkillChanges) &&
+    skill.uploadedBy.login.toLowerCase() === me &&
+    skill.repo.split('/')[0].toLowerCase() === me;
   const uploader = skill.uploadedBy;
   const profileUrl = safeHttpUrl(uploader.profileUrl);
   const avatarUrl = safeHttpUrl(uploader.avatarUrl);
@@ -381,6 +391,16 @@ export function SkillDetailPage({
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         {backButton}
         <div className="flex flex-wrap items-center gap-2">
+        {canEdit && (
+          <button
+            type="button"
+            onClick={() => setEditOpen(true)}
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-600 bg-transparent px-4 py-1.5 text-xs font-semibold text-slate-100 hover:border-[#0ea5e9] hover:text-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+          >
+            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+            Editar
+          </button>
+        )}
         {onOpenInStudio && (
           <button
             type="button"
@@ -564,6 +584,27 @@ export function SkillDetailPage({
           />
         </div>
       </div>
+
+      {canEdit && (
+        <SkillEditorDialog
+          open={editOpen}
+          skill={skill}
+          onClose={() => setEditOpen(false)}
+          onReload={() => {
+            // Tras un conflicto el registro puede estar en un commit viejo: se pone al día primero.
+            const sync = api.syncSkillToLatest ? api.syncSkillToLatest(skill.id).catch(() => undefined) : Promise.resolve();
+            void sync.then(() => setReload((n) => n + 1));
+          }}
+          onSave={async (markdown, message) => {
+            await api.commitSkillChanges!(
+              skill.id,
+              [{ path: 'SKILL.md', base64: utf8ToBase64(markdown), expectBase64: utf8ToBase64(skill.markdown) }],
+              { message }
+            );
+            setReload((n) => n + 1);
+          }}
+        />
+      )}
 
       <PublishSkillDialog
         open={publishOpen}

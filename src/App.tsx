@@ -61,6 +61,11 @@ const CatalogPage = lazy(() =>
     default: m.CatalogPage,
   }))
 );
+const MemberProfilePage = lazy(() =>
+  import('./components/catalog/MemberProfilePage').then((m) => ({
+    default: m.MemberProfilePage,
+  }))
+);
 const CatalogDetailRoute = lazy(() =>
   import('./components/catalog/CatalogDetailRoute').then((m) => ({
     default: m.CatalogDetailRoute,
@@ -109,6 +114,16 @@ export function App() {
     setSelectedCatalogSkillId(id);
     setDetailBackPage(from);
     setActivePage('skill-detalle');
+  };
+
+  // Perfil de un integrante y pantalla a la que vuelve.
+  const [selectedProfileLogin, setSelectedProfileLogin] = useState<string | null>(null);
+  const [profileBackPage, setProfileBackPage] = useState<AppPageRoute>('boveda');
+  const openProfile = (login: string, from: AppPageRoute) => {
+    setSelectedProfileLogin(login);
+    setProfileBackPage(from);
+    setActivePage('perfil');
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
   const [selectedModelId, setSelectedModelId] = useState<string>(
     AI_BENCHMARK_MODELS[0].id
@@ -547,6 +562,17 @@ export function App() {
                   onOpenSkill={(id) => openCatalogSkill(id, 'boveda')}
                   onRequestLogin={() => setShowAuthScreen(true)}
                   onOpenInStudio={openInStudio}
+                  onOpenProfile={(login) => openProfile(login, 'boveda')}
+                />
+              )}
+
+              {activePage === 'perfil' && selectedProfileLogin && (
+                <MemberProfilePage
+                  login={selectedProfileLogin}
+                  onBack={() => setActivePage(profileBackPage)}
+                  onOpenSkill={(id) => openCatalogSkill(id, 'perfil')}
+                  onOpenInStudio={openInStudio}
+                  onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}
 
@@ -618,7 +644,15 @@ export function App() {
                 <CatalogDetailRoute
                   skillId={selectedCatalogSkillId}
                   onBack={() => setActivePage(detailBackPage)}
-                  backLabel={detailBackPage === 'boveda' ? 'Skills del equipo' : 'Catálogo'}
+                  backLabel={
+                    detailBackPage === 'boveda'
+                      ? 'Skills del equipo'
+                      : detailBackPage === 'perfil'
+                        ? 'Perfil'
+                        : detailBackPage === 'catalogo'
+                          ? 'Catálogo'
+                          : 'Volver'
+                  }
                   onOpenInStudio={openInStudio}
                   onRequestLogin={() => setShowAuthScreen(true)}
                 />

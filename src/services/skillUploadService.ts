@@ -76,6 +76,57 @@ export function isValidSlug(slug: string): boolean {
   return SLUG_RE.test(slug);
 }
 
+/** Base64 de un texto en UTF-8 (acentos y emojis incluidos). */
+export function utf8ToBase64(text: string): string {
+  return bytesToBase64(new TextEncoder().encode(text));
+}
+
+export function base64ToUtf8(base64: string): string {
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
+/** Tamaño máximo del SKILL.md que el catálogo acepta leer. */
+export const MAX_SKILL_MD_CHARS = 200_000;
+
+/** Arma un SKILL.md con frontmatter a partir de los campos del editor. */
+export function buildSkillMd(input: { name: string; description: string; body: string }): string {
+  const description = input.description.replace(/\s+/g, ' ').trim().replace(/"/g, "'");
+  const needsQuotes = /[:#]/.test(description) || /^[\[\]{}>|*&!%@`-]/.test(description);
+  const front = ['---', `name: ${input.name.trim()}`, `description: ${needsQuotes ? `"${description}"` : description}`, '---'];
+  return `${front.join('\n')}\n\n${input.body.trim()}\n`;
+}
+
+export interface SkillTextReport {
+  /** Impiden guardar. */
+  errors: string[];
+  /** Avisos que no impiden guardar. */
+  warnings: string[];
+  name?: string;
+  description?: string;
+}
+
+/** Revisa el texto de un SKILL.md escrito o editado en la app, igual que al subir un archivo. */
+export function checkSkillText(md: string): SkillTextReport {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  if (!md.trim()) errors.push('El SKILL.md está vacío.');
+  if (md.length > MAX_SKILL_MD_CHARS) {
+    errors.push(`El SKILL.md supera los ${MAX_SKILL_MD_CHARS.toLocaleString('es')} caracteres que el catálogo puede leer.`);
+  }
+  const secret = findSecret(md);
+  if (secret) errors.push(`El texto parece contener ${secret}. Quítalo: el repo es público.`);
+  const fm = parseFrontmatter(md);
+  if (!/^\uFEFF?---\r?\n/.test(md)) warnings.push('Falta el frontmatter (`---` con `name` y `description`) al inicio.');
+  else {
+    if (!fm.name) warnings.push('El frontmatter no tiene `name`.');
+    if (!fm.description) warnings.push('El frontmatter no tiene `description`: la tarjeta saldrá sin descripción.');
+  }
+  return { errors, warnings, name: fm.name || undefined, description: fm.description || undefined };
+}
+
 export function bytesToBase64(bytes: Uint8Array): string {
   let binary = '';
   const chunk = 0x8000;
