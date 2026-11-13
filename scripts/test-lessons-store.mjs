@@ -11,7 +11,11 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dir = mkdtempSync(join(tmpdir(), 'wt4-lessons-'));
 const entry = join(dir, 'entry.ts');
 const out = join(dir, 'bundle.mjs');
-writeFileSync(entry, `export * from ${JSON.stringify(join(ROOT, 'src/services/lessonsStore.ts').replace(/\\/g, '/'))};\n`);
+writeFileSync(
+  entry,
+  `export * from ${JSON.stringify(join(ROOT, 'src/services/lessonsStore.ts').replace(/\\/g, '/'))};\n` +
+    `export * from ${JSON.stringify(join(ROOT, 'src/services/youtube.ts').replace(/\\/g, '/'))};\n`
+);
 await build({ entryPoints: [entry], outfile: out, bundle: true, format: 'esm', platform: 'node', logLevel: 'error' });
 const m = await import(pathToFileURL(out).href);
 
@@ -205,6 +209,152 @@ test('un archivo que no es un export lanza un error en español', () => {
   assert.throws(() => m.importLessons('no es json', []), /JSON válido/);
   assert.throws(() => m.importLessons('{"a":1}', []), /exportación de clases/);
   assert.throws(() => m.importLessons('x'.repeat(2_000_001), []), /demasiado grande/);
+});
+
+console.log('Enlaces de YouTube');
+const VID = 'dQw4w9WgXcQ';
+const LIST = 'PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf';
+test('reconoce los formatos de video: watch, youtu.be, shorts, embed y live', () => {
+  for (const link of [
+    `https://www.youtube.com/watch?v=${VID}`,
+    `https://youtube.com/watch?v=${VID}&t=42s`,
+    `https://m.youtube.com/watch?v=${VID}`,
+    `https://youtu.be/${VID}`,
+    `https://youtu.be/${VID}?si=abc`,
+    `https://www.youtube.com/shorts/${VID}`,
+    `https://www.youtube.com/embed/${VID}`,
+    `https://www.youtube.com/live/${VID}?feature=share`,
+    `https://www.youtube-nocookie.com/embed/${VID}`,
+    `youtu.be/${VID}`,
+    `  www.youtube.com/watch?v=${VID}  `,
+  ]) {
+    const r = m.parseYouTubeLink(link);
+    assert.deepEqual(r, { ok: true, kind: 'video', youtubeId: VID }, link);
+  }
+});
+test('reconoce listas de reproducción y un link con v= y list= cuenta como video', () => {
+  assert.deepEqual(m.parseYouTubeLink(`https://www.youtube.com/playlist?list=${LIST}`), { ok: true, kind: 'playlist', youtubeId: LIST });
+  assert.deepEqual(m.parseYouTubeLink(`https://www.youtube.com/embed/videoseries?list=${LIST}`), { ok: true, kind: 'playlist', youtubeId: LIST });
+  assert.deepEqual(m.parseYouTubeLink(`https://www.youtube.com/watch?list=${LIST}`), { ok: true, kind: 'playlist', youtubeId: LIST });
+  assert.deepEqual(m.parseYouTubeLink(`https://www.youtube.com/watch?v=${VID}&list=${LIST}`), { ok: true, kind: 'video', youtubeId: VID });
+});
+test('rechaza hosts ajenos, esquemas peligrosos, vacíos e ID mal formados', () => {
+  const bad = [
+    '',
+    '   ',
+    'hola',
+    `https://vimeo.com/${VID}`,
+    `https://evil.com/watch?v=${VID}`,
+    `https://youtube.com.evil.com/watch?v=${VID}`,
+    `https://youtube.com@evil.com/watch?v=${VID}`,
+    `javascript:alert(1)//youtube.com/watch?v=${VID}`,
+    'data:text/html,<script>alert(1)</script>',
+    `ftp://youtube.com/watch?v=${VID}`,
+    'https://www.youtube.com/watch?v=corto',
+    `https://www.youtube.com/watch?v=${VID}"onload="x`,
+    'https://www.youtube.com/',
+    'https://www.youtube.com/channel/UC1234567890',
+    'https://youtu.be/',
+    'https://www.youtube.com/playlist?list=abc',
+  ];
+  for (const link of bad) {
+    const r = m.parseYouTubeLink(link);
+    assert.equal(r.ok, false, `debería rechazar: ${link}`);
+    assert.ok(typeof r.error === 'string' && r.error.length > 5);
+  }
+});
+test('embedUrl solo usa youtube-nocookie y el ID validado; thumbnailUrl y watchUrl también', () => {
+  assert.equal(m.embedUrl({ kind: 'video', youtubeId: VID }), `https://www.youtube-nocookie.com/embed/${VID}?rel=0`);
+  assert.equal(m.embedUrl({ kind: 'video', youtubeId: VID }, { autoplay: true }), `https://www.youtube-nocookie.com/embed/${VID}?rel=0&autoplay=1`);
+  assert.equal(m.embedUrl({ kind: 'playlist', youtubeId: LIST }), `https://www.youtube-nocookie.com/embed/videoseries?rel=0&list=${LIST}`);
+  assert.equal(m.thumbnailUrl({ kind: 'video', youtubeId: VID }), `https://i.ytimg.com/vi/${VID}/hqdefault.jpg`);
+  assert.equal(m.thumbnailUrl({ kind: 'playlist', youtubeId: LIST }), null);
+  assert.equal(m.watchUrl({ kind: 'video', youtubeId: VID }), `https://www.youtube.com/watch?v=${VID}`);
+  assert.equal(m.watchUrl({ kind: 'playlist', youtubeId: LIST }), `https://www.youtube.com/playlist?list=${LIST}`);
+});
+test('videoLabel usa el título o «Parte N» según el orden', () => {
+  assert.equal(m.videoLabel({ title: '' }, 0), 'Parte 1');
+  assert.equal(m.videoLabel({ title: '   ' }, 1), 'Parte 2');
+  assert.equal(m.videoLabel({ title: 'Instalación' }, 2), 'Instalación');
+});
+
+console.log('Partes de video en la clase');
+const part = (over = {}) => ({ id: 'v1', kind: 'video', youtubeId: VID, title: '', ...over });
+test('una clase sin videos (o antigua, sin el campo) es válida y queda con videos []', () => {
+  assert.deepEqual(m.createLesson(draft(), author, [], NOW).videos, []);
+  const old = m.createLesson(draft(), author, [], NOW);
+  delete old.videos;
+  assert.deepEqual(m.sanitizeLesson(old, NOW).videos, []);
+});
+test('createLesson conserva las partes en orden con sus títulos', () => {
+  const l = m.createLesson(draft({ videos: [part({ title: 'Intro' }), part({ id: 'v2', youtubeId: 'abcdefghijk', title: '' })] }), author, [], NOW);
+  assert.equal(l.videos.length, 2);
+  assert.equal(l.videos[0].title, 'Intro');
+  assert.equal(l.videos[1].youtubeId, 'abcdefghijk');
+});
+test('sanitizeLesson descarta partes inválidas y no deja pasar URLs ni campos extra', () => {
+  const l = m.createLesson(draft(), author, [], NOW);
+  const dirty = {
+    ...l,
+    videos: [
+      part(),
+      { id: 'v2', kind: 'video', youtubeId: 'https://evil.com/x', title: 'x' },
+      { id: 'v3', kind: 'iframe', youtubeId: VID, title: 'x' },
+      { id: 'v4', kind: 'playlist', youtubeId: 'corto', title: 'x' },
+      { id: 'v5', kind: 'video', youtubeId: VID, title: 'Con url', url: 'javascript:alert(1)' },
+      null,
+      7,
+    ],
+  };
+  const cleaned = m.sanitizeLesson(dirty, NOW).videos;
+  assert.deepEqual(cleaned.map((v) => v.id), ['v1', 'v5']);
+  assert.deepEqual(Object.keys(cleaned[1]).sort(), ['id', 'kind', 'title', 'youtubeId']);
+});
+test('los ids de parte repetidos o inválidos se regeneran', () => {
+  const l = m.createLesson(draft(), author, [], NOW);
+  const cleaned = m.sanitizeLesson({ ...l, videos: [part({ id: 'v1' }), part({ id: 'v1' }), part({ id: '<bad>' })] }, NOW).videos;
+  assert.equal(new Set(cleaned.map((v) => v.id)).size, 3);
+});
+test('el título de la parte se limpia y se recorta a 80 caracteres', () => {
+  const l = m.createLesson(draft({ videos: [part({ title: '  ' + 'x'.repeat(200) + '\u0000 ' })] }), author, [], NOW);
+  assert.equal(l.videos[0].title.length, 80);
+});
+test('máximo 12 partes: validateDraft avisa y sanitizeLesson recorta', () => {
+  const many = Array.from({ length: 15 }, (_, i) => part({ id: `v${i + 1}` }));
+  assert.match(m.validateDraft(draft({ videos: many })).videos, /12/);
+  assert.equal(m.createLesson(draft({ videos: many }), author, [], NOW).videos.length, 12);
+  assert.equal(m.validateDraft(draft({ videos: many.slice(0, 12) })).videos, undefined);
+});
+test('validateDraft avisa de una parte con enlace no válido y acepta que falte el campo', () => {
+  assert.match(m.validateDraft(draft({ videos: [part({ youtubeId: 'no' })] })).videos, /no válido/);
+  assert.equal(m.validateDraft(draft()).videos, undefined);
+});
+test('uniqueVideoId elige el primer id libre', () => {
+  assert.equal(m.uniqueVideoId([]), 'v1');
+  assert.equal(m.uniqueVideoId(['v1', 'v3']), 'v2');
+});
+test('updateLesson cambia las partes y, si el formulario no las trae, conserva las existentes', () => {
+  const l = m.createLesson(draft({ videos: [part()] }), author, [], NOW);
+  assert.equal(m.updateLesson(l, draft({ videos: [] }), LATER).videos.length, 0);
+  const withoutVideos = draft();
+  assert.equal(m.updateLesson(l, withoutVideos, LATER).videos.length, 1);
+});
+test('exportar e importar conserva las partes de video; un export antiguo sin ellas sigue valiendo', () => {
+  const l = m.createLesson(draft({ videos: [part({ title: 'Intro' })] }), author, [], NOW);
+  const back = m.importLessons(m.exportLessons([l], NOW), [], NOW);
+  assert.equal(back.added, 1);
+  assert.deepEqual(back.lessons[0].videos, l.videos);
+  const legacy = { ...l };
+  delete legacy.videos;
+  const r = m.importLessons(JSON.stringify({ format: 'codice-lessons', version: 1, exportedAt: NOW.toISOString(), lessons: [legacy] }), [], NOW);
+  assert.equal(r.added, 1);
+  assert.deepEqual(r.lessons[0].videos, []);
+});
+test('los videos no cambian quién puede gestionar la clase: solo la autora', () => {
+  const l = m.createLesson(draft({ videos: [part()] }), author, [], NOW);
+  assert.equal(m.canManageLesson(l, 'SuarezCaceres'), true);
+  assert.equal(m.canManageLesson(l, 'otra-persona'), false);
+  assert.equal(m.canManageLesson(l, null), false);
 });
 
 rmSync(dir, { recursive: true, force: true });
