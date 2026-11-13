@@ -6,6 +6,7 @@ import type {
   PublishProgress,
   CatalogSkillFile,
   GithubSession,
+  LessonSharingApi,
   ResultVerdict,
   SkillAuthor,
   SkillFileChange,
@@ -617,7 +618,7 @@ export interface GithubProfile {
   joinedAt?: string;
 }
 
-export interface GithubCatalogApi extends CatalogApi {
+export interface GithubCatalogApi extends CatalogApi, LessonSharingApi {
   /** Contenido de un archivo de la skill (lectura bajo demanda para la pestaña "Archivos"). */
   getSkillFileContent(skillId: string, filePath: string): Promise<string>;
   /** Perfil público (avatar y nombre) de una cuenta; `null` si no existe. Con caché de 24 h. */
@@ -1501,6 +1502,23 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
         if (err instanceof CatalogError && err.code === 'not_found') return null;
         throw err;
       }
+    },
+
+    // TODO(C2): implementación real en la fase C2 (de momento el contrato lanza `not_configured`).
+    async shareLesson() {
+      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
+    },
+    async updateSharedLesson() {
+      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
+    },
+    async unshareLesson() {
+      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
+    },
+    async listCommunityLessons() {
+      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
+    },
+    async getCommunityLesson() {
+      throw new CatalogError('not_configured', 'Compartir clases todavía no está disponible.');
     },
 
     async getSkillFileContent(skillId, filePath) {
