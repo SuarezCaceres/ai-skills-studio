@@ -1,6 +1,7 @@
 import { Component, Suspense, useEffect, useState, type ErrorInfo, type ReactNode } from 'react';
-import { Accessibility, Bot, Code2, Eye, ImageIcon, LogIn, Pencil, Plus, RotateCcw, Sparkles, X } from 'lucide-react';
+import { Accessibility, BookOpen, Bot, Code2, Eye, ImageIcon, LogIn, Pencil, Plus, RotateCcw, Sparkles, X } from 'lucide-react';
 import type { CatalogSkill } from '../../types/catalog';
+import type { Lesson } from '../../types/lessons';
 import type { ComponentAssignment, UiComponentEntry } from '../../types/uiComponents';
 import { AI_BENCHMARK_MODELS } from '../../data/aiModelsData';
 import { PersonAvatar } from '../catalog/PersonAvatar';
@@ -20,6 +21,9 @@ interface ComponentDetailProps {
   onUnassign: (kind: 'skill' | 'model', id: string) => void;
   onOpenSkill: (id: string) => void;
   onRequestLogin: () => void;
+  /** Clases que mencionan este componente (relación inversa). */
+  lessons: Lesson[];
+  onOpenLesson: (id: string) => void;
 }
 
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]';
@@ -233,7 +237,7 @@ export function AssignmentPanel({
  * Detalle de un componente: vista previa en vivo, imagen generada, asignación (skills y modelos),
  * código real con botón de copiar y notas de accesibilidad.
  */
-export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed, onAssign, onUnassign, onOpenSkill, onRequestLogin }: ComponentDetailProps) {
+export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed, onAssign, onUnassign, onOpenSkill, onRequestLogin, lessons, onOpenLesson }: ComponentDetailProps) {
   const [version, setVersion] = useState(0);
   const source = useSource(entry);
   const lines = source.status === 'ready' ? source.code.split('\n').length : 0;
@@ -314,6 +318,32 @@ export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed
           />
         </section>
       </div>
+
+      <section aria-labelledby="sec-lessons" className="space-y-3 rounded-xl border border-slate-800 bg-[#121722] p-4">
+        <SectionTitle id="sec-lessons" icon={<BookOpen className="h-4 w-4" />}>
+          Clases que lo mencionan
+        </SectionTitle>
+        {lessons.length === 0 ? (
+          <p className="m-0 text-sm text-slate-500">Ninguna clase usa este componente todavía.</p>
+        ) : (
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
+            {lessons.map((lesson) => (
+              <li key={lesson.id}>
+                <button
+                  type="button"
+                  onClick={() => onOpenLesson(lesson.id)}
+                  className={`flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-lg border border-slate-800 bg-[#0a0d14] px-3 py-2 text-left hover:border-[#0ea5e9]/70 ${FOCUS}`}
+                >
+                  <span className="text-sm font-semibold text-white">{lesson.title}</span>
+                  <span className="text-[11px] text-slate-500">
+                    {lesson.level} · @{lesson.author.login}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section aria-labelledby="sec-code" className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-3">

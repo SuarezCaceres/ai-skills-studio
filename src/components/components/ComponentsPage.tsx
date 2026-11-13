@@ -9,6 +9,7 @@ import { AssignDrawer, type SkillsStatus } from './AssignDrawer';
 import { ComponentDetail } from './ComponentDetail';
 import { ComponentSidebar } from './ComponentSidebar';
 import { useAssignments } from './useAssignments';
+import { useLessons } from '../lessons/useLessons';
 
 interface ComponentsPageProps {
   /** Componente elegido (controlado desde `App` para poder abrirlo desde una clase). */
@@ -18,6 +19,8 @@ interface ComponentsPageProps {
   onOpenSkill: (id: string) => void;
   /** Abre la pantalla de acceso con GitHub (asignar requiere sesión). */
   onRequestLogin: () => void;
+  /** Abre una clase en Códice. */
+  onOpenLesson: (id: string) => void;
 }
 
 function Stat({ label, value }: { label: string; value: number }) {
@@ -34,11 +37,12 @@ function Stat({ label, value }: { label: string; value: number }) {
  * (vista previa en vivo, imagen, asignación, código y accesibilidad). No necesita ninguna skill abierta.
  * Ver el contenido es libre; asignar skills o modelos requiere sesión de GitHub.
  */
-export function ComponentsPage({ selectedId, onSelect, onOpenSkill, onRequestLogin }: ComponentsPageProps) {
+export function ComponentsPage({ selectedId, onSelect, onOpenSkill, onRequestLogin, onOpenLesson }: ComponentsPageProps) {
   const entries = COMPONENT_REGISTRY;
   const selected = getComponentEntry(selectedId) ?? entries[0];
   const { api, session } = useCatalog();
   const { assignments, saveFailed, assign, unassign } = useAssignments();
+  const { lessons } = useLessons();
   const [assigning, setAssigning] = useState(false);
   const [skills, setSkills] = useState<CatalogSkill[]>([]);
   const [skillsStatus, setSkillsStatus] = useState<SkillsStatus>('loading');
@@ -109,6 +113,8 @@ export function ComponentsPage({ selectedId, onSelect, onOpenSkill, onRequestLog
             onUnassign={(kind, id) => unassign(selected.id, kind, id)}
             onOpenSkill={onOpenSkill}
             onRequestLogin={onRequestLogin}
+            lessons={lessons.filter((l) => l.componentIds.includes(selected.id))}
+            onOpenLesson={onOpenLesson}
           />
         )}
       </div>

@@ -112,6 +112,8 @@ export function App() {
 
   // Componente elegido en la página Componentes (se puede abrir desde otras pantallas).
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
+  // Clase abierta en Códice → Clases; se conserva al saltar a una skill o a un componente y volver.
+  const [openLessonId, setOpenLessonId] = useState<string | null>(null);
 
   const openCatalogSkill = (id: string, from: AppPageRoute) => {
     setSelectedCatalogSkillId(id);
@@ -558,7 +560,18 @@ export function App() {
                 </div>
               }
             >
-              {activePage === 'codice-studio' && <CodiceStudio />}
+              {activePage === 'codice-studio' && (
+                <CodiceStudio
+                  openLessonId={openLessonId}
+                  onOpenLesson={setOpenLessonId}
+                  onOpenSkill={(id) => openCatalogSkill(id, 'codice-studio')}
+                  onOpenComponent={(id) => {
+                    setSelectedComponentId(id);
+                    setActivePage('preview');
+                  }}
+                  onRequestLogin={() => setShowAuthScreen(true)}
+                />
+              )}
 
               {activePage === 'boveda' && (
                 <TeamSkillsPage
@@ -610,6 +623,10 @@ export function App() {
                   onSelect={setSelectedComponentId}
                   onOpenSkill={(id) => openCatalogSkill(id, 'preview')}
                   onRequestLogin={() => setShowAuthScreen(true)}
+                  onOpenLesson={(id) => {
+                    setOpenLessonId(id);
+                    setActivePage('codice-studio');
+                  }}
                 />
               )}
 
@@ -640,7 +657,9 @@ export function App() {
                       ? 'Skills del equipo'
                       : detailBackPage === 'perfil'
                         ? 'Perfil'
-                        : detailBackPage === 'preview'
+                        : detailBackPage === 'codice-studio'
+                          ? 'Códice'
+                          : detailBackPage === 'preview'
                           ? 'Componentes'
                           : detailBackPage === 'catalogo'
                             ? 'Catálogo'
