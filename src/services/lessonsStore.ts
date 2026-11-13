@@ -1,4 +1,4 @@
-import { LESSON_LEVELS, type Lesson, type LessonAuthor, type LessonDraft, type LessonVideo } from '../types/lessons';
+import { LESSON_LEVELS, type Lesson, type LessonAuthor, type LessonDraft, type LessonShare, type LessonVideo } from '../types/lessons';
 import { isValidYouTubeId } from './youtube';
 
 /**
@@ -46,6 +46,13 @@ const SKILL_ID = /^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+(\/[^\u0000-\u001f]*)?$/;
 const COMPONENT_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const LOGIN = /^[A-Za-z0-9-]{1,39}$/;
 const VIDEO_PART_ID = /^[a-z0-9][a-z0-9-]{0,31}$/;
+const SHARE_REPO = /^[A-Za-z0-9-]{1,39}\/codice-skills$/;
+const GIT_SHA = /^[0-9a-f]{40}$/;
+const HASH8 = /^[0-9a-f]{8}$/;
+
+export const isValidLessonId = (id: unknown): id is string => typeof id === 'string' && LESSON_ID.test(id);
+export const isValidLogin = (login: unknown): login is string => typeof login === 'string' && LOGIN.test(login);
+export const isGitSha = (sha: unknown): sha is string => typeof sha === 'string' && GIT_SHA.test(sha);
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
@@ -135,6 +142,19 @@ function cleanVideos(value: unknown): LessonVideo[] {
   return videos;
 }
 
+/** Estado de «compartida» válido, o `undefined`. Nada que venga de fuera se acepta sin pasar por aquí. */
+function cleanShare(value: unknown): LessonShare | undefined {
+  if (!isRecord(value)) return undefined;
+  const { repo, slug, issueNumber, sha, sharedAt, contentHash } = value;
+  if (typeof repo !== 'string' || !SHARE_REPO.test(repo)) return undefined;
+  if (!isValidLessonId(slug)) return undefined;
+  if (typeof issueNumber !== 'number' || !Number.isSafeInteger(issueNumber) || issueNumber < 1) return undefined;
+  if (!isGitSha(sha)) return undefined;
+  if (typeof contentHash !== 'string' || !HASH8.test(contentHash)) return undefined;
+  if (typeof sharedAt !== 'string' || Number.isNaN(Date.parse(sharedAt))) return undefined;
+  return { repo, slug, issueNumber, sha, sharedAt: new Date(sharedAt).toISOString(), contentHash };
+}
+
 function cleanAuthor(value: unknown): LessonAuthor | null {
   if (!isRecord(value) || typeof value.login !== 'string' || !LOGIN.test(value.login)) return null;
   const avatar = httpsUrl(value.avatarUrl);
@@ -150,32 +170,48 @@ function cleanDate(value: unknown, fallback: string): string {
   return typeof value === 'string' && !Number.isNaN(Date.parse(value)) ? new Date(value).toISOString() : fallback;
 }
 
-/** Convierte datos no fiables en una clase válida, o `null` si no se puede aprovechar. */
-export function sanitizeLesson(raw: unknown, now: Date = new Date()): Lesson | null {
+/** Cuerpo en Markdown sin caracteres de control y recortado al máximo. */
+export function sanitizeBody(value: unknown): string {
+  return typeof value === 'string' ? value.replace(CONTROL, '').slice(0, LIMITS.body.max) : '';
+}
+
+/**
+ * Todo lo de una clase salvo el cuerpo: es lo que lleva el Issue de una clase compartida y lo que
+ * muestra la lista de Comunidad. Devuelve `null` si falta algo imprescindible (id, autoría, título, nivel).
+ */
+export function sanitizeLessonMeta(raw: unknown, now: Date = new Date()): Omit<Lesson, 'bodyMarkdown'> | null {
   if (!isRecord(raw)) return null;
-  const id = typeof raw.id === 'string' && LESSON_ID.test(raw.id) ? raw.id : null;
+  const id = isValidLessonId(raw.id) ? raw.id : null;
   const author = cleanAuthor(raw.author);
   const title = clean(raw.title, LIMITS.title.max);
   const summary = clean(raw.summary, LIMITS.summary.max);
-  const body = typeof raw.bodyMarkdown === 'string' ? raw.bodyMarkdown.replace(CONTROL, '').slice(0, LIMITS.body.max) : '';
   const level = LESSON_LEVELS.find((l) => l === raw.level);
-  if (!id || !author || !title || !level || body.trim() === '') return null;
+  if (!id || !author || !title || !level) return null;
   const iso = now.toISOString();
   const createdAt = cleanDate(raw.createdAt, iso);
+  const shared = cleanShare(raw.shared);
   return {
     id,
     title,
     summary,
     level,
     tags: normalizeTags(Array.isArray(raw.tags) ? (raw.tags.filter((t) => typeof t === 'string') as string[]) : []),
-    bodyMarkdown: body,
     skillIds: cleanIds(raw.skillIds, SKILL_ID, LIMITS.skills),
     componentIds: cleanIds(raw.componentIds, COMPONENT_ID, LIMITS.components),
     videos: cleanVideos(raw.videos),
+    ...(shared ? { shared } : {}),
     author,
     createdAt,
     updatedAt: cleanDate(raw.updatedAt, createdAt),
   };
+}
+
+/** Convierte datos no fiables en una clase válida, o `null` si no se puede aprovechar. */
+export function sanitizeLesson(raw: unknown, now: Date = new Date()): Lesson | null {
+  const meta = sanitizeLessonMeta(raw, now);
+  const body = sanitizeBody(isRecord(raw) ? raw.bodyMarkdown : undefined);
+  if (!meta || body.trim() === '') return null;
+  return { ...meta, bodyMarkdown: body };
 }
 
 /* ---------------- Validación del formulario ---------------- */
@@ -243,7 +279,9 @@ export interface LessonsExport {
 }
 
 export function exportLessons(lessons: Lesson[], now: Date = new Date()): string {
-  const payload: LessonsExport = { format: 'codice-lessons', version: 1, exportedAt: now.toISOString(), lessons };
+  // `shared` es estado local de este navegador: no viaja en el archivo.
+  const portable = lessons.map(({ shared: _shared, ...rest }) => rest);
+  const payload: LessonsExport = { format: 'codice-lessons', version: 1, exportedAt: now.toISOString(), lessons: portable as Lesson[] };
   return JSON.stringify(payload, null, 2);
 }
 
@@ -278,11 +316,13 @@ export function importLessons(text: string, current: Lesson[], now: Date = new D
   let updated = 0;
   let skipped = 0;
   for (const item of items.slice(0, LIMITS.lessons)) {
-    const lesson = sanitizeLesson(item, now);
-    if (!lesson) {
+    const sanitized = sanitizeLesson(item, now);
+    if (!sanitized) {
       skipped++;
       continue;
     }
+    // Una clase importada nunca llega como «compartida»: ese estado es de este navegador.
+    const { shared: _ignored, ...lesson } = sanitized;
     const existing = byId.get(lesson.id);
     if (!existing) {
       if (byId.size >= LIMITS.lessons) {
@@ -292,7 +332,7 @@ export function importLessons(text: string, current: Lesson[], now: Date = new D
       byId.set(lesson.id, lesson);
       added++;
     } else if (existing.author.login.toLowerCase() === lesson.author.login.toLowerCase() && Date.parse(lesson.updatedAt) > Date.parse(existing.updatedAt)) {
-      byId.set(lesson.id, lesson);
+      byId.set(lesson.id, existing.shared ? { ...lesson, shared: existing.shared } : lesson);
       updated++;
     } else {
       skipped++;
