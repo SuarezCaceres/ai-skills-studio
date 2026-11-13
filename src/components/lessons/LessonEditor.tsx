@@ -4,6 +4,7 @@ import { LESSON_LEVELS, type Lesson, type LessonDraft } from '../../types/lesson
 import { LIMITS, normalizeTags, validateDraft, type DraftErrors } from '../../services/lessonsStore';
 import { SafeMarkdown } from '../catalog/SafeMarkdown';
 import { ComponentPicker, SkillPicker } from './pickers';
+import { VideoPartsField, addVideoFromLink } from './VideoPartsField';
 import type { UseSkillOptionsResult } from './useLessons';
 
 interface LessonEditorProps {
@@ -65,13 +66,15 @@ export function LessonEditor({ lesson, skills, onSubmit, onCancel }: LessonEdito
   const initial = useMemo(() => toDraft(lesson), [lesson]);
   const [draft, setDraft] = useState<LessonDraft>(initial);
   const [tagInput, setTagInput] = useState('');
+  const [videoInput, setVideoInput] = useState('');
+  const [videoLinkError, setVideoLinkError] = useState<string | undefined>();
   const [attempted, setAttempted] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [mobileTab, setMobileTab] = useState<'escribir' | 'vista'>('escribir');
   const form = useRef<HTMLFormElement>(null);
 
-  const dirty = !sameDraft(draft, initial) || tagInput.trim() !== '';
+  const dirty = !sameDraft(draft, initial) || tagInput.trim() !== '' || videoInput.trim() !== '';
   const errors: DraftErrors = attempted ? validateDraft(draft) : {};
 
   // Aviso del navegador al cerrar o recargar la pestaña con cambios sin guardar.
@@ -106,11 +109,21 @@ export function LessonEditor({ lesson, skills, onSubmit, onCancel }: LessonEdito
     event.preventDefault();
     setAttempted(true);
     setSaveError(false);
-    const pending = tagInput.trim() ? { ...draft, tags: normalizeTags([...draft.tags, ...tagInput.split(',')]) } : draft;
+    let pending = tagInput.trim() ? { ...draft, tags: normalizeTags([...draft.tags, ...tagInput.split(',')]) } : draft;
+    // Un enlace pegado y sin añadir cuenta como una parte más; si no es válido, no se guarda en silencio.
+    if (videoInput.trim()) {
+      const added = addVideoFromLink(videoInput, pending.videos);
+      if ('error' in added) {
+        setVideoLinkError(added.error);
+        window.requestAnimationFrame(() => document.getElementById('lesson-video-input')?.focus());
+        return;
+      }
+      pending = { ...pending, videos: added.videos };
+    }
     const found = validateDraft(pending);
     const first = Object.keys(found)[0];
     if (first) {
-      const target = { title: 'lesson-title-input', summary: 'lesson-summary-input', body: 'lesson-body-input', tags: 'lesson-tags-input' }[first];
+      const target = { title: 'lesson-title-input', summary: 'lesson-summary-input', body: 'lesson-body-input', tags: 'lesson-tags-input', videos: 'lesson-video-input' }[first];
       if (first === 'body') setMobileTab('escribir');
       window.requestAnimationFrame(() => (target ? document.getElementById(target) : form.current?.querySelector<HTMLElement>('input[type="checkbox"]'))?.focus());
       return;
@@ -119,7 +132,7 @@ export function LessonEditor({ lesson, skills, onSubmit, onCancel }: LessonEdito
   };
 
   const leave = () => (dirty ? setConfirmLeave(true) : onCancel());
-  const errorList = Object.values(errors);
+  const errorList = [...Object.values(errors), ...(attempted && videoLinkError ? [videoLinkError] : [])];
 
   return (
     <form ref={form} onSubmit={submit} noValidate aria-labelledby="editor-heading" className="mx-auto w-full max-w-[1280px] min-w-0 space-y-6 text-slate-300">
@@ -241,6 +254,15 @@ export function LessonEditor({ lesson, skills, onSubmit, onCancel }: LessonEdito
 
           <SkillPicker value={draft.skillIds} onChange={(v) => set('skillIds', v)} max={LIMITS.skills} error={errors.skillIds} skills={skills} />
           <ComponentPicker value={draft.componentIds} onChange={(v) => set('componentIds', v)} max={LIMITS.components} error={errors.componentIds} />
+          <VideoPartsField
+            videos={draft.videos}
+            onChange={(v) => set('videos', v)}
+            input={videoInput}
+            onInputChange={setVideoInput}
+            linkError={videoLinkError}
+            onLinkError={setVideoLinkError}
+            error={errors.videos}
+          />
         </div>
 
         <div className="min-w-0 space-y-3">

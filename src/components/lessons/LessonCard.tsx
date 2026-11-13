@@ -1,5 +1,7 @@
-import { ArrowUpRight, Boxes, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowUpRight, Boxes, ListVideo, PlayCircle, Sparkles } from 'lucide-react';
 import type { Lesson } from '../../types/lessons';
+import { thumbnailUrl } from '../../services/youtube';
 import { getComponentEntry } from '../../data/componentRegistry';
 import { PersonAvatar } from '../catalog/PersonAvatar';
 import { safeHttpUrl } from '../catalog/ResultsByModel';
@@ -19,6 +21,30 @@ export function shortDate(iso: string): string {
   return Number.isNaN(t) ? '' : new Date(t).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+/** Miniatura de la primera parte con cuántas partes de video tiene la clase (el número es texto real). */
+function VideoBadge({ videos }: { videos: Lesson['videos'] }) {
+  const first = videos[0];
+  const src = thumbnailUrl(first);
+  const [failed, setFailed] = useState(false);
+  const label = videos.length === 1 ? '1 video' : `${videos.length} partes`;
+  return (
+    <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-slate-800 bg-[#0a0d14]">
+      {src && !failed ? (
+        <img src={src} alt="" loading="lazy" onError={() => setFailed(true)} aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-80" />
+      ) : (
+        <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-[#121722] text-slate-600">
+          <ListVideo className="h-8 w-8" />
+        </span>
+      )}
+      <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-[#030712]/75 via-transparent to-transparent" />
+      <span className="absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full border border-slate-700/80 bg-[#030712]/85 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
+        <PlayCircle aria-hidden="true" className="h-3.5 w-3.5 text-[#38bdf8]" />
+        {label}
+      </span>
+    </div>
+  );
+}
+
 interface LessonCardProps {
   lesson: Lesson;
   skills: UseSkillOptionsResult;
@@ -35,6 +61,8 @@ export function LessonCard({ lesson, skills, onOpen }: LessonCardProps) {
   return (
     <li className="min-w-0">
       <article className="group relative flex h-full min-w-0 flex-col gap-4 rounded-xl border border-slate-800 bg-[#121722] p-5 transition-colors hover:border-[#0ea5e9]/70 hover:bg-[#141b29] focus-within:border-[#0ea5e9]/70">
+        {lesson.videos.length > 0 && <VideoBadge videos={lesson.videos} />}
+
         <div className="flex items-center gap-2.5">
           <PersonAvatar login={lesson.author.login} avatarUrl={lesson.author.avatarUrl} />
           <p className="m-0 min-w-0 flex-1 truncate text-xs text-slate-400">

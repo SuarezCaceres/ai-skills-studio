@@ -94,7 +94,20 @@ async function main() {
   try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
     await installFakeGithub(context);
+    // YouTube simulado: nunca se sale a youtube.com real (ni miniaturas ni reproductor).
+    const ytRequests = [];
+    const ytFrames = [];
+    await context.route(/^https:\/\/(www\.youtube-nocookie\.com|i\.ytimg\.com)\//, (route) => {
+      const url = route.request().url();
+      ytRequests.push(url);
+      if (route.request().resourceType() === 'document') ytFrames.push(url);
+      return url.includes('i.ytimg.com')
+        ? route.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360"><rect width="480" height="360" fill="#1e293b"/></svg>' })
+        : route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>reproductor simulado</title><p>reproductor simulado</p>' });
+    });
     const page = await context.newPage();
+    const strayYoutube = [];
+    page.on('request', (r) => /youtube\.com|youtu\.be|ytimg\.com|googlevideo\.com/.test(r.url()) && !/^https:\/\/(www\.youtube-nocookie\.com|i\.ytimg\.com)\//.test(r.url()) && strayYoutube.push(r.url()));
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
     page.on('pageerror', (e) => errors.push(String(e)));
     page.on('response', (r) => r.status() === 404 && errors.push(`404 ${r.url()}`));
@@ -211,8 +224,77 @@ async function main() {
     await page.locator('#lesson-title').waitFor();
     check('guardar cambios actualiza el título y conserva el id', (await page.locator('#lesson-title').innerText()) === 'Hooks explicados desde cero');
 
-    console.log('\nPermisos y datos de otras personas');
+    console.log('\nVideos de YouTube (editor, detalle y tarjeta)');
+    await page.getByRole('button', { name: 'Editar' }).click();
+    await page.locator('#editor-heading').waitFor();
+    const link = page.locator('#lesson-video-input');
+    const addButton = page.getByRole('button', { name: 'Añadir', exact: true });
+    const editorParts = page.getByRole('list', { name: 'Partes del video' }).getByRole('listitem');
+    check('el campo de videos es opcional y empieza sin partes', (await editorParts.count()) === 0 && /opcional/.test(await page.locator('label[for="lesson-video-input"]').innerText()));
+    await link.fill('https://vimeo.com/123456789');
+    await addButton.click();
+    check('un enlace que no es de YouTube da un error en línea, enlazado con aria-describedby', (await link.getAttribute('aria-invalid')) === 'true' && /Solo se aceptan enlaces de YouTube/.test(await page.locator('#err-video-link').innerText()) && ((await link.getAttribute('aria-describedby')) ?? '').includes('err-video-link'));
+    await link.fill('javascript:alert(1)');
+    await addButton.click();
+    check('javascript: se rechaza y no entra ninguna parte', (await editorParts.count()) === 0 && (await page.evaluate(() => window.__pwned)) === undefined);
+    await link.fill('');
+    await addButton.click();
+    check('añadir sin enlace pide pegar uno', /Pega el enlace/.test(await page.locator('#err-video-link').innerText()));
+    await link.fill('https://youtu.be/jNQXAC9IVRw');
+    check('escribir limpia el error al instante', (await page.locator('#err-video-link').count()) === 0);
+    await link.press('Enter');
+    check('Enter añade la parte y limpia el campo (sin enviar el formulario)', (await editorParts.count()) === 1 && (await link.inputValue()) === '' && (await page.locator('#editor-heading').count()) === 1);
+    await link.fill('https://www.youtube.com/watch?v=jNQXAC9IVRw&t=3s');
+    await addButton.click();
+    check('el mismo video dos veces se rechaza', (await editorParts.count()) === 1 && /ya está en la lista/.test(await page.locator('#err-video-link').innerText()));
+    await link.fill('https://www.youtube.com/watch?v=M7lc1UVf-VE');
+    await addButton.click();
+    await link.fill('https://www.youtube.com/playlist?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf');
+    await addButton.click();
+    check('se añaden un video más y una lista de reproducción (3 partes)', (await editorParts.count()) === 3 && (await editorParts.nth(2).innerText()).includes('Lista'));
+    check('una región aria-live anuncia los cambios', /Parte 3 añadida/.test(await page.locator('p[role="status"]').innerText()));
+    await page.getByLabel('Título de la parte 2 (opcional)').fill('Instalación');
+    await page.getByRole('button', { name: 'Subir la parte 2' }).click();
+    check('subir la parte 2 la pasa al primer lugar', (await page.getByLabel('Título de la parte 1 (opcional)').inputValue()) === 'Instalación');
+    check('al reordenar, el foco sigue en el botón pulsado', (await page.evaluate(() => document.activeElement?.getAttribute('aria-label'))) === 'Subir la parte 1');
+    check('el primero no puede subir y el último no puede bajar (aria-disabled)', (await page.getByRole('button', { name: 'Subir la parte 1' }).getAttribute('aria-disabled')) === 'true' && (await page.getByRole('button', { name: 'Bajar la parte 3' }).getAttribute('aria-disabled')) === 'true');
+    await page.getByRole('button', { name: 'Subir la parte 1' }).click({ force: true });
+    check('pulsar un botón desactivado no cambia el orden', (await page.getByLabel('Título de la parte 1 (opcional)').inputValue()) === 'Instalación');
+    check('los botones de reordenar y quitar miden al menos 40 px', ((await page.getByRole('button', { name: 'Quitar la parte 1' }).boundingBox())?.height ?? 0) >= 40);
+    await page.getByRole('button', { name: 'Quitar la parte 3' }).click();
+    check('quitar una parte la borra y devuelve el foco al campo del enlace', (await editorParts.count()) === 2 && (await page.evaluate(() => document.activeElement?.id)) === 'lesson-video-input');
+
+    await page.screenshot({ path: resolve(SHOTS_DIR, 'editor-videos-1440.png'), fullPage: true });
+
+    await link.fill('https://example.com/no-youtube');
+    await page.getByRole('button', { name: 'Guardar cambios' }).click();
+    check('guardar con un enlace pendiente inválido no guarda y lo explica', (await page.locator('#editor-heading').count()) === 1 && (await page.locator('#err-video-link').count()) === 1 && (await page.waitForFunction(() => document.activeElement?.id === 'lesson-video-input', null, { timeout: 1500 }).then(() => true, () => false)));
+    await link.fill('https://www.youtube.com/shorts/aqz-KE-bpKQ');
+    await page.getByRole('button', { name: 'Guardar cambios' }).click();
+    await page.locator('#lesson-title').waitFor();
+    check('un enlace pendiente y válido se añade como parte al guardar (3 partes)', /Parte 1 de 3/.test(await page.locator('#lesson-videos').innerText()));
+    await page.screenshot({ path: resolve(SHOTS_DIR, 'detalle-videos-1440.png'), fullPage: true });
+
+    const detailParts = page.getByRole('list', { name: 'Partes del video' }).getByRole('button');
+    check('el detalle lista las partes con título o «Parte N»', (await detailParts.count()) === 3 && /Instalación/.test(await detailParts.nth(0).innerText()) && /Parte 3/.test(await detailParts.nth(2).innerText()));
+    check('al abrir la clase no hay iframe: no se carga nada de YouTube sin pulsar play', (await page.locator('iframe').count()) === 0 && ytFrames.length === 0);
+    await page.getByRole('button', { name: 'Reproducir: Instalación' }).click();
+    const frameSrc = await page.locator('iframe').getAttribute('src');
+    check('al pulsar play se crea el iframe de youtube-nocookie con el ID de la parte', frameSrc?.startsWith('https://www.youtube-nocookie.com/embed/M7lc1UVf-VE') === true, String(frameSrc));
+    check('el iframe lleva título accesible, sandbox y referrerpolicy', /Video: Instalación/.test((await page.locator('iframe').getAttribute('title')) ?? '') && !!(await page.locator('iframe').getAttribute('sandbox')) && !!(await page.locator('iframe').getAttribute('referrerpolicy')));
+    await detailParts.nth(1).click();
+    check('cambiar de parte mientras se reproduce carga la otra', (await page.locator('iframe').getAttribute('src'))?.includes('/embed/jNQXAC9IVRw') === true && (await detailParts.nth(1).getAttribute('aria-current')) === 'true');
+    check('el reproductor reserva el espacio 16:9', await page.evaluate(() => {
+      const box = document.querySelector('section[aria-labelledby="lesson-videos"] .aspect-video')?.getBoundingClientRect();
+      return !!box && Math.abs(box.width / box.height - 16 / 9) < 0.03;
+    }));
+
     await page.getByRole('button', { name: 'Clases', exact: true }).click();
+    await page.locator('#lessons-heading').waitFor();
+    check('la tarjeta muestra la miniatura de la primera parte y «3 partes»', (await cards(page).first().getByText('3 partes').count()) === 1 && (await cards(page).first().locator('img[src^="https://i.ytimg.com/vi/M7lc1UVf-VE/"]').count()) === 1);
+    await page.screenshot({ path: resolve(SHOTS_DIR, 'lista-videos-1440.png'), fullPage: true });
+
+    console.log('\nPermisos y datos de otras personas');
     const exportDownload = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Exportar JSON' }).click();
     const download = await exportDownload;
@@ -228,6 +310,7 @@ async function main() {
     await cards(page).filter({ hasText: 'Clase de otra persona' }).getByRole('button', { name: 'Clase de otra persona' }).click();
     await page.locator('#lesson-title').waitFor();
     check('en la clase de otra persona no hay Editar ni Borrar', (await page.getByRole('button', { name: 'Editar' }).count()) === 0 && (await page.getByRole('button', { name: 'Borrar' }).count()) === 0);
+    check('en la clase de otra persona se ven los videos (con sus partes) pero no se gestionan', (await page.locator('#lesson-videos').count()) === 1 && (await page.getByRole('list', { name: 'Partes del video' }).getByRole('button').count()) === 3);
     await page.getByRole('button', { name: 'Clases', exact: true }).click();
     await page.locator('input[type="file"]').setInputFiles({ name: 'malo.json', mimeType: 'application/json', buffer: Buffer.from('esto no es json') });
     await page.getByText('El archivo no es un JSON válido.').waitFor();
@@ -284,6 +367,7 @@ async function main() {
       await page.locator('#lessons-heading').waitFor();
     }
 
+    check('ninguna petición salió a YouTube real (solo youtube-nocookie y miniaturas, ambos simulados)', strayYoutube.length === 0 && ytRequests.length > 0, strayYoutube.slice(0, 3).join(' | '));
     check('sin errores de consola', errors.length === 0, errors.slice(0, 3).join(' | '));
   } finally {
     await browser.close();
