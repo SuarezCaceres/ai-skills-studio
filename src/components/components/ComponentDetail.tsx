@@ -1,13 +1,25 @@
 import { Component, Suspense, useEffect, useState, type ErrorInfo, type ReactNode } from 'react';
-import { Accessibility, Bot, Code2, Eye, RotateCcw, Sparkles } from 'lucide-react';
+import { Accessibility, Bot, Code2, Eye, ImageIcon, LogIn, Pencil, Plus, RotateCcw, Sparkles, X } from 'lucide-react';
+import type { CatalogSkill } from '../../types/catalog';
 import type { ComponentAssignment, UiComponentEntry } from '../../types/uiComponents';
 import { AI_BENCHMARK_MODELS } from '../../data/aiModelsData';
+import { PersonAvatar } from '../catalog/PersonAvatar';
 import { CopyButton } from '../ui-kit/Clipboard';
 import { isUnassigned } from './assignmentInfo';
+import { ComponentThumb } from './ComponentThumb';
 
 interface ComponentDetailProps {
   entry: UiComponentEntry;
   assignment?: ComponentAssignment;
+  /** Skills del equipo, para mostrar el nombre y el avatar de las asignadas. */
+  skills: CatalogSkill[];
+  /** Con sesión de GitHub se puede asignar y desasignar. */
+  canEdit: boolean;
+  saveFailed: boolean;
+  onAssign: () => void;
+  onUnassign: (kind: 'skill' | 'model', id: string) => void;
+  onOpenSkill: (id: string) => void;
+  onRequestLogin: () => void;
 }
 
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]';
@@ -70,64 +82,158 @@ function SectionTitle({ icon, id, children }: { icon: ReactNode; id: string; chi
   );
 }
 
-/** Asignación: skills y modelos de IA del componente, o «No asignado» si no tiene ninguno. */
-export function AssignmentPanel({ assignment }: { assignment?: ComponentAssignment }) {
-  if (isUnassigned(assignment)) {
-    return (
-      <p className="m-0 flex items-center gap-2 text-sm text-slate-300">
-        <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900/60 px-2.5 py-0.5 text-xs font-semibold text-slate-300">
-          No asignado
-        </span>
-        <span className="text-slate-500">Todavía no tiene una skill ni un modelo de IA.</span>
-      </p>
-    );
-  }
-  const models = (assignment?.modelIds ?? []).map((id) => AI_BENCHMARK_MODELS.find((m) => m.id === id)).filter(Boolean);
+const CHIP_REMOVE =
+  '-mr-1 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-slate-400 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#0ea5e9]';
+
+type AssignmentPanelProps = Pick<
+  ComponentDetailProps,
+  'entry' | 'assignment' | 'skills' | 'canEdit' | 'saveFailed' | 'onAssign' | 'onUnassign' | 'onOpenSkill' | 'onRequestLogin'
+>;
+
+/** Asignación: skills (avatar + nombre, con enlace a su detalle) y modelos de IA, o «No asignado» si no hay ninguno. */
+export function AssignmentPanel({
+  entry,
+  assignment,
+  skills,
+  canEdit,
+  saveFailed,
+  onAssign,
+  onUnassign,
+  onOpenSkill,
+  onRequestLogin,
+}: AssignmentPanelProps) {
+  const unassigned = isUnassigned(assignment);
+  const models = (assignment?.modelIds ?? []).flatMap((id) => AI_BENCHMARK_MODELS.filter((m) => m.id === id));
+
   return (
     <div className="flex flex-col gap-3 text-sm">
-      <div>
-        <p className="m-0 mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
-          <Sparkles aria-hidden="true" className="h-3.5 w-3.5" /> Skills
+      {unassigned ? (
+        <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-slate-300">
+          <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900/60 px-2.5 py-0.5 text-xs font-semibold text-slate-300">
+            No asignado
+          </span>
+          <span className="text-slate-500">Todavía no tiene una skill ni un modelo de IA.</span>
         </p>
-        {assignment && assignment.skillIds.length > 0 ? (
-          <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
-            {assignment.skillIds.map((id) => (
-              <li key={id} className="rounded-full border border-[#0ea5e9]/40 bg-[#0ea5e9]/10 px-3 py-1 font-mono text-xs text-[#38bdf8]">
-                {id.split('/').pop()}
-              </li>
-            ))}
-          </ul>
+      ) : (
+        <>
+          <div>
+            <p className="m-0 mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
+              <Sparkles aria-hidden="true" className="h-3.5 w-3.5" /> Skills
+            </p>
+            {assignment && assignment.skillIds.length > 0 ? (
+              <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+                {assignment.skillIds.map((id) => {
+                  const skill = skills.find((s) => s.id === id);
+                  const name = skill?.name ?? (id.split('/').pop() || id);
+                  return (
+                    <li
+                      key={id}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#0ea5e9]/40 bg-[#0ea5e9]/10 py-0.5 pl-1 pr-2"
+                    >
+                      <PersonAvatar
+                        login={skill?.uploadedBy.login ?? (id.split('/')[0] || '?')}
+                        avatarUrl={skill?.uploadedBy.avatarUrl}
+                        size={20}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => onOpenSkill(id)}
+                        title={`Abrir la skill ${name}`}
+                        className={`cursor-pointer border-0 bg-transparent p-0 font-mono text-xs text-[#38bdf8] hover:underline ${FOCUS}`}
+                      >
+                        {name}
+                      </button>
+                      {canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => onUnassign('skill', id)}
+                          aria-label={`Quitar la skill ${name} de ${entry.name}`}
+                          className={CHIP_REMOVE}
+                        >
+                          <X aria-hidden="true" className="h-3 w-3" />
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="m-0 text-slate-500">No asignado</p>
+            )}
+          </div>
+          <div>
+            <p className="m-0 mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
+              <Bot aria-hidden="true" className="h-3.5 w-3.5" /> Modelos de IA
+            </p>
+            {models.length > 0 ? (
+              <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+                {models.map((model) => (
+                  <li
+                    key={model.id}
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-[#0a0d14] py-1 pl-3 pr-2 text-xs text-slate-200"
+                  >
+                    <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: model.badgeColor }} />
+                    {model.family} · {model.version}
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={() => onUnassign('model', model.id)}
+                        aria-label={`Quitar el modelo ${model.family} ${model.version} de ${entry.name}`}
+                        className={CHIP_REMOVE}
+                      >
+                        <X aria-hidden="true" className="h-3 w-3" />
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="m-0 text-slate-500">No asignado</p>
+            )}
+          </div>
+          {assignment?.note && (
+            <p className="m-0 rounded-lg border border-slate-800 bg-[#0a0d14] p-3 text-xs leading-relaxed text-slate-300">
+              {assignment.note}
+            </p>
+          )}
+        </>
+      )}
+
+      <div className="flex flex-wrap items-center gap-3">
+        {canEdit ? (
+          <button
+            type="button"
+            onClick={onAssign}
+            className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border-0 bg-[#0ea5e9] px-4 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] ${FOCUS}`}
+          >
+            {unassigned ? <Plus aria-hidden="true" className="h-4 w-4" /> : <Pencil aria-hidden="true" className="h-3.5 w-3.5" />}
+            {unassigned ? 'Asignar skill o modelo' : 'Editar asignación'}
+          </button>
         ) : (
-          <p className="m-0 text-slate-500">No asignado</p>
+          <button
+            type="button"
+            onClick={onRequestLogin}
+            className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-slate-700 bg-transparent px-4 text-xs font-semibold text-slate-100 hover:border-[#0ea5e9] hover:text-[#38bdf8] ${FOCUS}`}
+          >
+            <LogIn aria-hidden="true" className="h-4 w-4" />
+            Entrar con GitHub para asignar
+          </button>
+        )}
+        {saveFailed && (
+          <p role="alert" className="m-0 text-xs text-amber-300">
+            No se pudo guardar en este navegador: el cambio se perderá al recargar.
+          </p>
         )}
       </div>
-      <div>
-        <p className="m-0 mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-400">
-          <Bot aria-hidden="true" className="h-3.5 w-3.5" /> Modelos de IA
-        </p>
-        {models.length > 0 ? (
-          <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
-            {models.map((model) => (
-              <li key={model!.id} className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-[#0a0d14] px-3 py-1 text-xs text-slate-200">
-                <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ backgroundColor: model!.badgeColor }} />
-                {model!.family} · {model!.version}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="m-0 text-slate-500">No asignado</p>
-        )}
-      </div>
-      {assignment?.note && <p className="m-0 text-xs text-slate-400">{assignment.note}</p>}
     </div>
   );
 }
 
 /**
- * Detalle de un componente: vista previa en vivo, código real con botón de copiar, notas de
- * accesibilidad y asignación. El resto de secciones (imagen, asignar) se enganchan en las siguientes entregas.
+ * Detalle de un componente: vista previa en vivo, imagen generada, asignación (skills y modelos),
+ * código real con botón de copiar y notas de accesibilidad.
  */
-export function ComponentDetail({ entry, assignment }: ComponentDetailProps) {
+export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed, onAssign, onUnassign, onOpenSkill, onRequestLogin }: ComponentDetailProps) {
   const [version, setVersion] = useState(0);
   const source = useSource(entry);
   const lines = source.status === 'ready' ? source.code.split('\n').length : 0;
@@ -180,12 +286,34 @@ export function ComponentDetail({ entry, assignment }: ComponentDetailProps) {
         </div>
       </section>
 
-      <section aria-labelledby="sec-assignment" className="space-y-3 rounded-xl border border-slate-800 bg-[#121722] p-4">
-        <SectionTitle id="sec-assignment" icon={<Sparkles className="h-4 w-4" />}>
-          Skill o modelo de IA asignado
-        </SectionTitle>
-        <AssignmentPanel assignment={assignment} />
-      </section>
+      <div className="[display:grid] items-start gap-5 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
+        <section aria-labelledby="sec-image" className="min-w-0 space-y-2 rounded-xl border border-slate-800 bg-[#121722] p-4">
+          <SectionTitle id="sec-image" icon={<ImageIcon className="h-4 w-4" />}>
+            Imagen
+          </SectionTitle>
+          <ComponentThumb key={entry.id} entry={entry} width={308} fluid />
+          <p className="m-0 text-[11px] leading-relaxed text-slate-500">
+            Captura generada a partir del propio componente (640 × 400).
+          </p>
+        </section>
+
+        <section aria-labelledby="sec-assignment" className="min-w-0 space-y-3 rounded-xl border border-slate-800 bg-[#121722] p-4">
+          <SectionTitle id="sec-assignment" icon={<Sparkles className="h-4 w-4" />}>
+            Skill o modelo de IA asignado
+          </SectionTitle>
+          <AssignmentPanel
+            entry={entry}
+            assignment={assignment}
+            skills={skills}
+            canEdit={canEdit}
+            saveFailed={saveFailed}
+            onAssign={onAssign}
+            onUnassign={onUnassign}
+            onOpenSkill={onOpenSkill}
+            onRequestLogin={onRequestLogin}
+          />
+        </section>
+      </div>
 
       <section aria-labelledby="sec-code" className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-3">

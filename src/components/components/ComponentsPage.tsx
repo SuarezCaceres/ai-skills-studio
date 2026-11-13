@@ -1,20 +1,24 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Boxes } from 'lucide-react';
-import type { ComponentAssignment } from '../../types/uiComponents';
+import { useCatalog } from '../../hooks/useCatalog';
+import { isTeamLogin } from '../../config/team';
+import type { CatalogSkill } from '../../types/catalog';
 import { COMPONENT_REGISTRY, getComponentEntry } from '../../data/componentRegistry';
 import { isUnassigned } from './assignmentInfo';
+import { AssignDrawer, type SkillsStatus } from './AssignDrawer';
 import { ComponentDetail } from './ComponentDetail';
 import { ComponentSidebar } from './ComponentSidebar';
+import { useAssignments } from './useAssignments';
 
 interface ComponentsPageProps {
   /** Componente elegido (controlado desde `App` para poder abrirlo desde una clase). */
   selectedId: string | null;
   onSelect: (id: string) => void;
-  /** Skills y modelos asignados, por id de componente. */
-  assignments?: Record<string, ComponentAssignment>;
+  /** Abre el detalle de una skill asignada. */
+  onOpenSkill: (id: string) => void;
+  /** Abre la pantalla de acceso con GitHub (asignar requiere sesión). */
+  onRequestLogin: () => void;
 }
-
-const NO_ASSIGNMENTS: Record<string, ComponentAssignment> = {};
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
@@ -27,16 +31,44 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 /**
  * Página Componentes: lista lateral para elegir uno del registro y, a la derecha, su detalle
- * (vista previa en vivo, código real, accesibilidad y asignación). No necesita ninguna skill abierta.
+ * (vista previa en vivo, imagen, asignación, código y accesibilidad). No necesita ninguna skill abierta.
+ * Ver el contenido es libre; asignar skills o modelos requiere sesión de GitHub.
  */
-export function ComponentsPage({ selectedId, onSelect, assignments = NO_ASSIGNMENTS }: ComponentsPageProps) {
+export function ComponentsPage({ selectedId, onSelect, onOpenSkill, onRequestLogin }: ComponentsPageProps) {
   const entries = COMPONENT_REGISTRY;
   const selected = getComponentEntry(selectedId) ?? entries[0];
+  const { api, session } = useCatalog();
+  const { assignments, saveFailed, assign, unassign } = useAssignments();
+  const [assigning, setAssigning] = useState(false);
+  const [skills, setSkills] = useState<CatalogSkill[]>([]);
+  const [skillsStatus, setSkillsStatus] = useState<SkillsStatus>('loading');
 
   // Sin elección previa se marca el primero, para que la lista y el detalle coincidan.
   useEffect(() => {
     if (!getComponentEntry(selectedId) && entries[0]) onSelect(entries[0].id);
   }, [selectedId, entries, onSelect]);
+
+  // Skills del equipo: sirven para mostrar las asignadas y para elegirlas en el panel.
+  useEffect(() => {
+    let cancelled = false;
+    setSkillsStatus('loading');
+    api
+      .listSkills()
+      .then((all) => {
+        if (cancelled) return;
+        setSkills(all.filter((s) => isTeamLogin(s.uploadedBy.login)));
+        setSkillsStatus('ready');
+      })
+      .catch(() => !cancelled && setSkillsStatus('error'));
+    return () => {
+      cancelled = true;
+    };
+  }, [api]);
+
+  // Si se cierra la sesión o se cambia de componente, el panel de asignar no debe quedar abierto.
+  useEffect(() => {
+    setAssigning(false);
+  }, [selected?.id, session]);
 
   const unassigned = useMemo(() => entries.filter((e) => isUnassigned(assignments[e.id])).length, [entries, assignments]);
 
@@ -65,8 +97,35 @@ export function ComponentsPage({ selectedId, onSelect, assignments = NO_ASSIGNME
 
       <div className="[display:grid] items-start gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
         <ComponentSidebar entries={entries} assignments={assignments} selectedId={selected?.id ?? null} onSelect={onSelect} />
-        {selected && <ComponentDetail key={selected.id} entry={selected} assignment={assignments[selected.id]} />}
+        {selected && (
+          <ComponentDetail
+            key={selected.id}
+            entry={selected}
+            assignment={assignments[selected.id]}
+            skills={skills}
+            canEdit={Boolean(session)}
+            saveFailed={saveFailed}
+            onAssign={() => setAssigning(true)}
+            onUnassign={(kind, id) => unassign(selected.id, kind, id)}
+            onOpenSkill={onOpenSkill}
+            onRequestLogin={onRequestLogin}
+          />
+        )}
       </div>
+
+      {assigning && selected && session && (
+        <AssignDrawer
+          entry={selected}
+          assignment={assignments[selected.id]}
+          skills={skills}
+          skillsStatus={skillsStatus}
+          onSave={(input) => {
+            assign(selected.id, input);
+            setAssigning(false);
+          }}
+          onClose={() => setAssigning(false)}
+        />
+      )}
     </section>
   );
 }

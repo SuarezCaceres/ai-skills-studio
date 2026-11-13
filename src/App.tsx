@@ -579,7 +579,12 @@ export function App() {
               )}
 
               {activePage === 'preview' && (
-                <ComponentsPage selectedId={selectedComponentId} onSelect={setSelectedComponentId} />
+                <ComponentsPage
+                  selectedId={selectedComponentId}
+                  onSelect={setSelectedComponentId}
+                  onOpenSkill={(id) => openCatalogSkill(id, 'preview')}
+                  onRequestLogin={() => setShowAuthScreen(true)}
+                />
               )}
 
               {activePage === 'evidencias' &&
@@ -604,7 +609,13 @@ export function App() {
                 <CatalogDetailRoute
                   skillId={selectedCatalogSkillId}
                   onBack={() => setActivePage(detailBackPage)}
-                  backLabel={detailBackPage === 'boveda' ? 'Skills del equipo' : 'Catálogo'}
+                  backLabel={
+                    detailBackPage === 'boveda'
+                      ? 'Skills del equipo'
+                      : detailBackPage === 'preview'
+                        ? 'Componentes'
+                        : 'Catálogo'
+                  }
                   onOpenInStudio={openInStudio}
                   onRequestLogin={() => setShowAuthScreen(true)}
                 />
