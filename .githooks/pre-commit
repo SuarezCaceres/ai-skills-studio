@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Sensor para cualquier agente (y para ti): no se puede commitear si fallan lint, tipos o pruebas rápidas.
+set -e
+
+# Evita commitear secretos por accidente
+if git diff --cached --name-only | grep -E '(^|/)\.env($|\.)' | grep -v '\.env\.example$' >/dev/null; then
+  echo "✘ Estás intentando commitear un archivo .env. Quítalo del commit."
+  exit 1
+fi
+
+./scripts/check.sh --rapido

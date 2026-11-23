@@ -1,0 +1,68 @@
+{
+  "_instrucciones": "Lista de funcionalidades del proyecto. El agente solo puede cambiar 'estado' y 'pasa'. Nunca borra ni reescribe criterios: si un criterio parece incorrecto, lo dice y pregunta. Estados: pendiente | spec | plan | en_curso | revision | hecho. Las entradas H01-H04 registran los módulos principales ya construidos antes de adoptar el harness; las nuevas empiezan en 001.",
+  "features": [
+    {
+      "id": "H01",
+      "nombre": "workspace-studio-vfs-y-showcase",
+      "spec": "REPORTE_SEGURIDAD_Y_CALIDAD.md",
+      "estado": "hecho",
+      "criterios": [
+        { "id": "C1", "descripcion": "Montaje de carpetas locales, descompresión/exportación ZIP real, inspección segura de .rar (<= 25 MB, anti-traversal) y vista Diff línea por línea en el navegador", "pasa": true },
+        { "id": "C2", "descripcion": "Landing editorial tasteskill 2.5.1 (carbón #0a0d14 + cian #0ea5e9), showcase interactivo y comparador de 8 modelos de IA verificados en 4 anchos con Playwright", "pasa": true }
+      ]
+    },
+    {
+      "id": "H02",
+      "nombre": "catalogo-comunitario-y-publicacion-github",
+      "spec": "docs/catalog-setup.md",
+      "estado": "hecho",
+      "criterios": [
+        { "id": "C1", "descripcion": "Inicio de sesión OAuth PKCE con GitHub vía api/github-oauth.ts manteniendo el access_token únicamente en memoria", "pasa": true },
+        { "id": "C2", "descripcion": "Registro de skills por URL, subida desde carpeta/archivo local (con escaneo de secretos) y creación/edición en la app sobre <login>/codice-skills fijando el commit SHA", "pasa": true },
+        { "id": "C3", "descripcion": "Auditor automático de riesgos, generador de comando de instalación fijado a SHA, votos, reportes por modelo, perfil por integrante y traducción al español sanitizada", "pasa": true }
+      ]
+    },
+    {
+      "id": "H03",
+      "nombre": "kit-ui-20-componentes-y-asignaciones",
+      "spec": "docs/agents/WT4_CLASES_COMPONENTES.md",
+      "estado": "hecho",
+      "criterios": [
+        { "id": "C1", "descripcion": "Catálogo de 20 componentes propios en src/components/ui-kit/ con demo en vivo, código real (?raw), notas de accesibilidad y miniaturas <= 40 KB", "pasa": true },
+        { "id": "C2", "descripcion": "Asignación saneada de skills y modelos de IA por componente en localStorage (exige sesión para editar, lectura libre) y relación inversa con las clases que lo mencionan", "pasa": true }
+      ]
+    },
+    {
+      "id": "H04",
+      "nombre": "codice-clases-youtube-y-comunidad",
+      "spec": "docs/plans/PLAN_CLASES_COMPARTIDAS.md",
+      "estado": "hecho",
+      "criterios": [
+        { "id": "C1", "descripcion": "Gestión local de clases en Markdown (SafeMarkdown), importar/exportar JSON y partes ordenadas de videos/listas de YouTube cargadas bajo demanda con youtube-nocookie.com", "pasa": true },
+        { "id": "C2", "descripcion": "Flujo explícito para compartir, actualizar y retirar clases en <login>/codice-skills + Issue [class] en el catálogo, y lectura autenticada en la pestaña Comunidad verificando autoría real", "pasa": true }
+      ]
+    },
+    {
+      "id": "001",
+      "nombre": "equipos-y-miembros",
+      "spec": "docs/specs/001-equipos-y-miembros/spec.md",
+      "estado": "pendiente",
+      "criterios": [
+        { "id": "C1", "descripcion": "Servicio teamService para crear equipos (<admin>/<slug>-skills con equipo.json + Issue [team]), validar que el autor del Issue figure en admins, gestionar roles/bajas y archivar equipos", "pasa": false },
+        { "id": "C2", "descripcion": "Invitación por usuario de GitHub con código único de un solo uso (hash + sal, caducidad 7 días) y flujo de unión aceptando la invitación del repositorio", "pasa": false },
+        { "id": "C3", "descripcion": "Pantalla inicial de 3 opciones cuando el usuario no tiene equipo, directorio público, página de equipo, panel de administración y sustitución de src/config/team.ts por Mis equipos", "pasa": false }
+      ]
+    },
+    {
+      "id": "002",
+      "nombre": "skills-de-equipo",
+      "spec": "docs/specs/002-skills-de-equipo/spec.md",
+      "estado": "pendiente",
+      "criterios": [
+        { "id": "C1", "descripcion": "Selector de destino (repositorio personal o equipo del que es miembro) en PublishSkillDialog publicando en el repositorio común del equipo", "pasa": false },
+        { "id": "C2", "descripcion": "Edición colaborativa de skills en repositorios de equipo donde la persona autenticada tiene permiso de escritura, manteniendo detección de conflictos", "pasa": false },
+        { "id": "C3", "descripcion": "Autoría verificada por historial de commits de skills/<slug> en tarjetas/detalle/perfiles y compatibilidad completa con Abrir en estudio, Componentes y Clases", "pasa": false }
+      ]
+    }
+  ]
+}

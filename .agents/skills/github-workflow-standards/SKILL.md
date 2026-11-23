@@ -13,7 +13,7 @@ Este estándar define las reglas obligatorias e ineludibles para cualquier desar
 
 > [!IMPORTANT]
 > **REGLA GENERAL ABSOLUTA:**
-> Antes de crear cualquier commit o abrir un Pull Request en este repositorio, **ES OBLIGATORIO** leer `memories.md` y cumplir estrictamente con esta especificación. No se aceptarán commits con mensajes vagos ni Pull Requests con descripciones vacías o genéricas.
+> Antes de crear cualquier commit o abrir un Pull Request en este repositorio, **ES OBLIGATORIO** leer `AGENTS.md` (y `docs/rules/general.md`, hacia donde apunta `memories.md`) y cumplir estrictamente con esta especificación. No se aceptarán commits con mensajes vagos ni Pull Requests con descripciones vacías o genéricas.
 
 ---
 
@@ -129,11 +129,11 @@ Para evitar colisiones entre agentes y ramas:
 
 ---
 
-## 🧠 4. Rol de `memories.md`
+## 🧠 4. Rol del Harness (`AGENTS.md` + `docs/`) y `memories.md`
 
-Todo proyecto debe incluir un archivo `memories.md` en su raíz. Este documento actúa como el **cerebro contextual vivo** del proyecto:
+Desde la adopción del harness oficial, `AGENTS.md` y la carpeta `docs/` actúan como el **cerebro contextual vivo** del proyecto (`memories.md` se conserva como puntero canónico hacia ellos):
 
-1. Registra el estado actual, stack, versión y mapa de directorios.
-2. Documenta las decisiones arquitectónicas y el porqué de cada módulo.
-3. Se actualiza obligatoriamente en cada hito importante con el commit correspondiente (`docs: update memories.md ...`).
-4. Recuerda a todo agente la **obligatoriedad de este estándar**.
+1. `AGENTS.md` y `docs/project/` registran el estado actual, stack, versión y mapa real de directorios.
+2. `docs/decisions/` (ADRs) y `docs/rules/` documentan las decisiones arquitectónicas y reglas obligatorias.
+3. En cada sesión e hito importante se actualizan `docs/PROGRESS.md`, `docs/TASKS.md` y `docs/features.json` (sin duplicar texto en `memories.md`).
+4. Todo agente debe respetar la **obligatoriedad de este estándar** en cada commit y Pull Request.

@@ -1,0 +1,3 @@
+# Forzar saltos de línea LF en scripts Bash y hooks de Git (evita fallos de #!/usr/bin/env bash en Windows)
+*.sh text eol=lf
+.githooks/* text eol=lf
