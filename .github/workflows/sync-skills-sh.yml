@@ -1,0 +1,55 @@
+name: Sync skills.sh fallback snapshot
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: 'sync-skills-sh'
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Sync snapshot and check meaningful diff
+        id: sync
+        run: |
+          node scripts/sync-skills-sh-snapshot.mjs
+          node -e '
+            const fs = require("node:fs");
+            const { execFileSync } = require("node:child_process");
+            const target = "public/data/skills-sh-snapshot.json";
+            const next = JSON.parse(fs.readFileSync(target, "utf8"));
+            let prev = null;
+            try {
+              const rawPrev = execFileSync("git", ["show", `HEAD:${target}`], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+              prev = JSON.parse(rawPrev);
+            } catch {
+              prev = null;
+            }
+            const changed = !prev || JSON.stringify(prev.views) !== JSON.stringify(next.views);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `changed=${changed}\n`);
+            console.log(`skills.sh snapshot views changed: ${changed}`);
+          '
+
+      - name: Commit and push updated snapshot
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/skills-sh-snapshot.json
+          git commit -m "chore(skills-sh): refresh fallback snapshot"
+          git push

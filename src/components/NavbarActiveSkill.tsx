@@ -13,6 +13,7 @@ import {
   Trash2,
   Check,
   Github,
+  Globe,
   Users,
 } from 'lucide-react';
 import { SkillDocument } from '../types/skill';
@@ -68,6 +69,13 @@ export const PAGE_NAV_ITEMS: {
     subtitle: 'Skills de la comunidad, votos y resultados por modelo',
     shortLabel: 'Catálogo',
     icon: Users,
+  },
+  {
+    id: 'skills-sh',
+    label: 'Explorar',
+    subtitle: 'Directorio abierto sincronizado con skills.sh',
+    shortLabel: 'Explorar',
+    icon: Globe,
   },
   {
     id: 'codice-studio',
@@ -180,6 +188,9 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                       <a href="#workspace" onClick={(e) => handleOpenModule(e, 'catalogo')}>
                         Catálogo comunitario<span>Skills de GitHub, votos y auditoría</span>
                       </a>
+                      <a href="#workspace" onClick={(e) => handleOpenModule(e, 'skills-sh')}>
+                        Explorar skills.sh<span>Directorio abierto sincronizado en vivo</span>
+                      </a>
                       <a href="#workspace" onClick={(e) => handleOpenModule(e, 'boveda')}>
                         Mis skills<span>Archivos SKILL.md y editor local</span>
                       </a>
@@ -225,7 +236,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
             </nav>
           ) : (
             <nav className="nav__links" aria-label="Módulos del estudio">
-              {PAGE_NAV_ITEMS.slice(0, 7).map((item) => (
+              {PAGE_NAV_ITEMS.slice(0, 8).map((item) => (
                 <div className="nav__item" key={item.id}>
                   <a
                     className="nav__link"

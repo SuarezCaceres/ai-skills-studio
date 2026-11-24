@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { SkillDocument } from './types/skill';
+import type { SkillsShEntry } from './types/skillsSh';
 import {
   AppPageRoute,
   UserAccount,
@@ -71,6 +72,11 @@ const CatalogDetailRoute = lazy(() =>
     default: m.CatalogDetailRoute,
   }))
 );
+const SkillsShPage = lazy(() =>
+  import('./components/skills-sh/SkillsShPage').then((m) => ({
+    default: m.SkillsShPage,
+  }))
+);
 
 // Datos de versiones anteriores (cuentas locales con contraseña y su sesión). Ya no se usan.
 const LEGACY_AUTH_KEYS = ['ai_skills_studio_users_v2', 'ai_skills_studio_session_v1'];
@@ -137,6 +143,10 @@ export function App() {
     () => skills[0]?.rarPackage || DEFAULT_RAR_PACKAGE
   );
   const [globalStatus, setGlobalStatus] = useState<string | null>(null);
+  const [skillsShBusy, setSkillsShBusy] = useState<{
+    entryId: string;
+    kind: 'workspace' | 'import';
+  } | null>(null);
 
   const flash = (message: string, ms = 2800) => {
     setGlobalStatus(message);
@@ -300,6 +310,98 @@ export function App() {
     }
   };
 
+  // Abre una skill de skills.sh (fuente GitHub) directamente como copia de trabajo en Workspace.
+  const openSkillsShInWorkspace = async (entry: SkillsShEntry) => {
+    if (!entry.isGithubSource) {
+      flash('Esta skill vive en un dominio externo (.well-known). Instálala con el comando npx.', 4200);
+      return;
+    }
+    if (!catalogService.inspectGithubSkillByHint) {
+      flash('La inspección directa de repositorios no está disponible en este entorno.', 4000);
+      return;
+    }
+    setSkillsShBusy({ entryId: entry.id, kind: 'workspace' });
+    setGlobalStatus(`Leyendo ${entry.name} desde GitHub…`);
+    try {
+      const { skill } = await catalogService.inspectGithubSkillByHint(entry.source, entry.skillId);
+      const loaded = await Promise.all(
+        pickWorkspaceFiles(skill).map(async (path) => {
+          if (path === 'SKILL.md') return { path, content: skill.markdown };
+          if (!catalogService.getGithubFileAtSha) return null;
+          try {
+            return {
+              path,
+              content: await catalogService.getGithubFileAtSha(
+                skill.repo,
+                skill.skillPath,
+                path,
+                skill.commitSha
+              ),
+            };
+          } catch {
+            return null;
+          }
+        })
+      );
+      const files = loaded.filter((f): f is { path: string; content: string } => f !== null);
+      if (!files.some((f) => f.path === 'SKILL.md')) files.unshift({ path: 'SKILL.md', content: skill.markdown });
+
+      const pkg = buildWorkspacePackage(skill, files);
+      const next = upsertWorkingCopy(skills, catalogSkillToDocument(skill, pkg));
+      const opened = next[0];
+      setSkills(next);
+      setActiveSkillId(opened.id);
+      setActiveRarPackage(opened.rarPackage ?? pkg);
+      setActivePage('estudio');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      flash(`Copia de trabajo de ${skill.name} lista en Workspace`);
+    } catch (err) {
+      flash(
+        err instanceof Error && err.message
+          ? err.message
+          : 'No se pudo abrir la skill de skills.sh en Workspace.',
+        4500
+      );
+    } finally {
+      setSkillsShBusy(null);
+    }
+  };
+
+  // Registra una skill de skills.sh (fuente GitHub) en el catálogo comunitario de Códice Studio.
+  const importSkillsShToCatalog = async (entry: SkillsShEntry) => {
+    if (!entry.isGithubSource) {
+      flash('Solo se pueden importar al catálogo skills alojadas en repositorios públicos de GitHub.', 4200);
+      return;
+    }
+    if (!githubSession) {
+      setShowAuthScreen(true);
+      flash('Inicia sesión con GitHub para importar esta skill al catálogo comunitario.', 3600);
+      return;
+    }
+    if (!catalogService.inspectGithubSkillByHint) {
+      flash('La importación desde skills.sh no está disponible en este entorno.', 4000);
+      return;
+    }
+    setSkillsShBusy({ entryId: entry.id, kind: 'import' });
+    setGlobalStatus(`Importando ${entry.name} al catálogo…`);
+    try {
+      const { canonicalUrl } = await catalogService.inspectGithubSkillByHint(entry.source, entry.skillId);
+      const registered = await catalogService.registerSkillFromUrl(canonicalUrl);
+      openCatalogSkill(registered.id, 'skills-sh');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      flash(`Skill «${registered.name}» disponible en el catálogo comunitario`);
+    } catch (err) {
+      flash(
+        err instanceof Error && err.message
+          ? err.message
+          : 'No se pudo importar la skill al catálogo.',
+        4500
+      );
+    } finally {
+      setSkillsShBusy(null);
+    }
+  };
+
   const openModuleFromFooter = (
     e: React.MouseEvent<HTMLAnchorElement>,
     page: AppPageRoute
@@ -415,6 +517,14 @@ export function App() {
                         onClick={(e) => openModuleFromFooter(e, 'codice-studio')}
                       >
                         Códice Obsidian
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#top"
+                        onClick={(e) => openModuleFromFooter(e, 'skills-sh')}
+                      >
+                        Explorar skills.sh
                       </a>
                     </li>
                   </ul>
@@ -600,6 +710,15 @@ export function App() {
                 />
               )}
 
+              {activePage === 'skills-sh' && (
+                <SkillsShPage
+                  onOpenInWorkspace={openSkillsShInWorkspace}
+                  onImportToCatalog={importSkillsShToCatalog}
+                  onRequestLogin={() => setShowAuthScreen(true)}
+                  busyAction={skillsShBusy}
+                />
+              )}
+
               {activePage === 'estudio' && (
                 <>
                   {skillBar}
@@ -663,7 +782,9 @@ export function App() {
                           ? 'Componentes'
                           : detailBackPage === 'catalogo'
                             ? 'Catálogo'
-                            : 'Volver'
+                            : detailBackPage === 'skills-sh'
+                              ? 'Explorar'
+                              : 'Volver'
                   }
                   onOpenInStudio={openInStudio}
                   onRequestLogin={() => setShowAuthScreen(true)}
