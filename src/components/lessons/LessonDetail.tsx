@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ArrowLeft, Boxes, Pencil, Sparkles, Trash2 } from 'lucide-react';
 import type { Lesson } from '../../types/lessons';
 import { getComponentEntry } from '../../data/componentRegistry';
@@ -6,6 +6,7 @@ import { PersonAvatar } from '../catalog/PersonAvatar';
 import { SafeMarkdown } from '../catalog/SafeMarkdown';
 import { safeHttpUrl } from '../catalog/ResultsByModel';
 import { ComponentThumb } from '../components/ComponentThumb';
+import { LessonVideos } from './LessonVideos';
 import { LEVEL_STYLE, shortDate } from './LessonCard';
 import type { UseSkillOptionsResult } from './useLessons';
 
@@ -18,6 +19,12 @@ interface LessonDetailProps {
   onDelete: () => void;
   onOpenSkill: (id: string) => void;
   onOpenComponent: (id: string) => void;
+  /** Texto del botón de vuelta (por defecto «Clases»). */
+  backLabel?: string;
+  /** Cómo se presenta quien la subió (por defecto «Subida por»). */
+  byline?: string;
+  /** Contenido extra bajo la cabecera: el panel de compartir o el aviso de solo lectura. */
+  extra?: ReactNode;
 }
 
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]';
@@ -25,7 +32,7 @@ const CARD =
   'flex w-full min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-slate-800 bg-[#121722] p-3 text-left transition-colors hover:border-[#0ea5e9]/70 hover:bg-[#141b29]';
 
 /** Detalle de una clase: Markdown seguro y tarjetas que llevan a cada skill y componente vinculados. */
-export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDelete, onOpenSkill, onOpenComponent }: LessonDetailProps) {
+export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDelete, onOpenSkill, onOpenComponent, backLabel = 'Clases', byline = 'Subida por', extra }: LessonDetailProps) {
   const [confirming, setConfirming] = useState(false);
   const profile = safeHttpUrl(lesson.author.profileUrl);
 
@@ -37,7 +44,7 @@ export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDele
         className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-transparent px-1 py-1 text-sm font-medium text-[#38bdf8] hover:underline ${FOCUS}`}
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        Clases
+        {backLabel}
       </button>
 
       <header className="space-y-3">
@@ -57,7 +64,7 @@ export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDele
           <p className="m-0 flex items-center gap-2 text-xs text-slate-400">
             <PersonAvatar login={lesson.author.login} avatarUrl={lesson.author.avatarUrl} size={24} />
             <span>
-              Subida por{' '}
+              {byline}{' '}
               {profile ? (
                 <a href={profile} target="_blank" rel="noopener noreferrer" className={`font-semibold text-slate-200 hover:underline ${FOCUS}`}>
                   @{lesson.author.login}
@@ -105,6 +112,10 @@ export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDele
           </div>
         )}
       </header>
+
+      {extra}
+
+      <LessonVideos key={lesson.id} lessonTitle={lesson.title} videos={lesson.videos} />
 
       <div className="[display:grid] items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section aria-label="Explicación" className="min-w-0 rounded-xl border border-slate-800 bg-[#121722] p-5 sm:p-6">

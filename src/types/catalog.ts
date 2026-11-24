@@ -193,3 +193,40 @@ export interface CatalogApi {
    */
   syncSkillToLatest?(skillId: string): Promise<CatalogSkill>;
 }
+
+/* ------------------------------------------------------------------ */
+/* Clases compartidas (Códice → Clases → Comunidad)                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Compartir clases a través de GitHub. Todos los métodos exigen sesión salvo que se diga lo contrario
+ * y lanzan `CatalogError` (`githubCatalogService`) con estos códigos:
+ *  - `auth_required`: no hay sesión o expiró.
+ *  - `invalid_input`: la clase o el estado compartido no son válidos.
+ *  - `not_found`: la clase compartida ya no existe (repo, carpeta o Issue borrados).
+ *  - `forbidden` / `rate_limit` / `network` / `github`: errores de GitHub, igual que el resto del catálogo.
+ *  - `not_configured`: falta configurar el catálogo (`VITE_CATALOG_REPO`).
+ */
+export interface LessonSharingApi {
+  /**
+   * Publica la clase: un único commit con `classes/<id>/clase.json` y `CLASE.md` en
+   * `<login>/codice-skills` (lo crea si no existe) y un Issue `[class]` en el catálogo. Es
+   * idempotente: si ya hay un Issue `[class]` de esta persona para ese id, lo actualiza en lugar de
+   * duplicarlo. Devuelve el estado que el llamador guarda en `lesson.shared`.
+   */
+  shareLesson(lesson: import('./lessons').Lesson): Promise<import('./lessons').LessonShare>;
+  /** Publica los cambios de una clase ya compartida (`lesson.shared` es obligatorio). Nuevo commit, mismo Issue. */
+  updateSharedLesson(lesson: import('./lessons').Lesson): Promise<import('./lessons').LessonShare>;
+  /**
+   * Retira la clase compartida: commit que borra `classes/<id>/` y cierra el Issue. No toca la clase
+   * local. Si ya no existía, termina sin error.
+   */
+  unshareLesson(share: import('./lessons').LessonShare): Promise<void>;
+  /**
+   * Clases compartidas por cualquiera (incluida la propia), solo metadatos y sin cuerpo, de la más
+   * reciente a la más antigua. Descarta las entradas que no pasan `toCommunityLesson`.
+   */
+  listCommunityLessons(): Promise<import('./lessons').CommunityLesson[]>;
+  /** Carga el cuerpo de una clase de Comunidad desde su commit fijado. */
+  getCommunityLesson(lesson: import('./lessons').CommunityLesson): Promise<import('./lessons').CommunityLesson>;
+}

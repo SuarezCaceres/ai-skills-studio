@@ -23,8 +23,9 @@ Navegador ──(escrituras con el token en memoria)────────► 
 | :--- | :--- | :--- | :--- |
 | Ancla de skill | `[skill] usuario/repo/ruta` | `skill`, `skill:<id>` | Registro de la skill. Sus reacciones 👍 son los votos. |
 | Resultado | `[result] <skill> · <modelo> · <veredicto>` | `result`, `model:<modelo>`, `verdict:<worked/partial/failed>`, `skill:<id>` | Reporte "funcionó con el modelo X". |
+| Clase compartida | `[class] <login>/<id>` | `class`, `class:<id>` | Clase de Códice compartida por su autora (pestaña *Comunidad*). El marcador lleva los metadatos y apunta a `classes/<id>/` de `<login>/codice-skills`. |
 
-Si el id supera los 50 caracteres (límite de GitHub para etiquetas) se usa `skill:h-<hash>`. Cada Issue lleva en el cuerpo un marcador `<!-- codice:v1 {...} -->` con los datos estructurados; el workflow y la app lo leen y validan.
+Si el id supera los 50 caracteres (límite de GitHub para etiquetas) se usa `skill:h-<hash>` (y `class:h-<hash>` en las clases). Cada Issue lleva en el cuerpo un marcador `<!-- codice:v1 {...} -->` con los datos estructurados; el workflow y la app lo leen y validan.
 
 ### Workflow `codice-labeler.yml`
 
@@ -47,15 +48,22 @@ jobs:
             if (!m) return;
             let p;
             try { p = JSON.parse(m[1]); } catch { return; }
-            if (p.kind !== 'skill' && p.kind !== 'result') return;
+            if (p.kind !== 'skill' && p.kind !== 'result' && p.kind !== 'class') return;
             if (!issue.title.startsWith(`[${p.kind}] `)) return;
+
+            // Una clase solo vale si apunta al `codice-skills` de quien abrió el Issue (evita suplantaciones).
+            if (p.kind === 'class') {
+              const repo = String(p.data && p.data.repo || '').toLowerCase();
+              if (repo !== `${issue.user.login}/codice-skills`.toLowerCase()) return;
+            }
 
             const models = ['Opus 5.5','Opus 4.8','Gemini 3.8','Gemini 3.7','Sonnet 5.5','GPT Astra','GPT Luna','DeepSeek V3'];
             const verdicts = ['worked','partial','failed'];
             const ok = (l) =>
               typeof l === 'string' && l.length <= 50 && (
                 l === p.kind ||
-                l.startsWith('skill:') ||
+                (p.kind !== 'class' && l.startsWith('skill:')) ||
+                (p.kind === 'class' && /^class:[a-z0-9-]{1,44}$/.test(l)) ||
                 (p.kind === 'result' && l.startsWith('model:') && models.includes(l.slice(6))) ||
                 (p.kind === 'result' && l.startsWith('verdict:') && verdicts.includes(l.slice(8)))
               );
@@ -63,6 +71,8 @@ jobs:
             if (!labels.includes(p.kind)) return;
             await github.rest.issues.addLabels({ ...context.repo, issue_number: issue.number, labels });
 ```
+
+> **Si ya tenías `codice-labeler.yml` (de antes de las clases compartidas), sustituye su contenido por el de arriba.** Es un cambio **manual** en el repo catálogo: la app no puede hacerlo por ti. Hasta que lo apliques, compartir una clase sí publica sus archivos y abre su Issue, pero el Issue no recibe la etiqueta `class` y la pestaña *Comunidad* sale vacía. Para comprobarlo: comparte una clase y verifica en el repo catálogo que su Issue `[class] <login>/<id>` tiene las etiquetas `class` y `class:<id>`.
 
 Notas: solo reacciona a `opened` (no a ediciones) y nunca interpola el contenido del Issue en una shell. Si algún día el volumen de spam lo exige, puedes bloquear Issues (*lock*) o exigir cuentas con cierta antigüedad.
 

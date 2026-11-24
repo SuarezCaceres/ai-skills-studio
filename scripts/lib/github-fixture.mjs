@@ -2,10 +2,16 @@
  * GitHub simulado para las pruebas de interfaz que necesitan un catálogo con una skill del equipo
  * y una sesión iniciada. Nada de esto toca `api.github.com` real (cuota anónima: 60 peticiones/h por IP).
  *
+ * Clases compartidas (C5): `installFakeGithub(context, { classes: true })` añade la máquina de estado de
+ *   `fake-github-classes.mjs` (repos, API de Git, contenidos e Issues de clases) y devuelve la máquina para
+ *   sembrar estado, inyectar errores y contar peticiones. Sin esa opción nada cambia.
+ *
  * Uso:
  *   process.env.VITE_CATALOG_REPO = TEST_CATALOG_REPO; process.env.VITE_GITHUB_CLIENT_ID = ...; (antes de compilar)
  *   await installFakeGithub(context);   // API, avatares, autorización y canje del código
  */
+
+import { createFakeGithubClasses } from './fake-github-classes.mjs';
 
 export const TEST_CATALOG_REPO = 'test/catalog';
 export const TEST_CLIENT_ID = 'test-client-id';
@@ -46,8 +52,10 @@ const anchorIssue = {
 
 const CORS = {
   'access-control-allow-origin': '*',
-  'access-control-allow-headers': '*',
-  'access-control-allow-methods': 'GET,POST,OPTIONS',
+  'access-control-allow-headers': 'authorization,content-type,accept,x-github-api-version,*',
+  'access-control-allow-methods': 'GET,POST,PATCH,PUT,DELETE,OPTIONS',
+  // La app lee estas cabeceras para avisar del límite de peticiones.
+  'access-control-expose-headers': 'x-ratelimit-remaining,x-ratelimit-reset,retry-after',
 };
 
 const json = (body, status = 200) => ({ status, headers: CORS, contentType: 'application/json', body: JSON.stringify(body) });
@@ -55,8 +63,48 @@ const json = (body, status = 200) => ({ status, headers: CORS, contentType: 'app
 // PNG de 1×1 para que los avatares no dependan de la red.
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
 
-async function githubApi(route) {
+/** ¿Esta petición es de clases compartidas (y no del catálogo de skills de siempre)? */
+function isClassRequest(machine, request) {
+  const url = new URL(request.url());
+  const p = url.pathname;
+  if (p === '/user/repos') return true;
+  if (/^\/repos\/[^/]+\/codice-skills(\/|$)/i.test(p)) return true;
+  const issues = `/repos/${TEST_CATALOG_REPO}/issues`;
+  if (p === issues) {
+    if (request.method() !== 'GET') return true;
+    return (url.searchParams.get('labels') ?? '').split(',').includes('class') || url.searchParams.has('creator');
+  }
+  // El Issue #1 sigue siendo el ancla de la skill de prueba; los de clases salen de la máquina.
+  const number = p.startsWith(`${issues}/`) ? Number(p.slice(issues.length + 1)) : NaN;
+  return Number.isInteger(number) && machine.hasIssue(number);
+}
+
+async function viaMachine(route, machine) {
+  const request = route.request();
+  let body;
+  const data = request.postData();
+  if (data) {
+    try {
+      body = JSON.parse(data);
+    } catch {
+      body = data;
+    }
+  }
+  let out;
+  try {
+    out = machine.handle({ method: request.method(), url: request.url(), headers: request.headers(), body });
+  } catch {
+    return route.abort('failed'); // red caída inyectada
+  }
+  const headers = { ...CORS, ...out.headers };
+  if (out.text !== undefined) return route.fulfill({ status: out.status, headers, contentType: 'text/plain', body: out.text });
+  if (out.json !== undefined) return route.fulfill({ status: out.status, headers, contentType: 'application/json', body: JSON.stringify(out.json) });
+  return route.fulfill({ status: out.status, headers });
+}
+
+async function githubApi(route, machine) {
   if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
+  if (machine && isClassRequest(machine, route.request())) return viaMachine(route, machine);
   const url = new URL(route.request().url());
   const p = url.pathname;
   const labels = url.searchParams.get('labels') ?? '';
@@ -83,8 +131,11 @@ async function githubApi(route) {
  * autorización de GitHub en la misma pestaña (la ventana emergente se anula) y se le responde con una
  * redirección a la app con `?code&state`; el canje del código lo contesta un token de prueba.
  */
-export async function installFakeGithub(context) {
-  await context.route('https://api.github.com/**', githubApi);
+export async function installFakeGithub(context, options = {}) {
+  const machine = options.classes
+    ? createFakeGithubClasses({ catalogRepo: TEST_CATALOG_REPO, firstIssueNumber: 100, ...(options.classes === true ? {} : options.classes) })
+    : null;
+  await context.route('https://api.github.com/**', (route) => githubApi(route, machine));
   await context.route('https://avatars.githubusercontent.com/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
   await context.route('https://github.com/login/oauth/authorize**', (route) => {
     const params = new URL(route.request().url()).searchParams;
@@ -101,4 +152,12 @@ export async function installFakeGithub(context) {
   await context.addInitScript(() => {
     window.open = () => null;
   });
+  return machine;
 }
+
+/** Atajo: GitHub simulado con clases compartidas. Devuelve la máquina de estado para sembrar y comprobar. */
+export async function installFakeGithubClasses(context, machineOptions = {}) {
+  return installFakeGithub(context, { classes: machineOptions });
+}
+
+export { createFakeGithubClasses } from './fake-github-classes.mjs';
