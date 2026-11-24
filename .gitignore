@@ -4,12 +4,15 @@ dist/
 dist-ssr/
 *.local
 
-# Capturas generadas por los scripts de prueba
-shots/
-
-# Archivos de build y caché de TypeScript
+# Archivos de build, caché y cobertura
 tsconfig.tsbuildinfo
 .eslintcache
+coverage/
+
+# Pruebas y capturas generadas por Playwright / scripts de test
+shots/
+test-results/
+playwright-report/
 
 # Entorno y credenciales
 .env
@@ -22,10 +25,20 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Harness de agentes IA (la fuente real versionada de skills es .agents/skills/)
+.claude/settings.local.json
+.claude/skills
+.claude/worktrees/
+
 # Obsidian (conservar notas y configuración base, ignorar estados de ventana temporales)
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
 
-# Sistema Operativo
+# Editores e IDEs
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Sistema operativo
 .DS_Store
 Thumbs.db
