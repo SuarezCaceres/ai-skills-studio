@@ -68,7 +68,7 @@
       "id": "003",
       "nombre": "directorio-skills-sh",
       "spec": "docs/specs/003-directorio-skills-sh/spec.md",
-      "estado": "revision",
+      "estado": "hecho",
       "criterios": [
         { "id": "C1", "descripcion": "Proxy serverless api/skills-sh.ts con CORS estricto por ALLOWED_ORIGINS, validación anti-SSRF de vistas/búsqueda y cabeceras de caché Edge", "pasa": true },
         { "id": "C2", "descripcion": "Servicio híbrido skillsShService con prioridad en vivo, caché local saneada y degradación automática al snapshot estático con búsqueda local y aviso visible", "pasa": true },

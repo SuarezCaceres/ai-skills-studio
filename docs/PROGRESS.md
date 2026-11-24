@@ -20,8 +20,9 @@
     2. Servicio cliente híbrido `src/services/skillsShService.ts` (`live → cache → snapshot` con búsqueda local) y puente GitHub `inspectGithubSkillByHint` / `getGithubFileAtSha` en `src/services/githubCatalogService.ts` fijado a `commitSha`.
     3. Nueva sección **Explorar** (`src/components/skills-sh/{SkillsShPage,SkillsShCard}.tsx`) y acceso en `src/components/NavbarActiveSkill.tsx` (barra superior y mega-menú).
   - Suites automatizadas con aislamiento total de red (`test-skills-sh-proxy.mjs`: 27 OK, `test-skills-sh-service.mjs`: 16 OK, `test-skills-sh-page.mjs`: 25 OK en 4 anchos) conectadas a `scripts/check.sh`.
+  - Actualización de `docs/project/ARCHITECTURE.md` y cierre de `003-directorio-skills-sh` en `docs/features.json` (`estado: "hecho"`) tras formato completo del PR #26 e integración en `main`.
 - **Verificación:** `./scripts/check.sh` completo en **`exit 0`** (tipos + 16 suites Node y Playwright en verde) y auditoría independiente (`revisor`) con veredicto **APROBADO** sin bloqueantes; aplicadas mejoras menores sugeridas.
-- **Pendiente:** Revisar y fusionar el PR de `feat/003-directorio-skills-sh` en `main`, comprobar el despliegue automático de `/api/skills-sh` en Vercel y continuar con `001-equipos-y-miembros`.
+- **Pendiente:** Comprobar en Vercel que `/api/skills-sh` comparte `ALLOWED_ORIGINS` con `/api/github-oauth`, resolver hallazgos pendientes de `security-audit` en `docs/TASKS.md` y continuar con `001-equipos-y-miembros`.
 - **Problemas:** Ninguno (deuda preexistente del chunk `vendor-react` registrada en `docs/TASKS.md`).
 
 ## 2026-11-23 · Antigravity (`Orquestador General`) · `fix/github-pages-artifact-v4`

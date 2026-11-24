@@ -1,7 +1,7 @@
 # Arquitectura · Códice Studio
 
 ## Vista general
-Códice Studio es una aplicación web *client-side* sin servidor de aplicación tradicional ni base de datos propia. Toda la lectura y escritura comunitaria ocurre directamente entre el navegador y la API de GitHub; el único componente desplegado fuera del sitio estático es una función *serverless* mínima en Vercel cuya única misión es custodiar `GITHUB_CLIENT_SECRET` durante el canje del código OAuth con PKCE.
+Códice Studio es una aplicación web *client-side* sin servidor de aplicación tradicional ni base de datos propia. Toda la lectura y escritura comunitaria ocurre directamente entre el navegador y la API de GitHub; las únicas piezas desplegadas fuera del sitio estático son dos funciones *serverless* mínimas en Vercel: `api/github-oauth.ts` (custodia `GITHUB_CLIENT_SECRET` para OAuth con PKCE) y `api/skills-sh.ts` (proxy de solo lectura con caché Edge para consultar el directorio abierto `https://www.skills.sh` respetando CORS y CSP).
 
 ```text
 +-----------------------------------------------------------------------------------+
@@ -9,10 +9,11 @@ Códice Studio es una aplicación web *client-side* sin servidor de aplicación 
 |                                                                                   |
 |  +--------------------------------------+   +----------------------------------+  |
 |  | SPA React 19 (src/)                  |   | Kit estático tasteskill 2.5.1    |  |
-|  | - Studio VFS, Catálogo, Clases,      |   | (public/assets/)                 |  |
-|  |   UI Kit (20 comp.), Benchmarks      |   | Preservado sin transformar por   |  |
+|  | - Studio VFS, Catálogo, Explorar,    |   | (public/assets/)                 |  |
+|  |   Clases, UI Kit (20 comp.), Models  |   | Preservado sin transformar por   |  |
 |  | - Estado local saneado: localStorage |   | preservePublicKitAssets (Vite)   |  |
-|  | - Token OAuth: SOLO en memoria       |   +----------------------------------+  |
+|  | - Snapshot respaldo: public/data/    |   +----------------------------------+  |
+|  | - Token OAuth: SOLO en memoria       |                                         |
 |  +------------------+-------------------+                                         |
 +---------------------|-------------------------------------------------------------+
                       |
@@ -32,12 +33,20 @@ Códice Studio es una aplicación web *client-side* sin servidor de aplicación 
                       |                                      v
                       |                   https://github.com/login/oauth/access_token
                       |
-                      | 3. Traducción opcional al español (bajo demanda)
+                      | 3. Directorio sincronizado Explorar (GET ?mode=list|search)
+                      +-----------------> api/skills-sh.ts (Vercel Serverless Function)
+                      |                    [CORS estricto, anti-SSRF, caché Edge 5 min;
+                      |                     degrada a caché local y public/data/skills-sh-snapshot.json]
+                      |                                      |
+                      |                                      v
+                      |                   https://www.skills.sh/api/*
+                      |
+                      | 4. Traducción opcional al español (bajo demanda)
                       +-----------------> API nativa Translator del navegador
                       |                   o https://generativelanguage.googleapis.com
                       |                     (clave de Gemini aportada por la persona)
                       |
-                      | 4. Reproducción de videos en Códice -> Clases (tras clic explícito)
+                      | 5. Reproducción de videos en Códice -> Clases (tras clic explícito)
                       +-----------------> https://www.youtube-nocookie.com (iframe bajo demanda)
 ```
 
@@ -46,19 +55,20 @@ El repositorio no usa un esquema monorepo `apps/web` + `apps/api`; la aplicació
 
 | Pieza | Ubicación | Responsabilidad |
 |-------|-----------|-----------------|
-| **Frontend (SPA)** | `src/` | Aplicación en React 19 + TypeScript estricto. Navegación interna sin *router* externo mediante el estado `AppPageRoute` en `src/App.tsx`, con carga diferida (`React.lazy` + `Suspense`) de las vistas secundarias. |
-| **Kit editorial y activos** | `public/assets/`, `public/components/` | Sistema visual estático HTML/CSS/JS `tasteskill 2.5.1` (servido y empaquetado sin pre-transformar gracias al plugin `preservePublicKitAssets` en `vite.config.ts`) y miniaturas `.png` de los 20 componentes del UI Kit. |
-| **Función OAuth** | `api/github-oauth.ts` | Función *serverless* en Vercel (Web Fetch `Request`/`Response`) que valida `ALLOWED_ORIGINS`, aplica límite de 2 KB y PKCE, e intercambia el `code` de GitHub por `access_token` sin exponer `GITHUB_CLIENT_SECRET`. |
-| **Verificación y utilidades** | `scripts/` | Sensor maestro `scripts/check.sh`, 13 suites automatizadas en Node y Playwright (`scripts/test-*.mjs`), simuladores de GitHub en memoria (`scripts/lib/`) y generador de capturas de componentes (`scripts/capture-components.mjs`). |
+| **Frontend (SPA)** | `src/` | Aplicación en React 19 + TypeScript estricto. Navegación interna sin *router* externo mediante el estado `AppPageRoute` en `src/App.tsx`, con carga diferida (`React.lazy` + `Suspense`) de las vistas secundarias (incluida `skills-sh` / **Explorar**). |
+| **Kit editorial y activos** | `public/assets/`, `public/components/`, `public/data/` | Sistema visual estático HTML/CSS/JS `tasteskill 2.5.1` (preservado sin transformar por `preservePublicKitAssets` en `vite.config.ts`), miniaturas `.png` de los 20 componentes del UI Kit y snapshot de respaldo `skills-sh-snapshot.json`. |
+| **Funciones Vercel (`api/`)** | `api/github-oauth.ts`, `api/skills-sh.ts` | Funciones *serverless* Web Fetch (`Request`/`Response`) con CORS estricto (`ALLOWED_ORIGINS`): canje OAuth PKCE sin exponer `GITHUB_CLIENT_SECRET`, y proxy de solo lectura anti-SSRF con caché Edge hacia `https://www.skills.sh`. |
+| **Verificación y utilidades** | `scripts/` | Sensor maestro `scripts/check.sh`, 16 suites automatizadas en Node y Playwright (`scripts/test-*.mjs`), simuladores de GitHub en memoria (`scripts/lib/`), sincronizador `sync-skills-sh-snapshot.mjs` y capturador de componentes. |
 | **Documentación y harness** | `docs/` | Contexto del producto (`project/`), stack (`stack/`), reglas obligatorias (`rules/`), referencias (`references/`), specs (`specs/`), planes (`plans/`), decisiones arquitectónicas (`decisions/`) y guía del catálogo (`catalog-setup.md`). |
 
 ## Contratos
 1. **Tipos de dominio en TypeScript (`src/types/`):**
-   - `src/types/catalog.ts`: contratos del catálogo comunitario (`CatalogSkill`, `SkillResult`, auditoría estática, sesión de GitHub y filtros).
+   - `src/types/catalog.ts`: contratos del catálogo comunitario (`CatalogSkill`, `SkillResult`, auditoría estática, sesión de GitHub, puente por `skillId` y filtros).
+   - `src/types/skillsSh.ts`: contratos del directorio sincronizado `skills.sh` (`SkillsShEntry`, `SkillsShView`, `SkillsShListResult`, `SkillsShSearchResult`, `SkillsShSnapshotFile`).
    - `src/types/lessons.ts`: modelo de lecciones locales, partes de video de YouTube y metadatos de clases compartidas en comunidad.
    - `src/types/skill.ts`: documento de *skill*, colecciones de frameworks y especificaciones de auditoría.
    - `src/types/uiComponents.ts`: metadatos (`UiComponentMeta`), entradas del registro y asignaciones de componentes UI.
-   - `src/types/workspace.ts`: nodos del sistema de archivos virtual (VFS), pestañas abiertas y estados de cambios (*Diff*).
+   - `src/types/workspace.ts`: nodos del sistema de archivos virtual (VFS), rutas `AppPageRoute`, pestañas abiertas y estados de cambios (*Diff*).
 2. **Contrato en Issues de GitHub (`<!-- codice:v1 {...} -->`):**
    - Cada Issue abierto en `VITE_CATALOG_REPO` incluye en su cuerpo un comentario HTML estructurado con `{ kind, labels, data }`.
    - Tipos soportados actualmente: `'skill'` (ancla de *skill* fijada a `commitSha`), `'result'` (reporte de evaluación por modelo y veredicto) y `'class'` (clase publicada en `<login>/codice-skills`), más `'team'` previsto en las Fases 5 y 6.
