@@ -3,6 +3,7 @@ export type AppPageRoute =
   | 'codice-studio'
   | 'boveda'
   | 'catalogo'
+  | 'skills-sh'
   | 'estudio'
   | 'preview'
   | 'evidencias'

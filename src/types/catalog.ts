@@ -192,6 +192,30 @@ export interface CatalogApi {
    * paso la pone al día. Opcional: el mock no lo implementa.
    */
   syncSkillToLatest?(skillId: string): Promise<CatalogSkill>;
+  /**
+   * Resuelve una skill pública de GitHub a partir de `source` (`owner/repo`) y una pista
+   * `skillId` (como los entregados por skills.sh), fijando su lectura a un `commitSha` real.
+   */
+  inspectGithubSkillByHint?(
+    source: string,
+    skillId: string
+  ): Promise<ResolvedGithubSkillHint>;
+  /**
+   * Lee un archivo de texto acotado de una skill pública fijada a un `commitSha` concreto.
+   */
+  getGithubFileAtSha?(
+    repo: string,
+    skillPath: string,
+    filePath: string,
+    commitSha: string
+  ): Promise<string>;
+}
+
+/** Resultado de resolver una skill externa de GitHub a partir de `(source, skillId)`. */
+export interface ResolvedGithubSkillHint {
+  skill: CatalogSkill;
+  /** URL canónica de GitHub lista para `registerSkillFromUrl`. */
+  canonicalUrl: string;
 }
 
 /* ------------------------------------------------------------------ */

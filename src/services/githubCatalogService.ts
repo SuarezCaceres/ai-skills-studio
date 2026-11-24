@@ -7,6 +7,7 @@ import type {
   CatalogSkillFile,
   GithubSession,
   LessonSharingApi,
+  ResolvedGithubSkillHint,
   ResultVerdict,
   SkillAuthor,
   SkillFileChange,
@@ -624,6 +625,10 @@ export interface GithubCatalogApi extends CatalogApi, LessonSharingApi {
   getSkillFileContent(skillId: string, filePath: string): Promise<string>;
   /** Perfil público (avatar y nombre) de una cuenta; `null` si no existe. Con caché de 24 h. */
   getProfile(login: string): Promise<GithubProfile | null>;
+  /** Resuelve una skill pública de GitHub a partir de `owner/repo` y una pista `skillId`, fijada a `commitSha`. */
+  inspectGithubSkillByHint(source: string, skillId: string): Promise<ResolvedGithubSkillHint>;
+  /** Lee un archivo de texto acotado de una skill pública fijada a un `commitSha` concreto. */
+  getGithubFileAtSha(repo: string, skillPath: string, filePath: string, commitSha: string): Promise<string>;
 }
 
 /** Repo de cada persona donde se guardan las skills que sube desde la app. */
@@ -1830,6 +1835,233 @@ export function createGithubCatalogService(options: CatalogServiceOptions): Gith
       const full = skill.skillPath ? `${skill.skillPath}/${filePath}` : filePath;
       // Texto crudo y no confiable: el llamador debe mostrarlo como texto, nunca como HTML.
       return cleanText(await fetchRaw(owner, repo, full, skill.commitSha), MAX_FILE_PREVIEW_BYTES);
+    },
+
+    async inspectGithubSkillByHint(source, skillId) {
+      const rawSource = typeof source === 'string' ? source.trim() : '';
+      const parts = rawSource.split('/');
+      if (
+        parts.length !== 2 ||
+        !OWNER_RE.test(parts[0]) ||
+        !REPO_RE.test(parts[1]) ||
+        parts[1] === '.' ||
+        parts[1] === '..'
+      ) {
+        throw new CatalogError('invalid_url', 'Esta skill no está alojada en un repositorio público de GitHub.');
+      }
+      const [owner, repo] = parts;
+
+      const cleanHint = cleanText(skillId, 120);
+      if (!cleanHint) {
+        throw new CatalogError('invalid_input', 'El identificador de la skill no es válido.');
+      }
+
+      const repoInfo = await fetchRepo(owner, repo);
+      const defaultBranch = repoInfo.default_branch;
+      const sha = await commitSha(owner, repo, defaultBranch);
+      const tree = await fetchTree(owner, repo, sha);
+      const blobs = tree.tree.filter((e) => e.type === 'blob' && isSafePath(e.path));
+
+      const candidates: string[] = [];
+      for (const entry of blobs) {
+        if (entry.path === 'SKILL.md') {
+          candidates.push('');
+        } else if (entry.path.endsWith('/SKILL.md')) {
+          candidates.push(entry.path.slice(0, -'/SKILL.md'.length));
+        }
+      }
+
+      if (candidates.length === 0) {
+        throw new CatalogError('no_skill_md', `${owner}/${repo} no contiene ningún archivo SKILL.md.`);
+      }
+
+      let matchedDir: string | null = null;
+      if (candidates.length === 1) {
+        matchedDir = candidates[0];
+      } else {
+        const rawLower = cleanHint.toLowerCase();
+        const afterDoubleColon = rawLower.includes('::') ? (rawLower.split('::').pop() ?? '').trim() : '';
+        const normSimple = (v: string) => v.toLowerCase().replace(/[:_]/g, '-');
+        const normCompact = (v: string) =>
+          v
+            .toLowerCase()
+            .replace(/[:_]+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '');
+
+        const exactTargets = new Set<string>([rawLower, ...(afterDoubleColon ? [afterDoubleColon] : [])]);
+        const normTargets = new Set<string>(
+          [
+            normSimple(rawLower),
+            normCompact(rawLower),
+            ...(afterDoubleColon ? [normSimple(afterDoubleColon), normCompact(afterDoubleColon)] : []),
+          ].filter(Boolean)
+        );
+        const targetList = [...new Set([...exactTargets, ...normTargets])].filter(Boolean);
+
+        // Prioridad 1: coincidencia exacta de basename con skillId o sufijo tras `::`.
+        const p1 = candidates.filter((dir) => {
+          const base = (dir.split('/').pop() ?? '').toLowerCase();
+          return base !== '' && exactTargets.has(base);
+        });
+        if (p1.length === 1) {
+          matchedDir = p1[0];
+        }
+
+        // Prioridad 2: coincidencia exacta de ruta normalizada o basename normalizado.
+        let p2: string[] = [];
+        if (matchedDir === null) {
+          p2 = candidates.filter((dir) => {
+            const base = dir.split('/').pop() ?? '';
+            return (
+              (dir !== '' && (normTargets.has(normSimple(dir)) || normTargets.has(normCompact(dir)))) ||
+              (base !== '' && (normTargets.has(normSimple(base)) || normTargets.has(normCompact(base))))
+            );
+          });
+          if (p2.length === 1) {
+            matchedDir = p2[0];
+          }
+        }
+
+        // Prioridad 3: carpeta intermedia, sufijo único o inclusión en basename.
+        let p3Suffix: string[] = [];
+        let p3Sub: string[] = [];
+        if (matchedDir === null) {
+          p3Suffix = candidates.filter((dir) => {
+            if (!dir) return false;
+            const lowDir = dir.toLowerCase();
+            const normDir = normCompact(dir);
+            const segs = lowDir.split('/').filter(Boolean);
+            const normSegs = normDir.split('/').filter(Boolean);
+            return targetList.some(
+              (t) =>
+                lowDir.endsWith(`/${t}`) ||
+                normDir.endsWith(`/${t}`) ||
+                segs.includes(t) ||
+                normSegs.includes(t)
+            );
+          });
+          if (p3Suffix.length === 1) {
+            matchedDir = p3Suffix[0];
+          }
+        }
+
+        if (matchedDir === null) {
+          p3Sub = candidates.filter((dir) => {
+            const base = (dir.split('/').pop() ?? '').toLowerCase();
+            if (!base) return false;
+            const normBase = normCompact(base);
+            return targetList.some((t) => t.length >= 4 && (base.includes(t) || normBase.includes(t)));
+          });
+          if (p3Sub.length === 1) {
+            matchedDir = p3Sub[0];
+          }
+        }
+
+        // Prioridad 4 (acotada a 8 candidatos para cuidar cuota): cotejar frontmatter `name`.
+        if (matchedDir === null) {
+          const pool = (
+            p1.length > 1
+              ? p1
+              : p2.length > 1
+                ? p2
+                : p3Suffix.length > 1
+                  ? p3Suffix
+                  : p3Sub.length > 1
+                    ? p3Sub
+                    : candidates
+          ).slice(0, 8);
+
+          const fmMatches: string[] = [];
+          for (const dir of pool) {
+            const mdPath = dir ? `${dir}/SKILL.md` : 'SKILL.md';
+            const mdEntry = blobs.find((e) => e.path === mdPath);
+            if ((mdEntry?.size ?? 0) > MAX_SKILL_MD_BYTES) continue;
+            try {
+              const md = cleanText(await fetchRaw(owner, repo, mdPath, sha), MAX_SKILL_MD_BYTES);
+              const fmName = cleanText(parseFrontmatter(md).name, 120);
+              if (!fmName) continue;
+              const fmLower = fmName.toLowerCase();
+              if (
+                exactTargets.has(fmLower) ||
+                normTargets.has(normSimple(fmLower)) ||
+                normTargets.has(normCompact(fmLower))
+              ) {
+                fmMatches.push(dir);
+              }
+            } catch {
+              /* Ignorar error puntual de lectura durante desambiguación */
+            }
+          }
+          if (fmMatches.length === 1) {
+            matchedDir = fmMatches[0];
+          }
+        }
+
+        if (matchedDir === null) {
+          const sample = candidates
+            .slice(0, 5)
+            .map((d) => d || '/')
+            .join(', ');
+          throw new CatalogError(
+            'ambiguous_skill',
+            `No se pudo resolver «${cleanHint}» en ${owner}/${repo} porque contiene varias skills (${sample}${candidates.length > 5 ? '…' : ''}). Regístrala pegando la URL de su carpeta concreta.`
+          );
+        }
+      }
+
+      const skill = await buildSkill(
+        { owner, repo, sha, path: matchedDir, exact: true },
+        repoInfo,
+        new Date().toISOString()
+      );
+      const canonicalUrl = matchedDir
+        ? `https://github.com/${owner}/${repo}/tree/${encodePath(defaultBranch)}/${encodePath(matchedDir)}`
+        : `https://github.com/${owner}/${repo}`;
+
+      return { skill, canonicalUrl };
+    },
+
+    async getGithubFileAtSha(repo, skillPath, filePath, commitSha) {
+      const rawRepo = typeof repo === 'string' ? repo.trim() : '';
+      const repoParts = rawRepo.split('/');
+      if (
+        repoParts.length !== 2 ||
+        !OWNER_RE.test(repoParts[0]) ||
+        !REPO_RE.test(repoParts[1]) ||
+        repoParts[1] === '.' ||
+        repoParts[1] === '..'
+      ) {
+        throw new CatalogError('invalid_input', 'El repositorio indicado no es válido.');
+      }
+      if (typeof commitSha !== 'string' || !/^[0-9a-f]{40}$/.test(commitSha)) {
+        throw new CatalogError('invalid_input', 'El SHA del commit no es válido.');
+      }
+      if (
+        typeof filePath !== 'string' ||
+        !filePath ||
+        filePath.startsWith('/') ||
+        filePath.endsWith('/') ||
+        filePath.split('/').some((s) => s === '') ||
+        !isSafePath(filePath)
+      ) {
+        throw new CatalogError('invalid_input', 'La ruta del archivo no es válida.');
+      }
+      if (
+        typeof skillPath !== 'string' ||
+        (skillPath !== '' &&
+          (skillPath.startsWith('/') ||
+            skillPath.endsWith('/') ||
+            skillPath.split('/').some((s) => s === '') ||
+            !isSafePath(skillPath)))
+      ) {
+        throw new CatalogError('invalid_input', 'La carpeta de la skill no es válida.');
+      }
+
+      const [owner, repoName] = repoParts;
+      const full = skillPath ? `${skillPath}/${filePath}` : filePath;
+      // Texto crudo y no confiable: el llamador debe mostrarlo como texto, nunca como HTML.
+      return cleanText(await fetchRaw(owner, repoName, full, commitSha), MAX_FILE_PREVIEW_BYTES);
     },
   };
 }
