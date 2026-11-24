@@ -11,6 +11,12 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-23 · Antigravity (`Orquestador General`) · `fix/github-pages-artifact-v4`
+- **Hecho:** Actualización de `actions/upload-pages-artifact@v3` a `@v4` en `.github/workflows/deploy.yml` (con aprobación humana) para restaurar el despliegue automático a GitHub Pages tras el retiro de `upload-artifact@v3`.
+- **Verificación:** `./scripts/check.sh --rapido` en `pre-commit` y workflow `Deploy to GitHub Pages` en `main`.
+- **Pendiente:** Iniciar `001-equipos-y-miembros` con `spec-plan-code` y actualizar manualmente `codice-labeler.yml` en el repo catálogo.
+- **Problemas:** Ninguno.
+
 ## 2026-11-23 · Antigravity (`Orquestador General`) · `chore/adoptar-harness`
 - **Hecho:**
   - Instalación de `SuarezCaceres/harness-template` sobre la rama `chore/adoptar-harness` (partiendo de `feat/codice-clases-compartidas`, `27018b4`) sin conflictos con el código existente.
