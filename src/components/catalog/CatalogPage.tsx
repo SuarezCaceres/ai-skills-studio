@@ -10,7 +10,7 @@ interface CatalogPageProps {
   onOpenSkill: (id: string) => void;
   /** Abre la pantalla de acceso (inicio de sesión con GitHub). */
   onRequestLogin: () => void;
-  /** Trae una copia de trabajo de la skill al estudio. */
+  /** @deprecated Compatibilidad temporal Fase 0/1; se retira en Fase 2. */
   onOpenInStudio?: (id: string) => void;
 }
 
@@ -28,7 +28,7 @@ const FOCUS =
  * Página del catálogo comunitario: lista las skills registradas en el repo
  * catálogo de GitHub, con buscador, categorías y orden, y permite publicar.
  */
-export function CatalogPage({ onOpenSkill, onRequestLogin, onOpenInStudio }: CatalogPageProps) {
+export function CatalogPage({ onOpenSkill, onRequestLogin, onOpenInStudio: _onOpenInStudio }: CatalogPageProps) {
   const { api, session } = useCatalog();
   const [state, setState] = useState<ListState>({ status: 'loading' });
   const [reload, setReload] = useState(0);
@@ -275,7 +275,6 @@ export function CatalogPage({ onOpenSkill, onRequestLogin, onOpenInStudio }: Cat
                   key={skill.id}
                   skill={skill}
                   onOpen={() => onOpenSkill(skill.id)}
-                  onOpenInStudio={onOpenInStudio ? () => onOpenInStudio(skill.id) : undefined}
                 />
               ))}
             </ul>
