@@ -462,6 +462,13 @@ async function main() {
             await page.clock.runFor(interval);
             await waitSingleStep(page, step);
           }
+          // El foco se desplaza con una transición CSS (no la controla page.clock): medir cuando haya terminado.
+          await page.waitForFunction(
+            (sel) => (document.querySelector(sel)?.getAnimations({ subtree: true }) ?? [])
+              .every((a) => !(a instanceof CSSTransition) || a.playState !== 'running'),
+            GUIA,
+            { timeout: 5000 },
+          );
           const geo = await page.evaluate(
             ({ marcoSel, markerSel, tipSel }) => {
               const f = document.querySelector(marcoSel)?.getBoundingClientRect();

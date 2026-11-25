@@ -32,7 +32,7 @@ export const GUIDE_COPY = {
 } as const;
 
 export const GUIDE_STEP_TEXT: Record<GuideStepId, string> = {
-  buscar: 'Empieza aquí: escribe lo que necesitas, como "auditoría" o "React".',
+  buscar: 'Empieza aquí: escribe lo que necesitas, como «auditoría» o «React».',
   filtrar: 'Acota por categoría para ver solo lo relevante.',
   abrir: 'Abre una skill para leer su SKILL.md y auditar su código.',
 };

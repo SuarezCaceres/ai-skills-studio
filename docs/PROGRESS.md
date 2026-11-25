@@ -45,6 +45,16 @@
 - **Pendiente:** Sin pendientes abiertos de `003-directorio-skills-sh` ni de producción en Vercel; continuar en `docs/TASKS.md` con `001-equipos-y-miembros`.
 - **Problemas:** Ninguno.
 
+## 2026-11-25 · Claude Code (`Orquestador General`) · `feat/005-guia-vs-sin-guia`
+- **Hecho:**
+  - Entrevista (`grilling`) para adaptar el componente externo `spatial-product-showcase` (framer-motion + shadcn) al stack real: sección ilustrativa «Guía vs. sin guía» en la portada con la misma captura del Catálogo atenuada o guiada en 3 pasos, sin dependencias nuevas.
+  - `docs/specs/005-guia-vs-sin-guia/{spec,plan}.md` aprobados y Fase 0 de contratos (`src/types/guideShowcase.ts`, hotspots y WebP provisionales).
+  - Fase 1 en 3 worktrees paralelos con agentes hijos: componente `GuideContrastShowcase.tsx` + textos + montaje (`wt1`), script reproducible `capture-guide-showcase.mjs` con GitHub simulado y WebP de 58 KB (`wt2`) y suite `test-guide-showcase.mjs` en 4 anchos conectada a `check.sh` (`wt3`).
+  - Fase 2: integración, caja de los chips de categoría ajustada a los botones (92 % → 39 %), espera a las transiciones CSS en la prueba de geometría y comillas angulares en el tooltip.
+- **Verificación:** `test-guide-showcase.mjs` 179/179; tipos, unitarias e integración en verde. Resto de E2E en verde salvo 3 suites heredadas de la 004 (`test-interactions-playwright`, `test-catalog-integration` y `test-skills-sh-page`), que buscan UI retirada o ya fallaban en la base `9f7580d`. Criterios C1–C5 y C7 en `pasa: true`; C6 en `false` por el chunk inicial (~393 kB, deuda preexistente).
+- **Pendiente:** Fase 4 (`revisor` independiente + PR de 5 secciones) e integrar tras la 004.
+- **Problemas:** Chunk inicial en ~393 kB (deuda preexistente > 350 kB; la sección suma ~14 kB). La captura usa fuentes de reserva porque las de Google se bloquean en el script para no depender de la red.
+
 ## 2026-11-24 · Antigravity (`Orquestador General`) · `chore/vercel-primary-deploy`
 - **Hecho:**
   - Adopción de Vercel (`https://codice-oauth.vercel.app`) como despliegue principal de frontend + funciones serverless (`api/github-oauth.ts`, `api/skills-sh.ts`), retirando `.github/workflows/deploy.yml` (con aprobación explícita del dueño).

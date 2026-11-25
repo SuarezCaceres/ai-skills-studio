@@ -43,6 +43,21 @@ const CAPTURE_CSS =
 const round2 = (n) => Math.round(n * 100) / 100;
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
+/** Caja (px) que envuelve a todos los hijos visibles que cumplen `selector` dentro de `locator`. */
+async function unionOfChildren(locator, selector) {
+  return locator.evaluate((el, sel) => {
+    const rects = [...el.querySelectorAll(sel)]
+      .map((child) => child.getBoundingClientRect())
+      .filter((r) => r.width > 0 && r.height > 0);
+    if (rects.length === 0) return null;
+    const x = Math.min(...rects.map((r) => r.left));
+    const y = Math.min(...rects.map((r) => r.top));
+    const right = Math.max(...rects.map((r) => r.right));
+    const bottom = Math.max(...rects.map((r) => r.bottom));
+    return { x, y, width: right - x, height: bottom - y };
+  }, selector);
+}
+
 /** Caja de `boundingBox()` (px) → porcentajes de la captura, con margen y recortada a 0–100. */
 function toPercentBox(px) {
   const x0 = clamp(((px.x / WIDTH) * 100) - MARGIN_PCT, 0, 100);
@@ -176,7 +191,8 @@ async function main() {
     };
     const boxes = {};
     for (const [id, locator] of Object.entries(targets)) {
-      const px = await locator.boundingBox();
+      // El grupo de categorías ocupa todo el ancho de la fila; la guía debe señalar solo los chips.
+      const px = id === 'filtrar' ? await unionOfChildren(locator, 'button') : await locator.boundingBox();
       if (!px) throw new Error(`No se pudo medir la zona «${id}»: el elemento no está visible.`);
       boxes[id] = toPercentBox(px);
       assertBox(id, boxes[id]);
