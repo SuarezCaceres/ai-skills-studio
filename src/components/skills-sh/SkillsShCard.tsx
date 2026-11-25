@@ -11,14 +11,14 @@ import {
   Loader2,
   TrendingUp,
 } from 'lucide-react';
-import type { SkillsShEntry } from '../../types/skillsSh';
+import type { SkillsShBusyKind, SkillsShEntry } from '../../types/skillsSh';
 
 export interface SkillsShCardProps {
   entry: SkillsShEntry;
   rank?: number;
   onOpenInWorkspace: (entry: SkillsShEntry) => Promise<void>;
   onImportToCatalog: (entry: SkillsShEntry) => Promise<void>;
-  busyKind?: 'workspace' | 'import' | null;
+  busyKind?: SkillsShBusyKind | null;
   anyBusy?: boolean;
 }
 

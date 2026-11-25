@@ -209,6 +209,10 @@ export interface CatalogApi {
     filePath: string,
     commitSha: string
   ): Promise<string>;
+  /**
+   * Descarga el contenido de un archivo de una skill registrada fijada a su `commitSha`.
+   */
+  getSkillFileContent?(skillId: string, filePath: string): Promise<string>;
 }
 
 /** Resultado de resolver una skill externa de GitHub a partir de `(source, skillId)`. */
@@ -253,4 +257,39 @@ export interface LessonSharingApi {
   listCommunityLessons(): Promise<import('./lessons').CommunityLesson[]>;
   /** Carga el cuerpo de una clase de Comunidad desde su commit fijado. */
   getCommunityLesson(lesson: import('./lessons').CommunityLesson): Promise<import('./lessons').CommunityLesson>;
+}
+
+/**
+ * Skill externa (p. ej. resuelta desde `skills.sh` con `inspectGithubSkillByHint`)
+ * abierta en `SkillDetailPage` en modo vista previa de solo lectura fijada a `commitSha`.
+ */
+export interface CatalogSkillPreview {
+  skill: CatalogSkill;
+  /** URL canónica de GitHub lista para `registerSkillFromUrl`. */
+  canonicalUrl: string;
+  /** Etiqueta de origen (ej. `'skills.sh'`). */
+  sourceLabel?: string;
+  /** Enlace a la ficha externa en skills.sh, si aplica. */
+  externalUrl?: string;
+  /** Comando rápido `npx skills add ...`, si aplica. */
+  npxCommand?: string;
+}
+
+/** Contrato compartido entre `src/App.tsx` y `src/components/catalog/CatalogDetailRoute.tsx`. */
+export interface CatalogDetailRouteProps {
+  /** `CatalogSkill.id` seleccionado, o null si no hay ninguno. */
+  skillId: string | null;
+  /** Vista previa de solo lectura fijada a `commitSha` (cuando viene de `Explorar`). */
+  previewSkill?: CatalogSkillPreview | null;
+  onBack: () => void;
+  /** Texto del botón de volver (por defecto "Catálogo"). */
+  backLabel?: string;
+  /** Importa al catálogo comunitario la skill abierta en vista previa. */
+  onImportPreview?: (preview: CatalogSkillPreview) => Promise<void>;
+  /** `true` mientras está en curso la importación de la vista previa. */
+  importingPreview?: boolean;
+  /** @deprecated Compatibilidad temporal Fase 0/1; se retira en Fase 2. */
+  onOpenInStudio?: (skillId: string) => void;
+  /** Abre la pantalla de acceso (el inicio de sesión con GitHub vive allí). */
+  onRequestLogin: () => void;
 }
