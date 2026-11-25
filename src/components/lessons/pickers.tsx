@@ -33,14 +33,14 @@ function SearchBox({ value, onChange, label }: { value: string; onChange: (v: st
   );
 }
 
-/** Selector de skills: las del equipo y las copias de trabajo, con buscador y avatar del autor. */
+/** Selector de skills del equipo, con buscador y avatar del autor. */
 export function SkillPicker({ value, onChange, max, error, skills }: PickerProps & { skills: UseSkillOptionsResult }) {
   const [query, setQuery] = useState('');
   const { options, status } = skills;
 
   // Las ya elegidas que no aparecen (p. ej. una skill retirada) se muestran para poder quitarlas.
   const orphan = useMemo<SkillOption[]>(
-    () => value.filter((id) => !options.some((o) => o.id === id)).map((id) => ({ id, name: id.split('/').pop() || id, source: 'equipo', hasCopy: false })),
+    () => value.filter((id) => !options.some((o) => o.id === id)).map((id) => ({ id, name: id.split('/').pop() || id, source: 'equipo' })),
     [value, options]
   );
   const visible = useMemo(() => {
@@ -60,7 +60,7 @@ export function SkillPicker({ value, onChange, max, error, skills }: PickerProps
         </p>
       )}
       {status === 'ready' && options.length === 0 && orphan.length === 0 && (
-        <p className="m-0 text-xs text-slate-500">Todavía no hay skills del equipo ni copias de trabajo para vincular.</p>
+        <p className="m-0 text-xs text-slate-500">Todavía no hay skills del equipo para vincular.</p>
       )}
       {options.length > 5 && <SearchBox value={query} onChange={setQuery} label="Buscar skill" />}
       <ul className="m-0 flex max-h-64 list-none flex-col gap-1 overflow-y-auto p-0 pr-1">
@@ -72,8 +72,7 @@ export function SkillPicker({ value, onChange, max, error, skills }: PickerProps
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-mono text-sm text-white">{o.name}</span>
                 <span className="block truncate text-[11px] text-slate-500">
-                  {o.authorLogin ? `@${o.authorLogin}` : 'Copia de trabajo'}
-                  {o.hasCopy && o.source === 'equipo' ? ' · con copia de trabajo' : ''}
+                  {o.authorLogin ? `@${o.authorLogin}` : 'Equipo'}
                 </span>
               </span>
             </label>

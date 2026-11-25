@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useCatalog } from '../../hooks/useCatalog';
 import { isTeamLogin } from '../../config/team';
 import type { Lesson } from '../../types/lessons';
@@ -10,7 +10,6 @@ import {
   replaceAllLessons,
   type ImportResult,
 } from '../../services/lessonsStore';
-import { loadWorkingCopies } from '../../utils/workingCopy';
 
 /** Instancia única del almacén; cambiar el almacenamiento solo exige cambiar esta línea. */
 const store = createLocalLessonsStore();
@@ -76,7 +75,7 @@ export function useLessons(): UseLessonsResult {
   return { lessons, storageFailed, save, remove, exportJson, importJson };
 }
 
-/** Skill que se puede vincular a una clase. */
+/** Skill del equipo que se puede vincular a una clase. */
 export interface SkillOption {
   /** `CatalogSkill.id`. */
   id: string;
@@ -84,9 +83,7 @@ export interface SkillOption {
   authorLogin?: string;
   avatarUrl?: string;
   /** De dónde sale la opción. */
-  source: 'equipo' | 'copia';
-  /** `true` si además hay una copia de trabajo abierta en el estudio. */
-  hasCopy: boolean;
+  source: 'equipo';
 }
 
 export interface UseSkillOptionsResult {
@@ -96,10 +93,10 @@ export interface UseSkillOptionsResult {
   find: (id: string) => SkillOption | undefined;
 }
 
-/** Skills del equipo más las copias de trabajo abiertas en el estudio (sin duplicados). */
+/** Skills reales del equipo disponibles para vincular en Códice. */
 export function useSkillOptions(): UseSkillOptionsResult {
   const { api } = useCatalog();
-  const [team, setTeam] = useState<SkillOption[]>([]);
+  const [options, setOptions] = useState<SkillOption[]>([]);
   const [status, setStatus] = useState<UseSkillOptionsResult['status']>('loading');
 
   useEffect(() => {
@@ -109,7 +106,7 @@ export function useSkillOptions(): UseSkillOptionsResult {
       .listSkills()
       .then((all) => {
         if (cancelled) return;
-        setTeam(
+        setOptions(
           all
             .filter((s) => isTeamLogin(s.uploadedBy.login))
             .map((s) => ({
@@ -118,7 +115,6 @@ export function useSkillOptions(): UseSkillOptionsResult {
               authorLogin: s.uploadedBy.login,
               avatarUrl: s.uploadedBy.avatarUrl,
               source: 'equipo' as const,
-              hasCopy: false,
             }))
         );
         setStatus('ready');
@@ -128,18 +124,6 @@ export function useSkillOptions(): UseSkillOptionsResult {
       cancelled = true;
     };
   }, [api]);
-
-  const options = useMemo(() => {
-    const copyIds = new Map<string, string>();
-    for (const doc of loadWorkingCopies()) {
-      if (doc.id.startsWith('team:')) copyIds.set(doc.id.slice('team:'.length), doc.name);
-    }
-    const merged = team.map((o) => ({ ...o, hasCopy: copyIds.has(o.id) }));
-    for (const [id, name] of copyIds) {
-      if (!merged.some((o) => o.id === id)) merged.push({ id, name, source: 'copia', hasCopy: true });
-    }
-    return merged;
-  }, [team]);
 
   const find = useCallback((id: string) => options.find((o) => o.id === id), [options]);
   return { options, status, find };
