@@ -31,6 +31,10 @@ const TYPES_FILE = resolve(ROOT, 'src', 'types', 'guideShowcase.ts');
 
 const MAX_WEBP_BYTES = 60 * 1024; // C6/C7: la captura pesa ≤ 60 KB
 const MAX_INITIAL_CHUNK_BYTES = 350 * 1000; // C6: presupuesto del chunk inicial (kB de Vite = 1000 B)
+// Chunk inicial medido en la base de la 005 (9f7580d, punta de la 004) antes de añadir la sección: 382 305 B.
+// Si la deuda del bundle se paga (TASKS.md), baja este valor para que la suite proteja la mejora.
+const BASELINE_INITIAL_CHUNK_BYTES = 382_305;
+const CHUNK_SLACK_BYTES = 2_000;
 const ACCENT_HUE = 199; // cian #0ea5e9
 const HUE_TOLERANCE = 8;
 // «Acento» = color con croma (máx − mín de RGB, 0–1) > 0,25. Equivale a saturación HSL > 0,25 con luminosidad media, pero no
@@ -436,6 +440,8 @@ async function main() {
         const items = page.locator(`${lista} li`);
         check(`${tag} C2 la lista de obstáculos es visible y tiene elementos`, (await page.locator(lista).isVisible()) && (await items.count()) > 0, `li=${await items.count()}`);
         check(`${tag} C2 no hay ningún marcador de paso`, (await countOf(page, marker)) === 0, `${await countOf(page, marker)} marcadores`);
+        const filter = await page.locator(`${marco} img`).evaluate((img) => getComputedStyle(img).filter);
+        check(`${tag} C2 la captura se ve atenuada (filtro con grayscale y brightness < 1)`, /grayscale\(1\)/.test(filter) && /brightness\(0\.\d+\)/.test(filter), `filter="${filter}"`);
       });
 
       await guarded(`${tag} C3`, async () => {
@@ -453,6 +459,13 @@ async function main() {
         check(`${tag} C3 el anuncio aria-live=polite dice «Paso 1 de 3: …»`, !!said && /Paso 1 de 3:\s*\S/.test(said) && (await page.locator(announce).getAttribute('aria-live')) === 'polite', `anuncio="${said}"`);
         const conText = await textOf(page, lista);
         check(`${tag} C3 la lista cambia de contenido al activar la guía`, !!conText && conText !== sinText && (await page.locator(`${lista} li`).count()) > 0, `sin="${sinText?.slice(0, 40)}" con="${conText?.slice(0, 40)}"`);
+        // El filtro transiciona en CSS (500 ms): se espera a su valor final.
+        const lit = await page
+          .waitForFunction((sel) => getComputedStyle(document.querySelector(sel)).filter === 'none', `${marco} img`, { timeout: 3000 })
+          .then(() => true)
+          .catch(() => false);
+        const litFilter = await page.locator(`${marco} img`).evaluate((img) => getComputedStyle(img).filter);
+        check(`${tag} C3 la captura se ilumina (sin filtro de atenuación)`, lit, `filter="${litFilter}"`);
       });
 
       // Geometría: el tooltip nunca se sale del marco y cada marcador cae sobre su hotspot (3 pasos).
@@ -475,8 +488,9 @@ async function main() {
               const m = document.querySelector(markerSel)?.getBoundingClientRect();
               const t = document.querySelector(tipSel)?.getBoundingClientRect();
               const img = document.querySelector(`${marcoSel} img`)?.getBoundingClientRect();
+              const foco = document.querySelector(`${marcoSel} [data-testid="guia-foco"]`)?.getBoundingClientRect();
               const box = (r) => r && { x: r.x, y: r.y, w: r.width, h: r.height };
-              return { frame: box(f), marker: box(m), tip: box(t), img: box(img) };
+              return { frame: box(f), marker: box(m), tip: box(t), img: box(img), foco: box(foco) };
             },
             { marcoSel: marco, markerSel: marker, tipSel: tooltip }
           );
@@ -495,6 +509,17 @@ async function main() {
             };
             const overlaps = geo.marker.x < hb.x2 && geo.marker.x + geo.marker.w > hb.x1 && geo.marker.y < hb.y2 && geo.marker.y + geo.marker.h > hb.y1;
             check(`${tag} C3 paso ${step}: el marcador cae sobre el hotspot «${hotspot.id}»`, overlaps, JSON.stringify({ marker: geo.marker, hotspot: hb }));
+            // El recuadro del foco coincide con la caja del hotspot (±2 px, sin el margen anterior).
+            const exp = {
+              x: geo.img.x + (hotspot.box.x / 100) * geo.img.w,
+              y: geo.img.y + (hotspot.box.y / 100) * geo.img.h,
+              w: (hotspot.box.w / 100) * geo.img.w,
+              h: (hotspot.box.h / 100) * geo.img.h,
+            };
+            const near2 = (a, b) => Math.abs(a - b) <= 2;
+            check(`${tag} C3 paso ${step}: el foco tiene la posición y el tamaño del hotspot «${hotspot.id}»`,
+              !!geo.foco && near2(geo.foco.x, exp.x) && near2(geo.foco.y, exp.y) && near2(geo.foco.w, exp.w) && near2(geo.foco.h, exp.h),
+              JSON.stringify({ foco: geo.foco, esperado: exp }));
           } else {
             check(`${tag} C3 paso ${step}: hay marcador sobre la captura`, false, 'sin marcador o sin hotspot');
           }
@@ -618,6 +643,75 @@ async function main() {
           check('C4 al volver a «Sin guía» desaparecen los marcadores y no hay avance', (await countOf(page, marker)) === 0, `${await countOf(page, marker)} marcadores`);
           await radio(page, 'Con guía').click();
           check('C4 al volver a «Con guía» la guía reinicia en el paso 1', await waitSingleStep(page, 1), `pasos: ${(await currentSteps(page)).join(',')}`);
+        });
+
+        await guarded('C4 botón de pausa (WCAG 2.2.2)', async () => {
+          const pauseBtn = page.locator(`${GUIA} button[data-testid="guia-pausa"]`);
+          const frame = page.locator(marco);
+          check('C4 hay un botón «Pausar guía» con aria-pressed="false"', (await pauseBtn.isVisible()) && (await pauseBtn.getAttribute('aria-pressed')) === 'false' && /Pausar guía/.test((await pauseBtn.textContent()) ?? ''));
+          await pauseBtn.click();
+          check('C4 al pulsarlo: aria-pressed="true", texto «Reanudar guía» y data-paused="true"',
+            (await pauseBtn.getAttribute('aria-pressed')) === 'true' && /Reanudar guía/.test((await pauseBtn.textContent()) ?? '') && (await frame.getAttribute('data-paused')) === 'true');
+          await page.clock.runFor(interval * 2);
+          check('C4 con la guía pausada por el botón no avanza', await waitSingleStep(page, 1, 1500), `pasos: ${(await currentSteps(page)).join(',')}`);
+          await pauseBtn.click();
+          await page.clock.runFor(interval);
+          check('C4 al reanudar con el botón avanza al paso 2', await waitSingleStep(page, 2), `pasos: ${(await currentSteps(page)).join(',')}`);
+        });
+
+        await guarded('C4 pestaña oculta (visibilitychange)', async () => {
+          await radio(page, 'Sin guía').click();
+          await radio(page, 'Con guía').click();
+          await waitSingleStep(page, 1);
+          const setHidden = (hidden) => page.evaluate((h) => {
+            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (h ? 'hidden' : 'visible') });
+            document.dispatchEvent(new Event('visibilitychange'));
+          }, hidden);
+          await setHidden(true);
+          await page.clock.runFor(interval * 2);
+          check('C4 con la pestaña oculta la guía no avanza', await waitSingleStep(page, 1, 1500), `pasos: ${(await currentSteps(page)).join(',')}`);
+          await setHidden(false);
+          await page.clock.runFor(interval);
+          check('C4 al volver a la pestaña la guía se reanuda', await waitSingleStep(page, 2), `pasos: ${(await currentSteps(page)).join(',')}`);
+        });
+
+        await guarded('C4 fuera de pantalla', async () => {
+          await radio(page, 'Sin guía').click();
+          await radio(page, 'Con guía').click();
+          await waitSingleStep(page, 1);
+          await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+          await page.waitForFunction((sel) => {
+            const r = document.querySelector(sel).getBoundingClientRect();
+            return r.bottom < 0 || r.top > window.innerHeight;
+          }, GUIA);
+          await page.waitForTimeout(300); // IntersectionObserver no depende del reloj simulado
+          const before = await textOf(page, announce);
+          await page.clock.runFor(interval * 2);
+          check('C4 con la sección fuera de pantalla no avanza ni cambia el anuncio', (await waitSingleStep(page, 1, 1500)) && (await textOf(page, announce)) === before, `pasos: ${(await currentSteps(page)).join(',')}`);
+          await page.locator(GUIA).scrollIntoViewIfNeeded();
+          await page.waitForTimeout(300);
+          await page.mouse.move(0, 0); // sin hover sobre el marco
+          await page.clock.runFor(interval);
+          check('C4 al volver a verla, la guía se reanuda', await waitSingleStep(page, 2), `pasos: ${(await currentSteps(page)).join(',')}`);
+        });
+      }
+      await context.close();
+    }
+
+    /* ───── Caso límite: la captura no carga ───── */
+    console.log('\nCaso límite · imagen que falla');
+    {
+      const { context, page } = await openContext(browser, origin, { viewport: VIEWPORTS[0] });
+      await page.route(/catalogo[^/]*\.webp(\?.*)?$/, (route) => route.abort());
+      if (!(await openLanding(page, origin))) {
+        check('Imagen que falla: la sección #guia existe', false, '#guia no está en el DOM');
+      } else {
+        await guarded('Imagen que falla', async () => {
+          const altText = await page.locator(`${marco} img`).getAttribute('alt');
+          const shown = await page.locator(marco).evaluate((el, alt) => [...el.querySelectorAll('div')].some((d) => d.textContent?.trim() === alt && getComputedStyle(d).visibility !== 'hidden' && d.getBoundingClientRect().height > 0), altText);
+          check('Imagen que falla: el marco muestra el texto alternativo', shown, `alt="${altText}"`);
+          await radio(page, 'Con guía').click();
+          check('Imagen que falla: el selector y la guía siguen funcionando', (await page.locator(GUIA).getAttribute('data-mode')) === 'con-guia' && (await waitSingleStep(page, 1)));
         });
       }
       await context.close();
@@ -756,9 +850,12 @@ async function main() {
           if (!file || !existsSync(file)) throw new Error('no se encontró el chunk inicial index-*.js en dist/');
           const size = statSync(file).size;
           const kb = (size / 1000).toFixed(1);
-          if (size > MAX_INITIAL_CHUNK_BYTES) aviso(`el chunk inicial ${file.split(/[\\/]/).pop()} pesa ${kb} kB (> 350 kB): deuda preexistente registrada, no se falla`);
+          if (size > MAX_INITIAL_CHUNK_BYTES) aviso(`el chunk inicial ${file.split(/[\\/]/).pop()} pesa ${kb} kB (> 350 kB): deuda preexistente registrada (base 9f7580d = ${(BASELINE_INITIAL_CHUNK_BYTES / 1000).toFixed(1)} kB)`);
           else aviso(`el chunk inicial ${file.split(/[\\/]/).pop()} pesa ${kb} kB (presupuesto 350 kB)`);
-          check('C6 el chunk inicial se mide y existe en dist/', size > 0);
+          // No regresión: la 005 no puede engordar el chunk inicial respecto a la base (la sección va en su propio chunk).
+          check(`C6 la sección no engorda el chunk inicial (≤ base + ${CHUNK_SLACK_BYTES / 1000} kB)`, size > 0 && size <= BASELINE_INITIAL_CHUNK_BYTES + CHUNK_SLACK_BYTES, `${size} B frente a base ${BASELINE_INITIAL_CHUNK_BYTES} B`);
+          const lazyChunk = existsSync(dir) && readdirSync(dir).some((f) => /^GuideContrastShowcase-.*\.js$/.test(f));
+          check('C6 la sección se carga en un chunk diferido propio (GuideContrastShowcase-*.js)', lazyChunk);
         });
 
         await guarded('C6 dependencias', async () => {

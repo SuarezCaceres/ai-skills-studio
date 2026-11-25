@@ -4,7 +4,7 @@
 > Las funcionalidades completas viven en `docs/features.json`; aquí van tareas operativas, deuda técnica y pasos manuales.
 
 ## En curso
-- [ ] **005 · Guía vs. sin guía en la portada (`feat/005-guia-vs-sin-guia`, worktree `ai-skills-studio-005`):** Fases 0–3 hechas (contratos, 3 worktrees `feat/wt{1,2,3}-guia-*`, integración y docs); `test-guide-showcase.mjs` en verde (179/179); C6 queda en `pasa: false` solo por el chunk inicial > 350 kB preexistente. Falta Fase 4 (`revisor` + PR). Se basa en la punta commiteada de la 004 (`9f7580d`): integrar después de la 004 o rebasar sobre `main` · agente + humano
+- [ ] **005 · Guía vs. sin guía en la portada (`feat/005-guia-vs-sin-guia`, worktree `ai-skills-studio-005`):** Fases 0–3 hechas (contratos, 3 worktrees `feat/wt{1,2,3}-guia-*`, integración y docs); `test-guide-showcase.mjs` en verde (210/210); revisión independiente hecha y hallazgos aplicados. C6 queda en `pasa: false` solo por el chunk inicial > 350 kB preexistente (la base ya pesaba 382,3 kB): decidir si se divide el criterio. Falta abrir el PR tras integrar la 004. Se basa en la punta commiteada de la 004 (`9f7580d`): integrar después de la 004 o rebasar sobre `main` · agente + humano
 
 ## Pendiente
 - [ ] **🔴 PRIORIDAD ALTA · Remediar auditoría de seguridad (`security-audit`, run-1, perfil `quick`):** 8 hallazgos `needs_validation` verificados en código + 2 brechas diferidas. Reporte: `reporte-auditoria-seguridad.md` (artefacto de la conversación) y `scratch/security-audit/ai-skills-studio/run-1/` (`REPORT.md`, `NEEDS-VALIDATION.md`, `findings.json`). Abrir rama `fix/security-hardening` vía `spec-plan-code`; varias correcciones tocan zonas blindadas (requieren autorización) · humano + agente

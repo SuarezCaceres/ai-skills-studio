@@ -10,6 +10,8 @@ export const GUIDE_COPY = {
   subtitle:
     'Sin guía, cada botón es una incógnita. Con guía, sabes qué hacer en cada paso.',
   selectorLabel: 'Modo de la vista previa',
+  pauseGuide: 'Pausar guía',
+  resumeGuide: 'Reanudar guía',
   modes: {
     'sin-guia': 'Sin guía',
     'con-guia': 'Con guía',

@@ -11,6 +11,8 @@ import {
   Crosshair,
   ListChecks,
   MousePointerClick,
+  Pause,
+  Play,
   Route,
   Shuffle,
 } from 'lucide-react';
@@ -69,19 +71,25 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
   );
   const [hoverPaused, setHoverPaused] = useState(false);
   const [focusPaused, setFocusPaused] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
+  // Sin IntersectionObserver (entornos antiguos) se considera visible para no bloquear la guía.
+  const [inView, setInView] = useState<boolean>(() => typeof IntersectionObserver === 'undefined');
   const [imageFailed, setImageFailed] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const [tipPos, setTipPos] = useState<{ left: number; top: number } | null>(null);
 
+  const sectionRef = useRef<HTMLElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const tipRef = useRef<HTMLDivElement | null>(null);
+  // El tooltip solo anima su posición entre pasos, nunca al aparecer (evita que «vuele» desde la esquina).
+  const tipPlacedRef = useRef(false);
   const radioRefs = useRef<Record<GuideMode, HTMLButtonElement | null>>({
     'sin-guia': null,
     'con-guia': null,
   });
 
   const guided = mode === 'con-guia';
-  const paused = hoverPaused || focusPaused;
+  const paused = hoverPaused || focusPaused || userPaused;
   const showTip = guided && !reduced;
   const hotspot: GuideHotspot = GUIDE_CAPTURE.hotspots[step - 1];
   const { width: capW, height: capH } = GUIDE_CAPTURE;
@@ -103,12 +111,24 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
 
+  // Fuera de pantalla no se avanza ni se anuncia nada (no interrumpe al lector de pantalla en otra sección).
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry?.isIntersecting ?? false),
+      { threshold: 0.25 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   // Avance automático 1 → 2 → 3 → 1 (pausable, sin movimiento reducido).
   useEffect(() => {
-    if (!guided || reduced || paused || !pageVisible) return;
+    if (!guided || reduced || paused || !pageVisible || !inView) return;
     const id = window.setInterval(() => setStep(nextStep), GUIDE_STEP_INTERVAL_MS);
     return () => window.clearInterval(id);
-  }, [guided, reduced, paused, pageVisible]);
+  }, [guided, reduced, paused, pageVisible, inView]);
 
   // Anuncio para lectores de pantalla (región aria-live="polite").
   useEffect(() => {
@@ -155,6 +175,10 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
     );
   }, [hotspot]);
 
+  useEffect(() => {
+    tipPlacedRef.current = tipPos !== null;
+  }, [tipPos]);
+
   useLayoutEffect(() => {
     if (!showTip) {
       setTipPos(null);
@@ -172,7 +196,16 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
     setMode(next);
     setStep(1);
     setFocusPaused(false);
+    setUserPaused(false);
   }, []);
+
+  // Solo el ratón pausa al pasar por encima: en táctil, pointerenter quedaría «pegado» tras un toque.
+  const onFramePointerEnter = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType === 'mouse') setHoverPaused(true);
+  };
+  const onFramePointerLeave = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType === 'mouse') setHoverPaused(false);
+  };
 
   const onRadioKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const key = event.key;
@@ -208,6 +241,7 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
 
   return (
     <section
+      ref={sectionRef}
       id="guia"
       className="section"
       aria-labelledby="guia-h"
@@ -231,7 +265,7 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
               <span
                 aria-hidden="true"
                 data-testid="guia-indicador"
-                className={`guia-indicador absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-full bg-[#0ea5e9] transition-transform duration-300 ease-out ${
+                className={`absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-full bg-[#0ea5e9] transition-transform duration-300 ease-out ${
                   guided ? 'translate-x-full' : 'translate-x-0'
                 }`}
               />
@@ -258,6 +292,24 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
                 );
               })}
             </div>
+
+            {/* WCAG 2.2.2: el avance automático se puede pausar sin depender del ratón. */}
+            {guided && !reduced && (
+              <button
+                type="button"
+                data-testid="guia-pausa"
+                aria-pressed={userPaused}
+                onClick={() => setUserPaused((value) => !value)}
+                className="inline-flex cursor-pointer items-center gap-2 self-start rounded-full border border-white/10 bg-transparent px-3.5 py-1.5 text-xs font-medium text-[#94a3b8] transition-colors hover:text-[#f1f5f9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+              >
+                {userPaused ? (
+                  <Play size={14} aria-hidden="true" />
+                ) : (
+                  <Pause size={14} aria-hidden="true" />
+                )}
+                {userPaused ? GUIDE_COPY.resumeGuide : GUIDE_COPY.pauseGuide}
+              </button>
+            )}
           </div>
 
           {/* Marco de navegador con la captura real */}
@@ -266,8 +318,8 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
               data-testid="guia-marco"
               data-paused={paused ? 'true' : 'false'}
               tabIndex={guided && !reduced ? 0 : undefined}
-              onMouseEnter={() => setHoverPaused(true)}
-              onMouseLeave={() => setHoverPaused(false)}
+              onPointerEnter={onFramePointerEnter}
+              onPointerLeave={onFramePointerLeave}
               onFocus={() => setFocusPaused(true)}
               onBlur={onFrameBlur}
               className="m-0 overflow-hidden rounded-xl border border-white/10 bg-[var(--p-bg)] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.85)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
@@ -328,7 +380,7 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
                       className={`absolute rounded-md border-2 border-[#0ea5e9] ${
                         reduced
                           ? ''
-                          : 'guia-foco transition-[left,top,width,height] duration-500 ease-out'
+                          : 'transition-[left,top,width,height] duration-500 ease-out'
                       }`}
                       style={{
                         left: `${spot.box.x}%`,
@@ -355,7 +407,9 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({
                   <div
                     ref={tipRef}
                     data-testid="guia-tooltip"
-                    className="guia-tooltip absolute z-10 rounded-lg border border-[#0ea5e9] bg-[var(--p-surface)] px-3 py-2 text-xs leading-snug text-[#f1f5f9] shadow-[0_12px_30px_-12px_rgba(0,0,0,0.9)] transition-[left,top] duration-500 ease-out sm:text-[13px]"
+                    className={`guia-tooltip absolute z-10 rounded-lg border border-[#0ea5e9] bg-[var(--p-surface)] px-3 py-2 text-xs leading-snug text-[#f1f5f9] shadow-[0_12px_30px_-12px_rgba(0,0,0,0.9)] sm:text-[13px] ${
+                      tipPlacedRef.current ? 'transition-[left,top] duration-500 ease-out' : ''
+                    }`}
                     style={{
                       width: 'min(17rem, calc(100% - 1rem))',
                       left: tipPos?.left ?? 0,
