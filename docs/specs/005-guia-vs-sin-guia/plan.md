@@ -1,6 +1,6 @@
 # Plan · 005 · Guía vs. sin guía en la portada
 
-> Estado: borrador
+> Estado: aprobado
 
 ## Enfoque
 Se reinterpreta el componente externo `spatial-product-showcase` con la tecnología real del proyecto: **React 19 + TypeScript + Tailwind v4 y animaciones CSS** (sin framer-motion ni shadcn). Se divide en **5 fases Zero-Conflict**:

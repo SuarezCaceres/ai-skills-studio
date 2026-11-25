@@ -93,7 +93,7 @@
       "id": "005",
       "nombre": "guia-vs-sin-guia",
       "spec": "docs/specs/005-guia-vs-sin-guia/spec.md",
-      "estado": "spec",
+      "estado": "en_curso",
       "criterios": [
         { "id": "C1", "descripcion": "Sección #guia en la portada tras el hero y antes de #inspector, con título, captura local del Catálogo en marco y selector, sin desbordamiento ni errores de consola/CSP en 1440/1024/768/390 px", "pasa": false },
         { "id": "C2", "descripcion": "Estado inicial «Sin guía»: radio marcado, captura atenuada, lista de obstáculos visible y ningún marcador de paso", "pasa": false },

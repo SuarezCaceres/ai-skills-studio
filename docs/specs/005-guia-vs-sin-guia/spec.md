@@ -1,6 +1,6 @@
 # Spec · 005 · Guía vs. sin guía en la portada
 
-> Estado: borrador
+> Estado: aprobada
 
 ## Problema
 Quien llega por primera vez a Códice Studio se encuentra con un Catálogo lleno de controles (buscador, chips de categorías, tarjetas, acciones de auditoría e inspección) sin saber por dónde empezar. La portada explica *qué* hace el producto, pero no transmite *cómo se siente* usarlo con alguien que te acompañe paso a paso frente a usarlo a ciegas.
