@@ -76,30 +76,33 @@ jobs:
 
 Notas: solo reacciona a `opened` (no a ediciones) y nunca interpola el contenido del Issue en una shell. Si algún día el volumen de spam lo exige, puedes bloquear Issues (*lock*) o exigir cuentas con cierta antigüedad.
 
-## 2. OAuth App (GitHub)
+## 2. OAuth App / GitHub App (GitHub)
 
-1. GitHub → *Settings → Developer settings → OAuth Apps → New OAuth App*.
-2. **Homepage URL**: la URL pública del sitio, p. ej. `https://suarezcaceres.github.io/ai-skills-studio/`.
-3. **Authorization callback URL**: la **misma URL del sitio** (la app vuelve a su propia página con `?code=...&state=...`). GitHub ahora admite varias *Redirect URIs* en la misma OAuth App: añade también `http://localhost:5173/` para desarrollo local (y `ALLOWED_ORIGINS` en Vercel debe incluir ambos orígenes).
+1. GitHub → *Settings → Developer settings → GitHub Apps / OAuth Apps*.
+2. **Homepage URL**: la URL pública del sitio en Vercel, p. ej. `https://codice-oauth.vercel.app/`.
+3. **Authorization callback URL**: la **misma URL del sitio** (la app vuelve a su propia página con `?code=...&state=...`). Las GitHub Apps (`Ov23li...`) admiten varias *Callback URLs*: registra `https://codice-oauth.vercel.app/` para producción y `http://localhost:5173/` para desarrollo local (y `ALLOWED_ORIGINS` en Vercel debe incluir ambos orígenes).
 4. Copia el **Client ID** (público) y genera un **Client secret** (privado: solo irá a Vercel).
 5. Permisos: la app pide el alcance `public_repo`, necesario para crear Issues y reacciones en un repo público. Es un alcance amplio (escritura en los repos públicos de quien entra); está documentado para que los usuarios lo sepan. Pueden revocarlo en *GitHub → Settings → Applications*.
 
-## 3. Proyecto de Vercel (función `api/github-oauth.ts`)
+## 3. Proyecto de Vercel (frontend + funciones `api/github-oauth.ts` y `api/skills-sh.ts`)
 
-1. En Vercel: *Add New → Project* e importa este repositorio. Como el sitio se publica en GitHub Pages, Vercel solo se usa para la función: *Framework Preset* **Other**, sin *Build Command*.
-2. En *Settings → Environment Variables* define (entorno Production, y Preview si lo quieres):
+1. En Vercel: conecta este repositorio (`vercel.json` configura `framework: "vite"`, `buildCommand: "npm run build"`, `outputDirectory: "dist"` y cabeceras HTTP de seguridad).
+2. En *Settings → Environment Variables* define (en Production y Preview):
 
    | Variable | Valor |
    | :--- | :--- |
-   | `GITHUB_CLIENT_ID` | Client ID de la OAuth App |
-   | `GITHUB_CLIENT_SECRET` | Client secret de la OAuth App |
-   | `ALLOWED_ORIGINS` | Orígenes del sitio separados por comas, sin barra final: `https://suarezcaceres.github.io,http://localhost:5173` |
+   | `GITHUB_CLIENT_ID` | Client ID de la App de GitHub |
+   | `GITHUB_CLIENT_SECRET` | Client secret de la App de GitHub |
+   | `ALLOWED_ORIGINS` | Orígenes del sitio separados por comas, sin barra final: `https://codice-oauth.vercel.app,https://codice-oauth-suarezcaceres-projects.vercel.app,http://localhost:5173` |
+   | `VITE_CATALOG_REPO` | `SuarezCaceres/codice-skills-catalog` |
+   | `VITE_GITHUB_CLIENT_ID` | Client ID público (`Ov23...`) |
+   | `VITE_GITHUB_OAUTH_URL` | `https://codice-oauth.vercel.app/api/github-oauth` |
 
-3. Despliega. La función quedará en `https://TU-PROYECTO.vercel.app/api/github-oauth`.
+3. Despliega (`npx vercel --prod` o push a `main` tras `vercel git connect`). Las funciones quedarán en `https://codice-oauth.vercel.app/api/github-oauth` y `/api/skills-sh`.
 4. Prueba rápida (debe responder `403 origin_not_allowed` sin cabecera `Origin`, lo que confirma que el CORS cierra el paso):
-   `curl -i -X POST https://TU-PROYECTO.vercel.app/api/github-oauth`
+   `curl -i -X POST https://codice-oauth.vercel.app/api/github-oauth`
 
-La función solo acepta `POST`/`OPTIONS` desde los orígenes permitidos, valida `code`, `redirect_uri` (debe pertenecer a un origen permitido) y `code_verifier`, y responde únicamente `access_token`, `token_type` y `scope`.
+La función OAuth solo acepta `POST`/`OPTIONS` desde los orígenes permitidos, valida `code`, `redirect_uri` (debe pertenecer a un origen permitido) y `code_verifier`, y responde únicamente `access_token`, `token_type` y `scope`.
 
 ## 4. Variables del frontend (públicas)
 
@@ -108,11 +111,11 @@ Son valores públicos (se incrustan en el bundle); **no** pongas aquí ningún s
 | Variable | Ejemplo |
 | :--- | :--- |
 | `VITE_CATALOG_REPO` | `TU_USUARIO/codice-skills-catalog` |
-| `VITE_GITHUB_CLIENT_ID` | Client ID de la OAuth App |
+| `VITE_GITHUB_CLIENT_ID` | Client ID de la App de GitHub |
 | `VITE_GITHUB_OAUTH_URL` | `https://TU-PROYECTO.vercel.app/api/github-oauth` |
 
 - **Local**: crea `.env.local` (ignorado por git) con las tres variables y ejecuta `npm run dev`.
-- **GitHub Pages**: define las tres como *Repository variables* (*Settings → Secrets and variables → Actions → Variables*) y pásalas al paso `Build` de `.github/workflows/deploy.yml` con `env: VITE_CATALOG_REPO: ${{ vars.VITE_CATALOG_REPO }}` (y las otras dos). Ese paso ya está en `.github/workflows/deploy.yml`: solo falta definir las variables en el repo.
+- **Vercel**: define las tres variables en *Settings → Environment Variables* (Production y Preview) para que `npm run build` las incruste en `dist/` y en la CSP de `index.html`.
 
 ## 5. Política de seguridad de contenido (CSP)
 

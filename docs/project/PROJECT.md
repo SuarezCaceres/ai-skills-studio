@@ -21,9 +21,8 @@ Desarrolladores e ingenieros de IA —tanto individuales como equipos de trabajo
   - *Próximos hitos planificados en `docs/features.json`:* Equipos de trabajo dinámicos (Fase 5) y Skills colaborativas de equipo (Fase 6).
 
 ## Estado actual
-En **producción (`v2.2.2`)**, desplegado en paralelo en:
-- **GitHub Pages:** `https://suarezcaceres.github.io/ai-skills-studio/`
-- **GitLab Pages:** `https://ai-skills-studio-3ce497.gitlab.io`
+En **producción (`v2.2.2`)**, desplegado como sitio estático y funciones serverless en:
+- **Vercel (producción principal):** `https://codice-oauth.vercel.app/` (`api/github-oauth.ts` y `api/skills-sh.ts`)
 
 **Pendiente operativo manual externo:** actualizar el archivo `.github/workflows/codice-labeler.yml` dentro del repositorio catálogo de GitHub para que reconozca y etiquete automáticamente los Issues con `kind: 'class'` (procedimiento documentado en `docs/catalog-setup.md`).
 
