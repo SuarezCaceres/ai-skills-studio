@@ -69,6 +69,7 @@ function formatSyncedDate(iso: string): string {
  * con debounce, paginación y acciones de integración directa.
  */
 export function SkillsShPage({
+  onInspectSkill,
   onOpenInWorkspace,
   onImportToCatalog,
   onRequestLogin,
@@ -226,8 +227,10 @@ export function SkillsShPage({
               <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
             </a>
             . Busca skills por popularidad o tendencia, copia su comando{' '}
-            <code className="font-mono text-xs text-slate-200">npx</code> o abre repositorios
-            públicos de GitHub en Workspace y en el catálogo comunitario.
+            <code className="font-mono text-xs text-slate-200">npx</code>, inspecciona
+            repositorios públicos de GitHub en vista previa fijada a{' '}
+            <code className="font-mono text-xs text-slate-200">commitSha</code> o impórtalos al
+            catálogo comunitario.
           </p>
         </div>
 
@@ -297,7 +300,7 @@ export function SkillsShPage({
               {state.notice ||
                 `Mostrando la copia de respaldo estática sincronizada${
                   formattedSyncedAt ? ` el ${formattedSyncedAt}` : ''
-                }. Puedes seguir buscando, copiando comandos npx y abriendo skills de GitHub.`}
+                }. Puedes seguir buscando, copiando comandos npx e inspeccionando skills de GitHub.`}
             </p>
           </div>
           <button
@@ -488,7 +491,7 @@ export function SkillsShPage({
                     key={entry.id}
                     entry={entry}
                     rank={rank}
-                    onOpenInWorkspace={onOpenInWorkspace}
+                    onInspectSkill={onInspectSkill ?? onOpenInWorkspace}
                     onImportToCatalog={onImportToCatalog}
                     busyKind={busyAction && busyAction.entryId === entry.id ? busyAction.kind : null}
                     anyBusy={Boolean(busyAction)}
