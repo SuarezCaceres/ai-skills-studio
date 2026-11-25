@@ -5,7 +5,7 @@
 > No crees `CLAUDE.md` ni `GEMINI.md`: si existen, algunas herramientas ignoran este archivo.
 
 ## Qué es este proyecto
-**Códice Studio (`v2.2.2`)** es un IDE web client-side y catálogo comunitario sobre GitHub para auditar, editar en VFS, probar y compartir *skills* (`SKILL.md`), componentes UI accesibles y clases técnicas para agentes de IA. Está en producción en GitHub Pages y GitLab Pages; todo corre en el navegador salvo `api/github-oauth.ts` (intercambio OAuth PKCE en Vercel).
+**Códice Studio (`v2.2.2`)** es un IDE web client-side y catálogo comunitario sobre GitHub para auditar, editar en VFS, probar y compartir *skills* (`SKILL.md`), componentes UI accesibles y clases técnicas para agentes de IA. Está desplegado en producción en Vercel (`https://codice-oauth.vercel.app`) junto a sus funciones serverless en `api/`; la persistencia comunitaria vive en GitHub.
 Detalle: `docs/project/PROJECT.md` · Arquitectura: `docs/project/ARCHITECTURE.md`
 
 ## Estructura del repo
