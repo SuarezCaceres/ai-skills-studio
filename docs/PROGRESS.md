@@ -16,6 +16,7 @@
   - Adopción de Vercel (`https://codice-oauth.vercel.app`) como despliegue principal de frontend + funciones serverless (`api/github-oauth.ts`, `api/skills-sh.ts`), retirando `.github/workflows/deploy.yml` (con aprobación explícita del dueño).
   - Creación de `vercel.json` (`framework: "vite"`, `outputDirectory: "dist"`, cabeceras de seguridad HTTP en rutas no-API) y actualización de `AGENTS.md`, `docs/project/PROJECT.md` y `docs/catalog-setup.md`.
   - Configuración en Vercel (`codice-oauth`) de `VITE_CATALOG_REPO`, `VITE_GITHUB_CLIENT_ID`, `VITE_GITHUB_OAUTH_URL` y `ALLOWED_ORIGINS` (`https://codice-oauth.vercel.app`, alias de equipo y `http://localhost:5173`), más conexión Git.
+  - Corrección `same-origin` en `api/skills-sh.ts` (`fix/skills-sh-same-origin-cors`) para aceptar `GET` del mismo origen sin cabecera `Origin` cuando `Sec-Fetch-Site: same-origin` (o `Referer` equivalente) coincide con `ALLOWED_ORIGINS`.
 - **Verificación:** `./scripts/check.sh` completo en **`exit 0`** y comprobación en vivo sobre `https://codice-oauth.vercel.app/` (botón **Entrar con GitHub** habilitado, CSP con `connect-src`, cabeceras de seguridad y **Explorar** en vivo).
 - **Pendiente:** Confirmar que `https://codice-oauth.vercel.app/` figura en las Callback URLs de la GitHub App `Ov23lii7kOK3ajmx8d1u` y probar el flujo completo de inicio de sesión en el navegador.
 - **Problemas:** Ninguno.

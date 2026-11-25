@@ -79,7 +79,7 @@ function corsHeaders(origin: string): Record<string, string> {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Max-Age': '600',
-    Vary: 'Origin',
+    Vary: 'Origin, Sec-Fetch-Site',
   };
 }
 
@@ -95,16 +95,56 @@ function jsonResponse(
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': cacheControl,
       'X-Content-Type-Options': 'nosniff',
-      Vary: 'Origin',
+      Vary: 'Origin, Sec-Fetch-Site',
       ...extraHeaders,
     },
   });
 }
 
-/** Devuelve el origen permitido de la petición o `null` si no coincide exactamente. */
+function resolveSelfOrigin(request: Request): string | null {
+  const fwdHost = (request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '')
+    .split(',')[0]
+    .trim();
+  if (fwdHost && /^[A-Za-z0-9._-]+(:\d{1,5})?$/.test(fwdHost)) {
+    const rawProto = (request.headers.get('x-forwarded-proto') ?? '').split(',')[0].trim().toLowerCase();
+    const proto = rawProto === 'http' || rawProto === 'https' ? rawProto : 'https';
+    return `${proto}://${fwdHost}`.replace(/\/+$/, '');
+  }
+  try {
+    return new URL(request.url).origin.replace(/\/+$/, '');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Devuelve el origen permitido de la petición o `null`.
+ * Los navegadores omiten `Origin` en peticiones `GET` del mismo origen; en ese caso
+ * solo se acepta si el propio host está en `ALLOWED_ORIGINS` y `Sec-Fetch-Site: same-origin`
+ * (o `Referer` del mismo origen) confirma la procedencia.
+ */
 function checkOrigin(request: Request, origins: string[]): string | null {
   const origin = (request.headers.get('origin') ?? '').trim().replace(/\/+$/, '');
-  return origin && origins.includes(origin) ? origin : null;
+  if (origin) {
+    return origins.includes(origin) ? origin : null;
+  }
+
+  if ((request.method || 'GET').toUpperCase() !== 'GET') return null;
+  const selfOrigin = resolveSelfOrigin(request);
+  if (!selfOrigin || !origins.includes(selfOrigin)) return null;
+
+  const secFetchSite = (request.headers.get('sec-fetch-site') ?? '').trim().toLowerCase();
+  if (secFetchSite) {
+    return secFetchSite === 'same-origin' ? selfOrigin : null;
+  }
+
+  const referer = (request.headers.get('referer') ?? '').trim();
+  if (!referer) return null;
+  try {
+    return new URL(referer).origin.replace(/\/+$/, '') === selfOrigin ? selfOrigin : null;
+  } catch {
+    return null;
+  }
 }
 
 function isAllowedView(value: string | null): value is AllowedView {

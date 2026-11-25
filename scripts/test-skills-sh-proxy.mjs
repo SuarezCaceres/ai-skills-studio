@@ -72,7 +72,7 @@ try {
     assert.equal(res.status, 204);
     assert.equal(res.headers.get('Access-Control-Allow-Origin'), ALLOWED_ORIGIN);
     assert.equal(res.headers.get('Access-Control-Allow-Methods'), 'GET, OPTIONS');
-    assert.equal(res.headers.get('Vary'), 'Origin');
+    assert.match(res.headers.get('Vary') ?? '', /\bOrigin\b/);
     assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
     assert.equal(fetchCalled, false);
   });
@@ -114,6 +114,62 @@ try {
     assert.deepEqual(body, { error: 'origin_not_allowed' });
     assert.equal(res.headers.get('Cache-Control'), 'no-store');
     assert.equal(res.headers.get('Access-Control-Allow-Origin'), null);
+    assert.equal(fetchCalled, false);
+  });
+
+  await test('GET del mismo origen (sin Origin pero con Sec-Fetch-Site: same-origin) devuelve 200', async () => {
+    // Arrange
+    const req = new Request('https://codice-oauth.vercel.app/api/skills-sh?mode=list&view=all-time&page=0', {
+      method: 'GET',
+      headers: {
+        Host: 'codice-oauth.vercel.app',
+        'Sec-Fetch-Site': 'same-origin',
+      },
+    });
+
+    // Act
+    const res = await handleSkillsShRequest(req, {
+      allowedOrigins: ['https://codice-oauth.vercel.app'],
+      fetchImpl: async () =>
+        new Response(
+          JSON.stringify({
+            skills: [{ source: 'vercel-labs/skills', skillId: 'find-skills', name: 'find-skills', installs: 100 }],
+            total: 1,
+            hasMore: false,
+          }),
+          { status: 200 }
+        ),
+    });
+    const body = await res.json();
+
+    // Assert
+    assert.equal(res.status, 200);
+    assert.equal(body.skills.length, 1);
+    assert.equal(res.headers.get('Access-Control-Allow-Origin'), 'https://codice-oauth.vercel.app');
+  });
+
+  await test('GET sin Origin con Sec-Fetch-Site distinto de same-origin devuelve 403', async () => {
+    // Arrange
+    let fetchCalled = false;
+    const req = new Request('https://codice-oauth.vercel.app/api/skills-sh?mode=list&view=all-time&page=0', {
+      method: 'GET',
+      headers: {
+        Host: 'codice-oauth.vercel.app',
+        'Sec-Fetch-Site': 'none',
+      },
+    });
+
+    // Act
+    const res = await handleSkillsShRequest(req, {
+      allowedOrigins: ['https://codice-oauth.vercel.app'],
+      fetchImpl: async () => {
+        fetchCalled = true;
+        return new Response('{}', { status: 200 });
+      },
+    });
+
+    // Assert
+    assert.equal(res.status, 403);
     assert.equal(fetchCalled, false);
   });
 
@@ -267,7 +323,7 @@ try {
     assert.equal(res.status, 200);
     assert.equal(res.headers.get('Cache-Control'), 'public, s-maxage=300, stale-while-revalidate=3600');
     assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
-    assert.equal(res.headers.get('Vary'), 'Origin');
+    assert.match(res.headers.get('Vary') ?? '', /\bOrigin\b/);
     assert.equal(res.headers.get('Access-Control-Allow-Origin'), ALLOWED_ORIGIN);
 
     assert.equal(body.mode, 'list');
@@ -336,7 +392,7 @@ try {
     assert.equal(res.status, 200);
     assert.equal(res.headers.get('Cache-Control'), 'public, s-maxage=300, stale-while-revalidate=3600');
     assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
-    assert.equal(res.headers.get('Vary'), 'Origin');
+    assert.match(res.headers.get('Vary') ?? '', /\bOrigin\b/);
     assert.equal(body.mode, 'search');
     assert.equal(body.query, 'react');
     assert.equal(body.count, 42);
