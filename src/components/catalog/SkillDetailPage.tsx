@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -9,15 +10,26 @@ import type { KeyboardEvent, ReactNode } from 'react';
 import {
   AlertCircle,
   ArrowLeft,
+  Check,
+  Copy,
+  Download,
+  ExternalLink,
+  Eye,
+  FileCode2,
   FileText,
   FolderOpen,
   Pencil,
   Plus,
+  Scale,
+  Tag,
+  Terminal,
+  TriangleAlert,
+  Loader2,
 } from 'lucide-react';
 import type {
   CatalogApi,
   CatalogSkill,
-  CatalogSkillFile,
+  CatalogSkillPreview,
   GithubSession,
   SkillResultReport,
   SkillVotes,
@@ -28,13 +40,14 @@ import { ReportResultForm } from './ReportResultForm';
 import type { ReportInput } from './ReportResultForm';
 import { MoreFromAuthor } from './MoreFromAuthor';
 import { PublishSkillDialog } from './PublishSkillDialog';
-import { MAX_MARKDOWN_CHARS, SafeMarkdown } from './SafeMarkdown';
+import { SafeMarkdown } from './SafeMarkdown';
 import { SkillEditorDialog } from './SkillEditorDialog';
 import { utf8ToBase64 } from '../../services/skillUploadService';
 import { TranslateButton } from './TranslateButton';
+import { FilesPanel } from './FilesPanel';
 
 /* ==========================================================================
-   Pestañas WAI-ARIA y pestaña de archivos
+   Pestañas WAI-ARIA
    ========================================================================== */
 
 type TabId = 'resumen' | 'archivos';
@@ -44,74 +57,23 @@ const TABS: { id: TabId; label: string; Icon: typeof FileText }[] = [
   { id: 'archivos', label: 'Archivos', Icon: FolderOpen },
 ];
 
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
-function FilesPanel({ skill }: { skill: CatalogSkill }) {
-  const files = skill.files;
-  const [selected, setSelected] = useState<string>(
-    () => files.find((f) => f.path === 'SKILL.md')?.path ?? files[0]?.path ?? ''
-  );
-  const file: CatalogSkillFile | undefined = files.find((f) => f.path === selected);
-  const content = file?.path === 'SKILL.md' ? (file.content ?? skill.markdown) : file?.content;
-
-  if (files.length === 0) {
-    return (
-      <p className="m-0 rounded-xl border border-dashed border-slate-700 bg-[#121722] p-5 text-sm text-slate-400">
-        Esta skill no lista archivos.
-      </p>
-    );
-  }
-
+function PreviewSidebarRow({
+  icon,
+  label,
+  children,
+}: {
+  icon: ReactNode;
+  label: string;
+  children: ReactNode;
+}) {
   return (
-    <div className="[display:grid] min-w-0 gap-4 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)]">
-      <ul
-        aria-label="Archivos de la skill"
-        className="m-0 flex list-none flex-col gap-1 overflow-hidden rounded-xl border border-slate-800 bg-[#121722] p-2"
-      >
-        {files.map((f) => (
-          <li key={f.path} className="min-w-0">
-            <button
-              type="button"
-              onClick={() => setSelected(f.path)}
-              aria-current={f.path === selected ? 'true' : undefined}
-              className={`flex w-full min-w-0 cursor-pointer items-center justify-between gap-3 rounded-lg border-0 border-l-2 px-2.5 py-1.5 text-left text-xs transition-colors focus-visible:outline-2 focus-visible:outline-[#0ea5e9] ${
-                f.path === selected
-                  ? 'border-l-[#0ea5e9] bg-[#0a0d14] text-white'
-                  : 'border-l-transparent bg-transparent text-slate-400 hover:bg-[#0a0d14]/60 hover:text-slate-200'
-              }`}
-            >
-              <span className="min-w-0 truncate font-mono" title={f.path}>
-                {f.path}
-              </span>
-              <span className="shrink-0 font-mono tabular-nums text-slate-500">
-                {formatBytes(f.sizeBytes)}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      <div className="min-w-0 overflow-hidden rounded-xl border border-slate-800 bg-[#0a0d14]">
-        <div className="border-b border-slate-800 bg-[#121722] px-4 py-2 font-mono text-xs text-slate-300">
-          <span className="break-all">{file?.path}</span>
-        </div>
-        {content !== undefined ? (
-          <pre
-            tabIndex={0}
-            aria-label={`Contenido de ${file?.path}`}
-            className="m-0 max-h-[28rem] overflow-auto p-4 font-mono text-[13px] leading-relaxed text-slate-200 focus-visible:outline-2 focus-visible:outline-[#0ea5e9]"
-          >
-            {content.length > MAX_MARKDOWN_CHARS ? content.slice(0, MAX_MARKDOWN_CHARS) : content}
-          </pre>
-        ) : (
-          <p className="m-0 p-4 text-sm text-slate-400">
-            El contenido de este archivo no se descarga en esta vista. Ábrelo en el repositorio.
-          </p>
-        )}
+    <div className="flex items-start gap-3 py-2.5">
+      <span className="mt-0.5 shrink-0 text-slate-500" aria-hidden="true">
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</dt>
+        <dd className="m-0 mt-0.5 break-words text-sm text-slate-200">{children}</dd>
       </div>
     </div>
   );
@@ -124,10 +86,16 @@ function FilesPanel({ skill }: { skill: CatalogSkill }) {
 export interface SkillDetailPageProps {
   /** `CatalogSkill.id` seleccionado, o null si no hay ninguno. */
   skillId: string | null;
+  /** Vista previa de solo lectura fijada a `commitSha` (cuando viene de `Explorar`). */
+  previewSkill?: CatalogSkillPreview | null;
   onBack: () => void;
   /** Texto del botón de volver. */
   backLabel?: string;
-  /** Si se pasa, muestra "Abrir en estudio" en la cabecera. */
+  /** Importa al catálogo comunitario la skill abierta en vista previa. */
+  onImportPreview?: (preview: CatalogSkillPreview) => Promise<void>;
+  /** `true` mientras está en curso la importación de la vista previa. */
+  importingPreview?: boolean;
+  /** @deprecated Compatibilidad temporal Fase 0/1; se retira en Fase 2. */
   onOpenInStudio?: (skill: CatalogSkill) => void;
   /**
    * `api` es obligatoria: la ruta de integración (`CatalogDetailRoute`) inyecta el
@@ -159,9 +127,12 @@ function errorMessage(err: unknown, fallback: string): string {
 
 export function SkillDetailPage({
   skillId,
+  previewSkill = null,
   onBack,
-  backLabel = 'Catálogo',
-  onOpenInStudio,
+  backLabel,
+  onImportPreview,
+  importingPreview = false,
+  onOpenInStudio: _onOpenInStudio,
   api,
   session = null,
   onRequestLogin,
@@ -169,6 +140,10 @@ export function SkillDetailPage({
   renderInstall,
 }: SkillDetailPageProps) {
   const uid = useId();
+  const isPreview = Boolean(previewSkill);
+  const effectiveBackLabel = backLabel ?? (isPreview ? 'Explorar' : 'Catálogo');
+  const previewKey = previewSkill ? `${previewSkill.skill.id}@${previewSkill.skill.commitSha}` : '';
+
   const [currentId, setCurrentId] = useState<string | null>(skillId);
   const [skillState, setSkillState] = useState<SkillState>({ status: 'idle' });
   const [resultsState, setResultsState] = useState<ResultsState>({ status: 'loading' });
@@ -180,15 +155,32 @@ export function SkillDetailPage({
   const [editOpen, setEditOpen] = useState(false);
   const [translated, setTranslated] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
+  const [loadedContents, setLoadedContents] = useState<Record<string, string>>({});
+  const [npxCopied, setNpxCopied] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const npxTimer = useRef<number | undefined>(undefined);
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ resumen: null, archivos: null });
+
+  useEffect(() => () => window.clearTimeout(npxTimer.current), []);
 
   // Sincroniza con la selección que llega desde App.tsx.
   useEffect(() => {
     setCurrentId(skillId);
   }, [skillId]);
 
-  // Carga de la skill.
+  // Al cambiar de vista previa, reinicia pestaña, traducción y archivos cargados.
   useEffect(() => {
+    if (!previewKey) return;
+    setTab('resumen');
+    setTranslated(null);
+    setLoadedContents({});
+    setNpxCopied(false);
+    setImportError(null);
+  }, [previewKey]);
+
+  // Carga de la skill (solo en modo catálogo; en vista previa ya viene fijada a commitSha).
+  useEffect(() => {
+    if (isPreview) return;
     if (!currentId) {
       setSkillState({ status: 'idle' });
       return;
@@ -197,6 +189,7 @@ export function SkillDetailPage({
     setSkillState({ status: 'loading' });
     setTab('resumen');
     setTranslated(null);
+    setLoadedContents({});
     api
       .getSkill(currentId)
       .then((skill) => {
@@ -210,10 +203,42 @@ export function SkillDetailPage({
     return () => {
       cancelled = true;
     };
-  }, [api, currentId, reload]);
+  }, [api, currentId, reload, isPreview]);
 
-  // Resultados y votos, en paralelo y con estados independientes.
-  const readyId = skillState.status === 'ready' ? skillState.skill.id : null;
+  const baseSkill = previewSkill
+    ? previewSkill.skill
+    : skillState.status === 'ready'
+      ? skillState.skill
+      : null;
+
+  const baseSkillKey = baseSkill ? `${baseSkill.id}@${baseSkill.commitSha}` : '';
+  useEffect(() => {
+    setLoadedContents({});
+  }, [baseSkillKey]);
+
+  const handleFileLoaded = useCallback((filePath: string, content: string) => {
+    setLoadedContents((prev) =>
+      Object.prototype.hasOwnProperty.call(prev, filePath) && prev[filePath] === content
+        ? prev
+        : { ...prev, [filePath]: content }
+    );
+  }, []);
+
+  const effectiveSkill = useMemo<CatalogSkill | null>(() => {
+    if (!baseSkill) return null;
+    if (Object.keys(loadedContents).length === 0) return baseSkill;
+    return {
+      ...baseSkill,
+      files: baseSkill.files.map((f) =>
+        Object.prototype.hasOwnProperty.call(loadedContents, f.path)
+          ? { ...f, content: loadedContents[f.path] }
+          : f
+      ),
+    };
+  }, [baseSkill, loadedContents]);
+
+  // Resultados y votos, en paralelo y con estados independientes (deshabilitados en vista previa).
+  const readyId = !isPreview && skillState.status === 'ready' ? skillState.skill.id : null;
   const [resultsReload, setResultsReload] = useState(0);
   useEffect(() => {
     if (!readyId) return;
@@ -282,6 +307,28 @@ export function SkillDetailPage({
     [api]
   );
 
+  const handleCopyNpx = async () => {
+    if (!previewSkill?.npxCommand) return;
+    try {
+      await navigator.clipboard.writeText(previewSkill.npxCommand);
+      setNpxCopied(true);
+      window.clearTimeout(npxTimer.current);
+      npxTimer.current = window.setTimeout(() => setNpxCopied(false), 2000);
+    } catch {
+      /* el usuario puede copiar manualmente */
+    }
+  };
+
+  const handleImportPreview = async () => {
+    if (!previewSkill || !onImportPreview || importingPreview) return;
+    setImportError(null);
+    try {
+      await onImportPreview(previewSkill);
+    } catch (err) {
+      setImportError(errorMessage(err, 'No se pudo importar la skill al catálogo.'));
+    }
+  };
+
   const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     const idx = TABS.findIndex((t) => t.id === tab);
     let next = idx;
@@ -302,7 +349,7 @@ export function SkillDetailPage({
       className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-transparent px-1 py-1 text-sm font-medium text-[#38bdf8] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
     >
       <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-      {backLabel}
+      {effectiveBackLabel}
     </button>
   );
 
@@ -315,7 +362,7 @@ export function SkillDetailPage({
     </section>
   );
 
-  if (skillState.status === 'idle') {
+  if (!isPreview && skillState.status === 'idle') {
     return shell(
       <div className="space-y-4">
         {backButton}
@@ -326,7 +373,7 @@ export function SkillDetailPage({
     );
   }
 
-  if (skillState.status === 'loading') {
+  if (!isPreview && skillState.status === 'loading') {
     return shell(
       <div className="space-y-6" role="status" aria-label="Cargando skill">
         {backButton}
@@ -343,7 +390,7 @@ export function SkillDetailPage({
     );
   }
 
-  if (skillState.status === 'error' || skillState.status === 'notfound') {
+  if (!isPreview && (skillState.status === 'error' || skillState.status === 'notfound')) {
     const notFound = skillState.status === 'notfound';
     return shell(
       <div className="space-y-4">
@@ -370,9 +417,12 @@ export function SkillDetailPage({
     );
   }
 
-  const { skill } = skillState;
+  if (!effectiveSkill) return null;
+
+  const skill = effectiveSkill;
   const me = session?.login.toLowerCase();
   const canEdit =
+    !isPreview &&
     Boolean(me) &&
     Boolean(api.commitSkillChanges) &&
     skill.uploadedBy.login.toLowerCase() === me &&
@@ -380,6 +430,8 @@ export function SkillDetailPage({
   const uploader = skill.uploadedBy;
   const profileUrl = safeHttpUrl(uploader.profileUrl);
   const avatarUrl = safeHttpUrl(uploader.avatarUrl);
+  const repoUrl = safeHttpUrl(`https://github.com/${skill.repo}`);
+  const externalPreviewUrl = previewSkill ? safeHttpUrl(previewSkill.externalUrl) : null;
   const panelId = (id: TabId) => `${uid}-panel-${id}`;
   const tabId = (id: TabId) => `${uid}-tab-${id}`;
 
@@ -390,52 +442,169 @@ export function SkillDetailPage({
       </p>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         {backButton}
-        <div className="flex flex-wrap items-center gap-2">
-        {canEdit && (
-          <button
-            type="button"
-            onClick={() => setEditOpen(true)}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-600 bg-transparent px-4 py-1.5 text-xs font-semibold text-slate-100 hover:border-[#0ea5e9] hover:text-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
-          >
-            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-            Editar
-          </button>
+        {isPreview && previewSkill ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0ea5e9]/40 bg-[#0ea5e9]/10 px-3 py-1 font-mono text-xs font-medium text-[#38bdf8]">
+              <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+              Vista previa · {previewSkill.sourceLabel ?? 'skills.sh'} · {skill.commitSha.slice(0, 7)}
+            </span>
+            {externalPreviewUrl && (
+              <a
+                href={externalPreviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-transparent px-3 py-1 text-xs font-semibold text-slate-200 no-underline transition hover:border-[#0ea5e9] hover:text-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+              >
+                Ver en {previewSkill.sourceLabel ?? 'skills.sh'}
+                <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                <span className="sr-only">(se abre en una pestaña nueva)</span>
+              </a>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-2">
+            {canEdit && (
+              <button
+                type="button"
+                onClick={() => setEditOpen(true)}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-600 bg-transparent px-4 py-1.5 text-xs font-semibold text-slate-100 hover:border-[#0ea5e9] hover:text-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+              >
+                <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                Editar
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setPublishOpen(true)}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-600 bg-transparent px-4 py-1.5 text-xs font-semibold text-slate-100 hover:border-[#0ea5e9] hover:text-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+              Publicar una skill
+            </button>
+          </div>
         )}
-        {onOpenInStudio && (
-          <button
-            type="button"
-            onClick={() => onOpenInStudio(skill)}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border-0 bg-[#0ea5e9] px-4 py-1.5 text-xs font-semibold text-[#0a0d14] hover:bg-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
-          >
-            <FolderOpen className="h-3.5 w-3.5" aria-hidden="true" />
-            Abrir en estudio
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={() => setPublishOpen(true)}
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-600 bg-transparent px-4 py-1.5 text-xs font-semibold text-slate-100 hover:border-[#0ea5e9] hover:text-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
-        >
-          <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-          Publicar una skill
-        </button>
-        </div>
       </div>
 
       <div className="[display:grid] min-w-0 gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:[grid-template-rows:auto_1fr]">
         {/* Ficha lateral: primero en el DOM para móvil, columna derecha en escritorio. */}
         <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
           <div className="lg:sticky lg:top-20">
-            <SkillSidebar
-              skill={skill}
-              votes={votes}
-              votesError={votesError}
-              voting={voting}
-              canVote={Boolean(session)}
-              onVote={handleVote}
-              auditSlot={renderAudit?.(skill)}
-              installSlot={renderInstall?.(skill)}
-            />
+            {isPreview && previewSkill ? (
+              <aside aria-label="Ficha de la skill" className="min-w-0 space-y-4">
+                <div className="space-y-2.5 rounded-xl border border-slate-800 bg-[#121722] p-4">
+                  <p className="m-0 font-mono text-[11px] uppercase tracking-wider text-[#38bdf8]">
+                    Vista previa · {previewSkill.sourceLabel ?? 'skills.sh'}
+                  </p>
+                  {onImportPreview && (
+                    <button
+                      type="button"
+                      onClick={handleImportPreview}
+                      disabled={importingPreview}
+                      aria-busy={importingPreview || undefined}
+                      className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full border-0 bg-[#0ea5e9] px-4 py-2.5 text-sm font-bold text-[#0a0d14] transition hover:bg-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {importingPreview ? (
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      ) : (
+                        <Download className="h-4 w-4" aria-hidden="true" />
+                      )}
+                      {importingPreview ? 'Importando al catálogo…' : 'Importar al catálogo'}
+                    </button>
+                  )}
+                  <p className="m-0 text-xs leading-relaxed text-slate-400">
+                    Solo lectura fijada al commit{' '}
+                    <code className="font-mono text-slate-200">{skill.commitSha.slice(0, 7)}</code>.
+                    {!session && onImportPreview ? ' Requiere iniciar sesión con GitHub para registrarla.' : ''}
+                  </p>
+                  {importError && (
+                    <p role="alert" className="m-0 text-xs text-rose-300">
+                      {importError}
+                    </p>
+                  )}
+                </div>
+
+                {renderAudit?.(skill)}
+
+                <dl className="m-0 divide-y divide-slate-800/80 rounded-xl border border-slate-800 bg-[#121722] px-4">
+                  <PreviewSidebarRow icon={<FileCode2 className="h-4 w-4" />} label="Repositorio">
+                    {repoUrl ? (
+                      <a
+                        href={repoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex max-w-full items-center gap-1 font-mono text-[13px] text-[#38bdf8] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+                      >
+                        <span className="truncate">{skill.repo}</span>
+                        <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+                        <span className="sr-only">(se abre en una pestaña nueva)</span>
+                      </a>
+                    ) : (
+                      <span className="font-mono text-[13px]">{skill.repo}</span>
+                    )}
+                    <span className="mt-0.5 block font-mono text-[11px] text-slate-500">
+                      commit {skill.commitSha.slice(0, 7)}
+                    </span>
+                  </PreviewSidebarRow>
+                  <PreviewSidebarRow icon={<Scale className="h-4 w-4" />} label="Licencia">
+                    {skill.license ?? <span className="text-slate-400">Sin licencia declarada</span>}
+                  </PreviewSidebarRow>
+                  <PreviewSidebarRow icon={<Tag className="h-4 w-4" />} label="Categoría">
+                    {skill.category}
+                  </PreviewSidebarRow>
+                  <PreviewSidebarRow icon={<TriangleAlert className="h-4 w-4" />} label="Trae scripts">
+                    {skill.hasScripts ? (
+                      <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-950/40 px-2 py-0.5 text-xs font-semibold text-amber-300">
+                        Sí, revisa antes de ejecutar
+                      </span>
+                    ) : (
+                      <span className="text-slate-300">No</span>
+                    )}
+                  </PreviewSidebarRow>
+                </dl>
+
+                {previewSkill.npxCommand && (
+                  <div className="space-y-2 rounded-xl border border-slate-800 bg-[#121722] p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-200">
+                        <Terminal className="h-3.5 w-3.5 text-[#0ea5e9]" aria-hidden="true" />
+                        Comando rápido (npx)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleCopyNpx}
+                        className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-slate-700 bg-[#0a0d14] px-2.5 py-1 text-[11px] font-semibold text-slate-200 transition hover:border-[#0ea5e9] hover:text-[#38bdf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+                      >
+                        {npxCopied ? (
+                          <Check className="h-3 w-3 text-emerald-400" aria-hidden="true" />
+                        ) : (
+                          <Copy className="h-3 w-3" aria-hidden="true" />
+                        )}
+                        {npxCopied ? 'Copiado' : 'Copiar npx'}
+                      </button>
+                    </div>
+                    <pre
+                      tabIndex={0}
+                      className="m-0 overflow-x-auto rounded-lg border border-slate-800 bg-[#0a0d14] p-2.5 font-mono text-xs text-slate-200 focus-visible:outline-2 focus-visible:outline-[#0ea5e9]"
+                    >
+                      {previewSkill.npxCommand}
+                    </pre>
+                  </div>
+                )}
+
+                {renderInstall?.(skill)}
+              </aside>
+            ) : (
+              <SkillSidebar
+                skill={skill}
+                votes={votes}
+                votesError={votesError}
+                voting={voting}
+                canVote={Boolean(session)}
+                onVote={handleVote}
+                auditSlot={renderAudit?.(skill)}
+                installSlot={renderInstall?.(skill)}
+              />
+            )}
           </div>
         </div>
 
@@ -461,21 +630,41 @@ export function SkillDetailPage({
                 aria-hidden="true"
                 className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-700 bg-[#121722] text-[10px] font-bold uppercase text-slate-300"
               >
-                {uploader.login.slice(0, 1)}
+                {(isPreview ? skill.author.login : uploader.login).slice(0, 1)}
               </span>
             )}
-            <span>Subida por</span>
-            {profileUrl ? (
-              <a
-                href={profileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-slate-200 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
-              >
-                @{uploader.login}
-              </a>
+            {isPreview ? (
+              <>
+                <span>Repositorio</span>
+                {repoUrl ? (
+                  <a
+                    href={repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono font-semibold text-slate-200 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+                  >
+                    {skill.repo}
+                  </a>
+                ) : (
+                  <span className="font-mono font-semibold text-slate-200">{skill.repo}</span>
+                )}
+              </>
             ) : (
-              <span className="font-semibold text-slate-200">@{uploader.login}</span>
+              <>
+                <span>Subida por</span>
+                {profileUrl ? (
+                  <a
+                    href={profileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-slate-200 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]"
+                  >
+                    @{uploader.login}
+                  </a>
+                ) : (
+                  <span className="font-semibold text-slate-200">@{uploader.login}</span>
+                )}
+              </>
             )}
           </p>
           <p
@@ -538,7 +727,11 @@ export function SkillDetailPage({
               {tab === 'resumen' && (
                 <div className="space-y-10">
                   <div className="space-y-4">
-                    <TranslateButton key={skill.id} markdown={skill.markdown} onChange={setTranslated} />
+                    <TranslateButton
+                      key={`${skill.id}@${skill.commitSha}`}
+                      markdown={skill.markdown}
+                      onChange={setTranslated}
+                    />
                     <article
                       lang={translated === null ? 'en' : 'es'}
                       aria-label={translated === null ? 'Contenido de SKILL.md' : 'Contenido de SKILL.md traducido al español'}
@@ -547,19 +740,23 @@ export function SkillDetailPage({
                       <SafeMarkdown source={translated ?? skill.markdown} />
                     </article>
                   </div>
-                  <ResultsByModel
-                    results={resultsState.status === 'ready' ? resultsState.results : []}
-                    loading={resultsState.status === 'loading'}
-                    error={resultsState.status === 'error' ? resultsState.message : null}
-                    onRetry={() => setResultsReload((n) => n + 1)}
-                  />
-                  <ReportResultForm
-                    key={skill.id}
-                    skillId={skill.id}
-                    session={session}
-                    onRequestLogin={onRequestLogin}
-                    onSubmit={handleReport}
-                  />
+                  {!isPreview && (
+                    <>
+                      <ResultsByModel
+                        results={resultsState.status === 'ready' ? resultsState.results : []}
+                        loading={resultsState.status === 'loading'}
+                        error={resultsState.status === 'error' ? resultsState.message : null}
+                        onRetry={() => setResultsReload((n) => n + 1)}
+                      />
+                      <ReportResultForm
+                        key={skill.id}
+                        skillId={skill.id}
+                        session={session}
+                        onRequestLogin={onRequestLogin}
+                        onSubmit={handleReport}
+                      />
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -572,16 +769,28 @@ export function SkillDetailPage({
               tabIndex={0}
               className="pt-6 focus-visible:outline-2 focus-visible:outline-[#0ea5e9]"
             >
-              {tab === 'archivos' && <FilesPanel key={skill.id} skill={skill} />}
+              {tab === 'archivos' && (
+                <FilesPanel
+                  key={`${skill.id}@${skill.commitSha}`}
+                  skill={skill}
+                  api={api}
+                  loadedContents={loadedContents}
+                  onFileLoaded={handleFileLoaded}
+                  session={session}
+                  onRequestLogin={onRequestLogin}
+                />
+              )}
             </div>
           </div>
 
-          <MoreFromAuthor
-            author={skill.author}
-            currentSkillId={skill.id}
-            api={api}
-            onSelect={setCurrentId}
-          />
+          {!isPreview && (
+            <MoreFromAuthor
+              author={skill.author}
+              currentSkillId={skill.id}
+              api={api}
+              onSelect={setCurrentId}
+            />
+          )}
         </div>
       </div>
 
@@ -606,15 +815,17 @@ export function SkillDetailPage({
         />
       )}
 
-      <PublishSkillDialog
-        open={publishOpen}
-        session={session}
-        onClose={() => setPublishOpen(false)}
-        onRequestLogin={onRequestLogin}
-        onRegister={(url) => api.registerSkillFromUrl(url)}
-        onPublishLocal={api.publishLocalSkill ? (bundle, onProgress) => api.publishLocalSkill!(bundle, onProgress) : undefined}
-        onRegistered={(created) => setCurrentId(created.id)}
-      />
+      {!isPreview && (
+        <PublishSkillDialog
+          open={publishOpen}
+          session={session}
+          onClose={() => setPublishOpen(false)}
+          onRequestLogin={onRequestLogin}
+          onRegister={(url) => api.registerSkillFromUrl(url)}
+          onPublishLocal={api.publishLocalSkill ? (bundle, onProgress) => api.publishLocalSkill!(bundle, onProgress) : undefined}
+          onRegistered={(created) => setCurrentId(created.id)}
+        />
+      )}
     </>
   );
 }
