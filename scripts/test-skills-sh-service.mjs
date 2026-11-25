@@ -505,6 +505,55 @@ try {
     assert.equal(searched.skills[0].skillId, 'tdd');
   });
 
+  await test('cuando falla el proxy remoto y hay devProxyFallbackUrl local, responde en vivo sin caer a snapshot', async () => {
+    // Arrange
+    const calls = [];
+    const service = m.createSkillsShService({
+      proxyUrl: 'https://proxy.test/api/skills-sh',
+      devProxyFallbackUrl: '/api/skills-sh',
+      snapshotUrl: 'https://app.test/data/skills-sh-snapshot.json',
+      storage: createMemoryStorage(),
+      fetchImpl: async (url) => {
+        const u = String(url);
+        calls.push(u);
+        if (u.startsWith('https://proxy.test/')) {
+          return jsonResponse({ error: 'not_found' }, 404);
+        }
+        if (u.startsWith('/api/skills-sh?')) {
+          return jsonResponse({
+            mode: 'list',
+            view: 'all-time',
+            page: 0,
+            skills: [
+              {
+                source: 'vercel-labs/skills',
+                skillId: 'find-skills',
+                name: 'find-skills',
+                installs: 4514851,
+                isOfficial: true,
+              },
+            ],
+            total: 9905,
+            hasMore: true,
+            syncedAt: '2026-11-24T12:00:00.000Z',
+          });
+        }
+        return jsonResponse(SAMPLE_SNAPSHOT);
+      },
+    });
+
+    // Act
+    const res = await service.list('all-time', 0);
+
+    // Assert
+    assert.equal(res.sourceMode, 'live');
+    assert.equal(res.skills[0].skillId, 'find-skills');
+    assert.deepEqual(calls, [
+      'https://proxy.test/api/skills-sh?mode=list&view=all-time&page=0',
+      '/api/skills-sh?mode=list&view=all-time&page=0',
+    ]);
+  });
+
   /* ---------------------------------------------------------------- */
   /* 3. Puente GitHub: inspectGithubSkillByHint y getGithubFileAtSha  */
   /* ---------------------------------------------------------------- */

@@ -359,6 +359,8 @@ function parseStoredCache(rawText: string): Map<string, CachedListRecord> {
 
 export interface SkillsShServiceOptions {
   proxyUrl?: string;
+  /** Respaldo solo para desarrollo local (`/api/skills-sh` en Vite) si el proxy remoto falla. */
+  devProxyFallbackUrl?: string;
   snapshotUrl?: string;
   fetchImpl?: typeof fetch;
   storage?: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null;
@@ -392,8 +394,37 @@ function resolveOptionProxyUrl(explicit: string | undefined): string {
   return `${parsed.origin}${parsed.pathname.replace(/\/+$/, '')}`;
 }
 
+function defaultDevProxyFallback(explicitProxyUrl: string | undefined): string {
+  if (explicitProxyUrl !== undefined) return '';
+  const isDev =
+    typeof import.meta !== 'undefined' &&
+    Boolean((import.meta as { env?: { DEV?: boolean } }).env?.DEV);
+  return isDev ? '/api/skills-sh' : '';
+}
+
+function resolveOptionDevFallback(
+  explicitFallback: string | undefined,
+  explicitProxyUrl: string | undefined
+): string {
+  const candidate =
+    explicitFallback === undefined
+      ? defaultDevProxyFallback(explicitProxyUrl)
+      : explicitFallback.trim();
+  if (!candidate) return '';
+  if (candidate.startsWith('/') && !candidate.startsWith('//')) {
+    return candidate.replace(/\/+$/, '');
+  }
+  const parsed = parseAllowedProxyUrl(candidate);
+  return parsed ? `${parsed.origin}${parsed.pathname.replace(/\/+$/, '')}` : '';
+}
+
 export function createSkillsShService(options: SkillsShServiceOptions = {}): SkillsShApi {
   const proxyUrl = resolveOptionProxyUrl(options.proxyUrl);
+  const devProxyFallbackUrl = resolveOptionDevFallback(
+    options.devProxyFallbackUrl,
+    options.proxyUrl
+  );
+  const proxyCandidates = Array.from(new Set([proxyUrl, devProxyFallbackUrl].filter(Boolean)));
   const snapshotUrl = options.snapshotUrl ?? defaultSnapshotPath();
   const storage =
     options.storage === undefined
@@ -549,6 +580,24 @@ export function createSkillsShService(options: SkillsShServiceOptions = {}): Ski
     };
   }
 
+  async function fetchLiveFromCandidates<T>(
+    buildUrl: (baseUrl: string) => string,
+    parsePayload: (raw: unknown) => T | null
+  ): Promise<{ data: T | null; failed: boolean }> {
+    let failed = false;
+    for (const base of proxyCandidates) {
+      try {
+        const raw = await fetchJson(buildUrl(base));
+        const parsed = parsePayload(raw);
+        if (parsed) return { data: parsed, failed: false };
+        failed = true;
+      } catch {
+        failed = true;
+      }
+    }
+    return { data: null, failed };
+  }
+
   return {
     async list(
       view: SkillsShView,
@@ -574,28 +623,21 @@ export function createSkillsShService(options: SkillsShServiceOptions = {}): Ski
         };
       }
 
-      let proxyFailed = false;
-      if (proxyUrl) {
-        try {
-          const url = `${proxyUrl}?mode=list&view=${encodeURIComponent(safeView)}&page=${safePage}`;
-          const raw = await fetchJson(url);
-          const live = parseLiveListPayload(raw, safeView, safePage);
-          if (live) {
-            setCached(cacheKey, {
-              view: live.view,
-              page: live.page,
-              skills: live.skills,
-              total: live.total,
-              hasMore: live.hasMore,
-              syncedAt: live.syncedAt,
-              cachedAt: now(),
-            });
-            return live;
-          }
-          proxyFailed = true;
-        } catch {
-          proxyFailed = true;
-        }
+      const { data: live, failed: proxyFailed } = await fetchLiveFromCandidates(
+        (base) => `${base}?mode=list&view=${encodeURIComponent(safeView)}&page=${safePage}`,
+        (raw) => parseLiveListPayload(raw, safeView, safePage)
+      );
+      if (live) {
+        setCached(cacheKey, {
+          view: live.view,
+          page: live.page,
+          skills: live.skills,
+          total: live.total,
+          hasMore: live.hasMore,
+          syncedAt: live.syncedAt,
+          cachedAt: now(),
+        });
+        return live;
       }
 
       if (cached) {
@@ -658,23 +700,16 @@ export function createSkillsShService(options: SkillsShServiceOptions = {}): Ski
           query: '',
           skills: [],
           count: 0,
-          sourceMode: proxyUrl ? 'live' : 'snapshot',
+          sourceMode: proxyCandidates.length > 0 ? 'live' : 'snapshot',
           syncedAt: new Date(now()).toISOString(),
         };
       }
 
-      let proxyFailed = false;
-      if (proxyUrl) {
-        try {
-          const url = `${proxyUrl}?mode=search&q=${encodeURIComponent(cleanQ)}&limit=${safeLimit}`;
-          const raw = await fetchJson(url);
-          const live = parseLiveSearchPayload(raw, cleanQ, safeLimit);
-          if (live) return live;
-          proxyFailed = true;
-        } catch {
-          proxyFailed = true;
-        }
-      }
+      const { data: live, failed: proxyFailed } = await fetchLiveFromCandidates(
+        (base) => `${base}?mode=search&q=${encodeURIComponent(cleanQ)}&limit=${safeLimit}`,
+        (raw) => parseLiveSearchPayload(raw, cleanQ, safeLimit)
+      );
+      if (live) return live;
 
       hydrateFromStorage();
       const byId = new Map<string, SkillsShEntry>();
