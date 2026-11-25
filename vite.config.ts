@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import fs from 'node:fs';
 import path from 'node:path';
+import { handleSkillsShRequest } from './api/skills-sh';
 
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -117,11 +118,63 @@ function preservePublicKitAssets(): Plugin[] {
   ];
 }
 
+function skillsShDevProxy(): Plugin {
+  return {
+    name: 'skills-sh-dev-proxy',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url || (req.url !== '/api/skills-sh' && !req.url.startsWith('/api/skills-sh?'))) {
+          return next();
+        }
+        const rawHost = String(req.headers.host ?? '');
+        const hostname = rawHost.split(':')[0].toLowerCase();
+        if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+          res.statusCode = 403;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.end(JSON.stringify({ error: 'origin_not_allowed' }));
+          return;
+        }
+        const secFetchSite = String(req.headers['sec-fetch-site'] ?? '');
+        if (secFetchSite && secFetchSite !== 'same-origin' && secFetchSite !== 'none') {
+          res.statusCode = 403;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.end(JSON.stringify({ error: 'origin_not_allowed' }));
+          return;
+        }
+        const localOrigin = `http://${rawHost}`;
+        const allowedOrigins = Array.from(
+          new Set([localOrigin, 'http://localhost:5173', 'http://127.0.0.1:5173'])
+        );
+        const headers = new Headers();
+        headers.set(
+          'origin',
+          typeof req.headers.origin === 'string' && req.headers.origin ? req.headers.origin : localOrigin
+        );
+        try {
+          const webReq = new Request(`${localOrigin}${req.url}`, {
+            method: req.method ?? 'GET',
+            headers,
+          });
+          const webRes = await handleSkillsShRequest(webReq, { allowedOrigins });
+          res.statusCode = webRes.status;
+          webRes.headers.forEach((value, key) => res.setHeader(key, value));
+          res.end(await webRes.text());
+        } catch {
+          res.statusCode = 502;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.end(JSON.stringify({ error: 'upstream_unavailable' }));
+        }
+      });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
   return {
   base: './',
-  plugins: [...preservePublicKitAssets(), cspConnectSrc(env.VITE_GITHUB_OAUTH_URL ?? ''), react(), tailwindcss()],
+  plugins: [...preservePublicKitAssets(), skillsShDevProxy(), cspConnectSrc(env.VITE_GITHUB_OAUTH_URL ?? ''), react(), tailwindcss()],
   server: {
     port: 5173,
     host: true,

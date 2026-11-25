@@ -11,6 +11,15 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-24 · Antigravity (`Orquestador General`) · `fix/dev-proxy-y-pages-deploy`
+- **Hecho:**
+  - Middleware solo de desarrollo (`apply: 'serve'`) en `vite.config.ts` que expone `/api/skills-sh` delegando en `api/skills-sh.ts` con validación estricta de origen local (`localhost` / `127.0.0.1`).
+  - Respaldo automático de desarrollo (`devProxyFallbackUrl = '/api/skills-sh'` solo cuando `import.meta.env.DEV` está activo) en `src/services/skillsShService.ts` + prueba unitaria en `scripts/test-skills-sh-service.mjs`.
+  - Separación de jobs `build` → `deploy` con espera previa de 5 s en `.github/workflows/deploy.yml` para eliminar la condición de carrera (`Found 0 artifact(s)`) en `actions/deploy-pages@v4`, más `.vercel/` añadido a `.gitignore`.
+- **Verificación:** `./scripts/check.sh` completo en **`exit 0`** (incluyendo 17/17 en `test-skills-sh-service.mjs`), `curl` local en `http://localhost:5173/api/skills-sh` (`200` en vivo y `403` para origen ajeno) y comprobación real en Chromium sobre `http://localhost:5173/` mostrando estado **En vivo** con `0` errores.
+- **Pendiente:** Confirmar despliegue en verde de `Deploy to GitHub Pages` tras el merge y completar el login/despliegue en Vercel CLI (`npx vercel --prod`) para activar `/api/skills-sh` también en producción.
+- **Problemas:** Ninguno.
+
 ## 2026-11-24 · Antigravity (`Orquestador General`) · `feat/003-directorio-skills-sh`
 - **Hecho:**
   - Integración previa de `.agents/skills/security-audit/` en `main` mediante PR #25 (`chore/security-audit`), creando luego la rama limpia `feat/003-directorio-skills-sh` desde `main`.
