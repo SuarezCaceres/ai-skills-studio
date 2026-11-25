@@ -100,7 +100,8 @@
         { "id": "C3", "descripcion": "Cambio a «Con guía» por clic o teclado: captura iluminada, foco y tooltip del paso 1 de 3 sobre el buscador, lista de ventajas y anuncio aria-live", "pasa": true },
         { "id": "C4", "descripcion": "Avance automático 1→2→3→1 pausable con ratón/foco y 3 marcadores estáticos sin avance con prefers-reduced-motion", "pasa": true },
         { "id": "C5", "descripcion": "El botón «Ir al catálogo» navega a la página del Catálogo", "pasa": true },
-        { "id": "C6", "descripcion": "Sin dependencias nuevas, sin peticiones externas, captura WebP ≤ 60 KB, chunk inicial < 350 kB y acento exclusivo cian #0ea5e9 sobre Cyber Dark", "pasa": false },
+        { "id": "C6a", "descripcion": "Sin dependencias nuevas, sin peticiones externas, captura WebP ≤ 60 KB, sección en chunk diferido propio sin engordar el chunk inicial respecto a la base y acento exclusivo cian #0ea5e9 sobre Cyber Dark", "pasa": true },
+        { "id": "C6b", "descripcion": "Chunk inicial < 350 kB (depende de la deuda preexistente del bundle registrada en TASKS.md; la base 9f7580d ya pesaba 382,3 kB)", "pasa": false },
         { "id": "C7", "descripcion": "scripts/capture-guide-showcase.mjs regenera catalogo.webp y guideShowcaseHotspots.ts con GitHub interceptado y hotspots dentro de 0–100 %", "pasa": true }
       ]
     }

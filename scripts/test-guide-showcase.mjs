@@ -29,8 +29,8 @@ const HOTSPOTS_FILE = resolve(ROOT, 'src', 'data', 'guideShowcaseHotspots.ts');
 const SOURCE_WEBP = resolve(ROOT, 'src', 'assets', 'guide', 'catalogo.webp');
 const TYPES_FILE = resolve(ROOT, 'src', 'types', 'guideShowcase.ts');
 
-const MAX_WEBP_BYTES = 60 * 1024; // C6/C7: la captura pesa ≤ 60 KB
-const MAX_INITIAL_CHUNK_BYTES = 350 * 1000; // C6: presupuesto del chunk inicial (kB de Vite = 1000 B)
+const MAX_WEBP_BYTES = 60 * 1024; // C6a/C7: la captura pesa ≤ 60 KB
+const MAX_INITIAL_CHUNK_BYTES = 350 * 1000; // C6b: presupuesto del chunk inicial (kB de Vite = 1000 B)
 // Chunk inicial medido en la base de la 005 (9f7580d, punta de la 004) antes de añadir la sección: 382 305 B.
 // Si la deuda del bundle se paga (TASKS.md), baja este valor para que la suite proteja la mejora.
 const BASELINE_INITIAL_CHUNK_BYTES = 382_305;
@@ -238,7 +238,7 @@ async function pauseClock(page) {
   await page.clock.pauseAt(now + 200);
 }
 
-/* ──────────────────────────── paleta (C6) ──────────────────────────── */
+/* ──────────────────────────── paleta (C6a) ──────────────────────────── */
 
 /** Recorre #guia (y sus pseudoelementos) y devuelve los colores de acento fuera del cian #0ea5e9. */
 function scanPalette({ hue, tolerance, chromaLimit }) {
@@ -770,15 +770,15 @@ async function main() {
       await context.close();
     }
 
-    /* ───── C6: red, peso y paleta ───── */
-    console.log('\nC6 · red, peso y paleta');
+    /* ───── C6a/C6b: red, peso, chunk y paleta ───── */
+    console.log('\nC6a/C6b · red, peso, chunk y paleta');
     {
       const { context, page, state } = await openContext(browser, origin, { viewport: VIEWPORTS[0] });
       const ready = await openLanding(page, origin);
       if (!ready) {
-        check('C6 la sección #guia existe', false, '#guia no está en el DOM');
+        check('C6a la sección #guia existe', false, '#guia no está en el DOM');
       } else {
-        await guarded('C6 red', async () => {
+        await guarded('C6a red', async () => {
           const mark = state.requests.length;
           const frame = page.locator(marco);
           await radio(page, 'Con guía').click();
@@ -790,12 +790,12 @@ async function main() {
           await radio(page, 'Con guía').click();
           await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
           const during = state.requests.slice(mark);
-          check('C6 durante la interacción con #guia no hay ninguna petición a otro origen', during.length === 0, during.map((r) => r.url).slice(0, 3).join(', '));
+          check('C6a durante la interacción con #guia no hay ninguna petición a otro origen', during.length === 0, during.map((r) => r.url).slice(0, 3).join(', '));
 
           const byOrigin = new Map();
           for (const r of state.requests) byOrigin.set(r.origin, (byOrigin.get(r.origin) ?? 0) + 1);
           const unexpected = [...byOrigin.keys()].filter((o) => !ALLOWED_EXTERNAL.has(o));
-          check('C6 la carga de la portada solo contacta orígenes conocidos (fixture y fuentes)', unexpected.length === 0 && state.leaks.length === 0, `desconocidos: ${unexpected.join(', ')} · fugas abortadas: ${state.leaks.slice(0, 3).join(', ')}`);
+          check('C6a la carga de la portada solo contacta orígenes conocidos (fixture y fuentes)', unexpected.length === 0 && state.leaks.length === 0, `desconocidos: ${unexpected.join(', ')} · fugas abortadas: ${state.leaks.slice(0, 3).join(', ')}`);
           for (const [o, n] of byOrigin) console.log(`        origen excluido: ${o} ×${n} — ${ALLOWED_EXTERNAL.get(o) ?? 'NO PERMITIDO'}`);
           if (byOrigin.size === 0) console.log('        (la portada no contactó ningún origen externo)');
 
@@ -821,10 +821,10 @@ async function main() {
               return true;
             }
           });
-          check('C6 todo recurso referenciado dentro de #guia (img, background, enlaces) es local', remote.length === 0, remote.slice(0, 3).map((r) => r.label).join(', '));
+          check('C6a todo recurso referenciado dentro de #guia (img, background, enlaces) es local', remote.length === 0, remote.slice(0, 3).map((r) => r.label).join(', '));
         });
 
-        await guarded('C6 WebP', async () => {
+        await guarded('C6a WebP', async () => {
           const src = await page.locator(`${marco} img`).first().evaluate((i) => i.currentSrc || i.src);
           let bytes;
           let kind;
@@ -837,11 +837,11 @@ async function main() {
             kind = 'archivo emitido';
             bytes = existsSync(file) ? readFileSync(file) : Buffer.alloc(0);
           }
-          check(`C6 la captura emitida es un WebP real (${src.startsWith('data:') ? 'inlineada como data:' : 'en dist/'})`, bytes.length > 12 && bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP', `${kind}, ${bytes.length} B, src=${src.slice(0, 80)}`);
-          check(`C6 la captura pesa ≤ 60 KB (${(bytes.length / 1024).toFixed(1)} KB)`, bytes.length > 0 && bytes.length <= MAX_WEBP_BYTES, `${bytes.length} B`);
+          check(`C6a la captura emitida es un WebP real (${src.startsWith('data:') ? 'inlineada como data:' : 'en dist/'})`, bytes.length > 12 && bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP', `${kind}, ${bytes.length} B, src=${src.slice(0, 80)}`);
+          check(`C6a la captura pesa ≤ 60 KB (${(bytes.length / 1024).toFixed(1)} KB)`, bytes.length > 0 && bytes.length <= MAX_WEBP_BYTES, `${bytes.length} B`);
         });
 
-        await guarded('C6 chunk', async () => {
+        await guarded('C6a chunk', async () => {
           const html = readFileSync(join(OUT_DIR, 'index.html'), 'utf8');
           const entry = /<script[^>]+type="module"[^>]+src="([^"]+)"/.exec(html)?.[1];
           const dir = join(OUT_DIR, 'bundle');
@@ -850,34 +850,34 @@ async function main() {
           if (!file || !existsSync(file)) throw new Error('no se encontró el chunk inicial index-*.js en dist/');
           const size = statSync(file).size;
           const kb = (size / 1000).toFixed(1);
-          if (size > MAX_INITIAL_CHUNK_BYTES) aviso(`el chunk inicial ${file.split(/[\\/]/).pop()} pesa ${kb} kB (> 350 kB): deuda preexistente registrada (base 9f7580d = ${(BASELINE_INITIAL_CHUNK_BYTES / 1000).toFixed(1)} kB)`);
-          else aviso(`el chunk inicial ${file.split(/[\\/]/).pop()} pesa ${kb} kB (presupuesto 350 kB)`);
+          if (size > MAX_INITIAL_CHUNK_BYTES) aviso(`C6b el chunk inicial ${file.split(/[\\/]/).pop()} pesa ${kb} kB (> 350 kB): deuda preexistente registrada (base 9f7580d = ${(BASELINE_INITIAL_CHUNK_BYTES / 1000).toFixed(1)} kB)`);
+          else aviso(`C6b el chunk inicial ${file.split(/[\\/]/).pop()} pesa ${kb} kB (presupuesto 350 kB)`);
           // No regresión: la 005 no puede engordar el chunk inicial respecto a la base (la sección va en su propio chunk).
-          check(`C6 la sección no engorda el chunk inicial (≤ base + ${CHUNK_SLACK_BYTES / 1000} kB)`, size > 0 && size <= BASELINE_INITIAL_CHUNK_BYTES + CHUNK_SLACK_BYTES, `${size} B frente a base ${BASELINE_INITIAL_CHUNK_BYTES} B`);
+          check(`C6a la sección no engorda el chunk inicial (≤ base + ${CHUNK_SLACK_BYTES / 1000} kB)`, size > 0 && size <= BASELINE_INITIAL_CHUNK_BYTES + CHUNK_SLACK_BYTES, `${size} B frente a base ${BASELINE_INITIAL_CHUNK_BYTES} B`);
           const lazyChunk = existsSync(dir) && readdirSync(dir).some((f) => /^GuideContrastShowcase-.*\.js$/.test(f));
-          check('C6 la sección se carga en un chunk diferido propio (GuideContrastShowcase-*.js)', lazyChunk);
+          check('C6a la sección se carga en un chunk diferido propio (GuideContrastShowcase-*.js)', lazyChunk);
         });
 
-        await guarded('C6 dependencias', async () => {
+        await guarded('C6a dependencias', async () => {
           const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
           const names = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies });
           const banned = names.filter((n) => /^(framer-motion|motion|class-variance-authority|@radix-ui\/.+)$/.test(n));
-          check('C6 package.json no incorpora framer-motion ni shadcn/Radix', banned.length === 0, banned.join(', '));
+          check('C6a package.json no incorpora framer-motion ni shadcn/Radix', banned.length === 0, banned.join(', '));
         });
 
-        await guarded('C6 paleta', async () => {
+        await guarded('C6a paleta', async () => {
           const args = { hue: ACCENT_HUE, tolerance: HUE_TOLERANCE, chromaLimit: CHROMA_LIMIT };
           for (const mode of ['Sin guía', 'Con guía']) {
             await radio(page, mode).click();
             await page.locator(GUIA).scrollIntoViewIfNeeded();
             await page.waitForTimeout(700); // deja terminar las transiciones CSS (no dependen del reloj simulado)
             const { offenders, inspected } = await page.evaluate(scanPalette, args);
-            check(`C6 paleta en «${mode}»: todo acento (croma > 0,25) es cian 199° ± 8° (${inspected} nodos revisados)`, offenders.length === 0, offenders.slice(0, 5).join(' || '));
+            check(`C6a paleta en «${mode}»: todo acento (croma > 0,25) es cian 199° ± 8° (${inspected} nodos revisados)`, offenders.length === 0, offenders.slice(0, 5).join(' || '));
           }
           // En «Con guía» también con la sección en estado de enfoque (hover sobre el marco).
           await page.locator(marco).hover();
           const { offenders } = await page.evaluate(scanPalette, args);
-          check('C6 paleta con el marco en hover (pausa)', offenders.length === 0, offenders.slice(0, 5).join(' || '));
+          check('C6a paleta con el marco en hover (pausa)', offenders.length === 0, offenders.slice(0, 5).join(' || '));
         });
       }
       await context.close();

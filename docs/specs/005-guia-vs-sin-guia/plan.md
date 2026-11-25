@@ -90,7 +90,8 @@ export interface GuideCaptureMeta {
 | C3 | E2E (clic + teclado + `aria-live`) | `scripts/test-guide-showcase.mjs` |
 | C4 | E2E con `page.clock` + contexto `reducedMotion: 'reduce'` | `scripts/test-guide-showcase.mjs` |
 | C5 | E2E | `scripts/test-guide-showcase.mjs` |
-| C6 | E2E (red, tamaño del WebP, chunk en `dist/`, estilos computados) + revisión de `package.json` | `scripts/test-guide-showcase.mjs`, `revisor` |
+| C6a | E2E (red, tamaño del WebP, chunk diferido propio, no regresión del chunk inicial, estilos computados) + revisión de `package.json` | `scripts/test-guide-showcase.mjs`, `revisor` |
+| C6b | Medida del chunk inicial en `dist/` (hoy solo `aviso`: deuda preexistente) | `scripts/test-guide-showcase.mjs` |
 | C7 | Ejecución del script + validación de hotspots | `scripts/capture-guide-showcase.mjs` (falla por sí solo si hay red real o > 60 KB) + `scripts/test-guide-showcase.mjs` |
 
 ## Pasos ejecutables (un commit limpio por hito)
