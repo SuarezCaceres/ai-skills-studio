@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { AppPageRoute } from '../types/workspace';
 import { ComputerLightBeamShowcase } from './ComputerLightBeamShowcase';
+import { GuideContrastShowcase } from './GuideContrastShowcase';
 
 interface InformativeLandingSectionProps {
   onNavigatePage: (page: AppPageRoute) => void;
@@ -142,6 +143,9 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
           </div>
         </div>
       </section>
+
+      {/* 1b. GUÍA VS. SIN GUÍA (spec 005 · ilustrativa, tras el hero) */}
+      <GuideContrastShowcase onNavigatePage={onNavigatePage} />
 
       {/* 2. APP-FRAME (Lista de archivos de la skill + Inspector bajo demanda fijado a commitSha) */}
       <section className="section" id="inspector" aria-labelledby="inspector-h">

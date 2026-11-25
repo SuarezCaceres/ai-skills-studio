@@ -676,3 +676,33 @@ main > :is(.hero, .section--hero) {
   --dg-dot: rgba(255, 255, 255, 0.1);
 }
 
+
+/* 005 guía: inicio */
+@keyframes guia-tip-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes guia-item-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#guia .guia-tooltip {
+  animation: guia-tip-in 0.35s ease-out both;
+}
+
+#guia .guia-item {
+  animation: guia-item-in 0.4s ease-out both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #guia *,
+  #guia *::before,
+  #guia *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* 005 guía: fin */
