@@ -22,6 +22,7 @@ import { mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { clickAuthSignIn, enterApp } from './lib/enter-app.mjs';
 import {
   TEST_CATALOG_REPO,
   TEST_CLIENT_ID,
@@ -390,7 +391,7 @@ async function main() {
     });
 
     await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' });
-    await page.locator('.nav__actions a.btn--primary').click();
+    await enterApp(page);
     await page.locator('#team-heading').waitFor({ timeout: 8000 });
     check('la cabecera muestra "Entrar con GitHub"', await page.locator('.nav__actions a:has-text("GitHub")').isVisible());
 
@@ -658,7 +659,7 @@ async function main() {
     check('Códice funciona sin copias de trabajo', true);
 
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await page.locator('.nav__actions a.btn--primary').click();
+    await enterApp(page);
     await page.locator('#team-heading').waitFor({ timeout: 8000 });
     check(
       'tras recargar, ai_skills_studio_workcopies_v1 sigue sin hidratarse ni abrir estudio',
@@ -667,7 +668,7 @@ async function main() {
 
     // Inicio de sesión simulado y cierre de sesión para verificar limpieza de `ai_skills_studio_workcopies_v1`
     await page.locator('.nav__actions a[aria-label="Entrar con GitHub"]').click();
-    await page.getByRole('button', { name: 'Entrar con GitHub' }).click();
+    await clickAuthSignIn(page);
     await page.waitForFunction(() => !location.search.includes('code='), null, { timeout: 15000 });
     await page.locator(`.nav__actions a[aria-label="Sesión de ${TEAM_LOGIN}"]`).waitFor({ timeout: 10000 });
     await page.locator(`.nav__actions a[aria-label="Sesión de ${TEAM_LOGIN}"]`).click();

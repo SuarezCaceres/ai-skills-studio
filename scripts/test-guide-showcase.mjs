@@ -320,6 +320,15 @@ async function openContext(browser, origin, options = {}) {
     const ext = externalOrigin(r.url(), origin);
     if (ext) state.requests.push({ origin: ext, url: r.url() });
   });
+  // El fondo WebGL2 de la portada (hero-forge) dibuja en cada requestAnimationFrame: al adelantar el reloj
+  // simulado ejecutaría cientos de fotogramas de golpe y saturaría el hilo principal. Esta suite prueba
+  // #guia, así que se desactiva WebGL2 (WorkshopLight ya contempla navegadores sin él).
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+      return type === "webgl2" ? null : original.call(this, type, ...rest);
+    };
+  });
   if (options.clock !== false) await page.clock.install();
   return { context, page, state };
 }
@@ -1199,8 +1208,12 @@ async function main() {
         await guarded('C6a dependencias', async () => {
           const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
           const names = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies });
-          const banned = names.filter((n) => /^(framer-motion|motion|class-variance-authority|@radix-ui\/.+)$/.test(n));
+          // motion (motion/react) fue autorizado por el humano el 2026-11-27 para chunks diferidos (docs/rules/frontend.md);
+          // framer-motion y shadcn/Radix siguen bloqueados, y GuideContrastShowcase no debe importar motion.
+          const banned = names.filter((n) => /^(framer-motion|class-variance-authority|@radix-ui\/.+)$/.test(n));
           check('C6a package.json no incorpora framer-motion ni shadcn/Radix', banned.length === 0, banned.join(', '));
+          const guideSrc = readFileSync(resolve(ROOT, 'src', 'components', 'GuideContrastShowcase.tsx'), 'utf8');
+          check('C6a #guia no importa motion ni framer-motion', !/from\s+['"](?:motion|framer-motion)/.test(guideSrc));
         });
 
         await guarded('C6a paleta', async () => {

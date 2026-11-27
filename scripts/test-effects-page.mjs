@@ -22,6 +22,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } fr
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { clickAuthSignIn, enterApp } from './lib/enter-app.mjs';
 import {
   SKILL_NAME,
   TEAM_LOGIN,
@@ -155,7 +156,7 @@ async function clickToModule(page, link, heading) {
     null,
     { timeout: 15000 }
   );
-  await page.evaluate(() => document.querySelector('.nav__actions a.btn--primary')?.click());
+  await enterApp(page);
   await page.waitForFunction(
     ({ text, prefix }) =>
       [...document.querySelectorAll('nav[aria-label="Módulos del estudio"] a')].some((a) =>
@@ -665,7 +666,7 @@ async function phaseB(browser, effects, errors, stray) {
   await block('C5 · Asignar y desasignar una skill a un efecto', async () => {
     if (!(await page.locator('#components-heading').isVisible().catch(() => false))) await clickToComponents(page);
     await assignmentSection(page).getByRole('button', { name: 'Entrar con GitHub para asignar' }).click();
-    await page.getByRole('button', { name: 'Entrar con GitHub' }).click();
+    await clickAuthSignIn(page);
     await page.waitForFunction(() => !location.search.includes('code='), null, { timeout: 15000 });
     await page.waitForTimeout(500);
     await clickToComponents(page);

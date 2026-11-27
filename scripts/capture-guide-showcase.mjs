@@ -26,6 +26,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { GUIDE_FIXED_NOW, GUIDE_SKILLS, installGuideShowcaseGithub } from './lib/guide-showcase-fixture.mjs';
 import { TEST_CATALOG_REPO, TEST_CLIENT_ID, TEST_OAUTH_URL } from './lib/github-fixture.mjs';
+import { enterApp } from './lib/enter-app.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WEBP_FILE = resolve(ROOT, 'src', 'assets', 'guide', 'catalogo.webp');
@@ -165,7 +166,7 @@ async function main() {
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 
     await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' });
-    await page.locator('.nav__actions a.btn--primary').click();
+    await enterApp(page);
     await page.locator('.nav__links a:has-text("Catálogo")').click();
     await page.locator('#catalog-page-heading').waitFor();
     await page.addStyleTag({ content: CAPTURE_CSS });

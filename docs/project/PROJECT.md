@@ -1,10 +1,21 @@
 # Proyecto · Códice Studio (`ai-skills-studio`)
 
 ## Qué es
-Códice Studio (`ai-skills-studio`) es una aplicación web *client-side* y catálogo comunitario sobre GitHub para inspeccionar bajo demanda, auditar, traducir, probar y compartir *skills* (`SKILL.md`), componentes UI accesibles y clases técnicas para agentes de IA.
+Códice Studio (`ai-skills-studio`) es una plataforma web *client-side* y catálogo colaborativo sobre GitHub ($0 de infraestructura pesada) para **aprender y construir páginas web, aplicaciones móviles y software con IA en equipo o comunidad**. Su diferenciador central es que **cada clase en video incluye un menú desplegable con todo el material accionable listo para usar** (componentes UI, efectos visuales, *skills* `SKILL.md`, agente/modelo de IA, nivel, páginas de referencia y proyectos construidos enlazados al video), complementado con un **harness portátil multi-agente** para reducir el consumo de tokens y saltar entre Claude, Gemini, DeepSeek, ChatGPT y OpenCode sin perder contexto.
 
 ## Para quién
-Desarrolladores e ingenieros de IA —tanto individuales como equipos de trabajo— que utilizan Claude Code, Antigravity CLI, Cursor o Gemini CLI y necesitan auditar la seguridad y calidad de las *skills* inspeccionando sus archivos reales fijados a un `commitSha` inmutable antes de instalarlas o importarlas, consultar componentes UI con código real y compartir conocimiento técnico en español.
+Creadores, desarrolladores y equipos de trabajo que construyen webs, apps móviles y productos digitales con agentes de IA (Claude Code, Gemini CLI, DeepSeek, ChatGPT, OpenCode, Cursor o Antigravity CLI) y buscan:
+- **Clases prácticas con material inmediato** en lugar de tutoriales pasivos.
+- **Trabajo en equipo y comunidad abierta** (tanto equipos con sus propias secciones como creadores individuales compartiendo videos, *skills*, efectos y páginas de referencia hechas con IA).
+- **Portabilidad multi-agente y ahorro de tokens** mediante un harness estructurado que permite relevar de agente cuando se agotan créditos sin reescribir el contexto.
+- **Seguridad verificable** al inspeccionar *skills* externas en lectura inerte fijadas a un `commitSha` inmutable antes de usarlas.
+
+## Visión de evolución (arquitectura ligera sobre GitHub + YouTube/Vimeo)
+Manteniendo el núcleo de **5 módulos principales** (`Skills`, `Catálogo`, `Explorar`, `Componentes` y `Códice`) y la arquitectura ligera de costo base **$0 sobre GitHub + YouTube/Vimeo**, las nuevas capacidades se integran como pestañas y secciones dentro de **Códice** y **Catálogo**:
+- **Kit desplegable por clase en video (`Códice`):** menú estructurado junto al video con componentes UI, efectos, *skills*, agente/modelo de IA, nivel, páginas de referencia y enlace a las páginas/apps construidas.
+- **Efectos y páginas de referencia hechas con IA (`Catálogo` y `Componentes`):** registro de efectos reutilizables y galería de sitios/apps reales construidos con IA, cada uno enlazado al video explicativo donde se muestra su construcción.
+- **Equipos y secciones colaborativas (`Skills` y `Códice`):** agrupación de clases, videos, *skills* y materiales por equipo (vía repositorios/etiquetas en GitHub) junto al feed abierto de toda la comunidad.
+- **Harness multi-agente (`Códice` y `Catálogo`):** guías y plantillas portátiles (`AGENTS.md`, `docs/`, `SKILL.md`) para reducir tokens y cambiar entre Claude, Gemini, DeepSeek, ChatGPT y OpenCode sin perder contexto.
 
 ## Alcance
 - **Incluye:**
@@ -37,3 +48,6 @@ En **producción (`v2.2.2`)**, desplegado como sitio estático y funciones serve
 | **Explorar (`skills.sh`)** | Módulo conectado a `api/skills-sh.ts` y snapshot estático para descubrir rankings externos (`all-time`, `trending`, `hot`), inspeccionar skills de GitHub en modo vista previa de solo lectura (`SkillDetailPage`) o importarlas al catálogo comunitario. |
 | **UI Kit (`componentRegistry`)** | Colección propia de 20 componentes React accesibles en `src/components/ui-kit/`, registrados en `src/data/componentRegistry.ts` con vista previa en vivo, código fuente crudo (`?raw`) y criterios `a11y`. |
 | **Clase compartida** | Lección de *Códice → Clases* publicada en `classes/<id>/` dentro de `<login>/codice-skills` (fijada a un SHA) y anunciada en el repo catálogo mediante un Issue `[class] <login>/<id>` para aparecer en la pestaña *Comunidad*. |
+| **Kit desplegable de clase** | Menú estructurado asociado a cada video explicativo en *Códice* que reúne los componentes UI, efectos, *skills* (`SKILL.md`), agente/modelo de IA, nivel, páginas de referencia y proyectos hechos listos para aplicar. |
+| **Harness multi-agente** | Estructura ligera de contexto (`AGENTS.md`, `docs/`, *skills* y verificadores) que minimiza el consumo de tokens y permite continuar un proyecto saltando entre Claude, Gemini, DeepSeek, ChatGPT y OpenCode cuando se agotan créditos. |
+| **Página de referencia (Showcase)** | Web o aplicación construida con IA subida por un creador o equipo y enlazada al video explicativo y materiales que se usaron para armarla. |

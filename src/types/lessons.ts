@@ -48,6 +48,8 @@ export interface Lesson {
   skillIds: string[];
   /** `UiComponentEntry.id`. */
   componentIds: string[];
+  /** `PageTemplateMeta.id` (páginas de referencia, máximo 5). Las clases antiguas se leen como `[]`. */
+  pageIds: string[];
   /** Partes de video, en orden. Puede estar vacío. */
   videos: LessonVideo[];
   /** Solo si la autora la compartió en GitHub. */
@@ -66,6 +68,7 @@ export interface LessonDraft {
   bodyMarkdown: string;
   skillIds: string[];
   componentIds: string[];
+  pageIds: string[];
   videos: LessonVideo[];
 }
 

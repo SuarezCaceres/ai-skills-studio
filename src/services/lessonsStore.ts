@@ -1,5 +1,6 @@
 import { LESSON_LEVELS, type Lesson, type LessonAuthor, type LessonDraft, type LessonShare, type LessonVideo } from '../types/lessons';
 import { isValidYouTubeId } from './youtube';
+import { isPageId } from '../data/pageIds';
 
 /**
  * Almacén de clases. Todo el acceso a datos pasa por la interfaz `LessonsStore`, para poder
@@ -18,6 +19,7 @@ export const LIMITS = {
   tag: 24,
   skills: 20,
   components: 20,
+  pages: 5,
   videos: 12,
   videoTitle: 80,
   lessons: 500,
@@ -99,6 +101,17 @@ function cleanIds(value: unknown, valid: RegExp, max: number): string[] {
   for (const item of value) {
     if (typeof item === 'string' && item.length <= 200 && valid.test(item)) seen.add(item);
     if (seen.size >= max) break;
+  }
+  return [...seen];
+}
+
+/** Páginas de referencia: solo ids del registro, sin repetidos y como máximo `LIMITS.pages`. */
+function cleanPageIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
+  for (const item of value) {
+    if (isPageId(item)) seen.add(item);
+    if (seen.size >= LIMITS.pages) break;
   }
   return [...seen];
 }
@@ -198,6 +211,7 @@ export function sanitizeLessonMeta(raw: unknown, now: Date = new Date()): Omit<L
     tags: normalizeTags(Array.isArray(raw.tags) ? (raw.tags.filter((t) => typeof t === 'string') as string[]) : []),
     skillIds: cleanIds(raw.skillIds, SKILL_ID, LIMITS.skills),
     componentIds: cleanIds(raw.componentIds, COMPONENT_ID, LIMITS.components),
+    pageIds: cleanPageIds(raw.pageIds),
     videos: cleanVideos(raw.videos),
     ...(shared ? { shared } : {}),
     author,
@@ -216,7 +230,7 @@ export function sanitizeLesson(raw: unknown, now: Date = new Date()): Lesson | n
 
 /* ---------------- Validación del formulario ---------------- */
 
-export type DraftErrors = Partial<Record<'title' | 'summary' | 'body' | 'tags' | 'skillIds' | 'componentIds' | 'videos', string>>;
+export type DraftErrors = Partial<Record<'title' | 'summary' | 'body' | 'tags' | 'skillIds' | 'componentIds' | 'pageIds' | 'videos', string>>;
 
 export function validateDraft(draft: LessonDraft): DraftErrors {
   const errors: DraftErrors = {};
@@ -232,6 +246,7 @@ export function validateDraft(draft: LessonDraft): DraftErrors {
   if (draft.tags.length > LIMITS.tags) errors.tags = `Como máximo ${LIMITS.tags} etiquetas.`;
   if (draft.skillIds.length > LIMITS.skills) errors.skillIds = `Como máximo ${LIMITS.skills} skills.`;
   if (draft.componentIds.length > LIMITS.components) errors.componentIds = `Como máximo ${LIMITS.components} componentes.`;
+  if ((draft.pageIds?.length ?? 0) > LIMITS.pages) errors.pageIds = `Como máximo ${LIMITS.pages} páginas de referencia.`;
   const videos = Array.isArray(draft.videos) ? draft.videos : [];
   if (videos.length > LIMITS.videos) errors.videos = `Como máximo ${LIMITS.videos} partes de video.`;
   else if (videos.some((v) => !isValidYouTubeId(v?.kind, v?.youtubeId))) errors.videos = 'Hay una parte de video con un enlace no válido.';

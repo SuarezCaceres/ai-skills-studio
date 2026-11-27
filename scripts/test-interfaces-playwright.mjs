@@ -19,6 +19,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TEST_CATALOG_REPO, TEST_CLIENT_ID, TEST_OAUTH_URL } from './lib/github-fixture.mjs';
+import { enterApp } from './lib/enter-app.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -35,7 +36,7 @@ const VIEWPORTS = [
   { name: '390', width: 390, height: 844 },
 ];
 
-const EXPECTED_NAV_LABELS = ['Inicio', 'Skills', 'Catálogo', 'Explorar', 'Componentes', 'Códice'];
+const EXPECTED_NAV_LABELS = ['Inicio', 'Skills', 'Catálogo', 'Explorar', 'Componentes', 'Páginas', 'Códice'];
 
 const FORBIDDEN_TEXT_PATTERNS = [
   { label: 'Workspace VFS', re: /Workspace\s*VFS/i },
@@ -273,6 +274,7 @@ async function runAudit() {
     catalogo: {},
     explorar: {},
     componentes: {},
+    paginas: {},
     codice: {},
     errors: [],
     externalLeaks: [],
@@ -338,7 +340,7 @@ async function runAudit() {
 
       // 2. Skills del equipo (`boveda`) vía CTA primario de Navbar (.nav__actions a.btn--primary)
       await openMobileMenuIfCollapsed(page);
-      await page.locator('.nav__actions a.btn--primary').click();
+      await enterApp(page);
       await page.locator('#team-heading').waitFor({ timeout: 8000 });
       await page.waitForTimeout(300);
 
@@ -399,6 +401,18 @@ async function runAudit() {
       await page.screenshot({ path: componentesPath, fullPage: false });
       results.componentes[vp.name] = componentesPath;
       console.log(`   Captured Componentes (preview): ${componentesPath}`);
+
+      // 5b. Páginas (`paginas`, spec 007)
+      await clickIdeNavLink(page, 'Páginas');
+      await page.locator('#pages-heading').waitFor({ timeout: 8000 });
+      await page.waitForTimeout(250);
+      await checkViewportInvariants(page, vp.name, 'Páginas (paginas)', results.failures, {
+        strictWorkspaceWord: true,
+      });
+      const paginasPath = resolve(SHOTS_DIR, `paginas-${vp.name}.png`);
+      await page.screenshot({ path: paginasPath, fullPage: false });
+      results.paginas[vp.name] = paginasPath;
+      console.log(`   Captured Páginas (paginas): ${paginasPath}`);
 
       // 6. Códice (`codice-studio`)
       await clickIdeNavLink(page, 'Códice');

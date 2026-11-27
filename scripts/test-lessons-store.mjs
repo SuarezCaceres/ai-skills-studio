@@ -357,5 +357,94 @@ test('los videos no cambian quién puede gestionar la clase: solo la autora', ()
   assert.equal(m.canManageLesson(l, null), false);
 });
 
+console.log('Páginas de referencia (spec 007, C7 y C9)');
+const SIX_PAGES = ['landing-saas', 'tienda-online', 'dashboard', 'login-registro', 'precios', 'blog-articulo'];
+test('LIMITS.pages es 5', () => assert.equal(m.LIMITS.pages, 5));
+test('validateDraft: 5 páginas no dan error y 6 dan errors.pageIds en español', () => {
+  assert.deepEqual(m.validateDraft(draft({ pageIds: SIX_PAGES.slice(0, 5) })), {});
+  const e = m.validateDraft(draft({ pageIds: SIX_PAGES }));
+  assert.match(e.pageIds, /5 páginas de referencia/);
+  assert.deepEqual(Object.keys(e), ['pageIds']);
+});
+test('validateDraft acepta un borrador sin el campo pageIds (formularios antiguos)', () => {
+  const d = draft();
+  delete d.pageIds;
+  assert.deepEqual(m.validateDraft(d), {});
+});
+test('sanitizeLesson de una clase guardada antes de la 006 (sin pageIds) da pageIds []', () => {
+  const old = m.createLesson(draft(), author, [], NOW);
+  delete old.pageIds;
+  const clean = m.sanitizeLesson(old, NOW);
+  assert.ok(clean);
+  assert.deepEqual(clean.pageIds, []);
+});
+test('pageIds que no es un arreglo (texto, objeto, null, número) se lee como []', () => {
+  const base = m.createLesson(draft(), author, [], NOW);
+  for (const bad of ['dashboard', { 0: 'dashboard' }, null, 7]) assert.deepEqual(m.sanitizeLesson({ ...base, pageIds: bad }, NOW).pageIds, [], JSON.stringify(bad));
+});
+test('ids desconocidos, no-string, con otra grafía y repetidos se descartan conservando el orden', () => {
+  const base = m.createLesson(draft(), author, [], NOW);
+  const raw = ['precios', 'pagina-retirada', 5, null, { id: 'dashboard' }, 'Dashboard', ' dashboard', 'precios', 'dashboard', '../precios', 'landing-saas'];
+  assert.deepEqual(m.sanitizeLesson({ ...base, pageIds: raw }, NOW).pageIds, ['precios', 'dashboard', 'landing-saas']);
+});
+test('por encima de 5 páginas se recorta a las 5 primeras válidas, en su orden', () => {
+  const base = m.createLesson(draft(), author, [], NOW);
+  const reversed = [...SIX_PAGES].reverse();
+  assert.deepEqual(m.sanitizeLesson({ ...base, pageIds: reversed }, NOW).pageIds, reversed.slice(0, 5));
+  // Los descartados no consumen hueco: con basura intercalada siguen entrando 5 válidas.
+  const mixed = ['x', SIX_PAGES[0], 'x', SIX_PAGES[1], SIX_PAGES[1], SIX_PAGES[2], 'y', SIX_PAGES[3], SIX_PAGES[4], SIX_PAGES[5]];
+  assert.deepEqual(m.sanitizeLesson({ ...base, pageIds: mixed }, NOW).pageIds, SIX_PAGES.slice(0, 5));
+});
+test('createLesson conserva pageIds en orden y sin páginas queda en []', () => {
+  assert.deepEqual(m.createLesson(draft({ pageIds: ['dashboard', 'precios'] }), author, [], NOW).pageIds, ['dashboard', 'precios']);
+  assert.deepEqual(m.createLesson(draft(), author, [], NOW).pageIds, []);
+});
+test('createLesson con un id desconocido en el borrador lo quita al guardar', () => {
+  assert.deepEqual(m.createLesson(draft({ pageIds: ['pagina-retirada', 'blog-articulo'] }), author, [], NOW).pageIds, ['blog-articulo']);
+});
+test('updateLesson cambia pageIds y, si el borrador no los trae, conserva los existentes', () => {
+  const l = m.createLesson(draft({ pageIds: ['dashboard', 'precios'] }), author, [], NOW);
+  assert.deepEqual(m.updateLesson(l, draft({ pageIds: ['blog-articulo'] }), LATER).pageIds, ['blog-articulo']);
+  assert.deepEqual(m.updateLesson(l, draft({ pageIds: [] }), LATER).pageIds, []);
+  const withoutPages = draft();
+  delete withoutPages.pageIds;
+  assert.deepEqual(m.updateLesson(l, withoutPages, LATER).pageIds, ['dashboard', 'precios']);
+});
+test('el almacén local guarda y relee pageIds', () => {
+  const backend = memory();
+  const l = m.createLesson(draft({ pageIds: ['tienda-online'] }), author, [], NOW);
+  m.createLocalLessonsStore(backend).save(l);
+  assert.deepEqual(m.createLocalLessonsStore(backend).get(l.id).pageIds, ['tienda-online']);
+});
+test('el almacén local sanea pageIds manipulados en localStorage', () => {
+  const l = m.createLesson(draft(), author, [], NOW);
+  const backend = memory({ [m.LESSONS_KEY]: JSON.stringify([{ ...l, pageIds: ['dashboard', 'evil', 'dashboard', 42] }]) });
+  assert.deepEqual(m.createLocalLessonsStore(backend).get(l.id).pageIds, ['dashboard']);
+});
+test('exportar e importar conserva pageIds', () => {
+  const l = m.createLesson(draft({ pageIds: ['login-registro', 'precios'] }), author, [], NOW);
+  const exported = JSON.parse(m.exportLessons([l], NOW));
+  assert.deepEqual(exported.lessons[0].pageIds, ['login-registro', 'precios']);
+  const back = m.importLessons(m.exportLessons([l], NOW), [], NOW);
+  assert.equal(back.added, 1);
+  assert.deepEqual(back.lessons[0].pageIds, ['login-registro', 'precios']);
+  assert.deepEqual(back.lessons[0], l);
+});
+test('un export antiguo sin pageIds importa con pageIds []', () => {
+  const l = m.createLesson(draft(), author, [], NOW);
+  const legacy = { ...l };
+  delete legacy.pageIds;
+  const r = m.importLessons(JSON.stringify({ format: 'codice-lessons', version: 1, exportedAt: NOW.toISOString(), lessons: [legacy] }), [], NOW);
+  assert.equal(r.added, 1);
+  assert.equal(r.skipped, 0);
+  assert.deepEqual(r.lessons[0].pageIds, []);
+});
+test('un import con pageIds hostiles entra saneado (sin desconocidos, repetidos ni más de 5)', () => {
+  const l = m.createLesson(draft(), author, [], NOW);
+  const hostile = { ...l, pageIds: ['<script>', ...SIX_PAGES, 'dashboard'] };
+  const r = m.importLessons(JSON.stringify({ format: 'codice-lessons', version: 1, exportedAt: NOW.toISOString(), lessons: [hostile] }), [], NOW);
+  assert.deepEqual(r.lessons[0].pageIds, SIX_PAGES.slice(0, 5));
+});
+
 rmSync(dir, { recursive: true, force: true });
 console.log(`\n${passed} pruebas de clases OK`);

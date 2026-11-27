@@ -36,22 +36,28 @@ export function fnv1a(text: string): string {
 
 const plainVideos = (videos: LessonVideo[]) => videos.map((v) => ({ id: v.id, kind: v.kind, youtubeId: v.youtubeId, title: v.title }));
 
-type Shareable = Pick<Lesson, 'title' | 'summary' | 'level' | 'tags' | 'skillIds' | 'componentIds' | 'videos' | 'bodyMarkdown'>;
+type Shareable = Pick<Lesson, 'title' | 'summary' | 'level' | 'tags' | 'skillIds' | 'componentIds' | 'videos' | 'bodyMarkdown'> & {
+  pageIds?: string[];
+};
 
-/** Huella de lo que se publica. Autor, fechas y estado de «compartida» no cuentan. */
+/**
+ * Huella de lo que se publica. Autor, fechas y estado de «compartida» no cuentan.
+ * `pageIds` solo entra si no está vacío: así la huella de las clases compartidas antes de que
+ * existieran las páginas de referencia no cambia y no aparecen con «cambios sin compartir».
+ */
 export function contentHash(lesson: Shareable): string {
-  return fnv1a(
-    JSON.stringify([
-      lesson.title,
-      lesson.summary,
-      lesson.level,
-      lesson.tags,
-      lesson.skillIds,
-      lesson.componentIds,
-      plainVideos(lesson.videos),
-      lesson.bodyMarkdown,
-    ])
-  );
+  const parts: unknown[] = [
+    lesson.title,
+    lesson.summary,
+    lesson.level,
+    lesson.tags,
+    lesson.skillIds,
+    lesson.componentIds,
+    plainVideos(lesson.videos),
+    lesson.bodyMarkdown,
+  ];
+  if (lesson.pageIds && lesson.pageIds.length > 0) parts.push(lesson.pageIds);
+  return fnv1a(JSON.stringify(parts));
 }
 
 export type ShareStatus = 'private' | 'shared' | 'dirty';
@@ -87,6 +93,7 @@ export function buildSharedFiles(lesson: Lesson): SharedFile[] {
     tags: lesson.tags,
     skillIds: lesson.skillIds,
     componentIds: lesson.componentIds,
+    pageIds: lesson.pageIds,
     videos: plainVideos(lesson.videos),
   };
   return [
@@ -113,6 +120,8 @@ export interface ClassMarkerData {
   tags: string[];
   skillIds: string[];
   componentIds: string[];
+  /** Ausente en marcadores de versiones anteriores: se lee como `[]`. */
+  pageIds?: string[];
   videos: Array<Pick<LessonVideo, 'id' | 'kind' | 'youtubeId' | 'title'>>;
   createdAt: string;
   updatedAt: string;
@@ -143,6 +152,7 @@ export function buildClassMarker(lesson: Lesson, where: { repo: string; sha: str
       tags: lesson.tags,
       skillIds: lesson.skillIds,
       componentIds: lesson.componentIds,
+      pageIds: lesson.pageIds,
       videos: plainVideos(lesson.videos),
       createdAt: lesson.createdAt,
       updatedAt: lesson.updatedAt,
@@ -213,6 +223,7 @@ export function toCommunityLesson(issue: GhClassIssue, now: Date = new Date()): 
       tags: data.tags,
       skillIds: data.skillIds,
       componentIds: data.componentIds,
+      pageIds: data.pageIds,
       videos: data.videos,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
@@ -263,6 +274,7 @@ export function withSharedFiles(base: CommunityLesson, files: { json: string; ma
       tags: parsed.tags,
       skillIds: parsed.skillIds,
       componentIds: parsed.componentIds,
+      pageIds: parsed.pageIds,
       videos: parsed.videos,
       author: base.author,
       createdAt: base.createdAt,
@@ -279,6 +291,7 @@ export function withSharedFiles(base: CommunityLesson, files: { json: string; ma
     tags: meta.tags,
     skillIds: meta.skillIds,
     componentIds: meta.componentIds,
+    pageIds: meta.pageIds,
     videos: meta.videos,
     bodyMarkdown: body,
     contentHash: contentHash({ ...meta, bodyMarkdown: body }),

@@ -11,6 +11,15 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-27 · Claude Code (`Orquestador General`) · `chore/integracion-efectos-hero-forge-paginas`
+- **Hecho:**
+  - **007 · Páginas de referencia** (spec y plan aprobados tras una sesión de *grilling*; rama `feat/006-paginas-de-referencia`, renumerada a 007 porque otra sesión abrió en paralelo la 006 de efectos). Fase 0 de contratos (`pageIds`, catálogo, registro y ruta `paginas`), Fase 1 en 4 sub-worktrees (galería y modal, 6 plantillas, clases y pruebas) e integración: miniaturas con `capture-pages.mjs`, `skillsShService` diferido en `App.tsx` (chunk inicial 350,4 → 340,3 kB) y arreglos de foco al cerrar la modal. Revisor independiente: REQUEST_CHANGES (icono violeta, ↑/↓ en zonas con scroll, lección en `docs/rules/`) y corregido; la lección de `main > section` la autorizó el humano.
+  - **Integración en una sola rama** de la 006 de efectos (PR #35), `feat/hero-forge` (que ya contiene `feat/orbital-ai-agents`) y la 007. Conflictos resueltos en `features.json`, `check.sh`, `ARCHITECTURE.md`, `NavbarActiveSkill.tsx` (se adopta la barra Notch de hero-forge; «Páginas» queda en los módulos) y `lessons/pickers.tsx`.
+  - **Suites adaptadas a hero-forge** (sin quitar aserciones): `scripts/lib/enter-app.mjs` (entrar a los módulos por el pie y pulsar el botón del modal de acceso) en 12 scripts; `test-interactions-playwright.mjs` reescrita para la portada nueva; `test-guide-showcase.mjs` desactiva WebGL2 (el fondo saturaba el hilo al adelantar el reloj simulado; fallaba también en hero-forge sola). C1 y C11 de la 007 ajustados con aprobación del humano.
+- **Verificación:** `./scripts/check.sh` completo en **exit 0** con las variables del simulador. Chunk inicial 323,0 kB.
+- **Pendiente:** revisión humana y fusión del PR de integración; al fusionarlo, cerrar el PR #35 (queda incluido) y borrar `feat/006-paginas-de-referencia`, `feat/hero-forge` y `feat/orbital-ai-agents` si ya no hacen falta.
+- **Problemas:** `motion` (dependencia de hero-forge) no está en el `node_modules` del repo principal: tras fusionar hay que ejecutar `npm install`. Los cambios sin commitear de la carpeta principal (`InformativeLandingSection.tsx`, `AiAgents3DStrip.tsx`, `aiAgents3D.css`, `src/assets/ai-icons/`) son de otra sesión y no entran en esta integración.
+
 ## 2026-11-27 · Claude Code (`Orquestador General`) · `feat/006-efectos-estilos-animaciones`
 - **Hecho:**
   - Spec y plan de la **006** aprobados por el humano (pestaña «Efectos» dentro de Componentes; 8 estilos + 10 animaciones; prompt en español copiable).
