@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Home,
@@ -88,27 +88,113 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
   githubAvatarUrl,
 }) => {
   const [collaboratorDrawerOpen, setCollaboratorDrawerOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [modulesExpanded, setModulesExpanded] = useState(false);
+  const navRef = useRef<HTMLElement | null>(null);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
   const isLanding = activePage === 'inicio';
+
+  // Intercepta clics en .nav__toggle y .nav__expand en fase de captura para evitar
+  // doble disparo con public/assets/system.js y mantener el menú móvil operativo tras remontar el header.
+  useEffect(() => {
+    const headerEl = navRef.current;
+    if (!headerEl) return;
+    const handleClickCapture = (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      if (target?.closest('.nav__toggle')) {
+        e.stopPropagation();
+        setMobileMenuOpen((prev) => !prev);
+        return;
+      }
+      if (target?.closest('.nav__expand')) {
+        e.stopPropagation();
+        setModulesExpanded((prev) => !prev);
+      }
+    };
+    headerEl.addEventListener('click', handleClickCapture, { capture: true });
+    return () => headerEl.removeEventListener('click', handleClickCapture, { capture: true });
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('nav-locked', mobileMenuOpen);
+    return () => {
+      document.body.classList.remove('nav-locked');
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const btn = toggleRef.current;
+    if (!btn) return;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('width', '18');
+    svg.setAttribute('height', '18');
+    svg.setAttribute('viewBox', '0 0 18 18');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', mobileMenuOpen ? 'M4 4l10 10M14 4L4 14' : 'M2 5h14M2 13h14');
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '1.6');
+    path.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(path);
+    btn.replaceChildren(svg);
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setMobileMenuOpen(false);
+        setModulesExpanded(false);
+      }
+    };
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
+  }, []);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setModulesExpanded(false);
+  }, [activePage]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key !== 'Escape') return;
+      if (collaboratorDrawerOpen) {
         setCollaboratorDrawerOpen(false);
+        return;
+      }
+      if (mobileMenuOpen) {
+        setMobileMenuOpen(false);
+        setModulesExpanded(false);
+        toggleRef.current?.focus();
       }
     };
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
-  }, []);
+  }, [collaboratorDrawerOpen, mobileMenuOpen]);
 
   const handleOpenModule = (e: React.MouseEvent<HTMLAnchorElement>, page: AppPageRoute) => {
     e.preventDefault();
+    setMobileMenuOpen(false);
+    setModulesExpanded(false);
     onNavigatePage(page);
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   return (
     <>
-      <header className="nav nav--centre">
+      <header
+        ref={navRef}
+        className={`nav nav--centre${mobileMenuOpen ? ' is-open' : ''}`}
+        onClick={(e) => {
+          const target = e.target as Element | null;
+          if (mobileMenuOpen && target?.closest('a[href]')) {
+            setMobileMenuOpen(false);
+            setModulesExpanded(false);
+          }
+        }}
+      >
         <div className="wrap nav__bar">
           <a className="skip-link" href="#top">
             Saltar al contenido
@@ -131,7 +217,7 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
 
           {isLanding ? (
             <nav className="nav__links" aria-label="Principal">
-              <div className="nav__item">
+              <div className={`nav__item${modulesExpanded ? ' is-expanded' : ''}`}>
                 <a className="nav__link" href="#inspector">
                   Módulos{' '}
                   <svg className="chev" viewBox="0 0 12 12" aria-hidden="true">
@@ -145,6 +231,23 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                     />
                   </svg>
                 </a>
+                <button
+                  type="button"
+                  className="nav__expand"
+                  aria-label="Mostrar enlaces de Módulos"
+                  aria-expanded={modulesExpanded}
+                >
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <path
+                      d="M4 6l4 4 4-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
                 <div className="nav__menu">
                   <div className="wrap grid">
                     <div className="menu-col span-4">
@@ -268,20 +371,12 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
           </div>
 
           <button
+            ref={toggleRef}
             className="nav__toggle"
             type="button"
-            aria-expanded="false"
-            aria-label="Abrir menú"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-              <path
-                d="M2 5h14M2 13h14"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          />
         </div>
       </header>
 
