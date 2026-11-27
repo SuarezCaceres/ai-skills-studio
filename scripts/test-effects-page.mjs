@@ -4,10 +4,11 @@
  * código real, notas y miniatura), copiar el prompt, «Repetir» y movimiento reducido, apertura desde una
  * clase, asignación de skills y presupuesto del chunk inicial.
  *
- * Fase A (C1–C4): `vite preview` sobre `dist/` (hay que compilar antes: `npm run build`), GitHub simulado.
- * Fase B (C5): compila la app en una carpeta temporal con catálogo y OAuth de prueba
- *   (`scripts/lib/github-fixture.mjs`) para poder iniciar sesión y asignar sin tocar GitHub real.
- * C6: comprobaciones estáticas de `package.json` y `dist/`, y ninguna petición fuera de `127.0.0.1`
+ * Compila su propio dist en una carpeta temporal con catálogo y OAuth de prueba
+ * (`scripts/lib/github-fixture.mjs`): no depende del `dist/` de `npm run build` ni de `.env.local`.
+ * Fase A (C1–C4): `vite preview` sobre ese dist, con GitHub simulado.
+ * Fase B (C5): el mismo dist, iniciando sesión y asignando sin tocar GitHub real.
+ * C6: imports de los efectos, análisis del dist de prueba y ninguna petición fuera de `127.0.0.1`
  *   (salvo Google Fonts, que se contesta vacío). Cualquier otra petición se aborta y cuenta como fallo.
  *
  * Los ids, nombres y prompts salen del propio registro (`COMPONENT_REGISTRY`, entradas `kind: 'efecto'`),
@@ -33,8 +34,9 @@ import {
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 5192;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
-const DIST = resolve(ROOT, 'dist');
 const OUT_DIR = join(tmpdir(), 'ai-skills-studio-effects-e2e');
+/** El dist que se sirve y se analiza: el propio de la suite, no el de `npm run build`. */
+const DIST = OUT_DIR;
 const SHOTS_DIR = resolve(ROOT, 'shots', 'effects');
 const THUMBS_DIR = resolve(ROOT, 'public', 'components');
 const MAX_THUMB_BYTES = 40 * 1024;
@@ -307,7 +309,7 @@ async function pollUntil(read, predicate, timeout = 1500) {
   return { ok: predicate(value), value };
 }
 
-/* ---------------- Fase A: C1–C4 sobre dist/ ---------------- */
+/* ---------------- Fase A: C1–C4 ---------------- */
 
 async function phaseA(browser, effects, errors, stray) {
   const styles = effects.filter((e) => e.category === 'Estilos');
@@ -725,7 +727,7 @@ function staticChecks(effects) {
 
   const html = readFileSync(resolve(DIST, 'index.html'), 'utf8');
   const entryPath = html.match(/<script[^>]*type="module"[^>]*src="\.?\/?(bundle\/[^"]+\.js)"/)?.[1];
-  check('dist/index.html referencia un chunk de entrada en bundle/', Boolean(entryPath), 'no se encontró');
+  check('el index.html del dist referencia un chunk de entrada en bundle/', Boolean(entryPath), 'no se encontró');
   if (!entryPath) return;
   const entry = readFileSync(resolve(DIST, entryPath), 'utf8');
   const entryBytes = statSync(resolve(DIST, entryPath)).size;
@@ -749,12 +751,7 @@ function staticChecks(effects) {
 /* ---------------- Principal ---------------- */
 
 async function main() {
-  if (!existsSync(resolve(DIST, 'index.html'))) {
-    console.error('Falta dist/: compila antes con `npm run build`.');
-    process.exit(1);
-  }
   mkdirSync(SHOTS_DIR, { recursive: true });
-  rmSync(OUT_DIR, { recursive: true, force: true });
 
   console.log('Leyendo los efectos del registro...');
   const effects = await loadEffects();
@@ -764,35 +761,31 @@ async function main() {
   const stray = [];
   const browser = await chromium.launch({ headless: true });
   try {
-    // Fase A: dist/ tal cual.
-    const serverA = await preview({ root: ROOT, preview: { port: PORT, host: '127.0.0.1', strictPort: true } });
-    try {
-      await phaseA(browser, effects, errors, stray);
-    } finally {
-      await serverA.close();
-    }
-
-    // Fase B: compilación de prueba con catálogo y OAuth simulados (para iniciar sesión).
-    console.log('\nCompilando la app con catálogo y OAuth de prueba (C5)...');
+    // Un único dist de prueba con catálogo y OAuth simulados: no depende de `npm run build` ni de `.env.local`.
+    console.log('\nCompilando la app con catálogo y OAuth de prueba...');
     process.env.VITE_CATALOG_REPO = TEST_CATALOG_REPO;
     process.env.VITE_GITHUB_CLIENT_ID = TEST_CLIENT_ID;
     process.env.VITE_GITHUB_OAUTH_URL = TEST_OAUTH_URL;
+    process.env.VITE_SKILLS_SH_PROXY_URL = '';
+    rmSync(OUT_DIR, { recursive: true, force: true });
     await build({ root: ROOT, logLevel: 'error', build: { outDir: OUT_DIR, emptyOutDir: true } });
-    const serverB = await preview({ root: ROOT, build: { outDir: OUT_DIR }, preview: { port: PORT, host: '127.0.0.1', strictPort: true } });
+    if (!existsSync(resolve(DIST, 'index.html'))) throw new Error(`La compilación de prueba no generó ${DIST}/index.html.`);
+    const server = await preview({ root: ROOT, build: { outDir: OUT_DIR }, preview: { port: PORT, host: '127.0.0.1', strictPort: true } });
     try {
+      await phaseA(browser, effects, errors, stray);
       await phaseB(browser, effects, errors, stray);
     } finally {
-      await serverB.close();
+      await server.close();
     }
+
+    await block('C6 · Sin dependencias ni peticiones externas, demos diferidas y chunk inicial < 350 kB', async () => {
+      staticChecks(effects);
+      check('la suite no vio peticiones fuera de 127.0.0.1 (salvo Google Fonts y GitHub simulado)', stray.length === 0, [...new Set(stray)].slice(0, 3).join(' | '));
+    });
   } finally {
     await browser.close();
     rmSync(OUT_DIR, { recursive: true, force: true });
   }
-
-  await block('C6 · Sin dependencias ni peticiones externas, demos diferidas y chunk inicial < 350 kB', async () => {
-    staticChecks(effects);
-    check('la suite no vio peticiones fuera de 127.0.0.1 (salvo Google Fonts y GitHub simulado)', stray.length === 0, [...new Set(stray)].slice(0, 3).join(' | '));
-  });
 
   console.log('\nGeneral');
   check('sin errores de consola, pageerror ni violaciones CSP en todo el recorrido', errors.length === 0, [...new Set(errors)].slice(0, 3).join(' | '));
