@@ -7,6 +7,7 @@ import {
   LogOut,
   ShieldCheck,
   Layers,
+  LayoutTemplate,
   X,
   Trash2,
   Github,
@@ -68,6 +69,13 @@ export const PAGE_NAV_ITEMS: {
     subtitle: 'Catálogo de componentes UI accesibles y código real',
     shortLabel: 'Componentes',
     icon: Layers,
+  },
+  {
+    id: 'paginas',
+    label: 'Páginas',
+    subtitle: 'Páginas de referencia hechas con el kit, con su prompt y su código',
+    shortLabel: 'Páginas',
+    icon: LayoutTemplate,
   },
   {
     id: 'codice-studio',
@@ -266,6 +274,9 @@ export const TopStudioHeader: React.FC<StudioNavigationProps> = ({
                       <p className="t-label">UI y conocimiento</p>
                       <a href="#capabilities" onClick={(e) => handleOpenModule(e, 'preview')}>
                         Componentes UI<span>Demostraciones accesibles y código real</span>
+                      </a>
+                      <a href="#capabilities" onClick={(e) => handleOpenModule(e, 'paginas')}>
+                        Páginas de referencia<span>Páginas completas con su prompt y su código</span>
                       </a>
                       <a href="#benchmarks" onClick={(e) => handleOpenModule(e, 'codice-studio')}>
                         Códice de clases<span>Lecciones del equipo y bóveda Obsidian</span>

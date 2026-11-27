@@ -5,6 +5,7 @@ export type AppPageRoute =
   | 'catalogo'
   | 'skills-sh'
   | 'preview'
+  | 'paginas'
   | 'skill-detalle'
   | 'perfil';
 

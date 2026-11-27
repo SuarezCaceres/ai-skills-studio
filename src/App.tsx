@@ -25,6 +25,11 @@ const ComponentsPage = lazy(() =>
     default: m.ComponentsPage,
   }))
 );
+const PagesPage = lazy(() =>
+  import('./components/pages/PagesPage').then((m) => ({
+    default: m.PagesPage,
+  }))
+);
 const CatalogPage = lazy(() =>
   import('./components/catalog/CatalogPage').then((m) => ({
     default: m.CatalogPage,
@@ -544,6 +549,19 @@ export function App() {
                   onSelect={setSelectedComponentId}
                   onOpenSkill={(id) => openCatalogSkill(id, 'preview')}
                   onRequestLogin={() => setShowAuthScreen(true)}
+                  onOpenLesson={(id) => {
+                    setOpenLessonId(id);
+                    setActivePage('codice-studio');
+                  }}
+                />
+              )}
+
+              {activePage === 'paginas' && (
+                <PagesPage
+                  onOpenComponent={(id) => {
+                    setSelectedComponentId(id);
+                    setActivePage('preview');
+                  }}
                   onOpenLesson={(id) => {
                     setOpenLessonId(id);
                     setActivePage('codice-studio');
