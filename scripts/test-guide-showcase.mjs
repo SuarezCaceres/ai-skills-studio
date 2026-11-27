@@ -320,6 +320,15 @@ async function openContext(browser, origin, options = {}) {
     const ext = externalOrigin(r.url(), origin);
     if (ext) state.requests.push({ origin: ext, url: r.url() });
   });
+  // El fondo WebGL2 de la portada (hero-forge) dibuja en cada requestAnimationFrame: al adelantar el reloj
+  // simulado ejecutaría cientos de fotogramas de golpe y saturaría el hilo principal. Esta suite prueba
+  // #guia, así que se desactiva WebGL2 (WorkshopLight ya contempla navegadores sin él).
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+      return type === "webgl2" ? null : original.call(this, type, ...rest);
+    };
+  });
   if (options.clock !== false) await page.clock.install();
   return { context, page, state };
 }
