@@ -87,6 +87,7 @@ export const GuideModePanel: React.FC<GuideModePanelProps> = ({
                 key={`${mode}-${index}`}
                 data-testid="guia-fila"
                 data-estado={state}
+                aria-current={state === 'activa' ? 'step' : undefined}
                 className="guia-fila"
                 style={{ '--guia-orden': index } as React.CSSProperties}
               >
@@ -97,7 +98,10 @@ export const GuideModePanel: React.FC<GuideModePanelProps> = ({
                 {detail && <span className="guia-fila__detalle">{detail}</span>}
                 <span data-testid="guia-barra" aria-hidden="true" className="guia-barra">
                   <BarFill
-                    key={state === 'activa' ? `activa-${cycleKey}` : state}
+                    // Se vuelve a montar al empezar cada paso (cycleKey) y en cada pausa (elapsedMs, medido por el reloj
+                    // de JS): así el desfase siempre sale del reloj, aunque el navegador no recalcule estilos con la
+                    // pestaña oculta y la animación CSS haya seguido corriendo.
+                    key={state === 'activa' ? `activa-${cycleKey}-${elapsedMs}` : state}
                     initialElapsedMs={state === 'activa' ? elapsedMs : 0}
                     paused={paused}
                   />

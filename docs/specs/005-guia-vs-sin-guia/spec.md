@@ -55,7 +55,7 @@ Se rediseña la composición de `#guia` tomando como **referencia de composició
 **Cambios respecto a lo anterior:**
 - La lista de obstáculos/ventajas se sustituye por una **tarjeta de barras**. Se conserva `ul[data-testid="guia-lista"]` como lista de filas de la tarjeta, así que C2 («se ve la lista de obstáculos») y C3 («la lista cambia a las ventajas») se comprueban sobre esa tarjeta.
 - El botón «Pausar guía»/«Reanudar guía» y el CTA «Ir al catálogo ›» pasan **dentro de la tarjeta**. El nombre accesible del CTA sigue siendo «Ir al catálogo»; la flecha es decorativa.
-- La cabecera («Primeros pasos», título y subtítulo) va centrada arriba, y el selector «Sin guía | Con guía» queda centrado bajo el escenario, con el mismo `role="radiogroup"`.
+- La cabecera («Primeros pasos», título y subtítulo) va centrada arriba, y el selector «Sin guía | Con guía» queda centrado debajo, en una fila propia (bajo el escenario en móvil y bajo las dos columnas en `≥ 1024` px, para que no salte de lado al pulsarlo), con el mismo `role="radiogroup"`.
 - **Excepción de paleta:** solo en «Con guía» se permite un halo radial sutil cian (opacidad `≤ 15 %`) detrás del círculo. El humano autorizó registrarla en `docs/rules/frontend.md`, acotada a esta sección.
 
 **Criterios nuevos:**

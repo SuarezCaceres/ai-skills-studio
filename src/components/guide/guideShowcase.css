@@ -11,16 +11,19 @@
 /*
  * Altura: el kit (public/assets/system.css) fija cada sección a una pantalla en ≥ 1280 px, y el escenario con su
  * círculo no cabe en 708 px sin encoger el marco hasta hacerlo ilegible. Igual que el propio kit hace entre 640 y
- * 1279 px, la sección mide al menos una pantalla y crece en lugar de montarse sobre #inspector.
+ * 1279 px, a partir de 1280 px la sección mide al menos una pantalla y crece en lugar de montarse sobre #inspector
+ * (por debajo de 1280 px ya lo hace el propio kit).
  */
-main > #guia.section {
-  height: auto;
-  min-height: 100vh;
-  min-height: 100svh;
-}
+@media (min-width: 1280px) {
+  main > #guia.section {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100svh;
+  }
 
-main > #guia.section > .wrap {
-  height: auto;
+  main > #guia.section > .wrap {
+    height: auto;
+  }
 }
 
 #guia .guia__cabecera {

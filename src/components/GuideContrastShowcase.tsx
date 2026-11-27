@@ -102,7 +102,8 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({ on
   useEffect(() => {
     if (!running) return;
     const key = clockRef.current.key;
-    const startedAt = Date.now();
+    // performance.now() es monótono (un cambio del reloj del sistema no falsea lo transcurrido) y page.clock lo controla.
+    const startedAt = performance.now();
     const remaining = Math.max(0, GUIDE_STEP_INTERVAL_MS - clockRef.current.elapsed);
     const id = window.setTimeout(() => {
       if (clockRef.current.key === key) restartCycle(nextStep);
@@ -113,7 +114,7 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({ on
       if (clockRef.current.key !== key) return;
       const elapsed = Math.min(
         GUIDE_STEP_INTERVAL_MS,
-        clockRef.current.elapsed + (Date.now() - startedAt)
+        Math.max(0, clockRef.current.elapsed + (performance.now() - startedAt))
       );
       clockRef.current = { key, elapsed };
       setElapsedMs(elapsed);
@@ -133,12 +134,14 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({ on
 
   const selectMode = useCallback(
     (next: GuideMode) => {
+      // Volver a pulsar el modo activo no reinicia la guía.
+      if (next === mode) return;
       setMode(next);
       setFocusPaused(false);
       setUserPaused(false);
       restartCycle(() => 1);
     },
-    [restartCycle]
+    [mode, restartCycle]
   );
 
   const onRadioKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -166,6 +169,7 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({ on
       aria-labelledby="guia-h"
       data-mode={mode}
       data-reduced={reduced ? 'true' : 'false'}
+      data-paused={guided && paused ? 'true' : 'false'}
     >
       <div className="wrap">
         <header className="guia__cabecera">

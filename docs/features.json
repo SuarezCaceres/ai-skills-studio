@@ -7,16 +7,8 @@
       "spec": "REPORTE_SEGURIDAD_Y_CALIDAD.md",
       "estado": "hecho",
       "criterios": [
-        {
-          "id": "C1",
-          "descripcion": "Montaje de carpetas locales, descompresión/exportación ZIP real, inspección segura de .rar (<= 25 MB, anti-traversal) y vista Diff línea por línea en el navegador",
-          "pasa": true
-        },
-        {
-          "id": "C2",
-          "descripcion": "Landing editorial tasteskill 2.5.1 (carbón #0a0d14 + cian #0ea5e9), showcase interactivo y comparador de 8 modelos de IA verificados en 4 anchos con Playwright",
-          "pasa": true
-        }
+        { "id": "C1", "descripcion": "Montaje de carpetas locales, descompresión/exportación ZIP real, inspección segura de .rar (<= 25 MB, anti-traversal) y vista Diff línea por línea en el navegador", "pasa": true },
+        { "id": "C2", "descripcion": "Landing editorial tasteskill 2.5.1 (carbón #0a0d14 + cian #0ea5e9), showcase interactivo y comparador de 8 modelos de IA verificados en 4 anchos con Playwright", "pasa": true }
       ]
     },
     {
@@ -25,21 +17,9 @@
       "spec": "docs/catalog-setup.md",
       "estado": "hecho",
       "criterios": [
-        {
-          "id": "C1",
-          "descripcion": "Inicio de sesión OAuth PKCE con GitHub vía api/github-oauth.ts manteniendo el access_token únicamente en memoria",
-          "pasa": true
-        },
-        {
-          "id": "C2",
-          "descripcion": "Registro de skills por URL, subida desde carpeta/archivo local (con escaneo de secretos) y creación/edición en la app sobre <login>/codice-skills fijando el commit SHA",
-          "pasa": true
-        },
-        {
-          "id": "C3",
-          "descripcion": "Auditor automático de riesgos, generador de comando de instalación fijado a SHA, votos, reportes por modelo, perfil por integrante y traducción al español sanitizada",
-          "pasa": true
-        }
+        { "id": "C1", "descripcion": "Inicio de sesión OAuth PKCE con GitHub vía api/github-oauth.ts manteniendo el access_token únicamente en memoria", "pasa": true },
+        { "id": "C2", "descripcion": "Registro de skills por URL, subida desde carpeta/archivo local (con escaneo de secretos) y creación/edición en la app sobre <login>/codice-skills fijando el commit SHA", "pasa": true },
+        { "id": "C3", "descripcion": "Auditor automático de riesgos, generador de comando de instalación fijado a SHA, votos, reportes por modelo, perfil por integrante y traducción al español sanitizada", "pasa": true }
       ]
     },
     {
@@ -48,16 +28,8 @@
       "spec": "docs/agents/WT4_CLASES_COMPONENTES.md",
       "estado": "hecho",
       "criterios": [
-        {
-          "id": "C1",
-          "descripcion": "Catálogo de 20 componentes propios en src/components/ui-kit/ con demo en vivo, código real (?raw), notas de accesibilidad y miniaturas <= 40 KB",
-          "pasa": true
-        },
-        {
-          "id": "C2",
-          "descripcion": "Asignación saneada de skills y modelos de IA por componente en localStorage (exige sesión para editar, lectura libre) y relación inversa con las clases que lo mencionan",
-          "pasa": true
-        }
+        { "id": "C1", "descripcion": "Catálogo de 20 componentes propios en src/components/ui-kit/ con demo en vivo, código real (?raw), notas de accesibilidad y miniaturas <= 40 KB", "pasa": true },
+        { "id": "C2", "descripcion": "Asignación saneada de skills y modelos de IA por componente en localStorage (exige sesión para editar, lectura libre) y relación inversa con las clases que lo mencionan", "pasa": true }
       ]
     },
     {
@@ -66,16 +38,8 @@
       "spec": "docs/plans/PLAN_CLASES_COMPARTIDAS.md",
       "estado": "hecho",
       "criterios": [
-        {
-          "id": "C1",
-          "descripcion": "Gestión local de clases en Markdown (SafeMarkdown), importar/exportar JSON y partes ordenadas de videos/listas de YouTube cargadas bajo demanda con youtube-nocookie.com",
-          "pasa": true
-        },
-        {
-          "id": "C2",
-          "descripcion": "Flujo explícito para compartir, actualizar y retirar clases en <login>/codice-skills + Issue [class] en el catálogo, y lectura autenticada en la pestaña Comunidad verificando autoría real",
-          "pasa": true
-        }
+        { "id": "C1", "descripcion": "Gestión local de clases en Markdown (SafeMarkdown), importar/exportar JSON y partes ordenadas de videos/listas de YouTube cargadas bajo demanda con youtube-nocookie.com", "pasa": true },
+        { "id": "C2", "descripcion": "Flujo explícito para compartir, actualizar y retirar clases en <login>/codice-skills + Issue [class] en el catálogo, y lectura autenticada en la pestaña Comunidad verificando autoría real", "pasa": true }
       ]
     },
     {
@@ -84,21 +48,9 @@
       "spec": "docs/specs/001-equipos-y-miembros/spec.md",
       "estado": "pendiente",
       "criterios": [
-        {
-          "id": "C1",
-          "descripcion": "Servicio teamService para crear equipos (<admin>/<slug>-skills con equipo.json + Issue [team]), validar que el autor del Issue figure en admins, gestionar roles/bajas y archivar equipos",
-          "pasa": false
-        },
-        {
-          "id": "C2",
-          "descripcion": "Invitación por usuario de GitHub con código único de un solo uso (hash + sal, caducidad 7 días) y flujo de unión aceptando la invitación del repositorio",
-          "pasa": false
-        },
-        {
-          "id": "C3",
-          "descripcion": "Pantalla inicial de 3 opciones cuando el usuario no tiene equipo, directorio público, página de equipo, panel de administración y sustitución de src/config/team.ts por Mis equipos",
-          "pasa": false
-        }
+        { "id": "C1", "descripcion": "Servicio teamService para crear equipos (<admin>/<slug>-skills con equipo.json + Issue [team]), validar que el autor del Issue figure en admins, gestionar roles/bajas y archivar equipos", "pasa": false },
+        { "id": "C2", "descripcion": "Invitación por usuario de GitHub con código único de un solo uso (hash + sal, caducidad 7 días) y flujo de unión aceptando la invitación del repositorio", "pasa": false },
+        { "id": "C3", "descripcion": "Pantalla inicial de 3 opciones cuando el usuario no tiene equipo, directorio público, página de equipo, panel de administración y sustitución de src/config/team.ts por Mis equipos", "pasa": false }
       ]
     },
     {
@@ -107,21 +59,9 @@
       "spec": "docs/specs/002-skills-de-equipo/spec.md",
       "estado": "pendiente",
       "criterios": [
-        {
-          "id": "C1",
-          "descripcion": "Selector de destino (repositorio personal o equipo del que es miembro) en PublishSkillDialog publicando en el repositorio común del equipo",
-          "pasa": false
-        },
-        {
-          "id": "C2",
-          "descripcion": "Edición colaborativa de skills en repositorios de equipo donde la persona autenticada tiene permiso de escritura, manteniendo detección de conflictos",
-          "pasa": false
-        },
-        {
-          "id": "C3",
-          "descripcion": "Autoría verificada por historial de commits de skills/<slug> en tarjetas/detalle/perfiles y compatibilidad completa con Abrir en estudio, Componentes y Clases",
-          "pasa": false
-        }
+        { "id": "C1", "descripcion": "Selector de destino (repositorio personal o equipo del que es miembro) en PublishSkillDialog publicando en el repositorio común del equipo", "pasa": false },
+        { "id": "C2", "descripcion": "Edición colaborativa de skills en repositorios de equipo donde la persona autenticada tiene permiso de escritura, manteniendo detección de conflictos", "pasa": false },
+        { "id": "C3", "descripcion": "Autoría verificada por historial de commits de skills/<slug> en tarjetas/detalle/perfiles y compatibilidad completa con Abrir en estudio, Componentes y Clases", "pasa": false }
       ]
     },
     {
@@ -130,26 +70,10 @@
       "spec": "docs/specs/003-directorio-skills-sh/spec.md",
       "estado": "hecho",
       "criterios": [
-        {
-          "id": "C1",
-          "descripcion": "Proxy serverless api/skills-sh.ts con CORS estricto por ALLOWED_ORIGINS, validación anti-SSRF de vistas/búsqueda y cabeceras de caché Edge",
-          "pasa": true
-        },
-        {
-          "id": "C2",
-          "descripcion": "Servicio híbrido skillsShService con prioridad en vivo, caché local saneada y degradación automática al snapshot estático con búsqueda local y aviso visible",
-          "pasa": true
-        },
-        {
-          "id": "C3",
-          "descripcion": "Resolución de SKILL.md en repos GitHub mono/multi-skill fijada a commitSha para Abrir en Workspace e Importar al catálogo, informando con claridad en fuentes .well-known",
-          "pasa": true
-        },
-        {
-          "id": "C4",
-          "descripcion": "Sección Explorar en la barra superior con rankings (all-time/trending/hot), filtro Oficiales, buscador, copia de comando npx, atribución a skills.sh y verificación E2E en 4 anchos",
-          "pasa": true
-        }
+        { "id": "C1", "descripcion": "Proxy serverless api/skills-sh.ts con CORS estricto por ALLOWED_ORIGINS, validación anti-SSRF de vistas/búsqueda y cabeceras de caché Edge", "pasa": true },
+        { "id": "C2", "descripcion": "Servicio híbrido skillsShService con prioridad en vivo, caché local saneada y degradación automática al snapshot estático con búsqueda local y aviso visible", "pasa": true },
+        { "id": "C3", "descripcion": "Resolución de SKILL.md en repos GitHub mono/multi-skill fijada a commitSha para Abrir en Workspace e Importar al catálogo, informando con claridad en fuentes .well-known", "pasa": true },
+        { "id": "C4", "descripcion": "Sección Explorar en la barra superior con rankings (all-time/trending/hot), filtro Oficiales, buscador, copia de comando npx, atribución a skills.sh y verificación E2E en 4 anchos", "pasa": true }
       ]
     },
     {
@@ -158,31 +82,11 @@
       "spec": "docs/specs/004-retiro-workspace-inspector-codigo/spec.md",
       "estado": "hecho",
       "criterios": [
-        {
-          "id": "C1",
-          "descripcion": "Retiro completo de Workspace, Modelos, Capturas, Presets UI, copias locales (workingCopy) y parsing/exportación .zip/.rar manteniendo activos Catálogo, Equipos, Explorar, Componentes y Códice",
-          "pasa": true
-        },
-        {
-          "id": "C2",
-          "descripcion": "Inspección bajo demanda de archivos reales fijados a commitSha en la pestaña Archivos de SkillDetailPage con texto plano inerte, copia y re-auditoría automática de seguridad en AuditBadge",
-          "pasa": true
-        },
-        {
-          "id": "C3",
-          "descripcion": "Inspección desde Explorar (skills.sh) abriendo SkillDetailPage en vista previa de solo lectura fijada a commitSha con SKILL.md, Archivos, AuditBadge, instalación e Importar al catálogo",
-          "pasa": true
-        },
-        {
-          "id": "C4",
-          "descripcion": "Actualización de portada (Landing), barra superior y pie de página hacia los módulos vigentes sin enlaces muertos, sin menciones a Workspace/.rar/Modelos y responsive en 4 anchos",
-          "pasa": true
-        },
-        {
-          "id": "C5",
-          "descripcion": "Verificación completa (./scripts/check.sh) en verde sin red real externa y preservando intactas las zonas blindadas",
-          "pasa": true
-        }
+        { "id": "C1", "descripcion": "Retiro completo de Workspace, Modelos, Capturas, Presets UI, copias locales (workingCopy) y parsing/exportación .zip/.rar manteniendo activos Catálogo, Equipos, Explorar, Componentes y Códice", "pasa": true },
+        { "id": "C2", "descripcion": "Inspección bajo demanda de archivos reales fijados a commitSha en la pestaña Archivos de SkillDetailPage con texto plano inerte, copia y re-auditoría automática de seguridad en AuditBadge", "pasa": true },
+        { "id": "C3", "descripcion": "Inspección desde Explorar (skills.sh) abriendo SkillDetailPage en vista previa de solo lectura fijada a commitSha con SKILL.md, Archivos, AuditBadge, instalación e Importar al catálogo", "pasa": true },
+        { "id": "C4", "descripcion": "Actualización de portada (Landing), barra superior y pie de página hacia los módulos vigentes sin enlaces muertos, sin menciones a Workspace/.rar/Modelos y responsive en 4 anchos", "pasa": true },
+        { "id": "C5", "descripcion": "Verificación completa (./scripts/check.sh) en verde sin red real externa y preservando intactas las zonas blindadas", "pasa": true }
       ]
     },
     {
@@ -191,71 +95,19 @@
       "spec": "docs/specs/005-guia-vs-sin-guia/spec.md",
       "estado": "revision",
       "criterios": [
-        {
-          "id": "C1",
-          "descripcion": "Sección #guia en la portada tras el hero y antes de #inspector, con título, captura local del Catálogo en marco y selector, sin desbordamiento ni errores de consola/CSP en 1440/1024/768/390 px",
-          "pasa": true
-        },
-        {
-          "id": "C2",
-          "descripcion": "Estado inicial «Sin guía»: radio marcado, captura atenuada, tarjeta con los 3 obstáculos atascados y ningún marcador de paso",
-          "pasa": true
-        },
-        {
-          "id": "C3",
-          "descripcion": "Cambio a «Con guía» por clic o teclado: captura iluminada, foco y tooltip del paso 1 de 3 sobre el buscador, tarjeta con los 3 pasos y anuncio aria-live",
-          "pasa": true
-        },
-        {
-          "id": "C4",
-          "descripcion": "Avance automático 1→2→3→1 pausable con ratón/foco y 3 marcadores estáticos sin avance con prefers-reduced-motion",
-          "pasa": true
-        },
-        {
-          "id": "C5",
-          "descripcion": "El botón «Ir al catálogo» navega a la página del Catálogo",
-          "pasa": true
-        },
-        {
-          "id": "C6a",
-          "descripcion": "Sin dependencias nuevas, sin peticiones externas, captura WebP ≤ 60 KB, sección en chunk diferido propio sin engordar el chunk inicial respecto a la base y acento exclusivo cian #0ea5e9 sobre Cyber Dark",
-          "pasa": true
-        },
-        {
-          "id": "C6b",
-          "descripcion": "Chunk inicial < 350 kB (depende de la deuda preexistente del bundle registrada en TASKS.md; la base 9f7580d ya pesaba 382,3 kB)",
-          "pasa": true
-        },
-        {
-          "id": "C7",
-          "descripcion": "scripts/capture-guide-showcase.mjs regenera catalogo.webp y guideShowcaseHotspots.ts con GitHub interceptado y hotspots dentro de 0–100 %",
-          "pasa": true
-        },
-        {
-          "id": "C8",
-          "descripcion": "Espejo Left/Right en ≥ 1024 px («Sin guía»: escenario a la izquierda; «Con guía»: a la derecha), apilado con el escenario arriba en 768/390 px y transición CSS de ~500 ms",
-          "pasa": true
-        },
-        {
-          "id": "C9",
-          "descripcion": "GuideMediaSlot aislado con círculo, anillo punteado (gris quieto / cian girando) y halo cian ≤ 15 % solo en «Con guía», con el medio como hijo (hueco para video futuro)",
-          "pasa": true
-        },
-        {
-          "id": "C10",
-          "descripcion": "Píldora de estado bajo el círculo: «A ciegas» (punto gris quieto) / «Guiado · Paso N de 3» (punto cian que late) sincronizada con el paso",
-          "pasa": true
-        },
-        {
-          "id": "C11",
-          "descripcion": "Tarjeta de barras: obstáculos atascados / 3 pasos que se llenan sincronizados con el avance, congelados al pausar y retomando el tiempo restante, con «Pausar guía» e «Ir al catálogo ›» dentro",
-          "pasa": true
-        },
-        {
-          "id": "C12",
-          "descripcion": "Con prefers-reduced-motion: sin giro, sin latido, barras llenas sin animar, cambio instantáneo, 3 marcadores y píldora «Guiado · 3 pasos»",
-          "pasa": true
-        }
+        { "id": "C1", "descripcion": "Sección #guia en la portada tras el hero y antes de #inspector, con título, captura local del Catálogo en marco y selector, sin desbordamiento ni errores de consola/CSP en 1440/1024/768/390 px", "pasa": true },
+        { "id": "C2", "descripcion": "Estado inicial «Sin guía»: radio marcado, captura atenuada, lista de obstáculos visible y ningún marcador de paso", "pasa": true },
+        { "id": "C3", "descripcion": "Cambio a «Con guía» por clic o teclado: captura iluminada, foco y tooltip del paso 1 de 3 sobre el buscador, lista de ventajas y anuncio aria-live", "pasa": true },
+        { "id": "C4", "descripcion": "Avance automático 1→2→3→1 pausable con ratón/foco y 3 marcadores estáticos sin avance con prefers-reduced-motion", "pasa": true },
+        { "id": "C5", "descripcion": "El botón «Ir al catálogo» navega a la página del Catálogo", "pasa": true },
+        { "id": "C6a", "descripcion": "Sin dependencias nuevas, sin peticiones externas, captura WebP ≤ 60 KB, sección en chunk diferido propio sin engordar el chunk inicial respecto a la base y acento exclusivo cian #0ea5e9 sobre Cyber Dark", "pasa": true },
+        { "id": "C6b", "descripcion": "Chunk inicial < 350 kB (depende de la deuda preexistente del bundle registrada en TASKS.md; la base 9f7580d ya pesaba 382,3 kB)", "pasa": true },
+        { "id": "C7", "descripcion": "scripts/capture-guide-showcase.mjs regenera catalogo.webp y guideShowcaseHotspots.ts con GitHub interceptado y hotspots dentro de 0–100 %", "pasa": true },
+        { "id": "C8", "descripcion": "Espejo Left/Right en ≥ 1024 px («Sin guía»: escenario a la izquierda; «Con guía»: a la derecha), apilado con el escenario arriba en 768/390 px y transición CSS de ~500 ms", "pasa": true },
+        { "id": "C9", "descripcion": "GuideMediaSlot aislado con círculo, anillo punteado (gris quieto / cian girando) y halo cian ≤ 15 % solo en «Con guía», con el medio como hijo (hueco para video futuro)", "pasa": true },
+        { "id": "C10", "descripcion": "Píldora de estado bajo el círculo: «A ciegas» (punto gris quieto) / «Guiado · Paso N de 3» (punto cian que late) sincronizada con el paso", "pasa": true },
+        { "id": "C11", "descripcion": "Tarjeta de barras: obstáculos atascados / 3 pasos que se llenan sincronizados con el avance, congelados al pausar y retomando el tiempo restante, con «Pausar guía» e «Ir al catálogo ›» dentro", "pasa": true },
+        { "id": "C12", "descripcion": "Con prefers-reduced-motion: sin giro, sin latido, barras llenas sin animar, cambio instantáneo, 3 marcadores y píldora «Guiado · 3 pasos»", "pasa": true }
       ]
     }
   ]

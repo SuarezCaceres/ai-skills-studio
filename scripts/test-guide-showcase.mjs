@@ -597,12 +597,33 @@ async function main() {
         }
       };
 
+      /** Estilos computados del anillo y de los bloques en espejo: fallan si se rompe el CSS (no solo el atributo). */
+      const ringStyle = (sel) => page.evaluate((s) => {
+        const el = document.querySelector(s);
+        if (!el) return null;
+        const cs = getComputedStyle(el);
+        return { animationName: cs.animationName, borderTopColor: cs.borderTopColor };
+      }, sel);
+      const waitRingColor = (sel, color) => page
+        .waitForFunction(([s, c]) => getComputedStyle(document.querySelector(s)).borderTopColor === c, [sel, color], { timeout: 3000 })
+        .then(() => true)
+        .catch(() => false);
+      const mirrorAnimations = () => page.evaluate(() => ['.guia__escenario', '.guia__panel'].map((s) => {
+        const cs = getComputedStyle(document.querySelector(`#guia ${s}`));
+        return { name: cs.animationName, duration: cs.animationDuration };
+      }));
+      const SLATE = 'rgb(71, 85, 105)';
+      const CYAN = 'rgb(14, 165, 233)';
+
       await guarded(`${tag} C8/C9/C10 «Sin guía»`, async () => {
         await checkLayoutC8('Sin guía', true);
         const inside = await page.evaluate(([e, m]) => !!document.querySelector(e)?.contains(document.querySelector(m)), [escenario, marco]);
         check(`${tag} C9 el marco está dentro del escenario (GuideMediaSlot)`, inside);
         check(`${tag} C9 en «Sin guía» el anillo está quieto (data-girando="false")`, (await page.locator(anillo).getAttribute('data-girando')) === 'false', `data-girando=${await page.locator(anillo).getAttribute('data-girando').catch(() => 'sin anillo')}`);
         check(`${tag} C9 en «Sin guía» no hay halo`, (await countOf(page, halo)) === 0, `${await countOf(page, halo)} halos`);
+        const ringSin = await ringStyle(anillo);
+        check(`${tag} C9 en «Sin guía» el anillo no tiene animación de giro (animation-name: none)`, ringSin?.animationName === 'none', JSON.stringify(ringSin));
+        check(`${tag} C9 en «Sin guía» el anillo es gris pizarra (#475569)`, await waitRingColor(anillo, SLATE), JSON.stringify(await ringStyle(anillo)));
         const pill = await textOf(page, estado);
         check(`${tag} C10 en «Sin guía» la píldora dice «A ciegas»`, pill === 'A ciegas' && (await page.locator(estado).isVisible()), `píldora="${pill}"`);
       });
@@ -611,6 +632,13 @@ async function main() {
         const sinText = await textOf(page, lista);
         await radio(page, 'Con guía').click();
         const section = page.locator(GUIA);
+        if (wide) {
+          // C8: el cambio de modo desliza y funde los dos bloques (~500 ms, solo CSS) con la animación del modo nuevo.
+          const anims = await mirrorAnimations();
+          check(`${tag} C8 al pasar a «Con guía» escenario y panel entran con su animación de ~500 ms`,
+            anims[0].name === 'guia-entra-der-b' && anims[1].name === 'guia-entra-izq-b' && anims.every((a) => a.duration === '0.5s'),
+            JSON.stringify(anims));
+        }
         check(`${tag} C3 clic en «Con guía»: aria-checked y data-mode cambian`,
           (await radio(page, 'Con guía').getAttribute('aria-checked')) === 'true' &&
             (await radio(page, 'Sin guía').getAttribute('aria-checked')) === 'false' &&
@@ -646,6 +674,9 @@ async function main() {
         await checkLayoutC8('Con guía', false);
         check(`${tag} C9 en «Con guía» el anillo gira (data-girando="true")`, (await page.locator(anillo).getAttribute('data-girando')) === 'true', `data-girando=${await page.locator(anillo).getAttribute('data-girando').catch(() => 'sin anillo')}`);
         check(`${tag} C9 en «Con guía» aparece un halo`, (await countOf(page, halo)) === 1, `${await countOf(page, halo)} halos`);
+        const ringCon = await ringStyle(anillo);
+        check(`${tag} C9 en «Con guía» el anillo gira con CSS (animation-name: guia-anillo-gira)`, ringCon?.animationName === 'guia-anillo-gira', JSON.stringify(ringCon));
+        check(`${tag} C9 en «Con guía» el anillo es cian (#0ea5e9)`, await waitRingColor(anillo, CYAN), JSON.stringify(await ringStyle(anillo)));
         await waitSettled(page, [halo]);
         const opacity = await page.evaluate((sel) => {
           const el = document.querySelector(sel);
@@ -940,6 +971,12 @@ async function main() {
             .catch(() => false);
           const before = await activeBarInfo(page);
           check('C11 en pausa la barra activa tiene animation-play-state «paused»', frozen, JSON.stringify(before));
+          // WCAG 2.2.2: «Pausar guía» detiene todo lo que se mueve en la sección, también el anillo y el punto que late.
+          const decorPaused = await page.evaluate(() => ['[data-testid="guia-anillo"]', '[data-testid="guia-estado-punto"]'].map((s) => {
+            const el = document.querySelector(`#guia ${s}`);
+            return el ? getComputedStyle(el).animationPlayState : null;
+          }));
+          check('C11 en pausa el anillo y el punto de la píldora también se congelan (animation-play-state «paused»)', decorPaused.every((s) => s === 'paused'), JSON.stringify(decorPaused));
           // La animación CSS corre en tiempo real: si no está congelada, su scaleX cambia en 400 ms reales.
           await page.waitForTimeout(400);
           const after = await activeBarInfo(page);

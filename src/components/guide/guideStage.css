@@ -185,6 +185,12 @@
   50% { transform: scale(1.45); opacity: 0.55; }
 }
 
+/* Pausa de la guía (WCAG 2.2.2): «Pausar guía», el ratón o el foco congelan también el anillo y el punto. */
+#guia[data-paused='true'] .guia-escenario__anillo,
+#guia[data-paused='true'] .guia-escenario__punto {
+  animation-play-state: paused;
+}
+
 /* Movimiento reducido (C12): el anillo no gira, el punto no late y los cambios de modo son instantáneos. */
 @media (prefers-reduced-motion: reduce) {
   #guia .guia-escenario__anillo,
