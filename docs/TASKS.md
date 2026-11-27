@@ -7,7 +7,6 @@
 <!-- - [ ] Descripción · rama · responsable (humano / agente) -->
 
 ## Pendiente
-- [ ] **Despliegue de `api/skills-sh.ts` en Vercel (`003`):** Tras fusionar el PR de `feat/003-directorio-skills-sh`, confirmar que Vercel despliega la nueva función `/api/skills-sh` compartiendo `ALLOWED_ORIGINS` con `api/github-oauth.ts` (y verificar que `.github/workflows/sync-skills-sh.yml` puede actualizar el snapshot si `main` tiene protección de rama) · humano
 - [ ] **Siguiente funcionalidad prioritaria (`001`):** Ejecutar la skill `spec-plan-code` para `001-equipos-y-miembros` (tomando como base las decisiones de `docs/plans/PLAN_EQUIPOS.md`, Fase 5) · agente + humano
 - [ ] **Verificar alcance OAuth para equipos:** Comprobar con cuenta real de GitHub si el scope `public_repo` alcanza para invitar colaboradores, dar rol `admin` y aceptar invitaciones por API antes de cerrar el plan de `001-equipos-y-miembros` · humano + agente
 - [ ] **Integración de ramas en curso:** Revisar/fusionar PR #21 (`feat/codice-mejoras-y-limpieza`) y `feat/codice-clases-compartidas` en `testing`/`main` · humano
@@ -20,4 +19,5 @@
 <!-- - [ ] Descripción · por qué está bloqueado · qué se necesita -->
 
 ## Hecho
+- [x] 2026-11-26 · Confirmar despliegue en producción de `api/skills-sh.ts` compartiendo `ALLOWED_ORIGINS`, login GitHub PKCE (`OAuth App` `Ov23lii7kOK3ajmx8d1u`) en `https://codice-oauth.vercel.app/` + `http://localhost:5173/` y cron `.github/workflows/sync-skills-sh.yml` operativo en `main` (PRs #28, #29 y cierre `chore/cierre-skill-sh`)
 - [x] 2026-11-23 · Instalar `harness-template` en `chore/adoptar-harness`, rellenar `AGENTS.md` + `docs/` + skills (incluida `orquestador-general`) y configurar sensores en `scripts/check.sh` e `init.sh`
