@@ -1,6 +1,6 @@
 # Spec · 005 · Guía vs. sin guía en la portada
 
-> Estado: aprobada
+> Estado: aprobada (ampliación C8–C12 aprobada el 2026-11-26)
 
 ## Problema
 Quien llega por primera vez a Códice Studio se encuentra con un Catálogo lleno de controles (buscador, chips de categorías, tarjetas, acciones de auditoría e inspección) sin saber por dónde empezar. La portada explica *qué* hace el producto, pero no transmite *cómo se siente* usarlo con alguien que te acompañe paso a paso frente a usarlo a ciegas.
@@ -46,11 +46,36 @@ Cada criterio debe poder comprobarse con una prueba. Se copian a `docs/features.
 - **C6b:** Dado el build de producción, entonces el chunk inicial pesa `< 350 kB`. *Depende de la deuda preexistente del bundle registrada en `docs/TASKS.md` (la base `9f7580d` ya pesaba 382,3 kB); queda abierto hasta pagarla.*
 - **C7:** Dado el script `node scripts/capture-guide-showcase.mjs`, cuando se ejecuta, entonces regenera `src/assets/guide/catalogo.webp` y `src/data/guideShowcaseHotspots.ts` con GitHub interceptado (cero peticiones a `api.github.com`), y las 3 cajas de puntos de interés quedan dentro del rango `0–100 %` de la captura.
 
+## Ampliación 2026-11-26 · Rediseño en espejo (C8–C12)
+
+> Estado de la ampliación: **aprobada** (2026-11-26). Decisiones cerradas con el humano el 2026-11-26.
+
+Se rediseña la composición de `#guia` tomando como **referencia de composición e interacción** un showcase de producto con selector Left/Right: objeto centrado sobre un círculo con halo, anillo exterior punteado que gira, píldora de estado bajo el círculo, tarjeta con barras de carga y un enlace, y selector en píldora centrado debajo. Al cambiar de lado, los bloques se intercambian en espejo. **No** se copia su tecnología (framer-motion, shadcn, imágenes de CDN) ni su paleta (azul/esmeralda). La captura del Catálogo y la guía de 3 pasos (foco, tooltip, `aria-live` y pausa) **se conservan**.
+
+**Cambios respecto a lo anterior:**
+- La lista de obstáculos/ventajas se sustituye por una **tarjeta de barras**. Se conserva `ul[data-testid="guia-lista"]` como lista de filas de la tarjeta, así que C2 («se ve la lista de obstáculos») y C3 («la lista cambia a las ventajas») se comprueban sobre esa tarjeta.
+- El botón «Pausar guía»/«Reanudar guía» y el CTA «Ir al catálogo ›» pasan **dentro de la tarjeta**. El nombre accesible del CTA sigue siendo «Ir al catálogo»; la flecha es decorativa.
+- La cabecera («Primeros pasos», título y subtítulo) va centrada arriba, y el selector «Sin guía | Con guía» queda centrado bajo el escenario, con el mismo `role="radiogroup"`.
+- **Excepción de paleta:** solo en «Con guía» se permite un halo radial sutil cian (opacidad `≤ 15 %`) detrás del círculo. El humano autorizó registrarla en `docs/rules/frontend.md`, acotada a esta sección.
+
+**Criterios nuevos:**
+- **C8 · Espejo:** Dada la sección en `≥ 1024` px, cuando el modo es «Sin guía», entonces el escenario queda a la izquierda y el bloque de texto y la tarjeta a la derecha; cuando es «Con guía», se intercambian (texto a la izquierda, escenario a la derecha). En `768` y `390` px no hay espejo: todo se apila con el escenario arriba, sin desbordamiento horizontal. El cambio de modo desliza y funde los bloques en unos `500 ms` solo con CSS; con `prefers-reduced-motion: reduce`, el cambio es instantáneo.
+- **C9 · `GuideMediaSlot`:** Dada la sección, entonces el medio (marco de navegador 16:9 con la captura y su capa de guía) se renderiza dentro de un componente aislado `GuideMediaSlot` (`[data-testid="guia-escenario"]`), centrado encima de un círculo con un anillo punteado (`[data-testid="guia-anillo"]`) que asoma por los bordes. En «Sin guía», el anillo es gris pizarra, está quieto (`data-girando="false"`), no hay halo y la captura sigue atenuada. En «Con guía», el anillo es cian, gira despacio (`data-girando="true"`) y aparece el halo (`[data-testid="guia-halo"]`, opacidad `≤ 0,15`). El slot recibe el medio como hijo, de modo que en el futuro pueda recibir un video por modo sin tocar el escenario (hoy **no** se implementa video).
+- **C10 · Píldora de estado:** Dada la sección, entonces bajo el círculo hay una píldora `[data-testid="guia-estado"]` que dice «A ciegas» con un punto gris quieto en «Sin guía» y «Guiado · Paso N de 3» con un punto cian que late en «Con guía». N coincide con el paso activo del foco y del tooltip.
+- **C11 · Tarjeta de barras:** Dada la tarjeta `[data-testid="guia-tarjeta"]`, entonces:
+  - En «Sin guía» muestra 3 filas con los obstáculos de `GUIDE_LISTS['sin-guia']`, cada una con una barra «atascada» (`data-estado="atascada"`) y un «?».
+  - En «Con guía» muestra 3 filas «1 · Buscar», «2 · Filtrar por categoría» y «3 · Abrir una skill», cada una con su ventaja de `GUIDE_LISTS['con-guia']` debajo. La fila del paso activo tiene `data-estado="activa"` y su barra se llena durante `GUIDE_STEP_INTERVAL_MS`, sincronizada con el avance automático. Las filas anteriores quedan `completa` con ✓ y las siguientes, `pendiente`. Al volver al paso 1, todas se reinician.
+  - Al pausar (ratón, foco, botón, pestaña oculta o sección fuera de pantalla) la barra se congela y, al reanudar, el avance retoma el **tiempo restante** en lugar de reiniciar el intervalo.
+  - Dentro de la tarjeta están el botón «Pausar guía»/«Reanudar guía» (solo en «Con guía» y sin movimiento reducido) y el botón «Ir al catálogo ›». No hay porcentajes ni métricas.
+- **C12 · Movimiento reducido:** Dado `prefers-reduced-motion: reduce`, entonces el anillo nunca gira, el punto de la píldora no late, las barras se muestran llenas sin animar, el cambio de modo es instantáneo, en «Con guía» se ven los 3 marcadores estáticos y la píldora dice «Guiado · 3 pasos».
+
 ## Casos límite y errores
 - **La imagen no carga:** el marco muestra un fondo `--p-surface` con el texto alternativo y la sección sigue siendo usable (selector, listas y CTA).
 - **Pantalla estrecha (`390` px):** marco y texto se apilan; el tooltip nunca se sale del marco (se coloca arriba/abajo según espacio) y el foco escala con la captura porque las coordenadas son porcentuales.
 - **Pestaña oculta:** el avance automático se detiene con `visibilitychange` para no acumular saltos.
 - **Volver a «Sin guía»:** se detiene el temporizador y la guía se reinicia en el paso 1 la próxima vez.
+- **Pausa a mitad de paso (C11):** la barra del paso activo se congela en su punto y el avance retoma el tiempo restante al reanudar; nunca salta dos pasos ni reinicia el paso a cero.
+- **Escenario estrecho (`390` px):** el círculo y el anillo se recortan dentro del escenario (`overflow` controlado) y nunca generan desbordamiento horizontal del documento.
 - **Desmontaje del componente** (navegar fuera de la portada): se limpian temporizadores y oyentes.
 - **El Catálogo cambia de aspecto en el futuro:** la captura queda desactualizada hasta regenerarla con el script; los hotspots salen del mismo script, así que no se desalinean.
 

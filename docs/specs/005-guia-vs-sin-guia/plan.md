@@ -1,6 +1,6 @@
 # Plan · 005 · Guía vs. sin guía en la portada
 
-> Estado: aprobado
+> Estado: aprobado (ampliación C8–C12 aprobada el 2026-11-26, ver al final)
 
 ## Enfoque
 Se reinterpreta el componente externo `spatial-product-showcase` con la tecnología real del proyecto: **React 19 + TypeScript + Tailwind v4 y animaciones CSS** (sin framer-motion ni shadcn). Se divide en **5 fases Zero-Conflict**:
@@ -109,3 +109,104 @@ export interface GuideCaptureMeta {
 - **Choque con estilos del kit estático (`.grid`, `.section`):** usar `[display:grid]` y comprobar en los 4 anchos.
 - **Duración de la suite E2E:** `page.clock` evita esperas reales de 3,5 s; objetivo < 30 s.
 - **La 004 sigue abierta:** si cambia `InformativeLandingSection.tsx` después de crear la 005, hay que rebasar antes de la Fase 2.
+
+---
+
+# Ampliación 2026-11-26 · Rediseño en espejo (C8–C12)
+
+> Estado: **aprobado** (2026-11-26).
+
+## Requisito previo: rebase sobre la 004
+La 005 parte de `9f7580d`. Antes de tocar código se rebasa `feat/005-guia-vs-sin-guia` sobre la punta final de `feat/004-retiro-workspace-inspector-codigo`, una vez publicada en su PR. Los conflictos previsibles son `InformativeLandingSection.tsx` (montaje de `#guia`) y los documentos de `docs/`. `180a2a9` (tipo `test`) no se reescribe: se corrige con squash al fusionar el PR.
+
+## Enfoque
+- La sección se divide en **piezas con propiedad disjunta**:
+  - `GuideContrastShowcase` (orquestación, estado y maquetación).
+  - `GuideCaptureFrame` (marco de navegador con la captura, el foco y el tooltip, extraído tal cual del componente actual).
+  - `GuideMediaSlot` (escenario: círculo, halo, anillo y píldora; recibe el medio como `children`).
+  - `GuideModePanel` (texto del modo y tarjeta de barras).
+- **Estilos:** cada pieza importa su propio CSS (`src/components/guide/*.css`) para que vaya en el chunk diferido y no haya choques en `src/index.css`. El bloque `/* 005 guía */` actual de `index.css` se migra en la Fase 0.
+- **Reloj único:** el avance pasa de `setInterval` a un `setTimeout` que guarda el **tiempo restante**. Así, la barra CSS (`animation-play-state: paused`) y el JS no se desincronizan al pausar. La barra recibe `--guia-dur` (duración) y `--guia-delay` (desfase negativo = tiempo ya transcurrido) para retomar en su punto. Las pruebas lo controlan con `page.clock`, igual que ahora.
+- **Espejo:** en `≥ lg` (1024 px), una rejilla de 2 columnas con `order` y una transición CSS `transform + opacity` (~500 ms) disparada por `data-mode`. Por debajo de `lg`, columna única con el escenario arriba. Se usa `[display:grid]`.
+- **Animaciones:** solo `@keyframes` (giro del anillo, latido del punto, llenado de barras, fundido del espejo). Todas se anulan bajo `@media (prefers-reduced-motion: reduce)` y además con `data-reduced="true"` en la sección.
+- Sin dependencias nuevas. Iconos de `lucide-react` (`Check`, `CircleHelp`, `ChevronRight`, `Pause`, `Play`).
+
+## Contrato de la Fase 0 (congelado antes de paralelizar)
+
+### Tipos (añadidos a `src/types/guideShowcase.ts`)
+```ts
+export type GuideStep = 1 | 2 | 3;
+export type GuideRowState = 'atascada' | 'pendiente' | 'activa' | 'completa';
+
+export interface GuideMediaSlotProps {
+  mode: GuideMode;
+  reduced: boolean;
+  /** Paso activo (solo relevante en «Con guía» sin movimiento reducido). */
+  step: GuideStep;
+  /** Medio centrado sobre el círculo: hoy, <GuideCaptureFrame>; en el futuro, un video por modo. */
+  children: React.ReactNode;
+}
+
+export interface GuideModePanelProps {
+  mode: GuideMode;
+  reduced: boolean;
+  step: GuideStep;
+  /** La guía está pausada por cualquier causa (congela la barra activa). */
+  paused: boolean;
+  /** Pausa manual (estado del botón, aria-pressed). */
+  userPaused: boolean;
+  /** ms ya transcurridos del paso activo al pausar o reanudar (para --guia-delay). */
+  elapsedMs: number;
+  /** Cambia cuando el paso arranca de nuevo (reinicia la animación de la barra). */
+  cycleKey: number;
+  onTogglePause: () => void;
+  onOpenCatalog: () => void;
+}
+```
+
+### Textos nuevos (añadidos a `src/data/guideShowcaseCopy.ts`)
+- `GUIDE_STEP_LABELS: Record<GuideStepId, string>` = «1 · Buscar», «2 · Filtrar por categoría», «3 · Abrir una skill».
+- `GUIDE_COPY.status`: «A ciegas» en «Sin guía», «Guiado · Paso N de 3» en «Con guía» y «Guiado · 3 pasos» con movimiento reducido.
+- No se añaden más textos: etiqueta = `GUIDE_COPY.modes[mode]`, título = `GUIDE_COPY.listLabels[mode]` y descripción = `GUIDE_COPY.captions[mode]`.
+
+### Contrato de DOM (además del de la Fase 0 original, que se mantiene)
+| Elemento | Atributos fijos |
+|---|---|
+| Sección | `section#guia[data-mode][data-reduced="true\|false"]` |
+| Escenario (C9) | `[data-testid="guia-escenario"][data-mode]` que contiene `figure[data-testid="guia-marco"]` |
+| Anillo (C9) | `[data-testid="guia-anillo"][data-girando="true\|false"]`, `aria-hidden` |
+| Halo (C9) | `[data-testid="guia-halo"]`, `aria-hidden`, solo en «Con guía» |
+| Píldora (C10) | `[data-testid="guia-estado"]` con el texto del estado |
+| Panel (C8) | `[data-testid="guia-panel"]` con la etiqueta, el título `h3` y la descripción del modo |
+| Tarjeta (C11) | `[data-testid="guia-tarjeta"]` que contiene `ul[data-testid="guia-lista"]` |
+| Fila (C11) | `li[data-testid="guia-fila"][data-estado="atascada\|pendiente\|activa\|completa"]` |
+| Barra (C11) | `[data-testid="guia-barra"]` dentro de cada fila, `aria-hidden` |
+| Pausa | `button[data-testid="guia-pausa"][aria-pressed]` dentro de la tarjeta |
+| CTA | `button` de nombre accesible «Ir al catálogo» dentro de la tarjeta (la `›` es `aria-hidden`) |
+
+## Fases y asignación (Zero-Conflict)
+
+| Fase | Responsable | Propiedad exclusiva de archivos | Entregable |
+|---|---|---|---|
+| **B · Rebase** *(Orquestador)* | `feat/005-guia-vs-sin-guia` | Resolución de conflictos | Rama sobre la 004 final; `./scripts/check.sh --rapido` en verde |
+| **0 · Contratos** *(Orquestador)* | `feat/005-guia-vs-sin-guia` | `src/types/guideShowcase.ts`, `src/data/guideShowcaseCopy.ts`, `src/components/GuideContrastShowcase.tsx` (reloj con tiempo restante y maquetación en espejo), `src/components/guide/GuideCaptureFrame.tsx` *(extraído)*, stubs de `GuideMediaSlot.tsx` y `GuideModePanel.tsx`, migración del bloque CSS de `index.css`, excepción en `docs/rules/frontend.md`, spec/plan, `docs/features.json` | Compila, la portada se ve con los stubs y `check.sh --rapido` está en verde. Commit `feat(contracts): congela contrato del rediseño de la guía` |
+| **C · wt1** *(paralelo)* | `feat/wt1-guia-escenario` · `frontend-proyecto` + `ui-ux-pro-max` | `src/components/guide/GuideMediaSlot.tsx`, `src/components/guide/guideStage.css` | Círculo, anillo punteado (quieto y gris / girando y cian), halo `≤ 15 %` solo en «Con guía», píldora con punto que late, recorte sin desbordar a 390 px, movimiento reducido (C9, C10, C12) |
+| **C · wt2** *(paralelo)* | `feat/wt2-guia-tarjeta` · `frontend-proyecto` + `ui-ux-pro-max` | `src/components/guide/GuideModePanel.tsx`, `src/components/guide/guideCard.css` | Texto del modo y tarjeta de barras (atascadas con «?» / pasos que se llenan con `--guia-dur` y `--guia-delay`, ✓ en completadas), pausa y CTA dentro de la tarjeta, movimiento reducido (C11, C12) |
+| **C · wt3** *(paralelo)* | `feat/wt3-guia-pruebas-espejo` · `pruebas-proyecto` | `scripts/test-guide-showcase.mjs` | Adaptar C2/C3 a la tarjeta y añadir C8 (posición x del escenario frente al panel en 1440/1024, apilado en 768/390), C9 (`data-girando`, halo, opacidad), C10 (texto de la píldora sincronizado con el paso), C11 (estados de fila con `page.clock`, congelación al pausar y retoma del tiempo restante) y C12 (contexto `reducedMotion`). Validación con `node --check` |
+| **D · Integración y cierre** *(Orquestador + `revisor`)* | `feat/005-guia-vs-sin-guia` | Ajustes en cualquier archivo de la 005 | Fusión de wt1–wt3, `./scripts/check.sh` completo, revisión visual en 4 anchos, `revisor` independiente, `docs/features.json` (C8–C12), `ARCHITECTURE.md`, `TASKS.md` y `PROGRESS.md` |
+| **E · PR** | Orquestador | — | Cuando la 004 esté en `main`: rebase, `check.sh` y PR de 5 secciones con squash |
+
+## Matriz de pruebas (ampliación)
+| Criterio | Tipo | Dónde |
+|---|---|---|
+| C8 | E2E: `boundingBox().x` del escenario frente al panel por modo en 1440/1024; apilado y `scrollWidth ≤ innerWidth` en 768/390 | `scripts/test-guide-showcase.mjs` |
+| C9 | E2E: `data-girando`, presencia del halo y opacidad computada `≤ 0,15`, marco dentro del escenario | `scripts/test-guide-showcase.mjs` |
+| C10 | E2E: texto de la píldora por modo y por paso con `page.clock` | `scripts/test-guide-showcase.mjs` |
+| C11 | E2E con `page.clock`: `data-estado` de las filas en los pasos 1→2→3→1; con la pausa, el paso no avanza; al reanudar avanza tras el tiempo restante (< intervalo completo) | `scripts/test-guide-showcase.mjs` |
+| C12 | E2E en contexto `reducedMotion: 'reduce'`: `animation-name: none` en el anillo, el punto y las barras; 3 marcadores; píldora «Guiado · 3 pasos» | `scripts/test-guide-showcase.mjs` |
+
+## Riesgos (ampliación)
+- **El reloj con tiempo restante y `page.clock`:** `Date.now()` está bajo `page.clock`, así que se usa para medir el tiempo transcurrido.
+- **Un CSS importado desde un componente diferido** puede pasar un instante sin estilo (FOUC) al cargar el chunk. Es aceptable: la sección ya está bajo `Suspense`.
+- **El escaneo de paleta (C6a)** puede marcar el gris pizarra o el halo: el gris tiene croma bajo y el halo es cian, así que debería pasar; si no, se ajusta el umbral solo en la prueba, justificándolo.
+- **El chunk inicial** no cambia: todo el código nuevo vive en el chunk diferido de la sección.
