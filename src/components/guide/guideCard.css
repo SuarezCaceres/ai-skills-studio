@@ -1,0 +1,333 @@
+/*
+ * Bloque de texto del modo y tarjeta de barras (spec 005, C8, C11, C12). Propiedad de GuideModePanel.
+ *
+ * Paleta Cyber Dark: superficie #121722, texto #f1f5f9 / #cbd5e1 / #94a3b8 (≥ 7:1 sobre la superficie),
+ * cian #0ea5e9 como único acento (6,5:1) y gris pizarra #475569 / #64748b para «Sin guía» (solo en trazos y
+ * barras, nunca en texto). Sin degradados.
+ *
+ * Barras (C11):
+ *   atascada  → carril discontinuo y un tramo gris corto y quieto: el progreso no avanza.
+ *   pendiente → carril vacío.
+ *   activa    → se llena en cian durante --guia-dur; --guia-delay (negativo) retoma el punto ya transcurrido.
+ *               La pausa llega por animation-play-state (inline) y el reinicio por una key nueva en React.
+ *   completa  → llena en cian.
+ */
+
+/* ── Bloque de texto del modo ─────────────────────────────────────────────────────────── */
+
+#guia .guia-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  min-width: 0;
+}
+
+#guia .guia-panel__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+#guia .guia-panel__etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #94a3b8;
+}
+
+#guia .guia-panel__punto {
+  width: 0.375rem;
+  height: 0.375rem;
+  flex: none;
+  border-radius: 9999px;
+  background: #64748b;
+}
+
+#guia [data-mode='con-guia'] .guia-panel__etiqueta { color: #0ea5e9; }
+#guia [data-mode='con-guia'] .guia-panel__punto { background: #0ea5e9; }
+
+#guia .guia-panel__titulo {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #f1f5f9;
+  text-wrap: balance;
+}
+
+#guia .guia-panel__descripcion {
+  margin: 0;
+  max-width: 40ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #94a3b8;
+  text-wrap: pretty;
+}
+
+/* ── Tarjeta ──────────────────────────────────────────────────────────────────────────── */
+
+#guia .guia-tarjeta {
+  min-width: 0;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 1.25rem;
+  background: var(--p-surface, #121722);
+  padding: 0.75rem;
+  box-shadow: 0 24px 48px -32px rgb(0 0 0 / 0.8);
+  transition: border-color 0.4s ease;
+}
+
+#guia [data-mode='con-guia'] .guia-tarjeta { border-color: rgb(14 165 233 / 0.24); }
+
+#guia .guia-tarjeta__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ── Filas ────────────────────────────────────────────────────────────────────────────── */
+
+#guia .guia-fila {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 0.875rem;
+  padding: 0.875rem 0.875rem 1rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  /* Entrada escalonada al cambiar de modo (las filas se vuelven a montar con otra key). */
+  animation: guia-fila-entra 0.32s ease-out calc(var(--guia-orden, 0) * 70ms) both;
+}
+
+#guia .guia-fila[data-estado='activa'] {
+  border-color: rgb(14 165 233 / 0.22);
+  background: rgb(14 165 233 / 0.07);
+}
+
+@keyframes guia-fila-entra {
+  from { opacity: 0; transform: translateY(0.375rem); }
+  to { opacity: 1; transform: none; }
+}
+
+#guia .guia-fila__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+#guia .guia-fila__texto {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #cbd5e1;
+  transition: color 0.3s ease;
+}
+
+#guia .guia-fila[data-estado='activa'] .guia-fila__texto,
+#guia .guia-fila[data-estado='completa'] .guia-fila__texto {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+#guia .guia-fila[data-estado='pendiente'] .guia-fila__texto { color: #94a3b8; }
+
+#guia .guia-fila__detalle {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+/* Marca de estado (decorativa: el estado ya lo dice data-estado y el texto de la fila). */
+#guia .guia-fila__marca {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.0625rem;
+  border-radius: 9999px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+#guia .guia-fila__marca--atascada { color: #94a3b8; }
+
+#guia .guia-fila__marca--pendiente { border: 1.5px solid #475569; }
+
+#guia .guia-fila__marca--activa {
+  border: 1.5px solid #0ea5e9;
+  padding: 3px;
+  background: #0ea5e9;
+  background-clip: content-box;
+}
+
+#guia .guia-fila__marca--completa {
+  background: #0ea5e9;
+  color: #0a0d14;
+}
+
+/* ── Barras ───────────────────────────────────────────────────────────────────────────── */
+
+#guia .guia-barra {
+  position: relative;
+  display: block;
+  height: 0.375rem;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.07);
+}
+
+#guia .guia-barra__relleno {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: #0ea5e9;
+}
+
+/* Atascada: un tramo corto gris que no se mueve (ancho, no escala: conserva el extremo redondeado del «tope») y,
+   detrás, el resto del camino como una línea discontinua sin recorrer. */
+#guia .guia-fila[data-estado='atascada'] .guia-barra { background: rgb(255 255 255 / 0.04); }
+
+#guia .guia-fila[data-estado='atascada'] .guia-barra::after {
+  position: absolute;
+  top: 50%;
+  right: 0.375rem;
+  left: calc(14% + 0.5rem);
+  border-top: 1.5px dashed rgb(100 116 139 / 0.7);
+  transform: translateY(-50%);
+  content: '';
+}
+
+#guia .guia-fila[data-estado='atascada'] .guia-barra__relleno {
+  right: auto;
+  width: 14%;
+  transform: none;
+  background: #64748b;
+}
+
+#guia .guia-fila[data-estado='completa'] .guia-barra__relleno { transform: scaleX(1); }
+
+#guia .guia-fila[data-estado='activa'] .guia-barra__relleno {
+  animation: guia-barra-llena var(--guia-dur, 3500ms) linear var(--guia-delay, 0ms) forwards;
+}
+
+@keyframes guia-barra-llena {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ── Acciones: pausa y CTA ────────────────────────────────────────────────────────────── */
+
+#guia .guia-tarjeta__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid rgb(255 255 255 / 0.06);
+  padding: 0.75rem 0.25rem 0.125rem 0.375rem;
+}
+
+#guia .guia-tarjeta__pausa,
+#guia .guia-tarjeta__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+#guia .guia-tarjeta__pausa {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: transparent;
+  padding: 0 1rem;
+  color: #cbd5e1;
+}
+
+#guia .guia-tarjeta__pausa:hover {
+  border-color: rgb(14 165 233 / 0.5);
+  color: #f1f5f9;
+}
+
+#guia .guia-tarjeta__pausa[aria-pressed='true'] {
+  border-color: rgb(14 165 233 / 0.6);
+  background: rgb(14 165 233 / 0.08);
+  color: #0ea5e9;
+}
+
+#guia .guia-tarjeta__cta {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  padding: 0 0.75rem;
+  color: #0ea5e9;
+}
+
+#guia .guia-tarjeta__cta:hover { color: #38bdf8; }
+
+#guia .guia-tarjeta__flecha { transition: transform 0.2s ease; }
+#guia .guia-tarjeta__cta:hover .guia-tarjeta__flecha { transform: translateX(3px); }
+
+#guia .guia-tarjeta__pausa:focus-visible,
+#guia .guia-tarjeta__cta:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  #guia .guia-tarjeta { padding: 1rem; }
+  #guia .guia-fila { padding: 1rem 1rem 1.125rem; }
+}
+
+/* ── Movimiento reducido (C12): barras llenas, sin animar y sin transiciones ──────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  #guia .guia-tarjeta,
+  #guia .guia-fila,
+  #guia .guia-fila *,
+  #guia .guia-tarjeta__acciones * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  #guia .guia-fila[data-estado='activa'] .guia-barra__relleno { transform: scaleX(1); }
+}
+
+#guia[data-reduced='true'] .guia-tarjeta,
+#guia[data-reduced='true'] .guia-fila,
+#guia[data-reduced='true'] .guia-fila *,
+#guia[data-reduced='true'] .guia-tarjeta__acciones * {
+  animation: none !important;
+  transition: none !important;
+}
+
+#guia[data-reduced='true'] .guia-fila[data-estado='activa'] .guia-barra__relleno { transform: scaleX(1); }

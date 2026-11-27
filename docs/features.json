@@ -88,6 +88,27 @@
         { "id": "C4", "descripcion": "Actualización de portada (Landing), barra superior y pie de página hacia los módulos vigentes sin enlaces muertos, sin menciones a Workspace/.rar/Modelos y responsive en 4 anchos", "pasa": true },
         { "id": "C5", "descripcion": "Verificación completa (./scripts/check.sh) en verde sin red real externa y preservando intactas las zonas blindadas", "pasa": true }
       ]
+    },
+    {
+      "id": "005",
+      "nombre": "guia-vs-sin-guia",
+      "spec": "docs/specs/005-guia-vs-sin-guia/spec.md",
+      "estado": "revision",
+      "criterios": [
+        { "id": "C1", "descripcion": "Sección #guia en la portada tras el hero y antes de #inspector, con título, captura local del Catálogo en marco y selector, sin desbordamiento ni errores de consola/CSP en 1440/1024/768/390 px", "pasa": true },
+        { "id": "C2", "descripcion": "Estado inicial «Sin guía»: radio marcado, captura atenuada, lista de obstáculos visible y ningún marcador de paso", "pasa": true },
+        { "id": "C3", "descripcion": "Cambio a «Con guía» por clic o teclado: captura iluminada, foco y tooltip del paso 1 de 3 sobre el buscador, lista de ventajas y anuncio aria-live", "pasa": true },
+        { "id": "C4", "descripcion": "Avance automático 1→2→3→1 pausable con ratón/foco y 3 marcadores estáticos sin avance con prefers-reduced-motion", "pasa": true },
+        { "id": "C5", "descripcion": "El botón «Ir al catálogo» navega a la página del Catálogo", "pasa": true },
+        { "id": "C6a", "descripcion": "Sin dependencias nuevas, sin peticiones externas, captura WebP ≤ 60 KB, sección en chunk diferido propio sin engordar el chunk inicial respecto a la base y acento exclusivo cian #0ea5e9 sobre Cyber Dark", "pasa": true },
+        { "id": "C6b", "descripcion": "Chunk inicial < 350 kB (la deuda preexistente del bundle se pagó con la 004: 349,8 kB tras integrar la 005)", "pasa": true },
+        { "id": "C7", "descripcion": "scripts/capture-guide-showcase.mjs regenera catalogo.webp y guideShowcaseHotspots.ts con GitHub interceptado y hotspots dentro de 0–100 %", "pasa": true },
+        { "id": "C8", "descripcion": "Espejo Left/Right en ≥ 1024 px («Sin guía»: escenario a la izquierda; «Con guía»: a la derecha), apilado con el escenario arriba en 768/390 px y transición CSS de ~500 ms", "pasa": true },
+        { "id": "C9", "descripcion": "GuideMediaSlot aislado con círculo, anillo punteado (gris quieto / cian girando) y halo cian ≤ 15 % solo en «Con guía», con el medio como hijo (hueco para video futuro)", "pasa": true },
+        { "id": "C10", "descripcion": "Píldora de estado bajo el círculo: «A ciegas» (punto gris quieto) / «Guiado · Paso N de 3» (punto cian que late) sincronizada con el paso", "pasa": true },
+        { "id": "C11", "descripcion": "Tarjeta de barras: obstáculos atascados / 3 pasos que se llenan sincronizados con el avance, congelados al pausar y retomando el tiempo restante, con «Pausar guía» e «Ir al catálogo ›» dentro", "pasa": true },
+        { "id": "C12", "descripcion": "Con prefers-reduced-motion: sin giro, sin latido, barras llenas sin animar, cambio instantáneo, 3 marcadores y píldora «Guiado · 3 pasos»", "pasa": true }
+      ]
     }
   ]
 }

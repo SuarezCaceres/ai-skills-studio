@@ -1,6 +1,10 @@
 import React, { useEffect } from 'react';
 import { AppPageRoute } from '../types/workspace';
 import { ComputerLightBeamShowcase } from './ComputerLightBeamShowcase';
+// Sección de la spec 005 en un chunk aparte: no suma al bundle inicial (presupuesto < 350 kB).
+const GuideContrastShowcase = React.lazy(() =>
+  import('./GuideContrastShowcase').then((m) => ({ default: m.GuideContrastShowcase }))
+);
 
 interface InformativeLandingSectionProps {
   onNavigatePage: (page: AppPageRoute) => void;
@@ -142,6 +146,13 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
           </div>
         </div>
       </section>
+
+      {/* 1b. GUÍA VS. SIN GUÍA (spec 005 · ilustrativa, tras el hero) */}
+      <React.Suspense
+        fallback={<div className="section" aria-hidden="true" style={{ minHeight: '36rem' }} />}
+      >
+        <GuideContrastShowcase onNavigatePage={onNavigatePage} />
+      </React.Suspense>
 
       {/* 2. APP-FRAME (Lista de archivos de la skill + Inspector bajo demanda fijado a commitSha) */}
       <section className="section" id="inspector" aria-labelledby="inspector-h">

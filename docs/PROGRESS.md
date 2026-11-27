@@ -11,6 +11,17 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-26 · Claude Code (`Orquestador General`) · `feat/005-guia-vs-sin-guia`
+- **Hecho:**
+  - Spec y plan de la 005 ampliados con el rediseño en espejo **C8–C12** (aprobados por el humano) y rebase de la 005 sobre la 004 final (conflictos solo documentales).
+  - **Fase 0 (`56c1dca`):** `GuideCaptureFrame` extraído; esqueletos de `GuideMediaSlot` y `GuideModePanel` con contrato de DOM; reloj con tiempo restante (al reanudar se espera solo lo que falta); maquetación en espejo con CSS propio en el chunk diferido; excepción del halo en `docs/rules/frontend.md`.
+  - **Fase C (3 worktrees en paralelo):** escenario con círculo, anillo y píldora (`wt1`, `73a5a75`), texto del modo y tarjeta de barras (`wt2`, `41fa86d`) y suite C8–C12 (`wt3`, `2cdcf64`).
+  - **Captura con tipografía real:** `capture-guide-showcase.mjs` carga ahora Geist y Geist Mono desde Google Fonts (falla si no llegan; `--fuentes-de-reserva` para trabajar sin conexión). `catalogo.webp` regenerado (58,9 KB) y C6b actualizado (se cumple tras la 004).
+  - **Integración (`5ec931a`):** `#guia` crece más allá de una pantalla en escritorio (el kit la fijaba a 708 px de contenido y se montaba sobre `#inspector`); círculo con superficie plana (sin degradado decorativo).
+- **Verificación:** `./scripts/check.sh` completo en `exit 0` con las variables del simulador (`test-guide-showcase.mjs` 356/356). Chunk inicial 349,7 kB (C6b en verde).
+- **Pendiente:** fusionar el PR #32 de la 004; rebasar la 005 sobre `main` y abrir su PR de 5 secciones con squash.
+- **Problemas:** `git worktree remove` borró parte del `node_modules` compartido a través de la junction (reparado con `npm install`, lockfile intacto). `test-interactions-playwright.mjs` depende de `.env.local` (anotado en `TASKS.md`).
+
 ## 2026-11-27 · Claude Code · `fix/test-interactions-env`
 - **Hecho:**
   - `test-interactions-playwright.mjs` fallaba en cualquier carpeta sin `.env.local` (worktrees, clones limpios): servía el `dist/` de `npm run build`, que sin `VITE_CATALOG_REPO` muestra «El catálogo no está configurado», y la suite espera «Nadie del equipo ha subido skills todavía».
@@ -53,6 +64,18 @@
 - **Verificación:** `./scripts/check.sh` completo en **`exit 0`** en la rama de cierre `chore/cierre-skill-sh`.
 - **Pendiente:** Sin pendientes abiertos de `003-directorio-skills-sh` ni de producción en Vercel; continuar en `docs/TASKS.md` con `001-equipos-y-miembros`.
 - **Problemas:** Ninguno.
+
+## 2026-11-25 · Claude Code (`Orquestador General`) · `feat/005-guia-vs-sin-guia`
+- **Hecho:**
+  - Entrevista (`grilling`) para adaptar el componente externo `spatial-product-showcase` (framer-motion + shadcn) al stack real: sección ilustrativa «Guía vs. sin guía» en la portada con la misma captura del Catálogo atenuada o guiada en 3 pasos, sin dependencias nuevas.
+  - `docs/specs/005-guia-vs-sin-guia/{spec,plan}.md` aprobados y Fase 0 de contratos (`src/types/guideShowcase.ts`, hotspots y WebP provisionales).
+  - Fase 1 en 3 worktrees paralelos con agentes hijos: componente `GuideContrastShowcase.tsx` + textos + montaje (`wt1`), script reproducible `capture-guide-showcase.mjs` con GitHub simulado y WebP de 58 KB (`wt2`) y suite `test-guide-showcase.mjs` en 4 anchos conectada a `check.sh` (`wt3`).
+  - Fase 2: integración, caja de los chips de categoría ajustada a los botones (92 % → 39 %), espera a las transiciones CSS en la prueba de geometría y comillas angulares en el tooltip.
+- **Verificación:** `test-guide-showcase.mjs` 210/210; tipos, unitarias e integración en verde. Resto de E2E en verde salvo 3 suites heredadas de la 004 (`test-interactions-playwright`, `test-catalog-integration` y `test-skills-sh-page`), que buscan UI retirada o ya fallaban en la base `9f7580d`. Criterios C1–C5 y C7 en `pasa: true`; C6 en `false` por el chunk inicial (~393 kB, deuda preexistente).
+  - Fase 4: `revisor` independiente → **APROBADO CON CAMBIOS** (0 bloqueantes). Aplicados los 5 importantes: sección cargada con `React.lazy` (chunk inicial 382,7 kB frente a 382,3 kB en la base `9f7580d`, medida real), avance detenido fuera de pantalla (`IntersectionObserver`), botón «Pausar guía» (WCAG 2.2.2), pausa por hover solo con ratón, tooltip sin «vuelo» inicial y pruebas nuevas (atenuación, tamaño del foco, `visibilitychange`, fuera de pantalla, botón de pausa, imagen que falla y no regresión del chunk).
+  - C6 dividido por decisión del humano: C6a (dependencias, red, WebP, chunk diferido sin regresión y paleta) en `pasa: true`; C6b (chunk inicial < 350 kB) abierto y ligado a la deuda del bundle.
+- **Pendiente:** abrir el PR cuando la 004 esté integrada (squash del commit `test(e2e)`).
+- **Problemas:** Chunk inicial en 382,7 kB: deuda preexistente (la base ya pesaba 382,3 kB); la sección va en su propio chunk de 11 kB. El commit `180a2a9` usa el tipo `test`, que no está en `docs/rules/general.md`: hacer *squash* al integrar. La captura usa fuentes de reserva porque las de Google se bloquean en el script para no depender de la red.
 
 ## 2026-11-24 · Antigravity (`Orquestador General`) · `chore/vercel-primary-deploy`
 - **Hecho:**

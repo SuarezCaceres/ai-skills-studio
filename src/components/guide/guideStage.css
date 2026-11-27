@@ -1,0 +1,221 @@
+/*
+ * Escenario de la sección «Guía vs. sin guía» (spec 005, C9, C10, C12). Propiedad de wt1.
+ *
+ * Composición: medio centrado sobre un círculo, anillo punteado exterior que asoma por arriba y por abajo,
+ * halo radial detrás (solo «Con guía») y píldora de estado apoyada en el borde inferior del círculo.
+ * Todas las medidas salen del ancho del medio (--guia-m), relativo al propio escenario (container query units),
+ * así que la proporción es la misma en 1440, 1024, 768 y 390 px.
+ *
+ * Paleta Cyber Dark: superficie #121722, texto #f1f5f9 / #94a3b8, cian #0ea5e9 como único acento y
+ * gris pizarra #475569 / #64748b para «Sin guía».
+ */
+
+/* Hueco del anillo «atascado»: registrado para que se cierre con transición al pasar a «Con guía». */
+@property --guia-hueco {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+#guia .guia-escenario {
+  /* Ancho del medio: grande y legible, sin tocar los bordes del escenario. */
+  --guia-m: min(92cqi, 38rem);
+  --guia-circulo: calc(var(--guia-m) * 0.96);
+  --guia-anillo: calc(var(--guia-m) * 1.13);
+  --guia-halo: calc(var(--guia-m) * 1.5);
+  --guia-fundido: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  position: relative;
+  container-type: inline-size;
+  overflow: hidden; /* el círculo, el anillo y el halo se recortan aquí: nunca desbordan el documento (390 px) */
+  padding-block: 0.25rem;
+}
+
+#guia .guia-escenario__plato {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--guia-anillo) + 0.5rem);
+}
+
+#guia .guia-escenario__orbita {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#guia .guia-escenario__halo,
+#guia .guia-escenario__circulo,
+#guia .guia-escenario__anillo {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+}
+
+/* Halo: excepción acotada a esta sección (docs/rules/frontend.md). Cian, opacidad ≤ 0,15, solo en «Con guía». */
+#guia .guia-escenario__halo {
+  width: var(--guia-halo);
+  background: radial-gradient(
+    circle closest-side,
+    rgb(14 165 233) 0%,
+    rgb(14 165 233 / 0.45) 38%,
+    transparent 72%
+  );
+  opacity: 0.14;
+  animation: guia-halo-entra var(--guia-fundido) both;
+}
+
+@keyframes guia-halo-entra {
+  from { opacity: 0; transform: scale(0.92); }
+}
+
+/* Círculo: superficie elevada con filo fino; en «Con guía» el filo toma un tinte cian. */
+#guia .guia-escenario__circulo {
+  width: var(--guia-circulo);
+  /* Superficie plana: docs/rules/frontend.md prohíbe degradados decorativos (la única excepción es el halo). */
+  background: #121722;
+  box-shadow: inset 0 0 0 1px rgb(148 163 184 / 0.16);
+  transition: box-shadow var(--guia-fundido);
+}
+
+#guia [data-mode='con-guia'] .guia-escenario__circulo {
+  box-shadow: inset 0 0 0 1px rgb(14 165 233 / 0.35);
+}
+
+/*
+ * Anillo punteado. «Sin guía»: gris pizarra, quieto y abierto (hueco arriba a la derecha, como una carga atascada).
+ * «Con guía»: cian, cerrado y girando despacio (48 s por vuelta).
+ */
+#guia .guia-escenario__anillo {
+  --guia-hueco: 0deg;
+  width: var(--guia-anillo);
+  border: 2px dashed #475569;
+  -webkit-mask-image: conic-gradient(
+    from 24deg,
+    transparent 0 var(--guia-hueco),
+    #000 calc(var(--guia-hueco) * 1.12)
+  );
+  mask-image: conic-gradient(
+    from 24deg,
+    transparent 0 var(--guia-hueco),
+    #000 calc(var(--guia-hueco) * 1.12)
+  );
+  transition:
+    border-color var(--guia-fundido),
+    --guia-hueco var(--guia-fundido);
+}
+
+#guia [data-mode='sin-guia'] .guia-escenario__anillo {
+  --guia-hueco: 62deg;
+}
+
+#guia [data-mode='con-guia'] .guia-escenario__anillo {
+  border-color: #0ea5e9;
+}
+
+#guia .guia-escenario__anillo[data-girando='true'] {
+  animation: guia-anillo-gira 48s linear infinite;
+}
+
+@keyframes guia-anillo-gira {
+  to { transform: rotate(360deg); }
+}
+
+/* Medio: encima del círculo, centrado. */
+#guia .guia-escenario__medio {
+  position: relative;
+  z-index: 1;
+  width: var(--guia-m);
+}
+
+/* Píldora de estado (C10): centrada sobre el borde inferior del círculo, entre el medio y el anillo. */
+#guia .guia-escenario__estado {
+  position: absolute;
+  z-index: 2;
+  top: calc(50% + var(--guia-circulo) / 2);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  border: 1px solid rgb(100 116 139 / 0.4);
+  border-radius: 9999px;
+  background: #121722;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: #94a3b8; /* 6,9:1 sobre #121722 */
+  box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.9);
+  transition:
+    color var(--guia-fundido),
+    border-color var(--guia-fundido);
+}
+
+#guia [data-mode='con-guia'] .guia-escenario__estado {
+  border-color: rgb(14 165 233 / 0.45);
+  color: #f1f5f9; /* 16:1 sobre #121722 */
+}
+
+/* Punto: gris y quieto en «Sin guía»; cian con latido suave en «Con guía». */
+#guia .guia-escenario__punto {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #64748b;
+  transition: background-color var(--guia-fundido);
+}
+
+#guia [data-mode='con-guia'] .guia-escenario__punto {
+  background: #0ea5e9;
+  animation: guia-punto-late 2.4s ease-in-out infinite;
+}
+
+@keyframes guia-punto-late {
+  0%,
+  100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.45); opacity: 0.55; }
+}
+
+/* Pausa de la guía (WCAG 2.2.2): «Pausar guía», el ratón o el foco congelan también el anillo y el punto. */
+#guia[data-paused='true'] .guia-escenario__anillo,
+#guia[data-paused='true'] .guia-escenario__punto {
+  animation-play-state: paused;
+}
+
+/* Movimiento reducido (C12): el anillo no gira, el punto no late y los cambios de modo son instantáneos. */
+@media (prefers-reduced-motion: reduce) {
+  #guia .guia-escenario__anillo,
+  #guia .guia-escenario__punto,
+  #guia .guia-escenario__halo {
+    animation: none !important;
+  }
+
+  #guia .guia-escenario__anillo,
+  #guia .guia-escenario__circulo,
+  #guia .guia-escenario__estado,
+  #guia .guia-escenario__punto {
+    transition: none !important;
+  }
+}
+
+#guia[data-reduced='true'] .guia-escenario__anillo,
+#guia[data-reduced='true'] .guia-escenario__punto,
+#guia[data-reduced='true'] .guia-escenario__halo {
+  animation: none !important;
+}
+
+#guia[data-reduced='true'] .guia-escenario__anillo,
+#guia[data-reduced='true'] .guia-escenario__circulo,
+#guia[data-reduced='true'] .guia-escenario__estado,
+#guia[data-reduced='true'] .guia-escenario__punto {
+  transition: none !important;
+}

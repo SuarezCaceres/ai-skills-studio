@@ -4,7 +4,7 @@
 > Las funcionalidades completas viven en `docs/features.json`; aquí van tareas operativas, deuda técnica y pasos manuales.
 
 ## En curso
-<!-- - [ ] Descripción · responsable -->
+- [ ] **005 · Guía vs. sin guía en la portada (`feat/005-guia-vs-sin-guia`, worktree `ai-skills-studio-005`):** rediseño en espejo (C8–C12) integrado sobre la 004; criterios C1–C12 en verde (`test-guide-showcase.mjs` 356/356) y `check.sh` completo en verde. Revisión `revisor`: APPROVE (importantes corregidos en `84a93f5`). Falta: rebase sobre `main` cuando se fusione el PR #32 y PR de 5 secciones con **squash** (`180a2a9` usa el tipo `test`) · agente + humano
 
 ## Pendiente
 - [ ] **🔴 PRIORIDAD ALTA · Remediar auditoría de seguridad (`security-audit`, run-1, perfil `quick`):** 8 hallazgos `needs_validation` verificados en código + 2 brechas diferidas. Reporte: `reporte-auditoria-seguridad.md` (artefacto de la conversación) y `scratch/security-audit/ai-skills-studio/run-1/` (`REPORT.md`, `NEEDS-VALIDATION.md`, `findings.json`). Abrir rama `fix/security-hardening` vía `spec-plan-code`; varias correcciones tocan zonas blindadas (requieren autorización) · humano + agente
