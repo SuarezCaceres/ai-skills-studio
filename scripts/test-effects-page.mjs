@@ -767,6 +767,9 @@ async function main() {
     process.env.VITE_GITHUB_CLIENT_ID = TEST_CLIENT_ID;
     process.env.VITE_GITHUB_OAUTH_URL = TEST_OAUTH_URL;
     process.env.VITE_SKILLS_SH_PROXY_URL = '';
+    // `loadEffects` arrancó antes un servidor de Vite, que deja NODE_ENV=development: sin esto el build
+    // sale en modo desarrollo (React sin minificar) y el chunk de entrada no se parece al de producción.
+    process.env.NODE_ENV = 'production';
     rmSync(OUT_DIR, { recursive: true, force: true });
     await build({ root: ROOT, logLevel: 'error', build: { outDir: OUT_DIR, emptyOutDir: true } });
     if (!existsSync(resolve(DIST, 'index.html'))) throw new Error(`La compilación de prueba no generó ${DIST}/index.html.`);
