@@ -167,7 +167,7 @@ export function PagePreviewModal({ pages, initialId, onClose, onOpenComponent, o
         className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-5 rounded-2xl border border-slate-700 bg-[#121722] p-3 text-slate-300 shadow-2xl shadow-black/70 outline-none sm:p-6"
       >
         <header className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0 max-w-3xl flex-1 space-y-1.5">
+          <div className="min-w-0 max-w-3xl flex-1 basis-[18rem] space-y-1.5">
             <p className="m-0 font-mono text-[11px] font-semibold uppercase tracking-wider text-[#38bdf8]">{page.category}</p>
             <h2 id={titleId} className="m-0 text-2xl font-bold tracking-tight text-white">
               {page.name}
