@@ -13,6 +13,7 @@ coverage/
 shots/
 test-results/
 playwright-report/
+.playwright-mcp/
 
 # Entorno y credenciales
 .env

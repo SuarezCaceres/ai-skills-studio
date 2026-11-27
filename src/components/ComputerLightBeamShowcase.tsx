@@ -309,7 +309,8 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
             </span>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4 text-[11px] ml-auto shrink-0">
+          {/* max-w-full + flex-wrap: con la Geist Mono real las 3 métricas no caben en una fila a 390 px. */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4 text-[11px] ml-auto shrink-0 max-w-full">
             <span className="flex items-center gap-1">
               <Lock className="h-3 w-3 text-[#0ea5e9]" aria-hidden="true" />
               <strong className="text-white">{displayedSlide.metricPrimary}</strong>
