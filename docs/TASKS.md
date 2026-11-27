@@ -4,8 +4,6 @@
 > Las funcionalidades completas viven en `docs/features.json`; aquí van tareas operativas, deuda técnica y pasos manuales.
 
 ## En curso
-- [ ] **Integración 006 + hero-forge + 007 (`chore/integracion-efectos-hero-forge-paginas`):** `check.sh` completo en verde. Falta revisión humana y fusión del PR; después cerrar el PR #35, ejecutar `npm install` (llega `motion`) y borrar las ramas integradas · humano
-- [ ] **006 · Efectos: estilos y animaciones en Componentes (`feat/006-efectos-estilos-animaciones`):** pestaña «Efectos» con 8 estilos y 10 animaciones, prompt en español copiable, «Repetir» y movimiento reducido; C1–C6 en verde (`test-effects-page.mjs` 139/139) y `check.sh` completo en verde. Revisión `revisor`: APPROVE (importantes y menores corregidos). Falta: revisión humana y fusión del PR · humano
 - [ ] **Añadir `test-effects-page.mjs` a la tabla de suites de `docs/rules/testing.md`** (E2E e interfaz). No se tocó por ser `docs/rules/` (requiere permiso) · humano + agente
 - [ ] **005 · Guía vs. sin guía en la portada (`feat/005-guia-vs-sin-guia`, worktree `ai-skills-studio-005`):** rediseño en espejo (C8–C12) integrado sobre la 004; criterios C1–C12 en verde (`test-guide-showcase.mjs` 356/356) y `check.sh` completo en verde. Revisión `revisor`: APPROVE (importantes corregidos en `84a93f5`). Falta: rebase sobre `main` cuando se fusione el PR #32 y PR de 5 secciones con **squash** (`180a2a9` usa el tipo `test`) · agente + humano
 
@@ -37,6 +35,7 @@
 <!-- - [ ] Descripción · por qué está bloqueado · qué se necesita -->
 
 ## Hecho
+- [x] 2026-11-27 · **Integración 006 + hero-forge + 007 (PR #36, `c81335f`):** efectos en Componentes (006, el PR #35 quedó incluido), portada `feat/hero-forge` (con `feat/orbital-ai-agents`) y Páginas de referencia (007), con las suites adaptadas a la portada nueva y `check.sh` completo en verde. Tras fusionar: `npm install` (llega `motion`) en cada copia de trabajo y borrar las ramas integradas
 - [x] 2026-11-27 · **004 · Retiro de Workspace e inspección real de código (`feat/004-retiro-workspace-inspector-codigo`):** completadas Fases 0–4 (`C1`–`C5`: retiro de Workspace/`estudio`, `modelos-ia`, `evidencias`, `StylePresetCatalog`, `workingCopy`, `rarParserService` y 13 archivos obsoletos; inspector bajo demanda fijado a `commitSha` en `FilesPanel` con re-auditoría automática; vista previa de `skills.sh` en `SkillDetailPage`/`CatalogDetailRoute`; actualización de portada/navbar, suites Node + Playwright y documentación; auditorías `revisor` `APPROVE`, `teamwork_challenger` `CONFIRMED` y `teamwork_auditor` `CLEAN`; descripción local del PR de 5 secciones redactada)
 - [x] 2026-11-26 · Confirmar despliegue en producción de `api/skills-sh.ts` compartiendo `ALLOWED_ORIGINS`, login GitHub PKCE (`OAuth App` `Ov23lii7kOK3ajmx8d1u`) en `https://codice-oauth.vercel.app/` + `http://localhost:5173/` y cron `.github/workflows/sync-skills-sh.yml` operativo en `main` (PRs #28, #29 y cierre `chore/cierre-skill-sh`)
 - [x] 2026-11-23 · Instalar `harness-template` en `chore/adoptar-harness`, rellenar `AGENTS.md` + `docs/` + skills (incluida `orquestador-general`) y configurar sensores en `scripts/check.sh` e `init.sh`
