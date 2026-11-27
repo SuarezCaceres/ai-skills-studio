@@ -19,6 +19,7 @@ import { mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { quantizePng } from './lib/png-quantize.mjs';
+import { enterApp } from './lib/enter-app.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = resolve(ROOT, 'public', 'components');
@@ -95,7 +96,7 @@ async function main() {
 
     await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(500);
-    await page.evaluate(() => document.querySelector('.nav__actions a.btn--primary')?.click());
+    await enterApp(page);
     await page.waitForTimeout(400);
     await page.evaluate(() =>
       [...document.querySelectorAll('nav[aria-label="Módulos del estudio"] a')].find((a) => a.textContent.includes('Componentes'))?.click()
@@ -162,7 +163,7 @@ async function main() {
 
       // Reestablece la página para el siguiente componente.
       await page.reload({ waitUntil: 'domcontentloaded' });
-      await page.evaluate(() => document.querySelector('.nav__actions a.btn--primary')?.click());
+      await enterApp(page);
       await page.waitForTimeout(300);
       await page.evaluate(() =>
         [...document.querySelectorAll('nav[aria-label="Módulos del estudio"] a')].find((a) => a.textContent.includes('Componentes'))?.click()

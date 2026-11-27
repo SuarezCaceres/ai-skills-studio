@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { TEST_CATALOG_REPO, TEST_CLIENT_ID, TEST_OAUTH_URL, installFakeGithub } from './lib/github-fixture.mjs';
+import { clickAuthSignIn, enterApp } from './lib/enter-app.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 5191;
@@ -111,7 +112,7 @@ function seedCommunity(machine) {
 
 /* ---------------- Ayudantes de navegador ---------------- */
 async function clickToModule(page, label) {
-  await page.evaluate(() => document.querySelector('.nav__actions a.btn--primary')?.click());
+  await enterApp(page);
   await page.waitForTimeout(300);
   await page.evaluate((text) => {
     const links = [...document.querySelectorAll('nav[aria-label="Módulos del estudio"] a')];
@@ -126,7 +127,7 @@ async function openCodice(page, origin) {
 }
 async function login(page) {
   await page.getByRole('button', { name: 'Entrar con GitHub para subir' }).first().click();
-  await page.getByRole('button', { name: 'Entrar con GitHub' }).click();
+  await clickAuthSignIn(page);
   await page.waitForFunction(() => !location.search.includes('code='), null, { timeout: 15000 });
   await page.waitForTimeout(500);
   await clickToModule(page, 'Códice');

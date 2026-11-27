@@ -13,6 +13,7 @@ import { mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { clickAuthSignIn, enterApp } from './lib/enter-app.mjs';
 import {
   SKILL_NAME,
   TEAM_LOGIN,
@@ -35,7 +36,7 @@ function check(name, ok, detail = '') {
 
 /** Desde la portada, pasa a la página Componentes con clics dentro de la app (no recarga: conserva la sesión). */
 async function clickToComponents(page) {
-  await page.evaluate(() => document.querySelector('.nav__actions a.btn--primary')?.click());
+  await enterApp(page);
   await page.waitForTimeout(300);
   await page.evaluate(() =>
     [...document.querySelectorAll('nav[aria-label="Módulos del estudio"] a')].find((a) => a.textContent.includes('Componentes'))?.click()
@@ -57,7 +58,7 @@ const assignmentSection = (page) => page.locator('section[aria-labelledby="sec-a
 /** Inicia sesión con el GitHub simulado desde la propia página Componentes. */
 async function login(page, origin) {
   await page.getByRole('button', { name: 'Entrar con GitHub para asignar' }).click();
-  await page.getByRole('button', { name: 'Entrar con GitHub' }).click();
+  await clickAuthSignIn(page);
   await page.waitForFunction(() => !location.search.includes('code='), null, { timeout: 15000 });
   await page.waitForTimeout(500);
   await clickToComponents(page);

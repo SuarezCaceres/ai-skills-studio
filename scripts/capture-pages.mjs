@@ -16,6 +16,7 @@ import { mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { quantizePng } from './lib/png-quantize.mjs';
+import { enterApp } from './lib/enter-app.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = resolve(ROOT, 'public', 'pages');
@@ -30,7 +31,7 @@ const CAPTURE_CSS = '*,*::before,*::after{transition:none!important;animation:no
 async function openPagesRoute(page, origin) {
   await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(500);
-  await page.evaluate(() => document.querySelector('.nav__actions a.btn--primary')?.click());
+  await enterApp(page);
   await page.waitForTimeout(400);
   await page.evaluate(() =>
     [...document.querySelectorAll('nav[aria-label="Módulos del estudio"] a')].find((a) => a.textContent.trim().startsWith('Páginas'))?.click()

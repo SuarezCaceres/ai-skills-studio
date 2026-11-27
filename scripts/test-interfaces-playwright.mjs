@@ -19,6 +19,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TEST_CATALOG_REPO, TEST_CLIENT_ID, TEST_OAUTH_URL } from './lib/github-fixture.mjs';
+import { enterApp } from './lib/enter-app.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -339,7 +340,7 @@ async function runAudit() {
 
       // 2. Skills del equipo (`boveda`) vía CTA primario de Navbar (.nav__actions a.btn--primary)
       await openMobileMenuIfCollapsed(page);
-      await page.locator('.nav__actions a.btn--primary').click();
+      await enterApp(page);
       await page.locator('#team-heading').waitFor({ timeout: 8000 });
       await page.waitForTimeout(300);
 
