@@ -189,7 +189,7 @@
       "id": "005",
       "nombre": "guia-vs-sin-guia",
       "spec": "docs/specs/005-guia-vs-sin-guia/spec.md",
-      "estado": "en_curso",
+      "estado": "revision",
       "criterios": [
         {
           "id": "C1",
@@ -198,12 +198,12 @@
         },
         {
           "id": "C2",
-          "descripcion": "Estado inicial «Sin guía»: radio marcado, captura atenuada, lista de obstáculos visible y ningún marcador de paso",
+          "descripcion": "Estado inicial «Sin guía»: radio marcado, captura atenuada, tarjeta con los 3 obstáculos atascados y ningún marcador de paso",
           "pasa": true
         },
         {
           "id": "C3",
-          "descripcion": "Cambio a «Con guía» por clic o teclado: captura iluminada, foco y tooltip del paso 1 de 3 sobre el buscador, lista de ventajas y anuncio aria-live",
+          "descripcion": "Cambio a «Con guía» por clic o teclado: captura iluminada, foco y tooltip del paso 1 de 3 sobre el buscador, tarjeta con los 3 pasos y anuncio aria-live",
           "pasa": true
         },
         {
@@ -224,7 +224,7 @@
         {
           "id": "C6b",
           "descripcion": "Chunk inicial < 350 kB (depende de la deuda preexistente del bundle registrada en TASKS.md; la base 9f7580d ya pesaba 382,3 kB)",
-          "pasa": false
+          "pasa": true
         },
         {
           "id": "C7",
@@ -234,27 +234,27 @@
         {
           "id": "C8",
           "descripcion": "Espejo Left/Right en ≥ 1024 px («Sin guía»: escenario a la izquierda; «Con guía»: a la derecha), apilado con el escenario arriba en 768/390 px y transición CSS de ~500 ms",
-          "pasa": false
+          "pasa": true
         },
         {
           "id": "C9",
           "descripcion": "GuideMediaSlot aislado con círculo, anillo punteado (gris quieto / cian girando) y halo cian ≤ 15 % solo en «Con guía», con el medio como hijo (hueco para video futuro)",
-          "pasa": false
+          "pasa": true
         },
         {
           "id": "C10",
           "descripcion": "Píldora de estado bajo el círculo: «A ciegas» (punto gris quieto) / «Guiado · Paso N de 3» (punto cian que late) sincronizada con el paso",
-          "pasa": false
+          "pasa": true
         },
         {
           "id": "C11",
           "descripcion": "Tarjeta de barras: obstáculos atascados / 3 pasos que se llenan sincronizados con el avance, congelados al pausar y retomando el tiempo restante, con «Pausar guía» e «Ir al catálogo ›» dentro",
-          "pasa": false
+          "pasa": true
         },
         {
           "id": "C12",
           "descripcion": "Con prefers-reduced-motion: sin giro, sin latido, barras llenas sin animar, cambio instantáneo, 3 marcadores y píldora «Guiado · 3 pasos»",
-          "pasa": false
+          "pasa": true
         }
       ]
     }

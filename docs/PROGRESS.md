@@ -11,6 +11,16 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-26 · Claude Code (`Orquestador General`) · `feat/005-guia-vs-sin-guia`
+- **Hecho:**
+  - Spec y plan de la 005 ampliados con el rediseño en espejo **C8–C12** (aprobados por el humano) y rebase de la 005 sobre la 004 final (conflictos solo documentales).
+  - **Fase 0 (`56c1dca`):** `GuideCaptureFrame` extraído; esqueletos de `GuideMediaSlot` y `GuideModePanel` con contrato de DOM; reloj con tiempo restante (al reanudar se espera solo lo que falta); maquetación en espejo con CSS propio en el chunk diferido; excepción del halo en `docs/rules/frontend.md`.
+  - **Fase C (3 worktrees en paralelo):** escenario con círculo, anillo y píldora (`wt1`, `73a5a75`), texto del modo y tarjeta de barras (`wt2`, `41fa86d`) y suite C8–C12 (`wt3`, `2cdcf64`).
+  - **Integración (`5ec931a`):** `#guia` crece más allá de una pantalla en escritorio (el kit la fijaba a 708 px de contenido y se montaba sobre `#inspector`); círculo con superficie plana (sin degradado decorativo).
+- **Verificación:** `./scripts/check.sh` completo en `exit 0` con las variables del simulador (`test-guide-showcase.mjs` 337/337). Chunk inicial 349,7 kB (C6b en verde).
+- **Pendiente:** `revisor` independiente; fusionar el PR #32 de la 004; rebasar la 005 sobre `main` y abrir su PR de 5 secciones con squash.
+- **Problemas:** `git worktree remove` borró parte del `node_modules` compartido a través de la junction (reparado con `npm install`, lockfile intacto). `test-interactions-playwright.mjs` depende de `.env.local` (anotado en `TASKS.md`).
+
 ## 2026-11-27 · Claude Code · `feat/004-retiro-workspace-inspector-codigo` (seguimiento tras PR #31)
 - **Hecho:**
   - La 004 ya se fusionó en `main` con el PR #31 (merge `309be17`, sin *squash*, así que `0505bc5` con tipo `test` quedó en `main`). Estos cambios van en un PR de seguimiento.
