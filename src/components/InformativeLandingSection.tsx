@@ -64,7 +64,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
           }
         }
       },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0.04, rootMargin: '0px 0px 40px 0px' }
     );
 
     targets.forEach((el) => {
@@ -109,22 +109,22 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
             <div className="span-5">
               <p className="ld-eyebrow" data-reveal="up">
                 <span aria-hidden="true" className="ld-eyebrow__bar" />
-                <span>Inspección bajo demanda · SHA</span>
+                <span>Auditoría de material real · SHA</span>
               </p>
               <h2 id="inspector-h" className="ld-heading" data-reveal="mask">
                 <span className="ld-heading__mask">
-                  <span className="ld-heading__line">Inspección bajo demanda</span>
+                  <span className="ld-heading__line">Inspecciona cada skill</span>
                 </span>
                 <span className="ld-heading__mask">
-                  <span className="ld-heading__line ld-accent">fijada al commit exacto</span>
+                  <span className="ld-heading__line ld-accent">antes de usarla en clase</span>
                 </span>
               </h2>
             </div>
             <div className="span-6 start-7 stack-4">
               <p className="muted" data-reveal="up" data-reveal-delay="1">
-                Explora el catálogo del equipo o cualquier skill de GitHub en skills.sh,
-                descarga sus scripts bajo demanda desde su commitSha y verifica hallazgos
-                con AuditBadge antes de instalar.
+                Cada directiva SKILL.md, script o referencia vinculada a una clase se lee bajo
+                demanda desde su commitSha en GitHub en texto inerte y se verifica con AuditBadge
+                antes de aplicarla en tus proyectos.
               </p>
               <a
                 className="link"
@@ -501,26 +501,26 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
               <div>
                 <p className="ld-eyebrow" data-reveal="up">
                   <span aria-hidden="true" className="ld-eyebrow__bar" />
-                  <span>Ecosistema abierto · Agentes IA</span>
+                  <span>Harness multi-agente · Ahorro de tokens</span>
                 </p>
                 <h2 id="capabilities-h" className="ld-heading" data-reveal="mask">
                   <span className="ld-heading__mask">
-                    <span className="ld-heading__line">Conecta directivas SKILL.md</span>
+                    <span className="ld-heading__line">Cambia de agente IA</span>
                   </span>
                   <span className="ld-heading__mask">
-                    <span className="ld-heading__line ld-accent">con todo tu flujo</span>
+                    <span className="ld-heading__line ld-accent">sin perder el contexto</span>
                   </span>
                 </h2>
               </div>
               <p data-reveal="up" data-reveal-delay="1">
-                Un único estándar sincroniza auditoría por commitSha, directorio
-                skills.sh, componentes UI accesibles y clases del equipo sin copias
-                locales.
+                Aprende a armar tu harness (AGENTS.md, docs/ y SKILL.md) para gastar menos tokens
+                y saltar de Claude a Gemini, DeepSeek, ChatGPT u OpenCode cuando se acaben tus
+                créditos, continuando exactamente donde te quedaste.
               </p>
               <ul className="checks">
-                <li data-reveal="up" data-reveal-delay="2">Lectura bajo demanda desde GitHub fijada al commitSha auditado</li>
-                <li data-reveal="up" data-reveal-delay="3">Traducción fiel al español de documentación Markdown en un clic</li>
-                <li className="hidden sm:block" data-reveal="up" data-reveal-delay="4">Componentes UI accesibles probados con navegación por teclado</li>
+                <li data-reveal="up" data-reveal-delay="2">Consume menos tokens cargando solo el contexto exacto por tarea</li>
+                <li data-reveal="up" data-reveal-delay="3">Salto sin fricción entre Claude, Gemini, DeepSeek, ChatGPT y OpenCode</li>
+                <li className="hidden sm:block" data-reveal="up" data-reveal-delay="4">Comparte el mismo harness, skills y reglas con todo tu equipo</li>
               </ul>
               <div className="split-col__end" data-reveal="up" data-reveal-delay="4">
                 <a
@@ -528,7 +528,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                   href="#benchmarks"
                   onClick={(e) => openModule(e, 'codice-studio')}
                 >
-                  Explorar clases en Códice
+                  Ver clases y harness en Códice
                 </a>
               </div>
             </div>
@@ -572,29 +572,29 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
               <div>
                 <p className="ld-eyebrow" data-reveal="up">
                   <span aria-hidden="true" className="ld-eyebrow__bar" />
-                  <span>Seguridad y operación · Preguntas</span>
+                  <span>Preguntas clave · Códice Studio</span>
                 </p>
                 <h2 id="faq-h" className="ld-heading" data-reveal="mask">
                   <span className="ld-heading__mask">
-                    <span className="ld-heading__line">Preguntas sobre Códice</span>
+                    <span className="ld-heading__line">Preguntas sobre clases,</span>
                   </span>
                   <span className="ld-heading__mask">
-                    <span className="ld-heading__line ld-accent">Studio y tus skills</span>
+                    <span className="ld-heading__line ld-accent">equipos y harness IA</span>
                   </span>
                 </h2>
               </div>
               <p className="muted" data-reveal="up" data-reveal-delay="1">
-                Inspección segura por commitSha, vista previa de skills.sh, sesión OAuth
-                en memoria y permisos de publicación.
+                Cómo funcionan los videos con kit desplegable, el harness multi-agente para
+                ahorrar tokens, los equipos en GitHub y la auditoría por commitSha.
               </p>
               <dl className="stats hidden sm:grid" data-reveal="up" data-reveal-delay="2">
                 <div>
-                  <dt className="t-small muted">Token OAuth</dt>
-                  <dd className="t-stat">En memoria</dd>
+                  <dt className="t-small muted">Infraestructura</dt>
+                  <dd className="t-stat">GitHub $0</dd>
                 </div>
                 <div>
-                  <dt className="t-small muted">Lectura</dt>
-                  <dd className="t-stat">commitSha</dd>
+                  <dt className="t-small muted">Agentes IA</dt>
+                  <dd className="t-stat">Multi-IA</dd>
                 </div>
               </dl>
               <div className="split-col__end" data-reveal="up" data-reveal-delay="3">
@@ -616,38 +616,38 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
 
             <div className="faq span-6 start-7">
               <div className="faq__item" data-reveal="up" data-reveal-delay="1">
-                <h3>01. Seguridad de inspección: ¿se ejecutan los scripts en el navegador?</h3>
+                <h3>01. ¿Qué diferencia a las clases de un tutorial tradicional?</h3>
                 <p>
-                  No. Cada archivo distinto de SKILL.md se descarga bajo demanda desde su
-                  commitSha en GitHub y se muestra como texto plano inerte con re-auditoría.
+                  Cada video trae su menú desplegable listo: componentes UI, efectos, skills
+                  SKILL.md, modelo IA, nivel, referencias y proyectos enlazados.
                 </p>
               </div>
               <div className="faq__item" data-reveal="up" data-reveal-delay="2">
-                <h3>02. Integridad por commit: ¿por qué se fija la lectura a un commitSha?</h3>
+                <h3>02. ¿Cómo ahorra tokens y créditos el harness multi-agente?</h3>
                 <p>
-                  Para garantizar que los scripts leídos en Archivos y verificados por
-                  AuditBadge coinciden exactamente con la revisión auditada antes de instalar.
+                  Ordena reglas y progreso en AGENTS.md y docs/: si agotas créditos en Claude,
+                  sigues en Gemini, DeepSeek, ChatGPT u OpenCode sin perder contexto.
                 </p>
               </div>
               <div className="faq__item" data-reveal="up" data-reveal-delay="3">
-                <h3>03. Directorio externo: ¿cómo funciona Explorar (skills.sh)?</h3>
+                <h3>03. ¿Puedo crear equipo y subir mis skills y páginas hechas?</h3>
                 <p>
-                  Las skills alojadas en GitHub se abren en vista previa de solo lectura con
-                  traducción y archivos bajo demanda; las fuentes .well-known conservan npx.
+                  Sí. Organiza secciones para tu equipo, publica tus SKILL.md y comparte webs o
+                  apps hechas con IA enlazadas al video explicativo donde se construyeron.
                 </p>
               </div>
               <div className="faq__item sm-faq-hidden" data-reveal="up" data-reveal-delay="4">
-                <h3>04. Acceso de visitante: ¿necesito cuenta para consultar el estudio?</h3>
+                <h3>04. ¿Qué costo o servidor necesita para funcionar en comunidad?</h3>
                 <p>
-                  No. Puedes explorar Catálogo, Equipos, Explorar, Componentes y Códice sin
-                  sesión; GitHub OAuth solo se pide al publicar, votar, reportar o importar.
+                  Arquitectura ligera con costo base $0 sobre GitHub y videos embebidos
+                  (youtube-nocookie), sin servidores cerrados ni bases de datos pesadas.
                 </p>
               </div>
               <div className="faq__item sm-faq-hidden" data-reveal="up" data-reveal-delay="5">
-                <h3>05. Privacidad y Markdown: ¿dónde vive mi sesión de GitHub?</h3>
+                <h3>05. ¿Es seguro revisar skills y código externo antes de usarlo?</h3>
                 <p>
-                  El token OAuth permanece únicamente en memoria durante la pestaña activa y
-                  todo Markdown externo se sanea con SafeMarkdown antes de mostrarse.
+                  Sí. Cada archivo se lee bajo demanda desde su commitSha en texto inerte
+                  (≤ 512 KB) con AuditBadge, OAuth en memoria y SafeMarkdown.
                 </p>
               </div>
             </div>

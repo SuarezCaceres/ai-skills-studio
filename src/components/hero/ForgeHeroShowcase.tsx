@@ -95,13 +95,13 @@ const TOOL_MAP: Record<BenchToolId, BenchTool> = Object.fromEntries(
 const WORKFLOWS: readonly WorkflowPreset[] = [
   {
     id: 'auditar',
-    label: 'Auditar skill',
-    icon: ShieldCheck,
-    route: 'catalogo',
-    ctaLabel: 'Abrir Catálogo',
-    tools: ['skill-md', 'files-panel', 'audit-badge', 'claude', 'deepseek'],
-    title: ['Catálogo e inspector', 'de skills para', 'equipos IA'],
-    accessibleTitle: 'Catálogo e inspector de skills para equipos IA',
+    label: 'Clases + Kit',
+    icon: BookOpen,
+    route: 'codice-studio',
+    ctaLabel: 'Abrir Códice',
+    tools: ['skill-md', 'kit-ui', 'audit-badge', 'claude', 'gemini'],
+    title: ['Clases en video', 'con kit listo', 'para crear con IA'],
+    accessibleTitle: 'Clases en video con kit listo para crear webs y apps con IA',
   },
   {
     id: 'explorar',
@@ -110,45 +110,45 @@ const WORKFLOWS: readonly WorkflowPreset[] = [
     route: 'skills-sh',
     ctaLabel: 'Ir a Explorar',
     tools: ['skills-sh', 'skill-md', 'audit-badge', 'gemini', 'opencode'],
-    title: ['Descubre y audita', 'directivas en', 'skills.sh'],
-    accessibleTitle: 'Catálogo e inspector de skills: descubre y audita directivas en skills.sh',
+    title: ['Descubre skills', 'y referencias', 'de la comunidad'],
+    accessibleTitle: 'Descubre skills y páginas de referencia de la comunidad',
   },
   {
     id: 'componentes',
-    label: 'Kit UI',
+    label: 'UI + Efectos',
     icon: Layers,
     route: 'preview',
     ctaLabel: 'Ver Componentes',
     tools: ['kit-ui', 'skill-md', 'claude', 'gemini', 'chatgpt'],
-    title: ['Componentes UI', 'accesibles con', 'código real'],
-    accessibleTitle: 'Catálogo e inspector de skills: componentes UI accesibles con código real',
+    title: ['Componentes UI', 'y efectos listos', 'para tus apps'],
+    accessibleTitle: 'Componentes UI accesibles y efectos listos para tus webs y apps',
   },
   {
     id: 'codice',
-    label: 'Códice',
-    icon: BookOpen,
-    route: 'codice-studio',
-    ctaLabel: 'Abrir Códice',
-    tools: ['skill-md', 'kit-ui', 'chatgpt', 'claude', 'opencode'],
-    title: ['Documenta clases', 'técnicas en', 'tu Códice'],
-    accessibleTitle: 'Catálogo e inspector de skills: documenta clases técnicas en tu Códice',
+    label: 'Equipos',
+    icon: ShieldCheck,
+    route: 'boveda',
+    ctaLabel: 'Ver Equipo',
+    tools: ['skill-md', 'files-panel', 'kit-ui', 'chatgpt', 'claude'],
+    title: ['Crea en equipo', 'con clases y', 'páginas hechas'],
+    accessibleTitle: 'Crea en equipo con clases en video, skills y páginas de referencia hechas con IA',
   },
   {
     id: 'all',
-    label: 'Todo',
+    label: 'Harness',
     icon: LayoutGrid,
-    route: 'boveda',
-    ctaLabel: 'Ver Skills del equipo',
+    route: 'catalogo',
+    ctaLabel: 'Ver Catálogo',
     tools: [],
-    title: ['Todo tu estudio', 'conectado por', 'commitSha'],
-    accessibleTitle: 'Catálogo e inspector de skills: todo tu estudio conectado por commitSha',
+    title: ['Harness portátil', 'entre agentes', 'sin perder foco'],
+    accessibleTitle: 'Harness portátil multi-agente para ahorrar tokens y saltar entre agentes IA sin perder foco',
   },
 ];
 
 const TRUST_ITEMS = [
-  { icon: BadgeCheck, label: 'Fijado a commitSha' },
-  { icon: ShieldCheck, label: 'Lectura inerte ≤ 512 KB' },
-  { icon: Sparkles, label: 'Sesión OAuth en memoria' },
+  { icon: BadgeCheck, label: 'Videos con kit desplegable' },
+  { icon: Sparkles, label: 'Harness multi-agente (menos tokens)' },
+  { icon: ShieldCheck, label: 'Equipos y comunidad en GitHub' },
 ] as const;
 
 const useMediaQuery = (query: string): boolean => {
@@ -389,7 +389,7 @@ export const ForgeHeroShowcase: React.FC<ForgeHeroShowcaseProps> = ({ onNavigate
               <div className="fg-copy-col">
                 <p className="fg-eyebrow" role="status">
                   <span aria-hidden="true" className="fg-eyebrow__bar" />
-                  <span>Inspección GitHub · Fijada a commitSha</span>
+                  <span>Clases con video · Kit desplegable · Harness IA</span>
                 </p>
 
                 <h1 id="hero-h" className="fg-display">
@@ -404,22 +404,21 @@ export const ForgeHeroShowcase: React.FC<ForgeHeroShowcaseProps> = ({ onNavigate
                 </h1>
 
                 <p className="fg-subtext">
-                  Audita directivas SKILL.md y su código fuente fijados a commitSha en GitHub,
-                  descubre skills en skills.sh, prueba componentes UI accesibles y documenta clases
-                  en Códice.
+                  Aprende y construye webs, apps móviles y software con IA en equipo o comunidad:
+                  cada video incluye su menú desplegable con skills, componentes UI, efectos, modelo
+                  de IA, nivel y páginas de referencia listas para usar.
                 </p>
 
                 <div className="fg-actions">
                   <a
-                    href="#inspector"
-                    onClick={(e) => openRoute(e, 'catalogo')}
+                    href="#benchmarks"
                     className="fg-cta-primary fg-sheen"
                   >
-                    <span>Explorar catálogo</span>
+                    <span>Ver el ecosistema</span>
                     <ArrowRight className="w-4 h-4" aria-hidden="true" />
                   </a>
                   <a href="#capabilities" className="fg-cta-secondary">
-                    Ver capacidades
+                    Harness multi-agente
                   </a>
                 </div>
 
@@ -514,7 +513,7 @@ export const ForgeHeroShowcase: React.FC<ForgeHeroShowcaseProps> = ({ onNavigate
                             <i />
                           </span>
                           <span className="fg-monitor__path">
-                            codice-studio <b>/</b> {workflow.label.toLowerCase().replace(/\s+/g, '-')}.skill
+                            codice-studio <b>/</b> {workflow.label.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/^-|-$/g, '')}.skill
                           </span>
                         </div>
                         <div className="fg-monitor__topbar-right">

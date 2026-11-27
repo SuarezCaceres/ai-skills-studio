@@ -321,28 +321,31 @@ export function App() {
               <div className="section-head">
                 <p className="ld-eyebrow ld-eyebrow--center" data-reveal="up">
                   <span aria-hidden="true" className="ld-eyebrow__bar" />
-                  <span>Códice Studio · Sin servidor</span>
+                  <span>Códice Studio · Crea con IA</span>
                 </p>
                 <h2 id="close-h" className="ld-heading" data-reveal="mask">
                   <span className="ld-heading__mask">
-                    <span className="ld-heading__line">Audita e inspecciona skills</span>
+                    <span className="ld-heading__line">Aprende con video y kit listo</span>
                   </span>
                   <span className="ld-heading__mask">
-                    <span className="ld-heading__line ld-accent">desde GitHub hoy</span>
+                    <span className="ld-heading__line ld-accent">en cualquier agente IA</span>
                   </span>
                 </h2>
                 <p className="t-small muted" data-reveal="up" data-reveal-delay="1">
-                  Lectura bajo demanda fijada a commitSha · Sin servidor ni registro previo
+                  Clases con material desplegable, páginas de referencia y harness multi-agente sobre GitHub
                 </p>
               </div>
               <a
                 className="btn btn--primary"
-                href="#inspector"
+                href="#top"
                 data-reveal="up"
                 data-reveal-delay="2"
-                onClick={(e) => openModuleFromFooter(e, 'boveda')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowAuthScreen(true);
+                }}
               >
-                Explorar Catálogo
+                Entrar con GitHub
               </a>
             </div>
 

@@ -24,10 +24,10 @@ const ECOSYSTEM_MODULES: readonly EcosystemModuleItem[] = [
     number: '01',
     title: 'Skills del equipo',
     routeLabel: 'skills',
-    shortMeta: 'Publicación directa desde GitHub',
+    shortMeta: 'Equipos, skills propias y harness compartido',
     description:
-      'Consulta las directivas SKILL.md que sube cada integrante de tu equipo desde sus repositorios de GitHub, filtra por autor y revisa cada archivo fijado a su commitSha.',
-    chips: ['SKILL.md · commitSha', 'Perfiles del equipo', 'Subida directa'],
+      'Arma secciones de trabajo para tu equipo, sube tus propias directivas SKILL.md desde GitHub y comparte tu harness portátil para ahorrar tokens y trabajar coordinados en proyectos web o móviles.',
+    chips: ['Equipos en GitHub', 'Tus propias skills', 'Harness · commitSha'],
     image: skillsEquipoShot,
     alt: 'Vista interna de Skills del equipo con sesión iniciada en Códice Studio, mostrando filtros por integrante y directivas del equipo.',
   },
@@ -36,10 +36,10 @@ const ECOSYSTEM_MODULES: readonly EcosystemModuleItem[] = [
     number: '02',
     title: 'Catálogo comunitario',
     routeLabel: 'catalogo',
-    shortMeta: 'Votos, auditoría y veredictos por modelo',
+    shortMeta: 'Skills, referencias y veredictos por modelo',
     description:
-      'Explora y registra skills compartidas con auditoría automática de seguridad (AuditBadge), votos respaldados en GitHub Issues y reportes prácticos por modelo de IA.',
-    chips: ['AuditBadge automático', 'Votos · Issues', 'Reportes por modelo'],
+      'Explora skills, efectos y páginas de referencia hechas con IA por la comunidad, con votos reales, auditoría AuditBadge y reportes de qué modelo (Claude, Gemini, DeepSeek) rindió mejor.',
+    chips: ['Páginas de referencia', 'AuditBadge · Votos', 'Veredictos por IA'],
     image: catalogoShot,
     alt: 'Vista interna del Catálogo comunitario autenticado en Códice Studio con tarjetas de skills, buscador y filtros por categoría.',
   },
@@ -48,9 +48,9 @@ const ECOSYSTEM_MODULES: readonly EcosystemModuleItem[] = [
     number: '03',
     title: 'Explorar skills.sh',
     routeLabel: 'explorar',
-    shortMeta: 'Vista previa inerte e importación',
+    shortMeta: 'Directorio abierto e importación segura',
     description:
-      'Recorre el directorio abierto de skills.sh en tiempo real, inspecciona cualquier repositorio de GitHub en solo lectura (≤ 512 KB), tradúcelo al español e impórtalo en un clic.',
+      'Conecta el directorio abierto de skills.sh, inspecciona cualquier repositorio de GitHub en solo lectura (≤ 512 KB), tradúcelo al español e impórtalo a tu equipo o a tus clases en un clic.',
     chips: ['Directorio skills.sh', 'Lectura inerte ≤ 512 KB', 'Importar en 1 clic'],
     image: explorarShot,
     alt: 'Vista interna del módulo Explorar skills.sh autenticado en Códice Studio con botones de inspección e importación al catálogo.',
@@ -60,10 +60,10 @@ const ECOSYSTEM_MODULES: readonly EcosystemModuleItem[] = [
     number: '04',
     title: 'Componentes UI',
     routeLabel: 'componentes',
-    shortMeta: '20 piezas accesibles con código real',
+    shortMeta: 'Piezas accesibles y efectos listos para copiar',
     description:
-      'Prueba 20 componentes accesibles diseñados para Códice Studio con demostración interactiva en vivo, navegación por teclado verificada y código fuente listo para copiar.',
-    chips: ['20 piezas accesibles', 'Demo en vivo', 'Teclado y A11y'],
+      'Revisa componentes UI accesibles y efectos visuales usados en las clases con demostración en vivo, navegación por teclado y código real listo para aplicar en páginas web y aplicaciones.',
+    chips: ['20 piezas + efectos', 'Demo en vivo', 'Código real A11y'],
     image: componentesShot,
     alt: 'Vista interna del catálogo de Componentes UI en Códice Studio con selector lateral y demostración interactiva.',
   },
@@ -72,10 +72,10 @@ const ECOSYSTEM_MODULES: readonly EcosystemModuleItem[] = [
     number: '05',
     title: 'Códice de clases',
     routeLabel: 'codice',
-    shortMeta: 'Lecciones en SafeMarkdown y Obsidian',
+    shortMeta: 'Videos con menú desplegable de materiales',
     description:
-      'Documenta y comparte clases técnicas saneadas con SafeMarkdown, enlaza skills y componentes directamente en cada lección y conecta tu bóveda local de Obsidian.',
-    chips: ['SafeMarkdown', 'Clases del equipo', 'Bóveda Obsidian'],
+      'Aprende o publica clases en video (tuyas, de tu equipo o de la comunidad) con su kit desplegable listo: componentes, efectos, skills, modelo de IA, nivel, referencias y proyectos hechos enlazados.',
+    chips: ['Video + kit desplegable', 'Equipos y comunidad', 'Harness y Obsidian'],
     image: codiceShot,
     alt: 'Vista interna del módulo Códice de clases en Códice Studio con pestañas de clases propias y comunidad.',
   },
@@ -110,18 +110,19 @@ export const EcosystemModulesShowcase: React.FC = () => {
         <div className="eco-header">
           <p className="ld-eyebrow">
             <span aria-hidden="true" className="ld-eyebrow__bar" />
-            <span>Arquitectura modular · 5 módulos</span>
+            <span>Ecosistema integrado · 5 módulos</span>
           </p>
           <h2 id="benchmarks-h" className="ld-heading">
             <span className="ld-heading__mask">
-              <span className="ld-heading__line">Cinco módulos integrados</span>
+              <span className="ld-heading__line">Cinco módulos conectados</span>
             </span>
             <span className="ld-heading__mask">
-              <span className="ld-heading__line ld-accent">en Códice Studio</span>
+              <span className="ld-heading__line ld-accent">para crear con IA</span>
             </span>
           </h2>
           <p className="eco-intro">
-            Pulsa cada módulo para ver qué resuelve y cómo se ve el estudio por dentro al iniciar sesión con GitHub.
+            Pulsa cada módulo para ver cómo reúne clases con video, kit desplegable, efectos,
+            páginas de referencia y tu harness multi-agente al iniciar sesión.
           </p>
         </div>
 
