@@ -31,7 +31,23 @@ export const GUIDE_COPY = {
   stepsListLabel: 'Los tres pasos de la guía',
   announceStatic: 'Guía de 3 pasos',
   announceNoGuide: 'Vista sin guía',
+  /** Píldora de estado bajo el círculo (C10, C12). */
+  status: {
+    blind: 'A ciegas',
+    reduced: 'Guiado · 3 pasos',
+  },
 } as const;
+
+/** Texto de la píldora en «Con guía» con avance: «Guiado · Paso N de 3». */
+export const guideStatusText = (step: number): string =>
+  `Guiado · Paso ${step} de ${GUIDE_TOTAL_STEPS}`;
+
+/** Etiquetas cortas de los pasos en la tarjeta de barras (C11). */
+export const GUIDE_STEP_LABELS: Record<GuideStepId, string> = {
+  buscar: '1 · Buscar',
+  filtrar: '2 · Filtrar por categoría',
+  abrir: '3 · Abrir una skill',
+};
 
 export const GUIDE_STEP_TEXT: Record<GuideStepId, string> = {
   buscar: 'Empieza aquí: escribe lo que necesitas, como «auditoría» o «React».',

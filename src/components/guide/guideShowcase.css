@@ -1,0 +1,90 @@
+/*
+ * Maquetación de la sección «Guía vs. sin guía» (spec 005, C8).
+ * Vive en el chunk diferido de la sección (no en src/index.css). Propiedad del orquestador.
+ *
+ * ≥ 1024 px: dos columnas en espejo.
+ *   «Sin guía»  → escenario | panel
+ *   «Con guía»  → panel     | escenario
+ *   El selector queda centrado debajo, en una fila propia (no salta de lado al pulsarlo).
+ * < 1024 px: una columna (escenario, selector, panel), sin espejo.
+ */
+#guia .guia__cabecera {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 auto 2.5rem;
+  max-width: 46rem;
+  text-align: center;
+}
+
+#guia .guia__rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'escenario'
+    'selector'
+    'panel';
+  gap: 1.75rem;
+  align-items: center;
+}
+
+#guia .guia__escenario { grid-area: escenario; min-width: 0; }
+#guia .guia__selector { grid-area: selector; display: flex; justify-content: center; }
+#guia .guia__panel { grid-area: panel; min-width: 0; }
+
+@media (min-width: 1024px) {
+  #guia .guia__rejilla {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas:
+      'escenario panel'
+      'selector selector';
+    column-gap: 3.5rem;
+  }
+
+  #guia[data-mode='con-guia'] .guia__rejilla {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-areas:
+      'panel escenario'
+      'selector selector';
+  }
+
+  /* Al cambiar de modo, cada bloque entra deslizándose desde su lado anterior y fundiéndose (~500 ms). */
+  #guia[data-mode='sin-guia'] .guia__escenario { animation: guia-entra-izq 0.5s ease-out both; }
+  #guia[data-mode='sin-guia'] .guia__panel { animation: guia-entra-der 0.5s ease-out both; }
+  #guia[data-mode='con-guia'] .guia__escenario { animation: guia-entra-der-b 0.5s ease-out both; }
+  #guia[data-mode='con-guia'] .guia__panel { animation: guia-entra-izq-b 0.5s ease-out both; }
+}
+
+/* Pares «-b» idénticos: un nombre distinto por modo obliga a reiniciar la animación en cada cambio. */
+@keyframes guia-entra-izq { from { opacity: 0; transform: translateX(-2rem); } to { opacity: 1; transform: none; } }
+@keyframes guia-entra-der { from { opacity: 0; transform: translateX(2rem); } to { opacity: 1; transform: none; } }
+@keyframes guia-entra-izq-b { from { opacity: 0; transform: translateX(-2rem); } to { opacity: 1; transform: none; } }
+@keyframes guia-entra-der-b { from { opacity: 0; transform: translateX(2rem); } to { opacity: 1; transform: none; } }
+
+/* Tooltip del marco (migrado de src/index.css). */
+@keyframes guia-tip-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#guia .guia-tooltip {
+  animation: guia-tip-in 0.35s ease-out both;
+}
+
+/* Movimiento reducido (C12): cambio instantáneo y nada se anima, ni por media query ni por data-reduced. */
+@media (prefers-reduced-motion: reduce) {
+  #guia *,
+  #guia *::before,
+  #guia *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+#guia[data-reduced='true'] *,
+#guia[data-reduced='true'] *::before,
+#guia[data-reduced='true'] *::after {
+  animation: none !important;
+  transition: none !important;
+}
