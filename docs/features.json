@@ -114,7 +114,7 @@
       "id": "006",
       "nombre": "efectos-estilos-animaciones",
       "spec": "docs/specs/006-efectos-estilos-animaciones/spec.md",
-      "estado": "revision",
+      "estado": "hecho",
       "criterios": [
         { "id": "C1", "descripcion": "Selector «Componentes | Efectos» (clic y teclado): en Efectos la lista muestra solo Estilos (8) y Animaciones (10), cifras de cabecera de efectos, vuelta al kit sin mezclar, sin desbordamiento ni errores de consola/CSP en 1440/1024/768/390 px", "pasa": true },
         { "id": "C2", "descripcion": "Cada uno de los 18 efectos muestra apodo, nombre, descripción, cuadro en vivo, prompt en español no vacío, código real, notas de accesibilidad y miniatura ≤ 40 KB", "pasa": true },
@@ -128,7 +128,7 @@
       "id": "007",
       "nombre": "paginas-de-referencia",
       "spec": "docs/specs/007-paginas-de-referencia/spec.md",
-      "estado": "revision",
+      "estado": "hecho",
       "criterios": [
         { "id": "C1", "descripcion": "Ruta paginas con entrada «Páginas» tras Componentes en la barra de módulos (el desplegable de la portada lo retiró hero-forge), sin desbordamiento ni errores de consola/CSP en 1440/1024/768/390 px", "pasa": true },
         { "id": "C2", "descripcion": "Galería de 6 plantillas (Landing SaaS, Tienda online, Dashboard, Login/registro, Precios, Blog) con miniatura local, nombre, apodo y categoría, y chips de categoría con recuento y filtro", "pasa": true },

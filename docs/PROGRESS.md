@@ -11,6 +11,11 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-27 · Claude Code · `chore/cierre-007-paginas`
+- **Hecho:** el humano fusionó el PR #36 (`c81335f`), que integra la 006, `feat/hero-forge` y la 007; GitHub marcó el #35 como fusionado al ir incluido. La 006 y la 007 pasan a `hecho` en `features.json` y salen de «En curso» en `TASKS.md`. Se borran los worktrees y ramas de la 007 y de la integración.
+- **Pendiente:** `npm install` en la carpeta principal (llega `motion`). Decidir qué hacer con las ramas y worktrees de otras sesiones (`feat/hero-forge`, `feat/orbital-ai-agents`, `feat/006-efectos-estilos-animaciones`) y con los cambios sin commitear de la carpeta principal (`InformativeLandingSection.tsx`, `AiAgents3DStrip.tsx`, `aiAgents3D.css`, `src/assets/ai-icons/`).
+- **Problemas:** ninguno.
+
 ## 2026-11-27 · Claude Code (`Orquestador General`) · `chore/integracion-efectos-hero-forge-paginas`
 - **Hecho:**
   - **007 · Páginas de referencia** (spec y plan aprobados tras una sesión de *grilling*; rama `feat/006-paginas-de-referencia`, renumerada a 007 porque otra sesión abrió en paralelo la 006 de efectos). Fase 0 de contratos (`pageIds`, catálogo, registro y ruta `paginas`), Fase 1 en 4 sub-worktrees (galería y modal, 6 plantillas, clases y pruebas) e integración: miniaturas con `capture-pages.mjs`, `skillsShService` diferido en `App.tsx` (chunk inicial 350,4 → 340,3 kB) y arreglos de foco al cerrar la modal. Revisor independiente: REQUEST_CHANGES (icono violeta, ↑/↓ en zonas con scroll, lección en `docs/rules/`) y corregido; la lección de `main > section` la autorizó el humano.
