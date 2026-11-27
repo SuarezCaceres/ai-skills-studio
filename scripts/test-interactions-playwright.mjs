@@ -10,14 +10,18 @@
  *
  * Uso: node scripts/test-interactions-playwright.mjs
  */
-import { preview } from 'vite';
+import { build, preview } from 'vite';
 import { chromium } from 'playwright';
-import { resolve, dirname } from 'node:path';
+import { rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { TEST_CATALOG_REPO, TEST_CLIENT_ID, TEST_OAUTH_URL } from './lib/github-fixture.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const PORT = 5186;
+const OUT_DIR = join(tmpdir(), 'ai-skills-studio-interactions-e2e');
 
 const EXPECTED_NAV_LABELS = ['Inicio', 'Skills', 'Catálogo', 'Explorar', 'Componentes', 'Códice'];
 
@@ -143,8 +147,16 @@ function assert(cond, msg) {
 
 async function testInteractions() {
   console.log('🧪 Starting Interaction Test Suite with Playwright...');
+  // Compila su propio dist con el GitHub simulado: no depende de `.env.local` ni de `npm run build`.
+  process.env.VITE_CATALOG_REPO = TEST_CATALOG_REPO;
+  process.env.VITE_GITHUB_CLIENT_ID = TEST_CLIENT_ID;
+  process.env.VITE_GITHUB_OAUTH_URL = TEST_OAUTH_URL;
+  process.env.VITE_SKILLS_SH_PROXY_URL = '';
+  rmSync(OUT_DIR, { recursive: true, force: true });
+  await build({ root: ROOT, logLevel: 'error', build: { outDir: OUT_DIR, emptyOutDir: true } });
   const previewServer = await preview({
     root: ROOT,
+    build: { outDir: OUT_DIR },
     preview: {
       port: PORT,
       host: '127.0.0.1',

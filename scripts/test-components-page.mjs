@@ -2,20 +2,23 @@
  * Prueba de la página Componentes (E1): lista lateral, filtros, detalle con vista previa en vivo
  * y código real, estado «No asignado» y comportamiento de teclado de los componentes del kit.
  *
- * Usa `vite preview` sobre `dist/` (hay que compilar antes: `npm run build`) y SIMULA
+ * Compila su propio dist (en un directorio temporal, con el catálogo y OAuth de prueba), lo sirve con `vite preview` y SIMULA
  * `https://api.github.com` para no gastar la cuota anónima (60 peticiones/h por IP).
  *
  * Uso: node scripts/test-components-page.mjs
  */
-import { preview } from 'vite';
+import { build, preview } from 'vite';
 import { chromium } from 'playwright';
-import { mkdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { mkdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { TEST_CATALOG_REPO, TEST_CLIENT_ID, TEST_OAUTH_URL } from './lib/github-fixture.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const PORT = 5188;
+const OUT_DIR = join(tmpdir(), 'ai-skills-studio-components-page-e2e');
 const SHOTS_DIR = resolve(ROOT, 'shots', 'components');
 const EXPECTED = [
   'Accordion', 'Alerts', 'Avatar', 'Badge', 'Banner', 'Bottom Navigation', 'Breadcrumb', 'Buttons', 'Button Group',
@@ -62,7 +65,14 @@ const stage = (page) => page.locator('[data-preview-stage]');
 
 async function main() {
   mkdirSync(SHOTS_DIR, { recursive: true });
-  const server = await preview({ root: ROOT, preview: { port: PORT, host: '127.0.0.1', strictPort: true } });
+  // Compila su propio dist con el GitHub simulado: no depende de `.env.local` ni de `npm run build`.
+  process.env.VITE_CATALOG_REPO = TEST_CATALOG_REPO;
+  process.env.VITE_GITHUB_CLIENT_ID = TEST_CLIENT_ID;
+  process.env.VITE_GITHUB_OAUTH_URL = TEST_OAUTH_URL;
+  process.env.VITE_SKILLS_SH_PROXY_URL = '';
+  rmSync(OUT_DIR, { recursive: true, force: true });
+  await build({ root: ROOT, logLevel: 'error', build: { outDir: OUT_DIR, emptyOutDir: true } });
+  const server = await preview({ root: ROOT, build: { outDir: OUT_DIR }, preview: { port: PORT, host: '127.0.0.1', strictPort: true } });
   const origin = `http://127.0.0.1:${PORT}`;
   const browser = await chromium.launch({ headless: true });
   const errors = [];
