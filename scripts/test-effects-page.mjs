@@ -17,7 +17,6 @@
  */
 import { build, createServer, preview } from 'vite';
 import { chromium } from 'playwright';
-import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -709,12 +708,20 @@ function promptPhrase(prompt) {
 }
 
 function staticChecks(effects) {
-  const main = JSON.parse(execFileSync('git', ['show', 'main:package.json'], { cwd: ROOT, encoding: 'utf8' }));
-  const current = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
-  const added = ['dependencies', 'devDependencies'].flatMap((field) =>
-    Object.keys(current[field] ?? {}).filter((name) => !(name in (main[field] ?? {}))).map((name) => `${field}:${name}`)
+  // Los efectos no traen dependencias: solo importan React, lucide-react o archivos propios. Se mira el código
+  // de los efectos y no el package.json, que puede crecer por otras ramas sin que la 006 tenga nada que ver.
+  const ALLOWED_PACKAGES = new Set(['react', 'lucide-react']);
+  const effectFiles = [
+    ...readdirSync(resolve(ROOT, 'src/components/effects')).map((f) => `src/components/effects/${f}`),
+    ...readdirSync(resolve(ROOT, 'src/data/effects')).map((f) => `src/data/effects/${f}`),
+  ].filter((f) => /\.tsx?$/.test(f));
+  const foreign = effectFiles.flatMap((file) =>
+    [...readFileSync(resolve(ROOT, file), 'utf8').matchAll(/^\s*import\s[^'"]*?['"]([^'"]+)['"]/gm)]
+      .map((m) => m[1])
+      .filter((spec) => !spec.startsWith('.') && !ALLOWED_PACKAGES.has(spec))
+      .map((spec) => `${file} → ${spec}`)
   );
-  check('package.json sin dependencias nuevas respecto a main', added.length === 0, added.join(', '));
+  check(`los efectos solo importan react, lucide-react o archivos propios (${effectFiles.length} archivos)`, effectFiles.length >= 18 && foreign.length === 0, foreign.join(', '));
 
   const html = readFileSync(resolve(DIST, 'index.html'), 'utf8');
   const entryPath = html.match(/<script[^>]*type="module"[^>]*src="\.?\/?(bundle\/[^"]+\.js)"/)?.[1];

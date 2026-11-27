@@ -53,7 +53,7 @@ interface UiComponentMeta {
 | C3 | Copiar el prompt de 2 efectos y comparar `navigator.clipboard.readText()` con el texto mostrado; mensaje de estado visible |
 | C4 | «Repetir» remonta la demo (el nodo cambia y el texto del typewriter/contador vuelve al inicio); contexto con `reducedMotion: 'reduce'`: `getAnimations()` del cuadro vacío en los 18 y estado final visible (contador en su cifra final, texto completo) |
 | C5 | Clase guardada en `localStorage` que menciona un efecto → «Ver componente» abre Componentes en la pestaña Efectos con él marcado; asignar y desasignar una skill con el `installFakeGithub` de siempre |
-| C6 | `package.json` sin cambios; ninguna petición fuera de `127.0.0.1` (salvo Google Fonts, que la app ya pide); los efectos no aparecen en el chunk `index-*.js` (búsqueda de un prompt en `dist/`); chunk inicial < 350 kB; `test-components-page.mjs` y `test-components-assign.mjs` en verde |
+| C6 | los archivos de `effects/` solo importan `react`, `lucide-react` o archivos propios (no se compara `package.json`, que puede crecer por otras ramas como `feat/hero-forge`); ninguna petición fuera de `127.0.0.1` (salvo Google Fonts, que la app ya pide); los efectos no aparecen en el chunk `index-*.js` (búsqueda de un prompt en `dist/`); chunk inicial < 350 kB; `test-components-page.mjs` y `test-components-assign.mjs` en verde |
 
 ## Ejecución
 Secuencial, en esta rama y sin worktrees. Los efectos son 18 archivos independientes pero pequeños, y la integración (página, detalle, captura) depende del contrato. Paralelizar no compensa: la última vez la junction de `node_modules` dio problemas al quitar worktrees.
