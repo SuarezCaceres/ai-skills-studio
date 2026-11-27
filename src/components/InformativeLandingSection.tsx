@@ -1,24 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { AppPageRoute, SpecificModelVersion } from '../types/workspace';
+import React, { useEffect } from 'react';
+import { AppPageRoute } from '../types/workspace';
 import { ComputerLightBeamShowcase } from './ComputerLightBeamShowcase';
 
 interface InformativeLandingSectionProps {
   onNavigatePage: (page: AppPageRoute) => void;
-  onSelectModelVersion?: (version: SpecificModelVersion) => void;
-  onFilterByFramework?: (tag: string) => void;
 }
 
 const HUB_DIAGRAM_JSON = JSON.stringify({
   layout: 'hub',
   ground: 'dots',
-  alt: 'Códice Studio conecta archivos SKILL.md y paquetes ZIP con Obsidian, Claude, Gemini y Cursor.',
+  alt: 'Códice Studio conecta directivas SKILL.md y repositorios de GitHub con Obsidian, Claude, Gemini y Cursor.',
   center: {
     label: 'Códice Studio',
     icon: 'ui:layers',
   },
   spokes: [
     { label: 'SKILL.md', icon: 'skill' },
-    { label: 'Paquete ZIP', icon: 'zip' },
+    { label: 'GitHub', icon: 'github' },
     { label: 'Obsidian', icon: 'obsidian' },
     { label: 'Claude', icon: 'claude' },
     { label: 'Gemini', icon: 'gemini' },
@@ -42,10 +40,7 @@ declare global {
 
 export const InformativeLandingSection: React.FC<InformativeLandingSectionProps> = ({
   onNavigatePage,
-  onSelectModelVersion,
 }) => {
-  const [activeDesktopModel, setActiveDesktopModel] =
-    useState<SpecificModelVersion>('Opus 5.5');
   const diagramRef = React.useRef<HTMLDivElement | null>(null);
   const diagramInstanceRef = React.useRef<{ destroy?: () => void } | null>(null);
 
@@ -94,11 +89,6 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
     };
   }, []);
 
-  const handleModelClickInMockup = (version: SpecificModelVersion) => {
-    setActiveDesktopModel(version);
-    onSelectModelVersion?.(version);
-  };
-
   const openModule = (
     e: React.MouseEvent<HTMLAnchorElement>,
     page: AppPageRoute
@@ -110,31 +100,31 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
 
   return (
     <>
-      {/* 1. HERO CENTRADO (100svh · ventana interactiva con dock de 7 modelos IA) */}
+      {/* 1. HERO CENTRADO (100svh · laptop interactiva con los 4 flujos vigentes) */}
       <section className="hero hero--centred" data-enter aria-labelledby="hero-h">
         <div className="wrap">
           <div className="hero-text">
             <div className="hero__c">
               <span className="pill" role="status">
-                <span>Workspace VFS</span>
-                <span className="muted hidden sm:inline">Auditoría en memoria</span>
+                <span>Inspección GitHub</span>
+                <span className="muted hidden sm:inline">Fijada a commitSha</span>
               </span>
 
-              <h1 id="hero-h">IDE local de skills para equipos IA</h1>
+              <h1 id="hero-h">Catálogo e inspector de skills para equipos IA</h1>
 
               <p className="hero__lead">
-                Abre paquetes ZIP o carpetas locales en el navegador, audita archivos
-                SKILL.md línea por línea y compara 7 modelos sin subir código a ningún
-                servidor.
+                Audita directivas SKILL.md y su código fuente fijados a commitSha en
+                GitHub, descubre skills en skills.sh, prueba componentes UI accesibles y
+                documenta clases en Códice.
               </p>
 
               <div className="btn-row">
                 <a
                   className="btn btn--primary"
-                  href="#workspace"
-                  onClick={(e) => openModule(e, 'estudio')}
+                  href="#inspector"
+                  onClick={(e) => openModule(e, 'catalogo')}
                 >
-                  Abrir Workspace
+                  Explorar catálogo
                 </a>
                 <a className="btn btn--secondary" href="#capabilities">
                   Ver capacidades
@@ -145,36 +135,33 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
             <div
               className="hero__window"
               role="region"
-              aria-label="Laptop 3D interactiva de ingeniería con haces de luz y dock de inteligencias artificiales"
+              aria-label="Laptop 3D interactiva con vista previa de inspección por commitSha y módulos de Códice Studio"
             >
-              <ComputerLightBeamShowcase
-                activeModel={activeDesktopModel}
-                onSelectModel={handleModelClickInMockup}
-                onNavigatePage={onNavigatePage}
-              />
+              <ComputerLightBeamShowcase onNavigatePage={onNavigatePage} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. APP-FRAME (Lista VFS + Revisor Diff línea por línea) */}
-      <section className="section" id="workspace" aria-labelledby="workspace-h">
+      {/* 2. APP-FRAME (Lista de archivos de la skill + Inspector bajo demanda fijado a commitSha) */}
+      <section className="section" id="inspector" aria-labelledby="inspector-h">
         <div className="wrap">
           <div className="grid">
             <div className="span-5">
-              <h2 id="workspace-h">Workspace VFS: audita paquetes ZIP y carpetas en memoria</h2>
+              <h2 id="inspector-h">Inspección bajo demanda fijada al commit exacto</h2>
             </div>
             <div className="span-6 start-7 stack-4">
               <p className="muted">
-                Monta carpetas completas o archivos comprimidos en el sistema virtual,
-                revisa cada línea modificada y exporta un ZIP limpio con CRC-32 verificado.
+                Explora el catálogo del equipo o cualquier skill de GitHub en skills.sh,
+                descarga sus scripts bajo demanda desde su commitSha y verifica hallazgos
+                con AuditBadge antes de instalar.
               </p>
               <a
                 className="link"
                 href="#capabilities"
                 onClick={(e) => openModule(e, 'boveda')}
               >
-                Explorar catálogo SKILL.md
+                Explorar skills del equipo
               </a>
             </div>
           </div>
@@ -182,14 +169,14 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
           <div
             className="ui app fill"
             role="img"
-            aria-label="Explorador de archivos del workspace junto al revisor de cambios de rarParserService.ts"
+            aria-label="Lista de archivos auditados junto al inspector bajo demanda fijado a commitSha en FilesPanel.tsx"
             data-ui-pause-host
           >
             <div className="app__pane app__pane--list">
               <div
                 className="ui ui-panel ui-win"
                 data-ui="window"
-                data-open="Abierto"
+                data-open="Pendiente"
                 data-work="Auditando"
                 data-done="Verificado"
               >
@@ -200,7 +187,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <i />
                   </span>
                   <span className="ui-win__crumb">
-                    Workspace <i>/</i> <b>Revisión VFS</b>
+                    Catálogo <i>/</i> <b>Inspección commitSha</b>
                   </span>
                   <span className="ui-spacer" />
                   <span className="ui-win__search" aria-hidden="true">
@@ -219,20 +206,20 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                         <path d="M2.5 9h3l1 1.5h3l1-1.5h3" />
                         <path d="M2.5 9 4 3.5h8L13.5 9v3.5h-11z" />
                       </svg>
-                      Activos<em>10</em>
+                      Activos<em>12</em>
                     </span>
                     <span className="ui-win__nav">
                       <svg className="ui-icon" viewBox="0 0 16 16">
                         <path d="m3.5 8.4 2.8 2.8 6.2-6.4" />
                       </svg>
-                      Auditados<em>8</em>
+                      Auditados<em>10</em>
                     </span>
-                    <span className="ui-win__label">Skills</span>
+                    <span className="ui-win__label">Módulos</span>
                     <span className="ui-win__nav">
-                      <span className="ui-win__hash">#</span>design-taste
+                      <span className="ui-win__hash">#</span>catalogo
                     </span>
                     <span className="ui-win__nav">
-                      <span className="ui-win__hash">#</span>git-workflow
+                      <span className="ui-win__hash">#</span>skills-sh
                     </span>
                   </nav>
                   <div className="ui-win__main">
@@ -246,28 +233,28 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                       <li className="ui-win__row" data-row>
                         <span className="ui-avatar" data-tone="1">MS</span>
                         <span className="ui-win__who">Mateo Suárez</span>
-                        <span className="ui-win__sub">rarParserService.ts · +18 −6</span>
-                        <span className="ui-win__st" data-st>Abierto</span>
+                        <span className="ui-win__sub">FilesPanel.tsx · commitSha</span>
+                        <span className="ui-win__st" data-st>Pendiente</span>
                         <span className="ui-win__age">2m</span>
                       </li>
                       <li className="ui-win__row" data-row>
                         <span className="ui-avatar" data-tone="3">CS</span>
                         <span className="ui-win__who">Códice Auditor</span>
                         <span className="ui-win__sub">design-taste-frontend/SKILL.md</span>
-                        <span className="ui-win__st" data-st>Abierto</span>
+                        <span className="ui-win__st" data-st>Pendiente</span>
                         <span className="ui-win__age">5m</span>
                       </li>
                       <li className="ui-win__row" data-row>
                         <span className="ui-avatar" data-tone="4">VF</span>
                         <span className="ui-win__who">Valeria Fuentes</span>
-                        <span className="ui-win__sub">UnifiedProjectStudio.tsx · VFS</span>
-                        <span className="ui-win__st" data-st>Abierto</span>
+                        <span className="ui-win__sub">AuditBadge.tsx · Re-auditoría</span>
+                        <span className="ui-win__st" data-st>Pendiente</span>
                         <span className="ui-win__age">9m</span>
                       </li>
                       <li className="ui-win__row" data-row>
                         <span className="ui-avatar" data-tone="2">DR</span>
                         <span className="ui-win__who">Diego Rojas</span>
-                        <span className="ui-win__sub">securityHardening.ts · 25 MB</span>
+                        <span className="ui-win__sub">securityHardening.ts · 512 KB</span>
                         <span className="ui-win__st is-you" data-st>Revisión</span>
                         <span className="ui-win__age">14m</span>
                       </li>
@@ -288,21 +275,21 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                       <li className="ui-win__row" data-row>
                         <span className="ui-avatar" data-tone="1">CS</span>
                         <span className="ui-win__who">Códice Auditor</span>
-                        <span className="ui-win__sub">team.ts · Equipo</span>
+                        <span className="ui-win__sub">SkillsShPage.tsx · skills.sh</span>
                         <span className="ui-win__st is-done" data-st>Verificado</span>
                         <span className="ui-win__age">34m</span>
                       </li>
                       <li className="ui-win__row" data-row>
                         <span className="ui-avatar" data-tone="4">VF</span>
                         <span className="ui-win__who">Valeria Fuentes</span>
-                        <span className="ui-win__sub">aiModelsData.ts · 7 modelos</span>
+                        <span className="ui-win__sub">ComponentsPage.tsx · Kit UI</span>
                         <span className="ui-win__st is-done" data-st>Verificado</span>
                         <span className="ui-win__age">41m</span>
                       </li>
                       <li className="ui-win__row" data-row>
                         <span className="ui-avatar" data-tone="2">DR</span>
                         <span className="ui-win__who">Diego Rojas</span>
-                        <span className="ui-win__sub">workspace.ts · Tipos VFS</span>
+                        <span className="ui-win__sub">LessonsSection.tsx · Códice</span>
                         <span className="ui-win__st is-done" data-st>Verificado</span>
                         <span className="ui-win__age">48m</span>
                       </li>
@@ -337,8 +324,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                   <span className="ui-diff__repo">codice-studio</span>
                   <i className="ui-diff__slash" aria-hidden="true">/</i>
                   <span className="ui-diff__path">
-                    <span className="ui-diff__dir">src/services/</span>
-                    <b>rarParserService.ts</b>
+                    <span className="ui-diff__dir">src/components/catalog/</span>
+                    <b>FilesPanel.tsx</b>
                   </span>
                   <span className="ui-spacer" />
                   <span className="ui-diff__stat">
@@ -362,7 +349,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                 <div className="ui-diff__hunk">
                   <span>@@ -44,12 +44,14 @@</span>{' '}
                   <em className="ui-diff__sig truncate block">
-                    parseZipWorkspace(buffer) &#123;
+                    inspectSkillFileAtSha(repo, path, commitSha) &#123;
                   </em>
                 </div>
                 <div className="ui-diff__lines">
@@ -371,9 +358,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <i>44</i>
                     <span className="ui-diff__code" data-i="1">
                       <span className="ui-diff__ind">  </span>
-                      <span className="k">const</span> view ={' '}
-                      <span className="k">new</span>{' '}
-                      <span className="f">DataView</span>(buffer);
+                      <span className="k">const</span> safePath ={' '}
+                      <span className="f">assertSafeRelativePath</span>(path);
                     </span>
                   </div>
                   <div className="ui-diff__ln is-del">
@@ -381,7 +367,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <i />
                     <span className="ui-diff__code" data-i="1">
                       <span className="ui-diff__ind">  </span>
-                      <span className="k">const</span> safePath = entry.rawName;
+                      <span className="k">const</span> branch = <span className="s">&quot;main&quot;</span>;
                     </span>
                   </div>
                   <div className="ui-diff__ln is-add">
@@ -389,9 +375,9 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <i>45</i>
                     <span className="ui-diff__code" data-i="1">
                       <span className="ui-diff__ind">  </span>
-                      <span className="k">const</span> safePath ={' '}
+                      <span className="k">const</span> content ={' '}
                       <mark className="ui-diff__w">
-                        <span className="f">sanitizeArchiveEntryPath</span>(entry.rawName)
+                        <span className="f">getGithubFileAtSha</span>(repo, safePath, commitSha)
                       </mark>
                       ;
                     </span>
@@ -401,13 +387,11 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <i>46</i>
                     <span className="ui-diff__code" data-i="2">
                       <span className="ui-diff__ind">    </span>
-                      <span className="k">const</span> bytes ={' '}
-                      <span className="k">await</span>{' '}
-                      <span className="f">inflateRaw</span>(slice,{' '}
+                      <span className="k">if</span> (sizeBytes &gt;{' '}
                       <mark className="ui-diff__w">
-                        <span className="n">52428800</span>
+                        <span className="n">1048576</span>
                       </mark>
-                      );
+                      ) <span className="k">return</span> linkToGithub;
                     </span>
                   </div>
                   <div className="ui-diff__sug" data-diff-sug>
@@ -416,10 +400,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                       <i>46</i>
                       <span className="ui-diff__code" data-i="2">
                         <span className="ui-diff__ind">    </span>
-                        <span className="k">const</span> bytes ={' '}
-                        <span className="k">await</span>{' '}
-                        <span className="f">inflateRaw</span>(slice,{' '}
-                        <mark className="ui-diff__w">MAX_ARCHIVE_BYTES</mark>);
+                        <span className="k">if</span> (sizeBytes &gt;{' '}
+                        <mark className="ui-diff__w">MAX_INSPECT_BYTES</mark>) <span className="k">return</span> linkToGithub;
                       </span>
                     </div>
                   </div>
@@ -455,8 +437,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                       </span>
                     </div>
                     <div className="ui-diff__msg">
-                      Usa <code>MAX_ARCHIVE_BYTES</code> (25 MB) como en{' '}
-                      <code>securityHardening.ts</code>.
+                      Usa <code>MAX_INSPECT_BYTES</code> (512 KB) y fija la lectura al{' '}
+                      <code>commitSha</code> auditado.
                     </div>
                   </div>
                   <div className="ui-diff__ln">
@@ -464,9 +446,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <i>47</i>
                     <span className="ui-diff__code" data-i="2">
                       <span className="ui-diff__ind">    </span>
-                      <span className="k">const</span> hash ={' '}
-                      <span className="k">await</span>{' '}
-                      <span className="f">computeSha256</span>(bytes);
+                      <span className="k">const</span> audit ={' '}
+                      <span className="f">auditSkillContent</span>(mergedFiles);
                     </span>
                   </div>
                   <div className="ui-diff__ln is-del">
@@ -474,7 +455,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <i />
                     <span className="ui-diff__code" data-i="2">
                       <span className="ui-diff__ind">    </span>
-                      <span className="k">return</span> mockFallbackEntry;
+                      <span className="k">return</span> unverifiedPreview;
                     </span>
                   </div>
                   <div className="ui-diff__ln is-add">
@@ -484,7 +465,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                       <span className="ui-diff__ind">    </span>
                       <span className="k">return</span>{' '}
                       <mark className="ui-diff__w">
-                        <span className="f">createVfsTextEntry</span>(safePath, bytes, hash)
+                        <span className="f">renderInertSourceWithCopy</span>(content, audit)
                       </mark>
                       ;
                     </span>
@@ -493,9 +474,9 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <i />
                     <i>49</i>
                     <span className="ui-diff__code" data-i="2">
-                      <span className="ui-diff__ind">    </span>auditLog.
-                      <span className="f">record</span>(
-                      <span className="s">&quot;zip-verified&quot;</span>, archiveName);
+                      <span className="ui-diff__ind">    </span>auditBadge.
+                      <span className="f">refresh</span>(
+                      <span className="s">&quot;commit-pinned&quot;</span>, commitSha);
                     </span>
                   </div>
                   <div className="ui-diff__ln">
@@ -511,7 +492,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <span className="ui-diff__code" data-i="1">
                       <span className="ui-diff__ind">  </span>
                       <span className="k">return</span>{' '}
-                      <span className="f">sealWorkspaceSnapshot</span>(archiveName, entries);
+                      <span className="f">syncInstallPanel</span>(skill, audit);
                     </span>
                   </div>
                   <div className="ui-diff__ln">
@@ -528,7 +509,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                     <i>53</i>
                     <i>54</i>
                     <span className="ui-diff__code" data-i="0">
-                      <span className="k">export</span> &#123; parseZipWorkspace &#125;;
+                      <span className="k">export</span> &#123; inspectSkillFileAtSha &#125;;
                     </span>
                   </div>
                 </div>
@@ -543,14 +524,15 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         <div className="wrap">
           <div className="grid">
             <div className="span-5 split-col">
-              <h2 id="capabilities-h">Conecta directivas SKILL.md con tu entorno</h2>
+              <h2 id="capabilities-h">Conecta directivas SKILL.md con todo tu flujo</h2>
               <p>
-                Un único archivo SKILL.md sincroniza reglas de interfaz, seguridad y
-                commits entre tu bóveda local, tus agentes de código y tus paquetes ZIP.
+                Un único estándar sincroniza auditoría por commitSha, directorio
+                skills.sh, componentes UI accesibles y clases del equipo sin copias
+                locales.
               </p>
               <ul className="checks">
-                <li>Descompresión y empaquetado ZIP estándar con límite de 25 MB</li>
-                <li>Traducción técnica de documentación Markdown en un clic</li>
+                <li>Lectura bajo demanda desde GitHub fijada al commitSha auditado</li>
+                <li>Traducción fiel al español de documentación Markdown en un clic</li>
                 <li className="hidden sm:block">Componentes UI accesibles probados con navegación por teclado</li>
               </ul>
               <div className="split-col__end">
@@ -559,7 +541,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                   href="#benchmarks"
                   onClick={(e) => openModule(e, 'codice-studio')}
                 >
-                  Vincular bóveda de Obsidian
+                  Explorar clases en Códice
                 </a>
               </div>
             </div>
@@ -576,7 +558,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         </div>
       </section>
 
-      {/* 4. MODELOS IA (Momento dealt: iris-opens sobre ground-surface) */}
+      {/* 4. ECOSISTEMA Y MÓDULOS ACTIVOS (Momento dealt: iris-opens sobre ground-surface) */}
       <section
         className="section ground-surface"
         id="benchmarks"
@@ -587,67 +569,68 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         <div className="wrap">
           <div className="grid">
             <div className="span-5 split-col">
-              <h2 id="benchmarks-h">Siete modelos medidos en Códice Studio</h2>
+              <h2 id="benchmarks-h">Cinco módulos integrados en Códice Studio</h2>
               <p>
-                Comparamos velocidad de salida, latencia al primer token y contexto útil
-                sobre refactorizaciones TypeScript y auditorías SKILL.md reales.
+                Cada módulo opera sobre repositorios reales de GitHub y componentes
+                accesibles del estudio, con votos, reportes por modelo e inspección bajo
+                demanda en cada ficha.
               </p>
               <dl className="stats">
                 <div>
-                  <dt className="t-small muted">Velocidad pico</dt>
-                  <dd className="t-stat">178 tok/s</dd>
+                  <dt className="t-small muted">Trazabilidad</dt>
+                  <dd className="t-stat">commitSha</dd>
                 </div>
                 <div>
-                  <dt className="t-small muted">Contexto máximo</dt>
-                  <dd className="t-stat">2M tokens</dd>
+                  <dt className="t-small muted">Límite seguro</dt>
+                  <dd className="t-stat">512 KB</dd>
                 </div>
               </dl>
               <div className="split-col__end">
                 <a
                   className="link"
                   href="#faq"
-                  onClick={(e) => openModule(e, 'modelos-ia')}
+                  onClick={(e) => openModule(e, 'catalogo')}
                 >
-                  Abrir comparador completo
+                  Abrir catálogo comunitario
                 </a>
               </div>
             </div>
 
             <ul className="rows span-6 start-7">
               <li>
-                <span className="rows__name">Claude Opus 5.5</span>
-                <p>Arquitectura de software y contratos TypeScript · 200K</p>
-                <span className="rows__value">88 tok/s</span>
+                <span className="rows__name">Skills del equipo</span>
+                <p>Publicación directa en GitHub, historial y perfiles · SKILL.md</p>
+                <span className="rows__value">Equipo</span>
               </li>
               <li>
-                <span className="rows__name">Gemini 3.8 Pro</span>
-                <p>Inspección completa de repositorios grandes · 2M</p>
-                <span className="rows__value">178 tok/s</span>
+                <span className="rows__name">Catálogo comunitario</span>
+                <p>Votos, auditoría de seguridad y veredictos por modelo · Issue</p>
+                <span className="rows__value">Catálogo</span>
               </li>
               <li>
-                <span className="rows__name">Claude Sonnet 5.5</span>
-                <p>Componentes React 19 y sistemas de diseño · 200K</p>
-                <span className="rows__value">128 tok/s</span>
+                <span className="rows__name">Explorar skills.sh</span>
+                <p>Vista previa en solo lectura fijada a commitSha e importación · Live</p>
+                <span className="rows__value">skills.sh</span>
               </li>
               <li className="sm-row-hidden">
-                <span className="rows__name">GPT Astra</span>
-                <p>Auditoría semántica de flujos Git y PR · 256K</p>
-                <span className="rows__value">142 tok/s</span>
+                <span className="rows__name">Componentes UI</span>
+                <p>20 piezas accesibles con demostración en vivo y código real · A11y</p>
+                <span className="rows__value">Kit propio</span>
               </li>
               <li className="sm-row-hidden">
-                <span className="rows__name">Gemini 3.7 Flash</span>
-                <p>Validación instantánea de rutas y hashes · 1M</p>
-                <span className="rows__value">164 tok/s</span>
+                <span className="rows__name">Códice de clases</span>
+                <p>Lecciones en SafeMarkdown vinculadas a skills y componentes · Equipo</p>
+                <span className="rows__value">Obsidian</span>
               </li>
               <li className="sm-row-hidden">
-                <span className="rows__name">Claude Opus 4.8</span>
-                <p>Servicios backend e invariantes de dominio · 200K</p>
-                <span className="rows__value">76 tok/s</span>
+                <span className="rows__name">Inspector bajo demanda</span>
+                <p>Lectura inerte de scripts y re-auditoría automática · SHA</p>
+                <span className="rows__value">512 KB</span>
               </li>
               <li className="sm-row-hidden">
-                <span className="rows__name">GPT Luna</span>
-                <p>Modo nocturno y calibración de contraste AAA · 256K</p>
-                <span className="rows__value">136 tok/s</span>
+                <span className="rows__name">Reportes por modelo</span>
+                <p>Evaluación práctica de modelos integrada en cada ficha · Veredicto</p>
+                <span className="rows__value">GitHub</span>
               </li>
             </ul>
           </div>
@@ -661,17 +644,17 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
             <div className="span-5 split-col">
               <h2 id="faq-h">Preguntas sobre Códice Studio y tus skills</h2>
               <p className="muted">
-                Privacidad en cliente, formatos admitidos, bóvedas locales y permisos de
-                edición.
+                Inspección segura por commitSha, vista previa de skills.sh, sesión OAuth
+                en memoria y permisos de publicación.
               </p>
               <dl className="stats hidden sm:grid">
                 <div>
-                  <dt className="t-small muted">Privacidad</dt>
-                  <dd className="t-stat">100% local</dd>
+                  <dt className="t-small muted">Token OAuth</dt>
+                  <dd className="t-stat">En memoria</dd>
                 </div>
                 <div>
-                  <dt className="t-small muted">Algoritmo</dt>
-                  <dd className="t-stat">SHA-256</dd>
+                  <dt className="t-small muted">Lectura</dt>
+                  <dd className="t-stat">commitSha</dd>
                 </div>
               </dl>
               <div className="split-col__end">
@@ -693,35 +676,38 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
 
             <div className="faq span-6 start-7">
               <div className="faq__item">
-                <h3>01. Seguridad del código: ¿sube a algún servidor externo?</h3>
+                <h3>01. Seguridad de inspección: ¿se ejecutan los scripts en el navegador?</h3>
                 <p>
-                  No. La descompresión ZIP, hashing SHA-256 y edición ocurren íntegramente
-                  en la memoria de tu navegador.
+                  No. Cada archivo distinto de SKILL.md se descarga bajo demanda desde su
+                  commitSha en GitHub y se muestra como texto plano inerte con re-auditoría.
                 </p>
               </div>
               <div className="faq__item">
-                <h3>02. Formatos admitidos: ¿qué archivos de proyecto puedo abrir?</h3>
+                <h3>02. Integridad por commit: ¿por qué se fija la lectura a un commitSha?</h3>
                 <p>
-                  Carpetas locales, archivos ZIP estándar y documentos técnicos de hasta 25 MB.
+                  Para garantizar que los scripts leídos en Archivos y verificados por
+                  AuditBadge coinciden exactamente con la revisión auditada antes de instalar.
                 </p>
               </div>
               <div className="faq__item">
-                <h3>03. Migración RAR: ¿qué ocurre si cargo un archivo antiguo?</h3>
+                <h3>03. Directorio externo: ¿cómo funciona Explorar (skills.sh)?</h3>
                 <p>
-                  El inspector detecta su cabecera binaria y ofrece convertirlo a ZIP estándar.
+                  Las skills alojadas en GitHub se abren en vista previa de solo lectura con
+                  traducción y archivos bajo demanda; las fuentes .well-known conservan npx.
                 </p>
               </div>
               <div className="faq__item sm-faq-hidden">
-                <h3>04. Acceso local: ¿necesito cuenta para auditar workspaces?</h3>
+                <h3>04. Acceso de visitante: ¿necesito cuenta para consultar el estudio?</h3>
                 <p>
-                  No. El modo visitante permite montar carpetas, editar directivas y exportar ZIPs.
+                  No. Puedes explorar Catálogo, Equipos, Explorar, Componentes y Códice sin
+                  sesión; GitHub OAuth solo se pide al publicar, votar, reportar o importar.
                 </p>
               </div>
               <div className="faq__item sm-faq-hidden">
-                <h3>05. Directivas de agentes: ¿cómo exporto los cambios a disco?</h3>
+                <h3>05. Privacidad y Markdown: ¿dónde vive mi sesión de GitHub?</h3>
                 <p>
-                  Exporta el archivo SKILL.md o paquete ZIP para cargarlo en Claude, Gemini,
-                  Cursor o tu bóveda de Obsidian directamente.
+                  El token OAuth permanece únicamente en memoria durante la pestaña activa y
+                  todo Markdown externo se sanea con SafeMarkdown antes de mostrarse.
                 </p>
               </div>
             </div>

@@ -5,20 +5,20 @@ import {
   Copy,
   Download,
   ExternalLink,
-  FolderCode,
+  Eye,
   Github,
   Globe,
   Loader2,
   TrendingUp,
 } from 'lucide-react';
-import type { SkillsShEntry } from '../../types/skillsSh';
+import type { SkillsShBusyKind, SkillsShEntry } from '../../types/skillsSh';
 
 export interface SkillsShCardProps {
   entry: SkillsShEntry;
   rank?: number;
-  onOpenInWorkspace: (entry: SkillsShEntry) => Promise<void>;
+  onInspectSkill: (entry: SkillsShEntry) => Promise<void>;
   onImportToCatalog: (entry: SkillsShEntry) => Promise<void>;
-  busyKind?: 'workspace' | 'import' | null;
+  busyKind?: SkillsShBusyKind | null;
   anyBusy?: boolean;
 }
 
@@ -59,12 +59,12 @@ function safeHttpUrl(raw?: string): string | null {
 /**
  * Tarjeta de una skill indexada en skills.sh.
  * Muestra posición de ranking, instalaciones, origen, comando `npx skills add`
- * copiable y acciones de integración con Workspace y Catálogo.
+ * copiable y acciones de inspección en vista previa e importación al Catálogo.
  */
 export function SkillsShCard({
   entry,
   rank,
-  onOpenInWorkspace,
+  onInspectSkill,
   onImportToCatalog,
   busyKind = null,
   anyBusy = false,
@@ -112,7 +112,7 @@ export function SkillsShCard({
   const skillsShUrl = safeHttpUrl(entry.skillsShUrl);
   const githubUrl = safeHttpUrl(entry.githubUrl);
   const hasPositiveChange = typeof entry.change === 'number' && entry.change > 0;
-  const isWorkspaceBusy = busyKind === 'workspace';
+  const isInspectBusy = busyKind === 'inspect';
   const isImportBusy = busyKind === 'import';
 
   return (
@@ -222,21 +222,25 @@ export function SkillsShCard({
               <button
                 type="button"
                 disabled={anyBusy}
-                onClick={() => void onOpenInWorkspace(entry)}
-                aria-label={`Abrir ${entry.name} en Workspace`}
+                aria-busy={isInspectBusy}
+                onClick={() => void onInspectSkill(entry)}
+                aria-label={`Inspeccionar ${entry.name}`}
                 className={`inline-flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-[#0ea5e9]/60 bg-[#0ea5e9]/10 px-3 py-2 text-xs font-semibold text-[#38bdf8] transition hover:bg-[#0ea5e9] hover:text-[#0a0d14] disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS}`}
               >
-                {isWorkspaceBusy ? (
+                {isInspectBusy ? (
                   <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden="true" />
                 ) : (
-                  <FolderCode className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                 )}
-                <span className="truncate">Abrir en Workspace</span>
+                <span className="truncate">
+                  {isInspectBusy ? 'Inspeccionando…' : 'Inspeccionar'}
+                </span>
               </button>
 
               <button
                 type="button"
                 disabled={anyBusy}
+                aria-busy={isImportBusy}
                 onClick={() => void onImportToCatalog(entry)}
                 aria-label={`Importar ${entry.name} al catálogo comunitario`}
                 className={`inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-700 bg-[#0a0d14] px-3 py-2 text-xs font-semibold text-slate-200 transition hover:border-[#0ea5e9] hover:text-[#38bdf8] disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS}`}

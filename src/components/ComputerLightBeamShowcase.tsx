@@ -1,224 +1,190 @@
-import React, { useState, useEffect } from 'react';
-import { AppPageRoute, SpecificModelVersion } from '../types/workspace';
-import {
-  ClaudeBrandIcon,
-  GeminiBrandIcon,
-  GPTBrandIcon,
-  DeepSeekBrandIcon,
-} from './BrandIcons';
+import React, { useState } from 'react';
+import { AppPageRoute } from '../types/workspace';
 import {
   FileCode,
-  Zap,
-  Activity,
+  ShieldCheck,
+  Globe,
   Layers,
   Sparkles,
   ExternalLink,
-  Fingerprint,
-  Code2,
-  Terminal,
+  CheckCircle2,
+  Lock,
 } from 'lucide-react';
 
 interface ComputerLightBeamShowcaseProps {
-  activeModel: SpecificModelVersion;
-  onSelectModel: (version: SpecificModelVersion) => void;
   onNavigatePage: (page: AppPageRoute) => void;
 }
 
-interface DiffRow {
+interface CodePreviewRow {
   num: string;
   type: 'info' | 'context' | 'del' | 'add';
   text: string;
 }
 
-interface BigFourAIProfile {
-  version: SpecificModelVersion;
+interface StudioFlowSlide {
+  id: 'catalogo' | 'explorar' | 'componentes' | 'codice';
+  route: AppPageRoute;
   shortLabel: string;
-  provider: 'Claude' | 'Gemini' | 'GPT' | 'DeepSeek';
-  brandColor: string;
+  badgeText: string;
   accentColor: string;
   glowShadow: string;
   beamGradient: string;
   activeFile: string;
-  speed: string;
-  latency: string;
-  context: string;
-  reasoningScore: string;
-  benchmarkHighlight: string;
+  metricPrimary: string;
+  metricSecondary: string;
+  metricContext: string;
+  statusTag: string;
   specialty: string;
-  skillApplied: string;
-  diffLines: DiffRow[];
+  moduleApplied: string;
+  ctaLabel: string;
+  codeLines: CodePreviewRow[];
   summaryLine: string;
+  Icon: React.FC<{ className?: string; style?: React.CSSProperties }>;
 }
 
-const BIG_FOUR_MODELS: BigFourAIProfile[] = [
+const STUDIO_FLOW_SLIDES: StudioFlowSlide[] = [
   {
-    version: 'Opus 5.5',
-    shortLabel: 'Claude Opus 5.5',
-    provider: 'Claude',
-    brandColor: '#d97757',
-    accentColor: '#f97316',
-    glowShadow: 'rgba(217, 119, 87, 0.40)',
+    id: 'catalogo',
+    route: 'boveda',
+    shortLabel: 'Catálogo + Inspector',
+    badgeText: 'commitSha',
+    accentColor: '#0ea5e9',
+    glowShadow: 'rgba(14, 165, 233, 0.40)',
     beamGradient:
-      'linear-gradient(180deg, rgba(217, 119, 87, 0.45) 0%, rgba(249, 115, 22, 0.18) 50%, transparent 100%)',
-    activeFile: 'skills/design-taste-frontend/SKILL.md',
-    speed: '88 tok/s',
-    latency: '420 ms',
-    context: '200K tokens',
-    reasoningScore: '98.4%',
-    benchmarkHighlight: 'SWE-bench 52.4% · HumanEval 92.8%',
-    specialty: 'Arquitectura limpia, contratos TypeScript y estética anti-slop',
-    skillApplied: 'design-taste-frontend',
-    diffLines: [
-      { num: '01', type: 'info', text: '@@ -12,6 +12,8 @@ export interface SkillDesignSpec {' },
-      { num: '02', type: 'del', text: '- herogradient: "purple-gradient",' },
-      { num: '03', type: 'add', text: '+ surface: "#0a0d14", // 92% dark carbon' },
-      { num: '04', type: 'add', text: '+ cardSurface: "#121722", // Swiss minimal' },
-      { num: '05', type: 'add', text: '+ accentFunctional: "#0ea5e9", // Cyan' },
-      { num: '06', type: 'context', text: '  strictContrastRatio: 14.8' },
+      'linear-gradient(180deg, rgba(14, 165, 233, 0.42) 0%, rgba(56, 189, 248, 0.16) 50%, transparent 100%)',
+    activeFile: 'src/components/catalog/FilesPanel.tsx',
+    metricPrimary: 'commitSha fijado',
+    metricSecondary: '512 KB máx',
+    metricContext: 'Texto inerte',
+    statusTag: 'AuditBadge activo',
+    specialty: 'Descarga bajo demanda fijada a commitSha y re-auditoría de scripts',
+    moduleApplied: 'catalogo-commit-sha',
+    ctaLabel: 'Abrir en Catálogo',
+    Icon: ShieldCheck,
+    codeLines: [
+      { num: '01', type: 'info', text: '@@ Inspección segura por commitSha @@' },
+      { num: '02', type: 'context', text: 'const content = await getSkillFileContent(skill.id, path);' },
+      { num: '03', type: 'add', text: '+ const audit = auditSkillContent(mergedFiles);' },
+      { num: '04', type: 'add', text: '+ assertSafeRelativePath(path) && bytes <= 524_288;' },
+      { num: '05', type: 'add', text: '+ renderPlainTextWithCopy(content, commitSha);' },
+      { num: '06', type: 'context', text: 'return <AuditBadge findings={audit.findings} />;' },
     ],
-    summaryLine: 'Auditoría estructural y contratos TypeScript estrictos',
+    summaryLine: 'Lee cada archivo real desde su commitSha exacto antes de instalar',
   },
   {
-    version: 'Gemini 3.8',
-    shortLabel: 'Gemini 3.8 Pro',
-    provider: 'Gemini',
-    brandColor: '#0ea5e9',
+    id: 'explorar',
+    route: 'skills-sh',
+    shortLabel: 'Explorar skills.sh',
+    badgeText: 'Vista previa',
     accentColor: '#38bdf8',
-    glowShadow: 'rgba(14, 165, 233, 0.42)',
+    glowShadow: 'rgba(56, 189, 248, 0.38)',
     beamGradient:
-      'linear-gradient(180deg, rgba(14, 165, 233, 0.45) 0%, rgba(56, 189, 248, 0.20) 50%, transparent 100%)',
-    activeFile: 'src/services/rarParserService.ts',
-    speed: '178 tok/s',
-    latency: '210 ms',
-    context: '2M tokens',
-    reasoningScore: '97.2%',
-    benchmarkHighlight: 'Long-Context 99.4% · SWE-bench 50.8%',
-    specialty: 'Descompresión VFS en navegador y contexto masivo 2M tokens',
-    skillApplied: 'vfs-zip-engine',
-    diffLines: [
-      { num: '01', type: 'info', text: '@@ -44,6 +44,8 @@ async function mountVfsPackage(file) {' },
-      { num: '02', type: 'del', text: '- const rawBytes = mockExtractArchive(file);' },
-      { num: '03', type: 'add', text: '+ const decompressed = await file.stream().pipeThrough(stream);' },
-      { num: '04', type: 'add', text: '+ const sha256 = await crypto.subtle.digest("SHA-256", bytes);' },
-      { num: '05', type: 'add', text: '+ this.registerTelemetry("2M-context", sha256);' },
-      { num: '06', type: 'context', text: '  return verifyAndBuildVfsTree(decompressed, sha256);' },
+      'linear-gradient(180deg, rgba(56, 189, 248, 0.40) 0%, rgba(14, 165, 233, 0.15) 50%, transparent 100%)',
+    activeFile: 'src/components/skills-sh/SkillsShPage.tsx',
+    metricPrimary: 'GitHub en vivo',
+    metricSecondary: 'Solo lectura',
+    metricContext: 'npx + Importar',
+    statusTag: 'Inspección unificada',
+    specialty: 'Vista previa completa en SkillDetailPage sin copias locales',
+    moduleApplied: 'explorar-skills-sh',
+    ctaLabel: 'Ir a Explorar',
+    Icon: Globe,
+    codeLines: [
+      { num: '01', type: 'info', text: '@@ Explorar → Detalle en modo vista previa @@' },
+      { num: '02', type: 'context', text: 'const resolved = await inspectGithubSkillByHint(source, id);' },
+      { num: '03', type: 'add', text: '+ openPreviewDetail(resolved.skill, { readOnly: true });' },
+      { num: '04', type: 'add', text: '+ showTranslateEs() && showFilesAtSha(resolved.commitSha);' },
+      { num: '05', type: 'add', text: '+ onImportToCatalog(() => registerSkillFromUrl(url));' },
+      { num: '06', type: 'context', text: '/* Fuentes .well-known conservan su comando npx */' },
     ],
-    summaryLine: 'Lectura íntegra de repositorios ZIP y carpetas completas en memoria',
+    summaryLine: 'Inspecciona SKILL.md y archivos externos en solo lectura e importa al catálogo',
   },
   {
-    version: 'GPT Astra',
-    shortLabel: 'GPT Astra',
-    provider: 'GPT',
-    brandColor: '#10b981',
-    accentColor: '#34d399',
-    glowShadow: 'rgba(16, 185, 129, 0.40)',
+    id: 'componentes',
+    route: 'preview',
+    shortLabel: 'Componentes UI',
+    badgeText: '20 piezas',
+    accentColor: '#10b981',
+    glowShadow: 'rgba(16, 185, 129, 0.36)',
     beamGradient:
-      'linear-gradient(180deg, rgba(16, 185, 129, 0.45) 0%, rgba(52, 211, 153, 0.18) 50%, transparent 100%)',
-    activeFile: 'skills/github-workflow-standards/SKILL.md',
-    speed: '142 tok/s',
-    latency: '260 ms',
-    context: '256K tokens',
-    reasoningScore: '96.5%',
-    benchmarkHighlight: 'Conventional Commits 99.2% · HumanEval 89.6%',
-    specialty: 'Trazabilidad semántica, Pull Requests estructurados y CI/CD',
-    skillApplied: 'github-workflow-standards',
-    diffLines: [
-      { num: '01', type: 'info', text: '@@ -8,5 +8,7 @@ rule ConventionalCommits {' },
-      { num: '02', type: 'del', text: '- commitFormat: "free-form"' },
-      { num: '03', type: 'add', text: '+ commitFormat: "<type>(<scope>): <subject>"' },
-      { num: '04', type: 'add', text: '+ prSections: ["¿Qué?", "¿Por qué?", "¿Cómo?"]' },
-      { num: '05', type: 'add', text: '+ gitHubWorkflowIntegrity: "A++ verified";' },
-      { num: '06', type: 'context', text: '  strictEnforcement: true' },
+      'linear-gradient(180deg, rgba(16, 185, 129, 0.38) 0%, rgba(14, 165, 233, 0.15) 50%, transparent 100%)',
+    activeFile: 'src/components/ui-kit/Drawer.tsx',
+    metricPrimary: 'WCAG AA',
+    metricSecondary: 'Teclado 100%',
+    metricContext: 'Código real',
+    statusTag: 'Kit UI propio',
+    specialty: 'Componentes accesibles en vivo, foco controlado y asignación a skills',
+    moduleApplied: 'ui-kit-accesible',
+    ctaLabel: 'Ver Componentes',
+    Icon: Layers,
+    codeLines: [
+      { num: '01', type: 'info', text: '@@ Kit UI propio con portales y teclado @@' },
+      { num: '02', type: 'context', text: 'return createPortal(' },
+      { num: '03', type: 'add', text: '+ <div role="dialog" aria-modal="true" onKeyDown={onEsc}>' },
+      { num: '04', type: 'add', text: '+   <FocusTrap restoreFocusOnClose>{children}</FocusTrap>' },
+      { num: '05', type: 'add', text: '+ </div>,' },
+      { num: '06', type: 'context', text: 'document.body );' },
     ],
-    summaryLine: 'Validación semántica de commits y trazabilidad de Pull Requests',
+    summaryLine: 'Prueba 20 componentes accesibles en vivo y copia su código TypeScript',
   },
   {
-    version: 'DeepSeek V3',
-    shortLabel: 'DeepSeek V3',
-    provider: 'DeepSeek',
-    brandColor: '#2563eb',
-    accentColor: '#60a5fa',
-    glowShadow: 'rgba(37, 99, 235, 0.44)',
+    id: 'codice',
+    route: 'codice-studio',
+    shortLabel: 'Códice',
+    badgeText: 'Clases',
+    accentColor: '#0284c7',
+    glowShadow: 'rgba(2, 132, 199, 0.40)',
     beamGradient:
-      'linear-gradient(180deg, rgba(37, 99, 235, 0.45) 0%, rgba(96, 165, 250, 0.18) 50%, transparent 100%)',
-    activeFile: 'src/services/deepSeekMoEEngine.ts',
-    speed: '135 tok/s',
-    latency: '230 ms',
-    context: '128K tokens',
-    reasoningScore: '96.2%',
-    benchmarkHighlight: 'SWE-bench 49.2% · MoE Latent Attention 98%',
-    specialty: 'Inferencia MoE distribuida, compresión MLA y precisión matemática',
-    skillApplied: 'deepseek-moe-reasoning',
-    diffLines: [
-      { num: '01', type: 'info', text: '@@ -18,6 +18,8 @@ export class DeepSeekMoEInference {' },
-      { num: '02', type: 'del', text: '- private quantMode: "fp16-unoptimized";' },
-      { num: '03', type: 'add', text: '+ private quantMode: "mla-deepseek-fp8";' },
-      { num: '04', type: 'add', text: '+ private dynamicRoutingCache: Map<string, Tensor>;' },
-      { num: '05', type: 'add', text: '+ return this.multiHeadLatentAttention(tokens);' },
-      { num: '06', type: 'context', text: '  readonly activeExperts: number = 8;' },
+      'linear-gradient(180deg, rgba(2, 132, 199, 0.42) 0%, rgba(56, 189, 248, 0.16) 50%, transparent 100%)',
+    activeFile: 'src/components/lessons/LessonEditor.tsx',
+    metricPrimary: 'SafeMarkdown',
+    metricSecondary: 'Skills equipo',
+    metricContext: 'Obsidian',
+    statusTag: 'Conocimiento vivo',
+    specialty: 'Clases técnicas vinculadas a skills reales del equipo y componentes',
+    moduleApplied: 'codice-clases-equipo',
+    ctaLabel: 'Abrir Códice',
+    Icon: Sparkles,
+    codeLines: [
+      { num: '01', type: 'info', text: '@@ Clases del equipo vinculadas al catálogo @@' },
+      { num: '02', type: 'context', text: 'const teamSkills = useSkillOptions(); // solo GitHub equipo' },
+      { num: '03', type: 'add', text: '+ <SkillPicker skills={teamSkills} value={draft.skillIds} />' },
+      { num: '04', type: 'add', text: '+ <ComponentPicker value={draft.componentIds} />' },
+      { num: '05', type: 'add', text: '+ <SafeMarkdown source={draft.bodyMarkdown} />' },
+      { num: '06', type: 'context', text: 'exportJson() // respaldo portable y seguro' },
     ],
-    summaryLine: 'Inferencia MoE con Multi-Head Latent Attention y cuantización FP8',
+    summaryLine: 'Documenta aprendizajes técnicos en Markdown saneado y compártelos',
   },
 ];
 
-const VFS_TREE_PREVIEW = [
-  { name: 'SKILL.md', status: 'M' },
-  { name: 'rarParserService.ts', status: 'M' },
-  { name: 'UnifiedStudio.tsx', status: 'M' },
-  { name: 'securityHardening.ts', status: 'OK' },
-  { name: 'skill-bundle.json', status: 'A' },
+const INSPECTOR_TREE_PREVIEW = [
+  { name: 'SKILL.md', status: 'SHA' },
+  { name: 'FilesPanel.tsx', status: 'ON' },
+  { name: 'AuditBadge.tsx', status: 'OK' },
+  { name: 'Drawer.tsx', status: 'UI' },
+  { name: 'LessonEditor.tsx', status: 'MD' },
 ];
 
 export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps> = ({
-  activeModel,
-  onSelectModel,
   onNavigatePage,
 }) => {
-  const [localModel, setLocalModel] = useState<SpecificModelVersion>(activeModel);
+  const [activeSlideId, setActiveSlideId] = useState<StudioFlowSlide['id']>('catalogo');
+  const [hoveredSlide, setHoveredSlide] = useState<StudioFlowSlide | null>(null);
   const [touchIdPulse, setTouchIdPulse] = useState(false);
   const [trackpadRipple, setTrackpadRipple] = useState(false);
 
-  useEffect(() => {
-    if (activeModel) {
-      setLocalModel(activeModel);
-    }
-  }, [activeModel]);
+  const activeSlide =
+    STUDIO_FLOW_SLIDES.find((s) => s.id === activeSlideId) || STUDIO_FLOW_SLIDES[0];
+  const displayedSlide = hoveredSlide || activeSlide;
 
-  const effectiveModel = localModel || activeModel;
-
-  const activeStation =
-    BIG_FOUR_MODELS.find((m) => m.version === effectiveModel) ||
-    BIG_FOUR_MODELS.find(
-      (m) =>
-        (effectiveModel.includes('Opus') || effectiveModel.includes('Sonnet')) &&
-        m.provider === 'Claude'
-    ) ||
-    BIG_FOUR_MODELS.find(
-      (m) => effectiveModel.includes('Gemini') && m.provider === 'Gemini'
-    ) ||
-    BIG_FOUR_MODELS.find(
-      (m) => effectiveModel.includes('GPT') && m.provider === 'GPT'
-    ) ||
-    BIG_FOUR_MODELS[0];
-
-  const [hoveredStation, setHoveredStation] = useState<BigFourAIProfile | null>(
-    null
-  );
-
-  const displayedStation = hoveredStation || activeStation;
-
-  // Ciclo al siguiente modelo mediante el Touch ID interactivo
+  // Ciclo al siguiente módulo mediante el Touch ID interactivo
   const handleTouchIdClick = () => {
     setTouchIdPulse(true);
     setTimeout(() => setTouchIdPulse(false), 600);
 
-    const currentIndex = BIG_FOUR_MODELS.findIndex(
-      (m) => m.version === activeStation.version
-    );
-    const nextIndex = (currentIndex + 1) % BIG_FOUR_MODELS.length;
-    const nextModel = BIG_FOUR_MODELS[nextIndex].version;
-    setLocalModel(nextModel);
-    onSelectModel(nextModel);
+    const currentIndex = STUDIO_FLOW_SLIDES.findIndex((s) => s.id === activeSlide.id);
+    const nextIndex = (currentIndex + 1) % STUDIO_FLOW_SLIDES.length;
+    setActiveSlideId(STUDIO_FLOW_SLIDES[nextIndex].id);
   };
 
   const handleTrackpadClick = () => {
@@ -226,106 +192,92 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
     setTimeout(() => setTrackpadRipple(false), 500);
   };
 
+  const ActiveIcon = displayedSlide.Icon;
+
   return (
     <div className="relative w-full max-w-5xl mx-auto py-2 sm:py-3 select-none">
-      {/* ====================================================================
-          1. HAZ DE LUZ VOLUMÉTRICO Y RESPLANDOR DIFUMINADO DE FONDO (FONDO ÚNICO)
-         ==================================================================== */}
+      {/* 1. HAZ DE LUZ VOLUMÉTRICO Y RESPLANDOR DIFUMINADO */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 -top-16 sm:-top-24 h-96 sm:h-[540px] flex justify-center overflow-hidden transition-all duration-700 z-0"
       >
-        {/* Cono de luz volumétrica difuminado */}
         <div
           className="w-[95%] sm:w-[80%] h-full opacity-70 sm:opacity-85 blur-3xl transition-all duration-700"
           style={{
-            background: displayedStation.beamGradient,
+            background: displayedSlide.beamGradient,
           }}
         />
-        {/* Rayo de luz focalizado */}
         <div
           className="absolute top-8 w-60 sm:w-84 h-full blur-2xl opacity-50 transition-all duration-500"
           style={{
-            background: `radial-gradient(ellipse at 50% 0%, ${displayedStation.brandColor} 0%, transparent 70%)`,
+            background: `radial-gradient(ellipse at 50% 0%, ${displayedSlide.accentColor} 0%, transparent 70%)`,
           }}
         />
-        {/* Aura difuminada envolvente en el centro */}
         <div
           className="absolute top-44 w-[85%] h-72 rounded-full blur-[100px] opacity-35 transition-all duration-700"
           style={{
-            backgroundColor: displayedStation.brandColor,
+            backgroundColor: displayedSlide.accentColor,
           }}
         />
       </div>
 
-      {/* ====================================================================
-          2. DOCK ORBITAL DE LOS 4 GIGANTES DE IA (CLAUDE, GEMINI, GPT, DEEPSEEK)
-          Con los iconos oficiales de cada IA y badges discretos
-         ==================================================================== */}
+      {/* 2. SELECTOR DE LOS 4 FLUJOS ACTIVOS DE CÓDICE STUDIO */}
       <div className="relative z-30 mb-2.5 sm:mb-3">
-        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 px-2">
-          {BIG_FOUR_MODELS.map((model) => {
-            const isSelected = activeStation.version === model.version;
-            const isHovered = hoveredStation?.version === model.version;
+        <div
+          className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 px-2"
+          role="group"
+          aria-label="Flujos interactivos de Códice Studio"
+        >
+          {STUDIO_FLOW_SLIDES.map((slide) => {
+            const isSelected = activeSlide.id === slide.id;
+            const isHovered = hoveredSlide?.id === slide.id;
+            const SlideIcon = slide.Icon;
 
             return (
               <button
-                key={model.version}
+                key={slide.id}
                 type="button"
-                onClick={() => {
-                  setLocalModel(model.version);
-                  onSelectModel(model.version);
-                }}
-                onMouseEnter={() => setHoveredStation(model)}
-                onMouseLeave={() => setHoveredStation(null)}
-                className={`group relative flex items-center gap-2.5 sm:gap-3 rounded-2xl px-3.5 sm:px-4.5 py-2 sm:py-2.5 text-xs font-semibold backdrop-blur-xl transition-all duration-300 cursor-pointer border ${
+                aria-pressed={isSelected}
+                onClick={() => setActiveSlideId(slide.id)}
+                onMouseEnter={() => setHoveredSlide(slide)}
+                onMouseLeave={() => setHoveredSlide(null)}
+                className={`group relative flex items-center gap-2.5 sm:gap-3 rounded-2xl px-3.5 sm:px-4.5 py-2 sm:py-2.5 text-xs font-semibold backdrop-blur-xl transition-all duration-300 cursor-pointer border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9] ${
                   isSelected
-                    ? 'border-white/40 text-white shadow-xl scale-105'
-                    : 'border-white/10 text-slate-300 hover:text-white hover:border-white/25 hover:scale-102'
+                    ? 'border-[#0ea5e9]/60 text-white shadow-xl scale-105'
+                    : 'border-white/10 text-slate-300 hover:text-white hover:border-white/25'
                 }`}
                 style={{
                   background: isSelected
-                    ? `linear-gradient(135deg, rgba(20,26,38,0.92) 0%, rgba(10,14,24,0.96) 100%)`
-                    : 'rgba(12, 17, 28, 0.65)',
+                    ? 'linear-gradient(135deg, rgba(18,23,34,0.94) 0%, rgba(10,13,20,0.98) 100%)'
+                    : 'rgba(12, 17, 28, 0.72)',
                   boxShadow: isSelected
-                    ? `0 0 24px -2px ${model.glowShadow}, 0 8px 24px -6px rgba(0,0,0,0.8)`
+                    ? `0 0 24px -2px ${slide.glowShadow}, 0 8px 24px -6px rgba(0,0,0,0.8)`
                     : isHovered
-                      ? `0 0 16px -3px ${model.glowShadow}`
+                      ? `0 0 16px -3px ${slide.glowShadow}`
                       : 'none',
                 }}
               >
-                {/* Icono Oficial de la IA (SVG genuino a todo color) */}
-                <div className="shrink-0 transition-transform duration-300 group-hover:scale-110">
-                  {model.provider === 'Claude' && (
-                    <ClaudeBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                  )}
-                  {model.provider === 'Gemini' && (
-                    <GeminiBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                  )}
-                  {model.provider === 'GPT' && (
-                    <GPTBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                  )}
-                  {model.provider === 'DeepSeek' && (
-                    <DeepSeekBrandIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                  )}
+                <div
+                  className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-[#0a0d14] transition-transform duration-300 group-hover:scale-110"
+                  style={{ color: slide.accentColor }}
+                >
+                  <SlideIcon className="h-4 w-4" aria-hidden="true" />
                 </div>
 
-                {/* Nombre Oficial y Métrica de Inferencia */}
                 <div className="text-left flex flex-col">
                   <span className="font-bold tracking-tight text-white text-xs sm:text-[13px] leading-tight">
-                    {model.shortLabel}
+                    {slide.shortLabel}
                   </span>
                   <span className="font-mono text-[9.5px] sm:text-[10px] text-slate-400">
-                    {model.speed}
+                    {slide.badgeText}
                   </span>
                 </div>
 
-                {/* Resplandor inferior activo */}
                 {isSelected && (
                   <span
                     aria-hidden="true"
                     className="absolute -bottom-[1px] inset-x-4 h-[2px] rounded-full blur-[0.5px]"
-                    style={{ backgroundColor: model.accentColor }}
+                    style={{ backgroundColor: slide.accentColor }}
                   />
                 )}
               </button>
@@ -334,69 +286,61 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
         </div>
       </div>
 
-      {/* ====================================================================
-          3. FICHA FLOTANTE DE TELEMETRÍA Y BENCHMARK DE IA
-         ==================================================================== */}
+      {/* 3. FICHA FLOTANTE DE ESTADO DEL FLUJO */}
       <div className="relative z-20 mb-2 sm:mb-3 flex justify-center px-4">
         <div
           className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 w-full max-w-4xl rounded-xl border border-white/10 bg-[#0c111a]/90 backdrop-blur-md px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-mono text-slate-300 shadow-xl transition-all duration-300"
           style={{
-            borderLeftColor: displayedStation.brandColor,
+            borderLeftColor: displayedSlide.accentColor,
             borderLeftWidth: '3px',
           }}
         >
-          <div className="flex items-center gap-2">
-            <span
-              className="font-bold tracking-tight text-white flex items-center gap-1.5"
-            >
-              <Sparkles
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-bold tracking-tight text-white flex items-center gap-1.5 shrink-0">
+              <ActiveIcon
                 className="h-3.5 w-3.5"
-                style={{ color: displayedStation.accentColor }}
+                style={{ color: displayedSlide.accentColor }}
               />
-              <span>{displayedStation.shortLabel}</span>
+              <span>{displayedSlide.shortLabel}</span>
             </span>
             <span className="text-slate-500">|</span>
             <span className="text-slate-400 truncate max-w-xs sm:max-w-md text-[11px]">
-              {displayedStation.specialty}
+              {displayedSlide.specialty}
             </span>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4 text-[11px] ml-auto shrink-0">
             <span className="flex items-center gap-1">
-              <Zap className="h-3 w-3 text-amber-400" />
-              <strong className="text-white">{displayedStation.speed}</strong>
+              <Lock className="h-3 w-3 text-[#0ea5e9]" aria-hidden="true" />
+              <strong className="text-white">{displayedSlide.metricPrimary}</strong>
             </span>
             <span className="flex items-center gap-1">
-              <Activity className="h-3 w-3 text-cyan-400" />
-              <span>{displayedStation.latency}</span>
+              <CheckCircle2 className="h-3 w-3 text-emerald-400" aria-hidden="true" />
+              <span>{displayedSlide.metricSecondary}</span>
             </span>
             <span className="hidden md:flex items-center gap-1 text-slate-400">
-              <Layers className="h-3 w-3 text-emerald-400" />
-              <span>{displayedStation.context}</span>
+              <Layers className="h-3 w-3 text-[#38bdf8]" aria-hidden="true" />
+              <span>{displayedSlide.metricContext}</span>
             </span>
             <span
               className="px-2 py-0.5 rounded font-bold text-[10px]"
               style={{
-                backgroundColor: `${displayedStation.brandColor}22`,
-                color: displayedStation.accentColor,
+                backgroundColor: 'rgba(14, 165, 233, 0.16)',
+                color: '#38bdf8',
               }}
             >
-              Razonamiento: {displayedStation.reasoningScore}
+              {displayedSlide.statusTag}
             </span>
           </div>
         </div>
       </div>
 
-      {/* ====================================================================
-          4. IMAGEN INTERACTIVA DE MACBOOK PRO SPACE BLACK
-          Fundida suavemente en el haz de luz difuminado sin cajas ni doble fondo
-         ==================================================================== */}
+      {/* 4. MACBOOK PRO SPACE BLACK CON PANTALLA OLED INTERACTIVA */}
       <div className="relative z-10 mx-auto w-full max-w-4xl px-2">
         <div className="relative w-full aspect-[856/660]">
-          {/* FOTOGRAFÍA FOTORREALISTA DE LA MACBOOK PRO (Bordes fundidos en el difuminado) */}
           <img
             src={`${import.meta.env.BASE_URL}macbook-pro-tight.jpg`}
-            alt="MacBook Pro Space Black fotorrealista"
+            alt="MacBook Pro mostrando el inspector de skills y módulos de Códice Studio"
             className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
             style={{
               maskImage:
@@ -407,60 +351,53 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
             loading="eager"
           />
 
-          {/* ================================================================
-              4A. PANTALLA OLED INTERACTIVA (ENCAPSULADA EN EL DISPLAY DE LA MAC)
-              Posicionada exactamente dentro del cristal Liquid Retina XDR:
-              left: 15.2%, width: 69.6%, top: 6.2%, height: 55.0%
-             ================================================================ */}
+          {/* 4A. PANTALLA OLED INTERACTIVA */}
           <div
             className="absolute left-[15.2%] w-[69.6%] top-[6.2%] h-[55.0%] rounded-t-lg overflow-hidden flex flex-col bg-[#070b14]/95 text-slate-200 z-10 border border-white/10 shadow-[inset_0_0_24px_rgba(0,0,0,0.9)]"
             style={{
-              boxShadow: `inset 0 0 20px ${displayedStation.glowShadow}, inset 0 0 40px rgba(0,0,0,0.95)`,
+              boxShadow: `inset 0 0 20px ${displayedSlide.glowShadow}, inset 0 0 40px rgba(0,0,0,0.95)`,
             }}
           >
-            {/* Barra Superior macOS del Editor IDE */}
+            {/* Barra Superior */}
             <div className="flex items-center justify-between gap-1.5 border-b border-white/10 bg-[#090e18] px-2.5 sm:px-3 py-1 text-[10px] sm:text-[11px] shrink-0">
-              {/* Botones Semáforo macOS */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-[#ef4444] transition-opacity hover:opacity-80" />
-                <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-[#f59e0b] transition-opacity hover:opacity-80" />
-                <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-[#10b981] transition-opacity hover:opacity-80" />
+              <div className="flex items-center gap-1.5 shrink-0" aria-hidden="true">
+                <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-slate-600" />
+                <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-slate-500" />
+                <span className="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-[#0ea5e9]" />
               </div>
 
-              {/* Título de Archivo y VFS */}
               <div className="flex items-center gap-1.5 min-w-0 font-mono text-[9px] sm:text-[10.5px] text-slate-300 truncate">
                 <FileCode
                   className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0"
-                  style={{ color: displayedStation.accentColor }}
+                  style={{ color: displayedSlide.accentColor }}
+                  aria-hidden="true"
                 />
                 <span className="hidden md:inline font-semibold text-white">
-                  codice-workspace.zip
+                  codice-studio
                 </span>
                 <span className="hidden md:inline text-slate-500">/</span>
                 <span className="text-white font-medium truncate">
-                  {displayedStation.activeFile.split('/').pop()}
+                  {displayedSlide.activeFile.split('/').pop()}
                 </span>
               </div>
 
-              {/* Badge de Verificación SHA-256 */}
               <div className="flex items-center gap-1 font-mono text-[8.5px] sm:text-[9.5px] text-emerald-400 shrink-0">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
-                <span className="hidden sm:inline">SHA-256 verificado</span>
-                <span className="sm:hidden">SHA-256</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <span className="hidden sm:inline">commitSha verificado</span>
+                <span className="sm:hidden">commitSha</span>
               </div>
             </div>
 
-            {/* Viewport Interior del IDE: Árbol VFS + Diff de Código en Vivo */}
+            {/* Viewport Interior: Archivos de la skill + Vista de código */}
             <div className="flex-1 min-h-0 flex flex-col md:flex-row font-mono text-xs overflow-hidden">
-              {/* Columna Izquierda: Árbol de archivos VFS (visible en pantallas medianas+) */}
               <div className="hidden md:block w-36 lg:w-40 shrink-0 border-r border-white/10 bg-[#060a12]/90 p-2 overflow-y-auto">
                 <div className="mb-1 flex items-center justify-between text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                  <span>VFS Explorer</span>
-                  <span className="text-cyan-400 font-mono">5 items</span>
+                  <span>Archivos</span>
+                  <span className="text-[#38bdf8] font-mono">5 items</span>
                 </div>
                 <div className="space-y-0.5">
-                  {VFS_TREE_PREVIEW.map((item) => {
-                    const isSelected = displayedStation.activeFile.endsWith(item.name);
+                  {INSPECTOR_TREE_PREVIEW.map((item) => {
+                    const isSelected = displayedSlide.activeFile.endsWith(item.name);
                     return (
                       <div
                         key={item.name}
@@ -471,18 +408,18 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
                         }`}
                         style={{
                           borderLeft: isSelected
-                            ? `2px solid ${displayedStation.brandColor}`
+                            ? `2px solid ${displayedSlide.accentColor}`
                             : '2px solid transparent',
                         }}
                       >
                         <span className="truncate">{item.name}</span>
                         <span
                           className={`text-[7.5px] px-1 rounded font-bold ${
-                            item.status === 'A'
+                            item.status === 'OK'
                               ? 'bg-emerald-500/20 text-emerald-300'
-                              : item.status === 'M'
-                                ? 'bg-amber-500/20 text-amber-300'
-                                : 'bg-slate-700/40 text-slate-400'
+                              : item.status === 'ON' || item.status === 'SHA'
+                                ? 'bg-[#0ea5e9]/20 text-[#38bdf8]'
+                                : 'bg-slate-700/40 text-slate-300'
                           }`}
                         >
                           {item.status}
@@ -493,24 +430,22 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
                 </div>
               </div>
 
-              {/* Columna Central: Diff de Código en Vivo generado por la IA */}
               <div className="flex-1 min-w-0 p-2 sm:p-2.5 flex flex-col justify-between overflow-hidden bg-[#050810]/80">
                 <div className="overflow-hidden">
                   <div className="flex items-center justify-between border-b border-white/10 pb-1 mb-1 text-[9px] sm:text-[10px]">
                     <span className="text-slate-400 truncate">
-                      skill:{' '}
+                      módulo:{' '}
                       <strong className="text-white font-mono">
-                        {displayedStation.skillApplied}
+                        {displayedSlide.moduleApplied}
                       </strong>
                     </span>
                     <span className="text-emerald-400 font-bold text-[8.5px] sm:text-[9.5px] shrink-0">
-                      (+6 −1) · En vivo
+                      Solo lectura · Seguro
                     </span>
                   </div>
 
-                  {/* Líneas de Diff Sintáctico */}
                   <div className="space-y-0.5 font-mono text-[9px] sm:text-[10px] md:text-[10.5px] leading-tight">
-                    {displayedStation.diffLines.map((line, idx) => (
+                    {displayedSlide.codeLines.map((line, idx) => (
                       <div
                         key={idx}
                         className={`flex items-center gap-1.5 px-1.5 py-0.5 rounded truncate ${
@@ -532,35 +467,31 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
                   </div>
                 </div>
 
-                {/* Pie de pantalla de la laptop con telemetría de inferencia y CTA */}
                 <div className="mt-1 pt-1 border-t border-white/10 flex items-center justify-between text-[8.5px] sm:text-[9.5px] text-slate-400 shrink-0">
                   <span className="truncate max-w-[65%]">
-                    {displayedStation.summaryLine}
+                    {displayedSlide.summaryLine}
                   </span>
                   <button
                     type="button"
-                    onClick={() => onNavigatePage('estudio')}
-                    className="flex items-center gap-1 text-sky-400 hover:text-sky-300 font-semibold cursor-pointer shrink-0 ml-1"
+                    onClick={() => onNavigatePage(displayedSlide.route)}
+                    className="flex items-center gap-1 text-[#38bdf8] hover:text-white font-semibold cursor-pointer shrink-0 ml-1 focus-visible:outline-2 focus-visible:outline-[#0ea5e9]"
                   >
-                    <span>Editar en Workspace</span>
-                    <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                    <span>{displayedSlide.ctaLabel}</span>
+                    <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3" aria-hidden="true" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ================================================================
-              4B. HOTSPOT INTERACTIVO DE TOUCH ID EN EL TECLADO
-              Ubicado en la tecla Touch ID física de la foto (esquina sup-der)
-             ================================================================ */}
+          {/* 4B. HOTSPOT INTERACTIVO DE TOUCH ID EN EL TECLADO */}
           <button
             type="button"
             onClick={handleTouchIdClick}
-            title="Touch ID: Clic para alternar modelo de IA"
-            className="absolute left-[67.6%] top-[65.4%] w-[3.0%] h-[2.5%] rounded-[2px] cursor-pointer z-20 group transition-all bg-transparent border-0 p-0 outline-none focus:outline-none"
+            title="Touch ID: Clic para cambiar de módulo"
+            aria-label="Touch ID: cambiar al siguiente flujo del estudio"
+            className="absolute left-[67.6%] top-[65.4%] w-[3.0%] h-[2.5%] rounded-[2px] cursor-pointer z-20 group transition-all bg-transparent border-0 p-0 focus-visible:outline-2 focus-visible:outline-[#0ea5e9]"
           >
-            {/* Halo biométrico interactivo solo en clic o hover */}
             <span
               className={`absolute inset-0 rounded-[2px] transition-all duration-300 pointer-events-none ${
                 touchIdPulse
@@ -569,29 +500,25 @@ export const ComputerLightBeamShowcase: React.FC<ComputerLightBeamShowcaseProps>
               }`}
               style={{
                 boxShadow: touchIdPulse
-                  ? `0 0 14px ${displayedStation.accentColor}`
+                  ? `0 0 14px ${displayedSlide.accentColor}`
                   : undefined,
               }}
             />
           </button>
 
-          {/* ================================================================
-              4C. HOTSPOT INTERACTIVO DEL FORCE TOUCH TRACKPAD
-              Ubicado en el trackpad físico de cristal de la fotografía
-             ================================================================ */}
-          <div
+          {/* 4C. HOTSPOT INTERACTIVO DEL TRACKPAD */}
+          <button
+            type="button"
             onClick={handleTrackpadClick}
             title="Force Touch Trackpad: Clic para respuesta háptica"
-            className="absolute left-[35.5%] top-[78.0%] w-[29.0%] h-[18.0%] rounded-lg cursor-pointer z-20 group overflow-hidden"
+            aria-label="Trackpad interactivo"
+            className="absolute left-[35.5%] top-[78.0%] w-[29.0%] h-[18.0%] rounded-lg cursor-pointer z-20 group overflow-hidden bg-transparent border-0 p-0 focus-visible:outline-2 focus-visible:outline-[#0ea5e9]"
           >
-            {/* Efecto de onda háptica al hacer clic */}
             {trackpadRipple && (
-              <span
-                className="absolute inset-0 bg-white/10 rounded-lg animate-ping opacity-60 pointer-events-none"
-              />
+              <span className="absolute inset-0 bg-white/10 rounded-lg animate-ping opacity-60 pointer-events-none" />
             )}
             <span className="absolute inset-0 rounded-lg border border-transparent group-hover:border-white/20 group-hover:bg-white/[0.03] transition-colors" />
-          </div>
+          </button>
         </div>
       </div>
     </div>

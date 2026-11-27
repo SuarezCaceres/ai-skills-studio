@@ -1,4 +1,4 @@
-import { AIBenchmarkModel, VisualFeedbackReview } from '../types/workspace';
+import { AIBenchmarkModel } from '../types/workspace';
 
 export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
   {
@@ -248,44 +248,5 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
       'Desarrollo de pipelines de inferencia y contratos de tipos estrictos',
       'Modelado de arquitecturas distribuidas y procesamiento paralelo',
     ],
-  },
-];
-
-export const INITIAL_VISUAL_FEEDBACK_REVIEWS: VisualFeedbackReview[] = [
-  {
-    id: 'rev-1',
-    modelVersion: 'Opus 5.5',
-    presetName: 'Cyber Dark Menubar',
-    authorName: 'Sergio Suarez',
-    authorRole: 'Modo Colaborador',
-    rating: 5,
-    comment:
-      'Con Opus 5.5 la jerarquía en Cyber Dark y los acentos en cian eléctrico quedaron impecables; los bordes y el espaciado del menú se sienten de nivel Apple Pro.',
-    usedVoiceDictation: true,
-    createdAt: 'Hace 15 min',
-  },
-  {
-    id: 'rev-2',
-    modelVersion: 'Gemini 3.8',
-    presetName: 'Glass Popover Menu',
-    authorName: 'Valeria M.',
-    authorRole: 'Modo Colaborador',
-    rating: 5,
-    comment:
-      'Gemini 3.8 generó las partículas flotantes y la malla neuronal con una fluidez brutal. La previsualización a gran escala responde al instante.',
-    usedVoiceDictation: true,
-    createdAt: 'Hace 40 min',
-  },
-  {
-    id: 'rev-3',
-    modelVersion: 'Sonnet 5.5',
-    presetName: 'Linear Command Palette',
-    authorName: ' Visitante UI/UX',
-    authorRole: 'Modo Visitante',
-    rating: 5,
-    comment:
-      'El acabado de los botones al pasar el cursor y la paleta de comandos con Sonnet 5.5 tienen una precisión visual extraordinaria.',
-    usedVoiceDictation: false,
-    createdAt: 'Hace 1 hora',
   },
 ];

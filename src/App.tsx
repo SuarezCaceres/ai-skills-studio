@@ -1,26 +1,9 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { SkillDocument } from './types/skill';
-import type { SkillsShEntry } from './types/skillsSh';
-import {
-  AppPageRoute,
-  UserAccount,
-  RarArchivePackage,
-} from './types/workspace';
-import { AI_BENCHMARK_MODELS } from './data/aiModelsData';
-import { DEFAULT_RAR_PACKAGE } from './services/rarParserService';
+import type { CatalogSkillPreview } from './types/catalog';
+import type { SkillsShBusyKind, SkillsShEntry } from './types/skillsSh';
+import { AppPageRoute, UserAccount } from './types/workspace';
 import { eraseAllPersonalData } from './utils/securityHardening';
-import {
-  WORKING_COPIES_KEY,
-  buildWorkspacePackage,
-  catalogSkillToDocument,
-  createScratchSkill,
-  loadWorkingCopies,
-  pickWorkspaceFiles,
-  saveWorkingCopies,
-  upsertWorkingCopy,
-} from './utils/workingCopy';
-import { ActiveSkillBar } from './components/studio/ActiveSkillBar';
-import { NoSkillState } from './components/studio/NoSkillState';
+import { buildNpxInstallCommand, buildSkillsShUrl } from './services/skillsShService';
 import { AuthScreen } from './components/AuthScreen';
 import { TopStudioHeader } from './components/NavbarActiveSkill';
 import { InformativeLandingSection } from './components/InformativeLandingSection';
@@ -37,24 +20,9 @@ const TeamSkillsPage = lazy(() =>
     default: m.TeamSkillsPage,
   }))
 );
-const UnifiedProjectStudio = lazy(() =>
-  import('./components/UnifiedProjectStudio').then((m) => ({
-    default: m.UnifiedProjectStudio,
-  }))
-);
 const ComponentsPage = lazy(() =>
   import('./components/components/ComponentsPage').then((m) => ({
     default: m.ComponentsPage,
-  }))
-);
-const ContextEvidenceLogger = lazy(() =>
-  import('./components/ContextEvidenceLogger').then((m) => ({
-    default: m.ContextEvidenceLogger,
-  }))
-);
-const AIModelBenchmarkPanel = lazy(() =>
-  import('./components/AIModelBenchmarkPanel').then((m) => ({
-    default: m.AIModelBenchmarkPanel,
   }))
 );
 const CatalogPage = lazy(() =>
@@ -78,8 +46,9 @@ const SkillsShPage = lazy(() =>
   }))
 );
 
-// Datos de versiones anteriores (cuentas locales con contraseña y su sesión). Ya no se usan.
+// Datos de versiones anteriores (cuentas locales con contraseña, su sesión y copias de trabajo). Ya no se usan.
 const LEGACY_AUTH_KEYS = ['ai_skills_studio_users_v2', 'ai_skills_studio_session_v1'];
+const LEGACY_WORKCOPIES_KEY = 'ai_skills_studio_workcopies_v1';
 
 export function App() {
   const [showAuthScreen, setShowAuthScreen] = useState<boolean>(false);
@@ -102,18 +71,15 @@ export function App() {
   );
   const isCollaboratorMode = Boolean(currentUser);
 
-  // Copias de trabajo: skills del equipo traídas al navegador con "Abrir en estudio".
-  const [skills, setSkills] = useState<SkillDocument[]>(loadWorkingCopies);
-  const [activeSkillId, setActiveSkillId] = useState<string | null>(
-    () => skills[0]?.id ?? null
-  );
-  // Skill transitoria para usar el Workspace con un paquete suelto, sin guardar nada.
-  const [scratchSkill, setScratchSkill] = useState<SkillDocument>(createScratchSkill);
   const [activePage, setActivePage] = useState<AppPageRoute>('inicio');
   const [selectedCatalogSkillId, setSelectedCatalogSkillId] = useState<
     string | null
   >(null);
-  // Pantalla a la que vuelve el detalle de una skill del catálogo (equipo o catálogo).
+  const [previewSkill, setPreviewSkill] = useState<CatalogSkillPreview | null>(
+    null
+  );
+  const [importingPreview, setImportingPreview] = useState(false);
+  // Pantalla a la que vuelve el detalle de una skill del catálogo (equipo, catálogo o explorar).
   const [detailBackPage, setDetailBackPage] = useState<AppPageRoute>('catalogo');
 
   // Componente elegido en la página Componentes (se puede abrir desde otras pantallas).
@@ -122,6 +88,7 @@ export function App() {
   const [openLessonId, setOpenLessonId] = useState<string | null>(null);
 
   const openCatalogSkill = (id: string, from: AppPageRoute) => {
+    setPreviewSkill(null);
     setSelectedCatalogSkillId(id);
     setDetailBackPage(from);
     setActivePage('skill-detalle');
@@ -136,26 +103,16 @@ export function App() {
     setActivePage('perfil');
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
-  const [selectedModelId, setSelectedModelId] = useState<string>(
-    AI_BENCHMARK_MODELS[0].id
-  );
-  const [activeRarPackage, setActiveRarPackage] = useState<RarArchivePackage>(
-    () => skills[0]?.rarPackage || DEFAULT_RAR_PACKAGE
-  );
   const [globalStatus, setGlobalStatus] = useState<string | null>(null);
   const [skillsShBusy, setSkillsShBusy] = useState<{
     entryId: string;
-    kind: 'workspace' | 'import';
+    kind: SkillsShBusyKind;
   } | null>(null);
 
   const flash = (message: string, ms = 2800) => {
     setGlobalStatus(message);
     setTimeout(() => setGlobalStatus(null), ms);
   };
-
-  useEffect(() => {
-    saveWorkingCopies(skills);
-  }, [skills]);
 
   // Limpieza única de las cuentas locales con contraseña de versiones anteriores.
   useEffect(() => {
@@ -165,21 +122,6 @@ export function App() {
       // sin acceso a localStorage
     }
   }, []);
-
-  const workingSkill: SkillDocument | null =
-    skills.find((s) => s.id === activeSkillId) ?? skills[0] ?? null;
-  // Los módulos que guardan trabajo por skill exigen una copia; el Workspace también
-  // funciona con un paquete suelto.
-  const studioSkill: SkillDocument = workingSkill ?? scratchSkill;
-  const selectedModel =
-    AI_BENCHMARK_MODELS.find((m) => m.id === selectedModelId) ||
-    AI_BENCHMARK_MODELS[0];
-
-  const handleSelectSkill = (id: string) => {
-    setActiveSkillId(id);
-    const found = skills.find((s) => s.id === id);
-    setActiveRarPackage(found?.rarPackage || DEFAULT_RAR_PACKAGE);
-  };
 
   // Al completarse el inicio de sesión con GitHub se cierra la pantalla de acceso.
   useEffect(() => {
@@ -192,6 +134,11 @@ export function App() {
 
   const handleLogout = () => {
     signOutGithub();
+    try {
+      localStorage.removeItem(LEGACY_WORKCOPIES_KEY);
+    } catch {
+      // ignorar
+    }
     setShowAuthScreen(false);
     flash('Sesión cerrada · Exploras en Modo Visitante');
   };
@@ -200,118 +147,17 @@ export function App() {
     signOutGithub();
     eraseAllPersonalData();
     try {
-      localStorage.removeItem(WORKING_COPIES_KEY);
+      localStorage.removeItem(LEGACY_WORKCOPIES_KEY);
     } catch {
       // ignorar
     }
-    setSkills([]);
-    setActiveSkillId(null);
-    setActiveRarPackage(DEFAULT_RAR_PACKAGE);
-    setScratchSkill(createScratchSkill());
+    setPreviewSkill(null);
     setShowAuthScreen(false);
     flash('Datos locales eliminados (GDPR / CCPA) · Sesión cerrada', 3200);
   };
 
-  // Aplica un cambio a una copia de trabajo o, si es el paquete suelto, a la skill transitoria.
-  const patchSkill = (id: string, change: (s: SkillDocument) => SkillDocument) => {
-    if (id === scratchSkill.id) setScratchSkill((prev) => change(prev));
-    else setSkills((prev) => prev.map((s) => (s.id === id ? change(s) : s)));
-  };
-
-  const handleUpdateSkill = (updated: SkillDocument) => {
-    patchSkill(updated.id, () => updated);
-  };
-
-  const handleUpdateSkillMarkdown = (
-    skillId: string,
-    markdownContent: string,
-    translatedContent?: string
-  ) => {
-    patchSkill(skillId, (s) => ({
-      ...s,
-      markdownContent,
-      translatedContent: translatedContent ?? s.translatedContent,
-      updatedAt: new Date().toISOString(),
-    }));
-  };
-
-  const handleUpdateProjectMetadata = (
-    skillId: string,
-    updates: {
-      aiModelId?: string;
-      aiModelLabel?: string;
-      appliedSkill?: string;
-      colorPalette?: string[];
-    }
-  ) => {
-    patchSkill(skillId, (s) => ({
-      ...s,
-      ...updates,
-      updatedAt: new Date().toISOString(),
-    }));
-  };
-
-  // Permite montar carpetas/ZIPs y probar ediciones en memoria tanto en visitante como con GitHub.
-  const handleUpdateRarPackage = (pkg: RarArchivePackage) => {
-    setActiveRarPackage(pkg);
-    patchSkill(studioSkill.id, (s) => ({
-      ...s,
-      rarPackage: pkg,
-      predominantLanguages: pkg.metadata.predominantLanguages,
-      colorPalette: pkg.metadata.colorPalette,
-      aiModelLabel: pkg.metadata.aiModelLabel,
-      appliedSkill: pkg.metadata.appliedSkill,
-      updatedAt: new Date().toISOString(),
-    }));
-  };
-
-  const handleRemoveWorkingCopy = (id: string) => {
-    const rest = skills.filter((s) => s.id !== id);
-    setSkills(rest);
-    if (workingSkill?.id === id) {
-      const next = rest[0] ?? null;
-      setActiveSkillId(next?.id ?? null);
-      setActiveRarPackage(next?.rarPackage || DEFAULT_RAR_PACKAGE);
-    }
-    flash('Copia de trabajo quitada de este navegador');
-  };
-
-  // "Abrir en estudio": trae la skill del equipo (SKILL.md y archivos de texto pequeños) al
-  // navegador como copia de trabajo y abre el Workspace con ella.
-  const openInStudio = async (catalogId: string) => {
-    setGlobalStatus('Preparando la copia de trabajo…');
-    try {
-      const skill = await catalogService.getSkill(catalogId);
-      if (!skill) throw new Error('La skill ya no está registrada en el catálogo.');
-      const loaded = await Promise.all(
-        pickWorkspaceFiles(skill).map(async (path) => {
-          if (path === 'SKILL.md') return { path, content: skill.markdown };
-          try {
-            return { path, content: await catalogService.getSkillFileContent(skill.id, path) };
-          } catch {
-            return null; // un archivo que no se pudo leer no impide abrir la skill
-          }
-        })
-      );
-      const files = loaded.filter((f): f is { path: string; content: string } => f !== null);
-      if (!files.some((f) => f.path === 'SKILL.md')) files.unshift({ path: 'SKILL.md', content: skill.markdown });
-
-      const pkg = buildWorkspacePackage(skill, files);
-      const next = upsertWorkingCopy(skills, catalogSkillToDocument(skill, pkg));
-      const opened = next[0];
-      setSkills(next);
-      setActiveSkillId(opened.id);
-      setActiveRarPackage(opened.rarPackage ?? pkg);
-      setActivePage('estudio');
-      window.scrollTo({ top: 0, behavior: 'auto' });
-      flash(`Copia de trabajo de ${skill.name} lista`);
-    } catch (err) {
-      flash(err instanceof Error && err.message ? err.message : 'No se pudo abrir la skill en el estudio.', 4200);
-    }
-  };
-
-  // Abre una skill de skills.sh (fuente GitHub) directamente como copia de trabajo en Workspace.
-  const openSkillsShInWorkspace = async (entry: SkillsShEntry) => {
+  // Abre una skill de skills.sh (fuente GitHub) en vista previa de solo lectura fijada a commitSha.
+  const inspectSkillsShEntry = async (entry: SkillsShEntry) => {
     if (!entry.isGithubSource) {
       flash('Esta skill vive en un dominio externo (.well-known). Instálala con el comando npx.', 4200);
       return;
@@ -320,50 +166,65 @@ export function App() {
       flash('La inspección directa de repositorios no está disponible en este entorno.', 4000);
       return;
     }
-    setSkillsShBusy({ entryId: entry.id, kind: 'workspace' });
-    setGlobalStatus(`Leyendo ${entry.name} desde GitHub…`);
+    setSkillsShBusy({ entryId: entry.id, kind: 'inspect' });
+    setGlobalStatus(`Inspeccionando ${entry.name} desde GitHub…`);
     try {
-      const { skill } = await catalogService.inspectGithubSkillByHint(entry.source, entry.skillId);
-      const loaded = await Promise.all(
-        pickWorkspaceFiles(skill).map(async (path) => {
-          if (path === 'SKILL.md') return { path, content: skill.markdown };
-          if (!catalogService.getGithubFileAtSha) return null;
-          try {
-            return {
-              path,
-              content: await catalogService.getGithubFileAtSha(
-                skill.repo,
-                skill.skillPath,
-                path,
-                skill.commitSha
-              ),
-            };
-          } catch {
-            return null;
-          }
-        })
+      const { skill, canonicalUrl } = await catalogService.inspectGithubSkillByHint(
+        entry.source,
+        entry.skillId
       );
-      const files = loaded.filter((f): f is { path: string; content: string } => f !== null);
-      if (!files.some((f) => f.path === 'SKILL.md')) files.unshift({ path: 'SKILL.md', content: skill.markdown });
-
-      const pkg = buildWorkspacePackage(skill, files);
-      const next = upsertWorkingCopy(skills, catalogSkillToDocument(skill, pkg));
-      const opened = next[0];
-      setSkills(next);
-      setActiveSkillId(opened.id);
-      setActiveRarPackage(opened.rarPackage ?? pkg);
-      setActivePage('estudio');
+      const npxCommand = buildNpxInstallCommand(entry.source, entry.skillId) || undefined;
+      setPreviewSkill({
+        skill,
+        canonicalUrl,
+        sourceLabel: 'skills.sh',
+        externalUrl: buildSkillsShUrl(entry.source, entry.skillId),
+        npxCommand,
+      });
+      setSelectedCatalogSkillId(null);
+      setDetailBackPage('skills-sh');
+      setActivePage('skill-detalle');
       window.scrollTo({ top: 0, behavior: 'auto' });
-      flash(`Copia de trabajo de ${skill.name} lista en Workspace`);
+      flash(`Vista previa de ${skill.name} fijada a ${skill.commitSha.slice(0, 7)}`);
     } catch (err) {
       flash(
         err instanceof Error && err.message
           ? err.message
-          : 'No se pudo abrir la skill de skills.sh en Workspace.',
+          : 'No se pudo inspeccionar la skill desde GitHub.',
         4500
       );
     } finally {
       setSkillsShBusy(null);
+    }
+  };
+
+  // Importa al catálogo comunitario la skill abierta actualmente en vista previa desde Explorar.
+  const handleImportPreview = async (preview: CatalogSkillPreview) => {
+    if (!githubSession) {
+      setShowAuthScreen(true);
+      flash('Inicia sesión con GitHub para importar esta skill al catálogo comunitario.', 3600);
+      return;
+    }
+    setImportingPreview(true);
+    setGlobalStatus(`Importando ${preview.skill.name} al catálogo…`);
+    try {
+      const registered = await catalogService.registerSkillFromUrl(preview.canonicalUrl);
+      setPreviewSkill(null);
+      setSelectedCatalogSkillId(registered.id);
+      setDetailBackPage('skills-sh');
+      setActivePage('skill-detalle');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      flash(`Skill «${registered.name}» disponible en el catálogo comunitario`);
+    } catch (err) {
+      flash(
+        err instanceof Error && err.message
+          ? err.message
+          : 'No se pudo importar la skill al catálogo.',
+        4500
+      );
+      throw err;
+    } finally {
+      setImportingPreview(false);
     }
   };
 
@@ -407,6 +268,7 @@ export function App() {
     page: AppPageRoute
   ) => {
     e.preventDefault();
+    setPreviewSkill(null);
     setActivePage(page);
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
@@ -422,40 +284,23 @@ export function App() {
     );
   }
 
-  const formattedModelLabel = `${selectedModel.family} · ${selectedModel.version}`;
-
   /* MODO LANDING (activePage === 'inicio'): estructura estricta tasteskill 2.5.1 (header.nav + main#top + footer.closing) */
   if (activePage === 'inicio') {
     return (
       <>
         <NeuralAtmosphereBackground />
         <TopStudioHeader
-          skills={skills}
-          activeSkillId={workingSkill?.id ?? ''}
-          onSelectSkill={handleSelectSkill}
           activePage={activePage}
           onNavigatePage={setActivePage}
           currentUser={currentUser}
           onRequestLogin={() => setShowAuthScreen(true)}
           onLogout={handleLogout}
           onErasePersonalData={handleErasePersonalData}
-          selectedModelName={formattedModelLabel}
           githubAvatarUrl={githubSession?.avatarUrl}
         />
 
         <main id="top">
-          <InformativeLandingSection
-            onNavigatePage={setActivePage}
-            onSelectModelVersion={(version) => {
-              const found = AI_BENCHMARK_MODELS.find(
-                (m) => m.version === version
-              );
-              if (found) setSelectedModelId(found.id);
-            }}
-            onFilterByFramework={() => {
-              setActivePage('boveda');
-            }}
-          />
+          <InformativeLandingSection onNavigatePage={setActivePage} />
         </main>
 
         <footer
@@ -466,17 +311,17 @@ export function App() {
           <div className="wrap">
             <div className="closing__cta close--type">
               <div className="section-head">
-                <h2 id="close-h">Audita tu próximo workspace hoy</h2>
+                <h2 id="close-h">Audita e inspecciona skills desde GitHub hoy</h2>
                 <p className="t-small muted">
-                  Ejecución íntegra en navegador · Sin servidor ni registro previo
+                  Lectura bajo demanda fijada a commitSha · Sin servidor ni registro previo
                 </p>
               </div>
               <a
                 className="btn btn--primary"
-                href="#workspace"
-                onClick={(e) => openModuleFromFooter(e, 'estudio')}
+                href="#inspector"
+                onClick={(e) => openModuleFromFooter(e, 'boveda')}
               >
-                Abrir Workspace
+                Explorar Catálogo
               </a>
             </div>
 
@@ -488,7 +333,7 @@ export function App() {
                     Códice Studio
                   </a>
                   <p className="footer__lede">
-                    Auditoría local de skills y workspaces IA.
+                    Catálogo comunitario, inspector por commitSha y clases del equipo.
                   </p>
                 </div>
 
@@ -497,18 +342,18 @@ export function App() {
                   <ul>
                     <li>
                       <a
-                        href="#workspace"
-                        onClick={(e) => openModuleFromFooter(e, 'estudio')}
+                        href="#inspector"
+                        onClick={(e) => openModuleFromFooter(e, 'boveda')}
                       >
-                        Workspace VFS
+                        Skills del equipo
                       </a>
                     </li>
                     <li>
                       <a
                         href="#capabilities"
-                        onClick={(e) => openModuleFromFooter(e, 'boveda')}
+                        onClick={(e) => openModuleFromFooter(e, 'catalogo')}
                       >
-                        Catálogo SKILL.md
+                        Catálogo comunitario
                       </a>
                     </li>
                     <li>
@@ -516,7 +361,7 @@ export function App() {
                         href="#benchmarks"
                         onClick={(e) => openModuleFromFooter(e, 'codice-studio')}
                       >
-                        Códice Obsidian
+                        Códice de clases
                       </a>
                     </li>
                     <li>
@@ -534,13 +379,13 @@ export function App() {
                   <h3>Página</h3>
                   <ul>
                     <li>
-                      <a href="#workspace">Workspace</a>
+                      <a href="#inspector">Inspector</a>
                     </li>
                     <li>
                       <a href="#capabilities">Capacidades</a>
                     </li>
                     <li>
-                      <a href="#benchmarks">Modelos</a>
+                      <a href="#benchmarks">Módulos</a>
                     </li>
                   </ul>
                 </div>
@@ -554,14 +399,6 @@ export function App() {
                         onClick={(e) => openModuleFromFooter(e, 'preview')}
                       >
                         Componentes UI
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#faq"
-                        onClick={(e) => openModuleFromFooter(e, 'evidencias')}
-                      >
-                        Registro visual
                       </a>
                     </li>
                     <li>
@@ -613,33 +450,18 @@ export function App() {
     );
   }
 
-  const skillBar = (
-    <ActiveSkillBar
-      skills={skills}
-      activeSkill={workingSkill}
-      onSelect={handleSelectSkill}
-      onRemove={handleRemoveWorkingCopy}
-      onOpenDetail={(id) => openCatalogSkill(id, activePage)}
-      onGoToTeam={() => setActivePage('boveda')}
-    />
-  );
-
   /* MODO IDE INTERNO (activePage !== 'inicio'): estación de trabajo de ancho completo sin restricciones 100svh */
   return (
     <>
       <NeuralAtmosphereBackground />
       <TopStudioHeader
-        skills={skills}
-        activeSkillId={workingSkill?.id ?? ''}
-        onSelectSkill={handleSelectSkill}
         activePage={activePage}
         onNavigatePage={setActivePage}
         currentUser={currentUser}
         onRequestLogin={() => setShowAuthScreen(true)}
         onLogout={handleLogout}
         onErasePersonalData={handleErasePersonalData}
-        selectedModelName={formattedModelLabel}
-          githubAvatarUrl={githubSession?.avatarUrl}
+        githubAvatarUrl={githubSession?.avatarUrl}
       />
 
       <div className="ide-shell selection:bg-[#0ea5e9] selection:text-[#0a0d14] relative z-10">
@@ -687,7 +509,6 @@ export function App() {
                 <TeamSkillsPage
                   onOpenSkill={(id) => openCatalogSkill(id, 'boveda')}
                   onRequestLogin={() => setShowAuthScreen(true)}
-                  onOpenInStudio={openInStudio}
                   onOpenProfile={(login) => openProfile(login, 'boveda')}
                 />
               )}
@@ -697,7 +518,6 @@ export function App() {
                   login={selectedProfileLogin}
                   onBack={() => setActivePage(profileBackPage)}
                   onOpenSkill={(id) => openCatalogSkill(id, 'perfil')}
-                  onOpenInStudio={openInStudio}
                   onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}
@@ -706,34 +526,16 @@ export function App() {
                 <CatalogPage
                   onOpenSkill={(id) => openCatalogSkill(id, 'catalogo')}
                   onRequestLogin={() => setShowAuthScreen(true)}
-                  onOpenInStudio={openInStudio}
                 />
               )}
 
               {activePage === 'skills-sh' && (
                 <SkillsShPage
-                  onOpenInWorkspace={openSkillsShInWorkspace}
+                  onInspectSkill={inspectSkillsShEntry}
                   onImportToCatalog={importSkillsShToCatalog}
                   onRequestLogin={() => setShowAuthScreen(true)}
                   busyAction={skillsShBusy}
                 />
-              )}
-
-              {activePage === 'estudio' && (
-                <>
-                  {skillBar}
-                  <UnifiedProjectStudio
-                    activeSkill={studioSkill}
-                    activeRarPackage={activeRarPackage}
-                    isEditorMode={isCollaboratorMode}
-                    onRequestLogin={() => setShowAuthScreen(true)}
-                    onUpdateRarPackage={handleUpdateRarPackage}
-                    onUpdateSkill={handleUpdateSkill}
-                    onUpdateSkillMarkdown={handleUpdateSkillMarkdown}
-                    onUpdateProjectMetadata={handleUpdateProjectMetadata}
-                    onNavigatePage={setActivePage}
-                  />
-                </>
               )}
 
               {activePage === 'preview' && (
@@ -749,69 +551,36 @@ export function App() {
                 />
               )}
 
-              {activePage === 'evidencias' &&
-                (workingSkill ? (
-                  <>
-                    {skillBar}
-                    <ContextEvidenceLogger
-                      skill={workingSkill}
-                      onUpdateSkill={handleUpdateSkill}
-                      onStatusChange={setGlobalStatus}
-                    />
-                  </>
-                ) : (
-                  <NoSkillState
-                    module="Capturas"
-                    description="Aquí guardas capturas y fragmentos de código de las pruebas de una skill."
-                    onGoToTeam={() => setActivePage('boveda')}
-                  />
-                ))}
-
               {activePage === 'skill-detalle' && (
                 <CatalogDetailRoute
                   skillId={selectedCatalogSkillId}
-                  onBack={() => setActivePage(detailBackPage)}
+                  previewSkill={previewSkill}
+                  onBack={() => {
+                    setPreviewSkill(null);
+                    setActivePage(detailBackPage);
+                  }}
                   backLabel={
-                    detailBackPage === 'boveda'
-                      ? 'Skills del equipo'
-                      : detailBackPage === 'perfil'
-                        ? 'Perfil'
-                        : detailBackPage === 'codice-studio'
-                          ? 'Códice'
-                          : detailBackPage === 'preview'
-                          ? 'Componentes'
-                          : detailBackPage === 'catalogo'
-                            ? 'Catálogo'
-                            : detailBackPage === 'skills-sh'
-                              ? 'Explorar'
-                              : 'Volver'
+                    previewSkill
+                      ? 'Explorar'
+                      : detailBackPage === 'boveda'
+                        ? 'Skills del equipo'
+                        : detailBackPage === 'perfil'
+                          ? 'Perfil'
+                          : detailBackPage === 'codice-studio'
+                            ? 'Códice'
+                            : detailBackPage === 'preview'
+                              ? 'Componentes'
+                              : detailBackPage === 'catalogo'
+                                ? 'Catálogo'
+                                : detailBackPage === 'skills-sh'
+                                  ? 'Explorar'
+                                  : 'Volver'
                   }
-                  onOpenInStudio={openInStudio}
+                  onImportPreview={handleImportPreview}
+                  importingPreview={importingPreview}
                   onRequestLogin={() => setShowAuthScreen(true)}
                 />
               )}
-
-              {activePage === 'modelos-ia' &&
-                (workingSkill ? (
-                  <>
-                    {skillBar}
-                    <AIModelBenchmarkPanel
-                      selectedModelId={selectedModelId}
-                      onSelectModel={setSelectedModelId}
-                      activeSkill={workingSkill}
-                      onUpdateSkill={handleUpdateSkill}
-                      onStatusChange={setGlobalStatus}
-                      isCollaboratorMode={isCollaboratorMode}
-                      currentUserName={currentUser?.fullName}
-                    />
-                  </>
-                ) : (
-                  <NoSkillState
-                    module="Modelos"
-                    description="Aquí comparas cómo responden los modelos de IA con una skill y registras cuál funcionó mejor."
-                    onGoToTeam={() => setActivePage('boveda')}
-                  />
-                ))}
             </Suspense>
           </div>
         </main>
@@ -821,7 +590,7 @@ export function App() {
             <div className="flex items-center gap-2.5">
               <span className="h-2 w-2 rounded-full bg-[#0ea5e9]" />
               <span className="font-semibold text-slate-200">
-                Códice Studio · Workspace VFS
+                Códice Studio
               </span>
               <span>·</span>
               <span>
@@ -844,9 +613,9 @@ export function App() {
               </span>
               <span>|</span>
               <span>
-                Paquete activo:{' '}
+                Inspector:{' '}
                 <code className="font-mono text-slate-200">
-                  {activeRarPackage.archiveName}
+                  commitSha fijado (512 KB máx)
                 </code>
               </span>
             </div>

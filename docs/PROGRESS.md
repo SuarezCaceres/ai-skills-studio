@@ -11,6 +11,22 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-27 · Antigravity (`Orquestador General`) · `feat/004-retiro-workspace-inspector-codigo`
+- **Hecho:**
+  - Ejecución de **Fases 0–3** de `004-retiro-workspace-inspector-codigo` (`docs/specs/004-retiro-workspace-inspector-codigo/{spec.md,plan.md}`):
+    - **Fase 0:** creación de `src/utils/skillAuditHelpers.ts` (frontmatter YAML, rutas seguras, límites binarios/512 KB y auditoría estructural) y contratos aditivos en `src/types/{skillsSh,catalog}.ts`.
+    - **Fase 1 (3 worktrees paralelos Zero-Conflict):** desacoplamiento de `AuditBadge.tsx`, descarga bajo demanda fijada a `commitSha` en `FilesPanel.tsx` con re-auditoría automática y vista previa `skills.sh` en `SkillDetailPage`/`CatalogDetailRoute`; reemplazo de «Abrir en Workspace» por «Inspeccionar» en `SkillsShCard`/`SkillsShPage`; reorientación de portada (`InformativeLandingSection`, `ComputerLightBeamShowcase`) y `NavbarActiveSkill.tsx` (retirando `estudio`/`modelos-ia`/`evidencias`, añadiendo manejo React del menú móvil y apuntando `.nav__actions a.btn--primary` a `'boveda'`), desconexión de `workingCopy` en Códice y limpieza de `aiModelsData.ts` preservando `AI_BENCHMARK_MODELS`.
+    - **Fase 2:** integración en `src/App.tsx` (cableando `inspectSkillsShEntry` y manteniendo limpieza de `ai_skills_studio_workcopies_v1` al cerrar sesión/GDPR), estrechamiento de `src/types/{workspace,skill,skillsSh}.ts` (conservando `SkillDocument`), retiro de `@deprecated translateSkillMarkdown` y eliminación física de los 13 archivos obsoletos (`UnifiedProjectStudio`, `StylePresetCatalog`, `stylePresets`, `ContextEvidenceLogger`, `AIModelBenchmarkPanel`, `VoiceVisualFeedback`, `MarkdownViewerTranslator`, `speechService`, `frameworkCollectionsData`, `studio/ActiveSkillBar`, `studio/NoSkillState`, `workingCopy`, `rarParserService`).
+    - **Fase 3:** adaptación de las suites de prueba (`test-catalog-install-translate.mjs`, `test-catalog-integration.mjs`, `test-skills-sh-page.mjs`, `test-interfaces-playwright.mjs`, `test-interactions-playwright.mjs`, `verify-laptop-showcase.mjs`) y actualización de `docs/project/{ARCHITECTURE,PROJECT}.md`, `docs/plans/PLAN_EQUIPOS.md`, `docs/features.json`, `docs/TASKS.md` y `docs/PROGRESS.md`.
+    - **Fase 4 (cierre):** verificación independiente unánime (`revisor`: `APPROVE` con 0 bloqueantes, `teamwork_challenger`: `CONFIRMED`, `teamwork_auditor`: `CLEAN`), criterios `C1`–`C5` en verde, cierre de `docs/features.json` (`estado: "hecho"`, `C5: true`) y redacción local de la descripción del PR de 5 secciones (sin `git push` ni apertura en GitHub).
+    - **Observaciones menores recomendadas para seguimiento posterior (no bloqueantes):** textos heredados no visibles en UI principal dentro de `src/data/aiModelsData.ts` (`strengths`/`recommendedFor`) y `src/components/AuthScreen.tsx`, brecha preexistente en la heurística de `eval` sin `base64`/`atob` en `src/components/catalog/AuditBadge.tsx:58`, casos límite menores en `src/utils/skillAuditHelpers.ts`, margen estrecho del chunk inicial (`349.48 kB` < `350 kB`) y menciones heredadas en `docs/rules/security.md` (zona protegida fuera de alcance en `004`).
+- **Verificación:**
+  - `npm run build`: chunk inicial `349.48 kB` (`< 350 kB`), compilación limpia con `tsc -b`.
+  - `./scripts/check.sh` completo en **`exit 0`** (tipos `tsc -b` + `api/{github-oauth,skills-sh}.ts`, 5 suites unitarias, 3 suites de integración y 8 suites Playwright E2E; único aviso esperado: `Lint: sin configurar`).
+  - Suites específicas en verde: `node scripts/test-skills-sh-proxy.mjs` (`29` ok), `node scripts/test-skills-sh-service.mjs` (`17` ok), `node scripts/test-skills-sh-page.mjs` (`34` ok) y `node scripts/verify-laptop-showcase.mjs` (`exit 0`), todas con GitHub simulado y cero llamadas reales externas.
+- **Pendiente:** Dar seguimiento a los ítems previos de auditoría de seguridad y deuda técnica registrados en `docs/TASKS.md`.
+- **Problemas:** Ninguno.
+
 ## 2026-11-26 · Antigravity (`Orquestador General` / `skill-sh`) · `chore/cierre-skill-sh`
 - **Hecho:**
   - Cierre operativo de la sesión `skill-sh` (PR #25 al PR #29) tras confirmarse en navegador real el inicio de sesión con GitHub (`OAuth App` `Ov23lii7kOK3ajmx8d1u`) tanto en `https://codice-oauth.vercel.app/` como en `http://localhost:5173/`.

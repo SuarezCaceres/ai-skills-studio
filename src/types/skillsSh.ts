@@ -77,14 +77,17 @@ export interface SkillsShSnapshotFile {
   views: Record<SkillsShView, SkillsShSnapshotView>;
 }
 
+/** Estados posibles de una acción en curso sobre una tarjeta de `skills.sh`. */
+export type SkillsShBusyKind = 'inspect' | 'import';
+
 /** Contrato de props entre `src/App.tsx` y `src/components/skills-sh/SkillsShPage.tsx`. */
 export interface SkillsShPageProps {
-  /** Resuelve la skill desde GitHub, la monta como copia de trabajo y abre Workspace. */
-  onOpenInWorkspace: (entry: SkillsShEntry) => Promise<void>;
+  /** Resuelve la skill desde GitHub fijada a su `commitSha` y abre la vista previa en detalle. */
+  onInspectSkill: (entry: SkillsShEntry) => Promise<void>;
   /** Registra la skill en el catálogo comunitario de Códice y abre su detalle. */
   onImportToCatalog: (entry: SkillsShEntry) => Promise<void>;
   /** Abre el modal/pantalla de inicio de sesión con GitHub. */
   onRequestLogin: () => void;
   /** Acción en curso (si la hay) para reflejar estado de carga en la tarjeta correspondiente. */
-  busyAction?: { entryId: string; kind: 'workspace' | 'import' } | null;
+  busyAction?: { entryId: string; kind: SkillsShBusyKind } | null;
 }

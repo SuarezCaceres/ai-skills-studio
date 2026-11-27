@@ -75,6 +75,19 @@
         { "id": "C3", "descripcion": "Resolución de SKILL.md en repos GitHub mono/multi-skill fijada a commitSha para Abrir en Workspace e Importar al catálogo, informando con claridad en fuentes .well-known", "pasa": true },
         { "id": "C4", "descripcion": "Sección Explorar en la barra superior con rankings (all-time/trending/hot), filtro Oficiales, buscador, copia de comando npx, atribución a skills.sh y verificación E2E en 4 anchos", "pasa": true }
       ]
+    },
+    {
+      "id": "004",
+      "nombre": "retiro-workspace-inspector-codigo",
+      "spec": "docs/specs/004-retiro-workspace-inspector-codigo/spec.md",
+      "estado": "hecho",
+      "criterios": [
+        { "id": "C1", "descripcion": "Retiro completo de Workspace, Modelos, Capturas, Presets UI, copias locales (workingCopy) y parsing/exportación .zip/.rar manteniendo activos Catálogo, Equipos, Explorar, Componentes y Códice", "pasa": true },
+        { "id": "C2", "descripcion": "Inspección bajo demanda de archivos reales fijados a commitSha en la pestaña Archivos de SkillDetailPage con texto plano inerte, copia y re-auditoría automática de seguridad en AuditBadge", "pasa": true },
+        { "id": "C3", "descripcion": "Inspección desde Explorar (skills.sh) abriendo SkillDetailPage en vista previa de solo lectura fijada a commitSha con SKILL.md, Archivos, AuditBadge, instalación e Importar al catálogo", "pasa": true },
+        { "id": "C4", "descripcion": "Actualización de portada (Landing), barra superior y pie de página hacia los módulos vigentes sin enlaces muertos, sin menciones a Workspace/.rar/Modelos y responsive en 4 anchos", "pasa": true },
+        { "id": "C5", "descripcion": "Verificación completa (./scripts/check.sh) en verde sin red real externa y preservando intactas las zonas blindadas", "pasa": true }
+      ]
     }
   ]
 }

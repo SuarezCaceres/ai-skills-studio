@@ -5,8 +5,10 @@ import type {
   CatalogSkill,
   SkillAuditFinding,
 } from '../../types/catalog';
-import type { RarArchivePackage, RarFileEntry } from '../../types/workspace';
-import { auditWorkspacePackage, detectCodeLanguage } from '../../services/rarParserService';
+import {
+  EXECUTABLE_BINARY_EXT_RE,
+  auditSkillStructure,
+} from '../../utils/skillAuditHelpers';
 
 /**
  * Auditor de skills externas. Todo el contenido se trata como texto no confiable:
@@ -24,7 +26,6 @@ interface ContentRule {
 }
 
 const SCRIPT_EXT = /\.(sh|bash|zsh|ps1|psm1|bat|cmd|vbs)$/i;
-const BINARY_EXT = /\.(exe|dll|msi|bin|jar|so|dylib|scr|com)$/i;
 const RUNTIME_EXT = /\.(py|rb|pl|php|js|mjs|cjs)$/i;
 
 const CONTENT_RULES: ContentRule[] = [
@@ -110,49 +111,11 @@ function snippetOf(text: string, rx: RegExp): string {
   return line.length > 90 ? `${line.slice(0, 87)}...` : line;
 }
 
-function toWorkspacePackage(skill: AuditableSkill): RarArchivePackage {
-  const files: RarFileEntry[] = [
-    {
-      id: 'skill-md',
-      name: 'SKILL.md',
-      path: 'SKILL.md',
-      folder: '',
-      sizeBytes: skill.markdown.length,
-      language: 'markdown',
-      content: skill.markdown,
-    },
-    ...skill.files
-      .filter((f) => f.path.toLowerCase() !== 'skill.md')
-      .map((f, i): RarFileEntry => {
-        const name = f.path.split('/').pop() ?? f.path;
-        return {
-          id: `file-${i}`,
-          name,
-          path: f.path,
-          folder: f.path.includes('/') ? f.path.slice(0, f.path.lastIndexOf('/')) : '',
-          sizeBytes: f.sizeBytes,
-          language: detectCodeLanguage(name),
-          content: f.content ?? '',
-        };
-      }),
-  ];
-  return {
-    id: 'catalog-audit',
-    archiveName: 'catalog-skill',
-    uploadedAt: new Date(0).toISOString(),
-    totalSizeBytes: files.reduce((a, f) => a + f.sizeBytes, 0),
-    signatureDetected: 'catalog',
-    sourceKind: 'folder',
-    files,
-    metadata: {} as RarArchivePackage['metadata'],
-  };
-}
-
 const SEVERITY_ORDER: Record<AuditSeverity, number> = { danger: 0, warn: 1, info: 2 };
 
 /**
- * Audita una skill del catálogo. Reutiliza `auditWorkspacePackage` (esquema SKILL.md y
- * seguridad de rutas) y suma la detección de scripts y patrones peligrosos.
+ * Audita una skill del catálogo. Reutiliza `auditSkillStructure` (esquema SKILL.md y
+ * seguridad de rutas) y suma la detección de binarios, scripts y patrones peligrosos.
  */
 export function auditCatalogSkill(skill: AuditableSkill): SkillAuditFinding[] {
   const findings: SkillAuditFinding[] = [];
@@ -163,31 +126,29 @@ export function auditCatalogSkill(skill: AuditableSkill): SkillAuditFinding[] {
     findings.push(f);
   };
 
-  // 1) Comprobaciones existentes del VFS (solo las que aplican a skills externas).
-  const pkg = toWorkspacePackage(skill);
-  for (const check of auditWorkspacePackage(pkg).checks) {
-    if (check.id === 'skill-frontmatter' && check.status !== 'pass') {
-      push({
-        id: 'skill-frontmatter',
-        severity: 'warn',
-        label: 'SKILL.md sin cabecera válida',
-        detail: check.detail,
-        filePath: 'SKILL.md',
-      });
-    }
-    if (check.id === 'path-safety' && check.status === 'fail') {
-      push({
-        id: 'path-safety',
-        severity: 'danger',
-        label: 'Ruta de archivo sospechosa',
-        detail: check.detail,
-      });
-    }
+  // 1) Comprobaciones estructurales puras (frontmatter SKILL.md y rutas seguras).
+  const hasSkillMdEntry =
+    skill.markdown.trim().length > 0 ||
+    skill.files.some((f) => f.path.toLowerCase() === 'skill.md');
+
+  if (!hasSkillMdEntry) {
+    push({
+      id: 'no-skill-md',
+      severity: 'warn',
+      label: 'Sin archivo SKILL.md',
+      detail: 'No se encontró el archivo SKILL.md en la skill.',
+      filePath: 'SKILL.md',
+    });
+  }
+
+  for (const structural of auditSkillStructure(skill.markdown, skill.files)) {
+    if (!hasSkillMdEntry && structural.id === 'skill-frontmatter') continue;
+    push(structural);
   }
 
   // 2) Archivos ejecutables o scripts por extensión.
   for (const f of skill.files) {
-    if (BINARY_EXT.test(f.path)) {
+    if (EXECUTABLE_BINARY_EXT_RE.test(f.path)) {
       push({
         id: `binary:${f.path}`,
         severity: 'danger',
@@ -214,11 +175,11 @@ export function auditCatalogSkill(skill: AuditableSkill): SkillAuditFinding[] {
     }
   }
 
-  // 3) Patrones peligrosos en el contenido (SKILL.md y archivos con contenido cargado).
+  // 3) Patrones peligrosos en el contenido (SKILL.md y archivos con contenido en memoria).
   const sources: Array<{ path: string; content: string }> = [
     { path: 'SKILL.md', content: skill.markdown },
     ...skill.files
-      .filter((f) => f.content && f.path.toLowerCase() !== 'skill.md')
+      .filter((f) => typeof f.content === 'string' && f.path.toLowerCase() !== 'skill.md')
       .map((f) => ({ path: f.path, content: f.content as string })),
   ];
   for (const src of sources) {
@@ -237,9 +198,9 @@ export function auditCatalogSkill(skill: AuditableSkill): SkillAuditFinding[] {
     }
   }
 
-  // 4) Archivos sin contenido cargado: no se pudieron revisar.
+  // 4) Archivos script sin contenido en memoria: no se pudieron revisar.
   const unread = skill.files.filter(
-    (f) => f.content === undefined && (SCRIPT_EXT.test(f.path) || RUNTIME_EXT.test(f.path))
+    (f) => typeof f.content !== 'string' && (SCRIPT_EXT.test(f.path) || RUNTIME_EXT.test(f.path))
   );
   if (unread.length > 0) {
     push({

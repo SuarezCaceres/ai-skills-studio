@@ -1,10 +1,11 @@
 /**
- * Prueba E2E de la sección «Explorar» (skills.sh) en navegador real + 4 anchos obligatorios (C4).
+ * Prueba E2E de la sección «Explorar» (skills.sh) e inspección en vista previa
+ * fijada a `commitSha` en navegador real + 4 anchos obligatorios (C3, C4).
  *
  * Compila la app en un directorio temporal con proxy simulado derivado de
  * `VITE_GITHUB_OAUTH_URL`, intercepta TODA red externa (proxy, GitHub API,
- * avatares) y falla inmediatamente si el cliente intenta contactar directamente
- * `https://www.skills.sh`.
+ * OAuth, avatares) y falla inmediatamente si el cliente intenta contactar
+ * directamente `https://www.skills.sh`.
  *
  * Uso: node scripts/test-skills-sh-page.mjs
  */
@@ -23,6 +24,8 @@ const SHOTS_DIR = resolve(ROOT, 'shots', 'skills-sh');
 
 const SHA = 'b'.repeat(40);
 const SYNCED_AT = '2026-11-24T12:00:00.000Z';
+const AVATAR = 'https://avatars.githubusercontent.com/u/1?v=4';
+const TEAM_LOGIN = 'SuarezCaceres';
 
 const REACT_SKILL_MD = [
   '---',
@@ -33,6 +36,12 @@ const REACT_SKILL_MD = [
   '# Vercel React Best Practices',
   '',
   'Prefer server components and avoid unnecessary client waterfalls.',
+].join('\n');
+
+const GUIDE_MD = [
+  '# React Reference Guide',
+  '',
+  'Keep client bundles small and memoize wisely.',
 ].join('\n');
 
 const ALL_TIME_SKILLS = [
@@ -102,8 +111,16 @@ const PNG = Buffer.from(
   'base64'
 );
 
+const CORS = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-headers': 'authorization,content-type,accept,x-github-api-version,*',
+  'access-control-allow-methods': 'GET,POST,PATCH,PUT,DELETE,OPTIONS',
+  'access-control-expose-headers': 'x-ratelimit-remaining,x-ratelimit-reset,retry-after',
+};
+
 const json = (body, status = 200) => ({
   status,
+  headers: CORS,
   contentType: 'application/json',
   body: JSON.stringify(body),
 });
@@ -169,14 +186,66 @@ async function main() {
 
     let proxyDown = false;
     const proxyRequests = [];
+    const githubContentRequests = [];
+    const catalogIssues = [];
+    let nextIssueNumber = 1;
 
     async function installRoutes(context) {
+      await context.addInitScript(() => {
+        // Sin ventana emergente: la app cae al modo «redirección» para el OAuth simulado.
+        window.open = () => null;
+        // Traductor nativo simulado (evita llamadas externas a Gemini).
+        delete self.LanguageDetector;
+        self.Translator = {
+          async availability() {
+            return 'available';
+          },
+          async create() {
+            return {
+              async translate(text) {
+                if (text.includes('Vercel React Best Practices')) {
+                  return text.replace('Vercel React Best Practices', 'Mejores prácticas de Vercel React');
+                }
+                if (text.includes('Prefer server components')) {
+                  return 'Prefiere componentes de servidor y evita cascadas innecesarias en el cliente.';
+                }
+                return `[ES] ${text}`;
+              },
+            };
+          },
+        };
+      });
+
+      // Catch-all externo: registrado primero para ejecutarse al final (Playwright evalúa routes en orden LIFO),
+      // después de **/api/skills-sh**, **/api/github-oauth** y los mocks específicos.
+      await context.route(/^https?:\/\/(?!127\.0\.0\.1|localhost|api\.github\.com|avatars\.githubusercontent\.com|fonts\.googleapis\.com|fonts\.gstatic\.com|www\.skills\.sh|github\.com\/login\/oauth\/authorize|[^/]+\/api\/(?:skills-sh|github-oauth)(?:$|[/?#]))/, (route) => {
+        unexpectedExternalHits.push(route.request().url());
+        return route.abort();
+      });
+
       await context.route('https://www.skills.sh/**', (route) => {
         directSkillsShHits.push(route.request().url());
         return route.abort();
       });
 
-      await context.route('https://fake-vercel.test/api/skills-sh**', (route) => {
+      await context.route('https://github.com/login/oauth/authorize**', (route) => {
+        const params = new URL(route.request().url()).searchParams;
+        const redirect = new URL(params.get('redirect_uri'));
+        redirect.searchParams.set('code', 'test-code');
+        redirect.searchParams.set('state', params.get('state'));
+        return route.fulfill({ status: 302, headers: { location: redirect.toString() } });
+      });
+
+      await context.route('**/api/github-oauth**', (route) => {
+        if (route.request().method() === 'OPTIONS') {
+          return route.fulfill({ status: 204, headers: CORS });
+        }
+        return route.fulfill(
+          json({ access_token: 'ghu_test_token_0123456789', expires_in: 28800 })
+        );
+      });
+
+      await context.route('**/api/skills-sh**', (route) => {
         const url = new URL(route.request().url());
         proxyRequests.push(url.search);
         if (proxyDown) {
@@ -232,10 +301,48 @@ async function main() {
       });
 
       await context.route('https://api.github.com/**', (route) => {
-        const url = new URL(route.request().url());
+        const req = route.request();
+        if (req.method() === 'OPTIONS') {
+          return route.fulfill({ status: 204, headers: CORS });
+        }
+        const url = new URL(req.url());
         const p = url.pathname;
+        if (p === '/user') {
+          return route.fulfill(json({ login: TEAM_LOGIN, avatar_url: AVATAR }));
+        }
+        if (p === `/users/${TEAM_LOGIN}`) {
+          return route.fulfill(json({ login: TEAM_LOGIN, name: 'Sergio Mateo', avatar_url: AVATAR }));
+        }
         if (p === '/repos/test/catalog/issues') {
-          return route.fulfill(json([]));
+          if (req.method() === 'POST') {
+            const payload = req.postDataJSON() ?? {};
+            const issueNumber = nextIssueNumber++;
+            const created = {
+              number: issueNumber,
+              html_url: `https://github.com/test/catalog/issues/${issueNumber}`,
+              title: payload.title ?? '',
+              body: payload.body ?? '',
+              created_at: SYNCED_AT,
+              user: { login: TEAM_LOGIN, avatar_url: AVATAR },
+              labels: Array.isArray(payload.labels)
+                ? payload.labels.map((name) => ({ name }))
+                : [],
+              reactions: { '+1': 0 },
+            };
+            catalogIssues.unshift(created);
+            return route.fulfill(json(created, 201));
+          }
+          const labels = url.searchParams.get('labels') ?? '';
+          return route.fulfill(json(labels.includes('result') ? [] : catalogIssues));
+        }
+        if (p.startsWith('/repos/test/catalog/issues/')) {
+          const rest = p.slice('/repos/test/catalog/issues/'.length);
+          if (rest.endsWith('/reactions')) {
+            return route.fulfill(json([]));
+          }
+          const num = Number(rest);
+          const found = catalogIssues.find((issue) => issue.number === num);
+          return found ? route.fulfill(json(found)) : route.fulfill(json({ message: 'Not Found' }, 404));
         }
         if (p === '/repos/vercel-labs/agent-skills') {
           return route.fulfill(
@@ -244,12 +351,12 @@ async function main() {
               default_branch: 'main',
               topics: ['react', 'nextjs'],
               license: { spdx_id: 'MIT' },
-              owner: { login: 'vercel-labs' },
+              owner: { login: 'vercel-labs', avatar_url: AVATAR },
             })
           );
         }
         if (p === '/repos/vercel-labs/agent-skills/commits/main') {
-          return route.fulfill({ status: 200, contentType: 'text/plain', body: SHA });
+          return route.fulfill({ status: 200, headers: CORS, contentType: 'text/plain', body: SHA });
         }
         if (p === `/repos/vercel-labs/agent-skills/git/trees/${SHA}`) {
           return route.fulfill(
@@ -265,7 +372,7 @@ async function main() {
                   path: 'skills/vercel-react-best-practices/references/guide.md',
                   type: 'blob',
                   mode: '100644',
-                  size: 32,
+                  size: GUIDE_MD.length,
                 },
                 {
                   path: 'skills/web-design-guidelines/SKILL.md',
@@ -278,10 +385,16 @@ async function main() {
           );
         }
         if (p === '/repos/vercel-labs/agent-skills/contents/skills/vercel-react-best-practices/SKILL.md') {
-          return route.fulfill({ status: 200, contentType: 'text/plain', body: REACT_SKILL_MD });
+          const ref = url.searchParams.get('ref');
+          githubContentRequests.push({ path: p, ref });
+          if (ref !== SHA) return route.fulfill(json({ message: 'Missing or mismatched ref' }, 404));
+          return route.fulfill({ status: 200, headers: CORS, contentType: 'text/plain', body: REACT_SKILL_MD });
         }
         if (p === '/repos/vercel-labs/agent-skills/contents/skills/vercel-react-best-practices/references/guide.md') {
-          return route.fulfill({ status: 200, contentType: 'text/plain', body: '# React Reference Guide\n' });
+          const ref = url.searchParams.get('ref');
+          githubContentRequests.push({ path: p, ref });
+          if (ref !== SHA) return route.fulfill(json({ message: 'Missing or mismatched ref' }, 404));
+          return route.fulfill({ status: 200, headers: CORS, contentType: 'text/plain', body: GUIDE_MD });
         }
         return route.fulfill(json({ message: 'Not Found' }, 404));
       });
@@ -297,11 +410,6 @@ async function main() {
       await context.route('https://fonts.gstatic.com/**', (route) =>
         route.fulfill({ status: 200, contentType: 'font/woff2', body: '' })
       );
-
-      await context.route(/^https?:\/\/(?!127\.0\.0\.1|localhost|fake-vercel\.test|api\.github\.com|avatars\.githubusercontent\.com|fonts\.googleapis\.com|fonts\.gstatic\.com|www\.skills\.sh)/, (route) => {
-        unexpectedExternalHits.push(route.request().url());
-        return route.abort();
-      });
     }
 
     /* ---------------------------------------------------------------- */
@@ -345,15 +453,24 @@ async function main() {
     const firstCard = section.locator('article').first();
     const firstCardText = await firstCard.innerText();
     check('la primera tarjeta muestra posición #1 y badge Oficial', firstCardText.includes('#1') && firstCardText.includes('Oficial'));
+    check(
+      'la tarjeta GitHub muestra botones "Inspeccionar" e "Importar" y ningún botón obsoleto de Workspace',
+      (await firstCard.getByRole('button', { name: 'Inspeccionar vercel-react-best-practices' }).isVisible()) &&
+        (await firstCard.getByRole('button', { name: 'Importar vercel-react-best-practices al catálogo comunitario' }).isVisible()) &&
+        (await firstCard.getByRole('button', { name: /Workspace/i }).count()) === 0
+    );
 
     const wellKnownCard = section.locator('article', { hasText: 'ui-taste' });
     await wellKnownCard.waitFor({ timeout: 5000 });
     const wkText = await wellKnownCard.innerText();
     check('la tarjeta .well-known muestra el badge "Fuente .well-known"', wkText.includes('Fuente .well-known'));
     check(
-      'la tarjeta .well-known no muestra botón roto de GitHub ni Abrir en Workspace',
-      (await wellKnownCard.locator('a[href*="github.com"]').count()) === 0 &&
-        (await wellKnownCard.getByRole('button', { name: /Abrir .* en Workspace/ }).count()) === 0
+      'la tarjeta .well-known mantiene su aviso sin acciones rotas ni botón "Inspeccionar"',
+      wkText.includes('Fuente externa (.well-known)') &&
+        (await wellKnownCard.locator('a[href*="github.com"]').count()) === 0 &&
+        (await wellKnownCard.getByRole('button', { name: /Inspeccionar/i }).count()) === 0 &&
+        (await wellKnownCard.getByRole('button', { name: /Importar/i }).count()) === 0 &&
+        (await wellKnownCard.getByRole('button', { name: /Workspace/i }).count()) === 0
     );
 
     const copyBtn = firstCard.getByRole('button', { name: /Copiar comando npx de vercel-react-best-practices/ });
@@ -391,25 +508,94 @@ async function main() {
       (await reactCard.count()) === 1 && (await section.locator('article').count()) === 1
     );
 
-    // 4. Abrir en Workspace desde una skill GitHub
-    await reactCard.getByRole('button', { name: /Abrir vercel-react-best-practices en Workspace/ }).click();
-    const activeBar = page.getByRole('region', { name: 'Skill activa del estudio' });
-    await activeBar.waitFor({ timeout: 10000 });
-    const activeBarText = await activeBar.innerText();
-    const explorerText = await page
-      .locator('aside[aria-label="Explorador de archivos del workspace"]')
-      .innerText();
+    // 4. Inspeccionar desde una skill GitHub -> vista previa de solo lectura fijada a commitSha (C3)
+    const shortSha = SHA.slice(0, 7);
+    await reactCard.getByRole('button', { name: 'Inspeccionar vercel-react-best-practices' }).click();
+    const detailSection = page.locator('section[aria-label="Detalle de skill"]');
+    await detailSection.locator('h1', { hasText: 'vercel-react-best-practices' }).waitFor({ timeout: 10000 });
+
+    const previewBadge = detailSection.getByText(`Vista previa · skills.sh · ${shortSha}`);
+    await previewBadge.waitFor({ timeout: 5000 });
+    const previewAside = detailSection.locator('aside[aria-label="Ficha de la skill"]');
+    const previewAsideText = await previewAside.innerText();
+    const skillArticle = detailSection.locator('article[aria-label="Contenido de SKILL.md"]');
+    const installSection = previewAside.locator('section[aria-label="Instalar la skill"]');
+
     check(
-      'Abrir en Workspace carga la skill de GitHub con su SKILL.md',
-      activeBarText.includes('vercel-react-best-practices') && explorerText.includes('SKILL.md'),
-      `bar=${activeBarText.slice(0, 60)}`
+      'Inspeccionar abre SkillDetailPage en modo vista previa fijada a commitSha con SKILL.md y AuditBadge',
+      (await previewBadge.isVisible()) &&
+        previewAsideText.includes('Solo lectura fijada al commit') &&
+        previewAsideText.includes(shortSha) &&
+        (await previewAside.locator('[data-audit-level="clean"]').first().isVisible()) &&
+        (await installSection.locator('[data-audit-level="clean"]').isVisible()) &&
+        (await skillArticle.innerText()).includes('Prefer server components and avoid unnecessary client waterfalls.')
+    );
+    check(
+      'la vista previa muestra comando npx, panel de instalación fijado al commit y botón "Importar al catálogo"',
+      previewAsideText.includes('npx skills add vercel-labs/agent-skills --skill vercel-react-best-practices') &&
+        (await previewAside.getByRole('button', { name: 'Copiar npx' }).isVisible()) &&
+        (await previewAside.getByRole('button', { name: 'Importar al catálogo' }).isVisible()) &&
+        (await installSection.isVisible()) &&
+        (await installSection.locator('pre').innerText()).includes(SHA)
+    );
+    check(
+      'en vista previa oculta votos y reportes de resultados',
+      (await detailSection.getByRole('button', { name: /^(Votar|Votada)\b/ }).count()) === 0 &&
+        (await detailSection.locator('#results-heading').count()) === 0 &&
+        (await detailSection.getByRole('heading', { name: 'Reporta tu resultado' }).count()) === 0
     );
 
-    // 5. Volver a Explorar con proxy 502 y pulsar Actualizar -> degradación a snapshot
+    // 4b. Traducción al español en vista previa
+    await detailSection.getByRole('button', { name: 'Traducir al español' }).click();
+    const translatedArticle = detailSection.locator('article[aria-label="Contenido de SKILL.md traducido al español"]');
+    await translatedArticle.waitFor({ timeout: 8000 });
+    const translatedText = await translatedArticle.innerText();
+    check(
+      'traducir al español traduce el SKILL.md en la vista previa y permite volver al original',
+      translatedText.includes('Mejores prácticas de Vercel React') &&
+        translatedText.includes('Prefiere componentes de servidor') &&
+        (await detailSection.getByRole('button', { name: 'Ver original' }).isVisible())
+    );
+    await detailSection.getByRole('button', { name: 'Ver original' }).click();
+    await skillArticle.waitFor({ timeout: 5000 });
+
+    // 4c. Pestaña Archivos con descarga bajo demanda fijada a commitSha
+    await detailSection.getByRole('tab', { name: /Archivos/ }).click();
+    const fileList = detailSection.locator('ul[aria-label="Archivos de la skill"]');
+    await fileList.waitFor({ timeout: 5000 });
+    await fileList.getByRole('button', { name: /references\/guide\.md/ }).click();
+    const guidePre = detailSection.locator('pre[aria-label="Contenido de references/guide.md"]');
+    await guidePre.waitFor({ timeout: 8000 });
+    const guideText = await guidePre.innerText();
+    const filesTabPanel = detailSection.locator('[role="tabpanel"][aria-labelledby$="-tab-archivos"]');
+    const ghFileHref = await filesTabPanel
+      .locator('a', { hasText: `Ver en GitHub (${shortSha})` })
+      .getAttribute('href');
+    check(
+      'la pestaña Archivos descarga bajo demanda el archivo fijado a commitSha como texto con copia y enlace a GitHub',
+      guideText.includes('# React Reference Guide') &&
+        guideText.includes('Keep client bundles small') &&
+        (await filesTabPanel.getByRole('button', { name: 'Copiar', exact: true }).isVisible()) &&
+        ghFileHref === `https://github.com/vercel-labs/agent-skills/blob/${SHA}/skills/vercel-react-best-practices/references/guide.md` &&
+        githubContentRequests.some((r) => r.path.endsWith('/SKILL.md') && r.ref === SHA) &&
+        githubContentRequests.some((r) => r.path.endsWith('/references/guide.md') && r.ref === SHA),
+      `refs=${JSON.stringify(githubContentRequests)}`
+    );
+    await page.screenshot({ path: join(SHOTS_DIR, 'vista-previa-1440.png'), fullPage: true });
+
+    // 5. Regresar a Explorar limpia la vista previa y vuelve a skills.sh
+    await detailSection.getByRole('button', { name: 'Explorar', exact: true }).click();
+    await page.locator('#skills-sh-heading').waitFor({ timeout: 8000 });
+    check(
+      'el botón de regreso a Explorar vuelve a skills.sh limpiando la vista previa',
+      (await page.locator('#skills-sh-heading').isVisible()) &&
+        (await page.locator('section[aria-label="Detalle de skill"]').count()) === 0 &&
+        (await page.locator(`text=Vista previa · skills.sh · ${shortSha}`).count()) === 0
+    );
+
+    // 6. Con proxy 502 al pulsar Actualizar -> degradación a Copia de respaldo
     proxyDown = true;
     allow502ConsoleError = true;
-    await page.locator('nav[aria-label="Módulos del estudio"] a:has-text("Explorar")').click();
-    await page.locator('#skills-sh-heading').waitFor({ timeout: 8000 });
     await page.locator('button[aria-label="Actualizar directorio de skills.sh"]').click();
 
     await section.locator('[role="status"]', { hasText: 'Copia de respaldo' }).first().waitFor({ timeout: 8000 });
@@ -425,7 +611,56 @@ async function main() {
       'en modo Copia de respaldo la búsqueda local sobre snapshot devuelve coincidencias',
       (await section.locator('article', { hasText: 'vercel-react-best-practices' }).count()) >= 1
     );
+    proxyDown = false;
     allow502ConsoleError = false;
+
+    // 7. Sesión simulada e «Importar al catálogo» desde vista previa -> transición al detalle registrado
+    await section.getByRole('button', { name: 'Entrar con GitHub' }).click();
+    await page.getByRole('button', { name: 'Entrar con GitHub' }).click();
+    await page.locator(`.nav__actions a[aria-label="Sesión de ${TEAM_LOGIN}"]`).waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => !location.search.includes('code='), null, { timeout: 5000 });
+
+    await page.evaluate(() => document.querySelector('.nav__actions a.btn--primary')?.click());
+    await page.locator('nav[aria-label="Módulos del estudio"]').waitFor({ state: 'attached', timeout: 8000 });
+    await page.evaluate(() =>
+      [...document.querySelectorAll('nav[aria-label="Módulos del estudio"] a')]
+        .find((a) => a.textContent?.trim() === 'Explorar')
+        ?.click()
+    );
+    await page.locator('#skills-sh-heading').waitFor({ timeout: 10000 });
+    await section.locator('article', { hasText: 'vercel-react-best-practices' }).waitFor({ timeout: 8000 });
+    check(
+      'tras iniciar sesión simulada, Explorar muestra la sesión activa @SuarezCaceres',
+      await section.getByText(`@${TEAM_LOGIN}`).isVisible()
+    );
+
+    await section
+      .locator('article', { hasText: 'vercel-react-best-practices' })
+      .getByRole('button', { name: 'Inspeccionar vercel-react-best-practices' })
+      .click();
+    await detailSection.getByRole('button', { name: 'Importar al catálogo' }).waitFor({ timeout: 10000 });
+    await detailSection.getByRole('button', { name: 'Importar al catálogo' }).click();
+
+    await detailSection.locator('#results-heading').waitFor({ timeout: 10000 });
+    await detailSection.getByText('Subida por').first().waitFor({ timeout: 8000 });
+    check(
+      'Importar al catálogo registra la skill en el catálogo y transiciona al detalle con votos y reportes',
+      catalogIssues.length === 1 &&
+        catalogIssues[0].body.includes('vercel-labs/agent-skills') &&
+        catalogIssues[0].body.includes(SHA) &&
+        (await detailSection.getByRole('button', { name: 'Importar al catálogo' }).count()) === 0 &&
+        (await detailSection.getByText(`Vista previa · skills.sh · ${shortSha}`).count()) === 0 &&
+        (await detailSection.getByText(`@${TEAM_LOGIN}`).first().isVisible()) &&
+        (await detailSection.getByRole('button', { name: /^Votar\b/ }).isVisible()) &&
+        (await detailSection.locator('#results-heading').isVisible()) &&
+        (await detailSection.getByRole('heading', { name: 'Reporta tu resultado' }).isVisible())
+    );
+    await detailSection.getByRole('button', { name: 'Explorar', exact: true }).click();
+    await page.locator('#skills-sh-heading').waitFor({ timeout: 8000 });
+    check(
+      'desde el detalle registrado, el botón Explorar regresa a skills.sh',
+      await page.locator('#skills-sh-heading').isVisible()
+    );
 
     const cspErrors = errors.filter((e) => /Content Security Policy|Refused to connect/i.test(e));
     check('la CSP no bloquea ninguna petición en escritorio', cspErrors.length === 0, cspErrors.join(' | '));
@@ -467,7 +702,9 @@ async function main() {
         `${vp.width}x${vp.height}: encabezado y tarjetas visibles sin desborde horizontal`,
         (await vpPage.locator('#skills-sh-heading').isVisible()) &&
           layout.cards >= 3 &&
-          layout.scrollWidth <= layout.innerWidth + 2,
+          layout.scrollWidth <= layout.innerWidth + 2 &&
+          (await vpSection.getByRole('button', { name: /Inspeccionar/i }).count()) >= 2 &&
+          (await vpSection.getByRole('button', { name: /Workspace/i }).count()) === 0,
         `scrollWidth=${layout.scrollWidth}, innerWidth=${layout.innerWidth}, cards=${layout.cards}`
       );
       check(
