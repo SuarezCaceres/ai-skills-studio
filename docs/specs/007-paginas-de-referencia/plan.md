@@ -1,8 +1,9 @@
-# Plan · 006 · Páginas de referencia
+# Plan · 007 · Páginas de referencia
 
 > Estado: aprobado (2026-11-27)
-> Spec: `docs/specs/006-paginas-de-referencia/spec.md` (aprobada el 2026-11-27).
+> Spec: `docs/specs/007-paginas-de-referencia/spec.md` (aprobada el 2026-11-27).
 > Worktree: `../ai-skills-studio-006` · rama `feat/006-paginas-de-referencia` (desde `main` `d29f7de`).
+> Renumerada de 006 a 007 el 2026-11-27 (otra sesión abrió en paralelo «006 · efectos-estilos-animaciones»). La rama y los worktrees conservan el nombre `006`.
 
 ## Enfoque
 Se replica el patrón de **Componentes**: un registro fijo que se alimenta de `import.meta.glob` (vista en vivo diferida y código con `?raw`) y miniaturas generadas por un script desde la propia pieza. La diferencia es que aquí cada pieza es una **página completa** en `src/components/page-templates/`.
@@ -156,7 +157,7 @@ Reglas de la Fase 1:
 6. `feat(scripts): capturas de las páginas de referencia`: `scripts/capture-pages.mjs` y `public/pages/*.png` (`≤ 40 KB`).
 7. `npm run build` (medir el chunk inicial) y `./scripts/check.sh` completo con las variables del simulador:
    `VITE_CATALOG_REPO=test/catalog VITE_GITHUB_CLIENT_ID=test-client-id VITE_GITHUB_OAUTH_URL=https://oauth.example.test/api/github-oauth`.
-   Los fallos se corrigen con commits `fix(...)` en la 006.
+   Los fallos se corrigen con commits `fix(...)` en `feat/006-paginas-de-referencia`.
 8. Revisión visual con Playwright en los 4 anchos (capturas temporales en `shots/`, sin commitear).
 9. Quitar las junctions (`cmd /c rmdir <wt>\node_modules`), borrar los sub-worktrees y sus ramas.
 

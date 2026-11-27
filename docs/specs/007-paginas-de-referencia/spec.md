@@ -1,4 +1,4 @@
-# Spec · 006 · Páginas de referencia
+# Spec · 007 · Páginas de referencia
 
 > Estado: aprobada (2026-11-27; decisiones cerradas con el humano el 2026-11-27 en una sesión de *grilling*, Q1–Q13)
 
