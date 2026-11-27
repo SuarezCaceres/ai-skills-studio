@@ -10,7 +10,7 @@
  * script de captura falla con un mensaje claro. Solo se permite el origen local de Vite.
  *
  * Uso:
- *   const guard = await installGuideShowcaseGithub(context, { localOrigin });
+ *   const guard = await installGuideShowcaseGithub(context, { localOrigin, fallbackFonts });
  *   ...navegar y capturar...
  *   guard.assertNoRealNetwork();   // lanza si algo escapó del fixture
  */
@@ -191,7 +191,7 @@ function catalogApi(url) {
  * @param {import('playwright').BrowserContext} context
  * @param {{ localOrigin: string }} options Origen local (Vite) que sí puede recibir peticiones.
  */
-export async function installGuideShowcaseGithub(context, { localOrigin }) {
+export async function installGuideShowcaseGithub(context, { localOrigin, fallbackFonts = false }) {
   const report = { served: 0, unhandled: [] };
   const fail = (request, why) => report.unhandled.push(`${request.method()} ${request.url()} (${why})`);
 
@@ -222,14 +222,18 @@ export async function installGuideShowcaseGithub(context, { localOrigin }) {
     report.served++;
     return route.fulfill({ status: 200, contentType: 'image/svg+xml', body: avatarSvg(id) });
   });
-  // 4) Tipografías de Google: la CSP de la app las permite, pero la captura no debe depender de internet.
-  //    Se responde CSS vacío y la página usa sus fuentes de reserva, iguales en cualquier máquina.
+  // 4) Tipografías de Google (las mismas que carga index.html y que permite la CSP).
+  //    Por defecto pasan a la red: la captura debe verse con Geist/Geist Mono reales, como la app desplegada.
+  //    Con `fallbackFonts: true` (opción --fuentes-de-reserva del script) se responden vacías y la página usa sus
+  //    fuentes de reserva: sirve para trabajar sin conexión, pero la captura ya no es fiel.
   await context.route('https://fonts.googleapis.com/**', (route) => {
     report.served++;
+    if (!fallbackFonts) return route.continue();
     return route.fulfill({ status: 200, contentType: 'text/css', body: '/* sin tipografías remotas */' });
   });
   await context.route('https://fonts.gstatic.com/**', (route) => {
     report.served++;
+    if (!fallbackFonts) return route.continue();
     return route.fulfill({ status: 204 });
   });
 

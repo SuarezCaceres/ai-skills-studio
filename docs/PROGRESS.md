@@ -16,6 +16,7 @@
   - Spec y plan de la 005 ampliados con el rediseño en espejo **C8–C12** (aprobados por el humano) y rebase de la 005 sobre la 004 final (conflictos solo documentales).
   - **Fase 0 (`56c1dca`):** `GuideCaptureFrame` extraído; esqueletos de `GuideMediaSlot` y `GuideModePanel` con contrato de DOM; reloj con tiempo restante (al reanudar se espera solo lo que falta); maquetación en espejo con CSS propio en el chunk diferido; excepción del halo en `docs/rules/frontend.md`.
   - **Fase C (3 worktrees en paralelo):** escenario con círculo, anillo y píldora (`wt1`, `73a5a75`), texto del modo y tarjeta de barras (`wt2`, `41fa86d`) y suite C8–C12 (`wt3`, `2cdcf64`).
+  - **Captura con tipografía real:** `capture-guide-showcase.mjs` carga ahora Geist y Geist Mono desde Google Fonts (falla si no llegan; `--fuentes-de-reserva` para trabajar sin conexión). `catalogo.webp` regenerado (58,9 KB) y C6b actualizado (se cumple tras la 004).
   - **Integración (`5ec931a`):** `#guia` crece más allá de una pantalla en escritorio (el kit la fijaba a 708 px de contenido y se montaba sobre `#inspector`); círculo con superficie plana (sin degradado decorativo).
 - **Verificación:** `./scripts/check.sh` completo en `exit 0` con las variables del simulador (`test-guide-showcase.mjs` 356/356). Chunk inicial 349,7 kB (C6b en verde).
 - **Pendiente:** fusionar el PR #32 de la 004; rebasar la 005 sobre `main` y abrir su PR de 5 secciones con squash.

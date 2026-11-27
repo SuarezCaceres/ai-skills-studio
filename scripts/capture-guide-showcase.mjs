@@ -13,7 +13,11 @@
  * falla con un mensaje claro. La fecha se fija y se desactivan animaciones y fondo decorativo, como en
  * `capture-components.mjs`, para que la captura salga igual cada vez.
  *
- * Uso:  node scripts/capture-guide-showcase.mjs
+ * Tipografías: por defecto se cargan Geist y Geist Mono reales desde Google Fonts (como en la app desplegada) y el
+ * script falla si no llegan a cargarse. Sin conexión, `--fuentes-de-reserva` usa las fuentes de reserva (captura
+ * menos fiel; no la commitees así).
+ *
+ * Uso:  node scripts/capture-guide-showcase.mjs [--fuentes-de-reserva]
  */
 import { createServer } from 'vite';
 import { chromium } from 'playwright';
@@ -30,6 +34,7 @@ const PORT = 5195;
 const WIDTH = 1280;
 const HEIGHT = 800;
 const MAX_BYTES = 60 * 1024;
+const FALLBACK_FONTS = process.argv.includes('--fuentes-de-reserva');
 /** Calidades WebP que se prueban, de mayor a menor, hasta que la imagen quepa en `MAX_BYTES`. */
 const QUALITIES = [0.82, 0.78, 0.74, 0.7, 0.66, 0.62, 0.58, 0.54, 0.5];
 /** Margen alrededor de cada caja medida, en puntos porcentuales de cada eje. */
@@ -153,7 +158,7 @@ async function main() {
       reducedMotion: 'reduce',
     });
     await context.clock.setFixedTime(GUIDE_FIXED_NOW);
-    guard = await installGuideShowcaseGithub(context, { localOrigin: origin });
+    guard = await installGuideShowcaseGithub(context, { localOrigin: origin, fallbackFonts: FALLBACK_FONTS });
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
@@ -172,6 +177,16 @@ async function main() {
     const count = await cards.count();
     if (count !== expected) throw new Error(`Se esperaban ${expected} tarjetas y hay ${count}: el catálogo simulado no se cargó entero.`);
     if ((await page.locator('[role="alert"]').count()) > 0) throw new Error('La página del Catálogo muestra un error.');
+    // Las fuentes de la página se descargan al usarse: se fuerzan las dos familias y se exige que lleguen.
+    const fonts = await page.evaluate(async () => {
+      await Promise.allSettled(['400 16px Geist', '600 16px Geist', '400 16px "Geist Mono"'].map((f) => document.fonts.load(f)));
+      await document.fonts.ready;
+      const loaded = (family) => [...document.fonts].some((f) => f.family.replace(/["']/g, '') === family && f.status === 'loaded');
+      return { geist: loaded('Geist'), mono: loaded('Geist Mono') };
+    });
+    if (!FALLBACK_FONTS && !(fonts.geist && fonts.mono)) {
+      throw new Error(`No se cargaron las tipografías reales (${JSON.stringify(fonts)}). Comprueba la conexión o usa --fuentes-de-reserva (captura menos fiel).`);
+    }
     await page.evaluate(async () => {
       await document.fonts.ready;
       await Promise.all(
@@ -224,7 +239,7 @@ async function main() {
   for (const [id, b] of Object.entries(result.boxes)) {
     console.log(`    ${id.padEnd(7)} x ${String(b.x).padStart(5)} %  y ${String(b.y).padStart(5)} %  w ${String(b.w).padStart(5)} %  h ${String(b.h).padStart(5)} %`);
   }
-  console.log(`  Red: ${result.served} peticiones atendidas por el fixture, 0 reales.`);
+  console.log(`  Red: ${result.served} peticiones atendidas (GitHub simulado, 0 a api.github.com); tipografías: ${FALLBACK_FONTS ? 'de reserva, sin red' : 'Geist reales desde Google Fonts'}.`);
 }
 
 main().catch((err) => {
