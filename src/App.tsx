@@ -3,7 +3,6 @@ import type { CatalogSkillPreview } from './types/catalog';
 import type { SkillsShBusyKind, SkillsShEntry } from './types/skillsSh';
 import { AppPageRoute, UserAccount } from './types/workspace';
 import { eraseAllPersonalData } from './utils/securityHardening';
-import { buildNpxInstallCommand, buildSkillsShUrl } from './services/skillsShService';
 import { AuthScreen } from './components/AuthScreen';
 import { TopStudioHeader } from './components/NavbarActiveSkill';
 import { InformativeLandingSection } from './components/InformativeLandingSection';
@@ -178,6 +177,8 @@ export function App() {
         entry.source,
         entry.skillId
       );
+      // Import diferido: estas utilidades solo hacen falta aquí y así no pesan en el chunk inicial.
+      const { buildNpxInstallCommand, buildSkillsShUrl } = await import('./services/skillsShService');
       const npxCommand = buildNpxInstallCommand(entry.source, entry.skillId) || undefined;
       setPreviewSkill({
         skill,
