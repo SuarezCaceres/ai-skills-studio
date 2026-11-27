@@ -3,7 +3,7 @@ import { ArrowLeft, Eye, PenLine, X } from 'lucide-react';
 import { LESSON_LEVELS, type Lesson, type LessonDraft } from '../../types/lessons';
 import { LIMITS, normalizeTags, validateDraft, type DraftErrors } from '../../services/lessonsStore';
 import { SafeMarkdown } from '../catalog/SafeMarkdown';
-import { ComponentPicker, SkillPicker } from './pickers';
+import { ComponentPicker, PagePicker, SkillPicker } from './pickers';
 import { VideoPartsField, addVideoFromLink } from './VideoPartsField';
 import type { UseSkillOptionsResult } from './useLessons';
 
@@ -126,7 +126,9 @@ export function LessonEditor({ lesson, skills, onSubmit, onCancel }: LessonEdito
     if (first) {
       const target = { title: 'lesson-title-input', summary: 'lesson-summary-input', body: 'lesson-body-input', tags: 'lesson-tags-input', videos: 'lesson-video-input' }[first];
       if (first === 'body') setMobileTab('escribir');
-      window.requestAnimationFrame(() => (target ? document.getElementById(target) : form.current?.querySelector<HTMLElement>('input[type="checkbox"]'))?.focus());
+      // Las casillas de páginas van tras las de skills y componentes: se enfoca la primera de su propio grupo.
+      const checkbox = first === 'pageIds' ? '#picker-pages input[type="checkbox"]' : 'input[type="checkbox"]';
+      window.requestAnimationFrame(() => (target ? document.getElementById(target) : form.current?.querySelector<HTMLElement>(checkbox))?.focus());
       return;
     }
     if (!onSubmit(pending)) setSaveError(true);
@@ -146,7 +148,7 @@ export function LessonEditor({ lesson, skills, onSubmit, onCancel }: LessonEdito
         <h1 id="editor-heading" className="m-0 text-3xl font-bold tracking-tight text-white">
           {lesson ? 'Editar clase' : 'Subir una clase'}
         </h1>
-        <p className="m-0 text-sm text-slate-400">Explica lo que se hizo en el equipo y vincula la skill y los componentes que usaste.</p>
+        <p className="m-0 text-sm text-slate-400">Explica lo que se hizo en el equipo y vincula la skill, los componentes y las páginas de referencia que usaste.</p>
       </header>
 
       {errorList.length > 0 && (
@@ -255,6 +257,7 @@ export function LessonEditor({ lesson, skills, onSubmit, onCancel }: LessonEdito
 
           <SkillPicker value={draft.skillIds} onChange={(v) => set('skillIds', v)} max={LIMITS.skills} error={errors.skillIds} skills={skills} />
           <ComponentPicker value={draft.componentIds} onChange={(v) => set('componentIds', v)} max={LIMITS.components} error={errors.componentIds} />
+          <PagePicker value={draft.pageIds} onChange={(v) => set('pageIds', v)} max={LIMITS.pages} error={errors.pageIds} />
           <VideoPartsField
             videos={draft.videos}
             onChange={(v) => set('videos', v)}
