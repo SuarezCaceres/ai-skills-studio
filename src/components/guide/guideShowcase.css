@@ -8,6 +8,21 @@
  *   El selector queda centrado debajo, en una fila propia (no salta de lado al pulsarlo).
  * < 1024 px: una columna (escenario, selector, panel), sin espejo.
  */
+/*
+ * Altura: el kit (public/assets/system.css) fija cada sección a una pantalla en ≥ 1280 px, y el escenario con su
+ * círculo no cabe en 708 px sin encoger el marco hasta hacerlo ilegible. Igual que el propio kit hace entre 640 y
+ * 1279 px, la sección mide al menos una pantalla y crece en lugar de montarse sobre #inspector.
+ */
+main > #guia.section {
+  height: auto;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+main > #guia.section > .wrap {
+  height: auto;
+}
+
 #guia .guia__cabecera {
   display: flex;
   flex-direction: column;

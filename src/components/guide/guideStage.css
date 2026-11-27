@@ -76,7 +76,8 @@
 /* Círculo: superficie elevada con filo fino; en «Con guía» el filo toma un tinte cian. */
 #guia .guia-escenario__circulo {
   width: var(--guia-circulo);
-  background: linear-gradient(180deg, #1a2130 0%, #121722 45%, #0e121b 100%);
+  /* Superficie plana: docs/rules/frontend.md prohíbe degradados decorativos (la única excepción es el halo). */
+  background: #121722;
   box-shadow: inset 0 0 0 1px rgb(148 163 184 / 0.16);
   transition: box-shadow var(--guia-fundido);
 }
