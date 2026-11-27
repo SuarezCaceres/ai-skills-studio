@@ -16,13 +16,16 @@
  */
 import { build, preview } from 'vite';
 import { chromium } from 'playwright';
-import { existsSync, mkdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { mkdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { TEST_CATALOG_REPO, TEST_CLIENT_ID, TEST_OAUTH_URL } from './lib/github-fixture.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const PORT = 5194;
+const OUT_DIR = join(tmpdir(), 'ai-skills-studio-laptop-showcase-e2e');
 const SHOTS_DIR = resolve(ROOT, 'shots', 'laptop');
 
 const PNG_1X1 = Buffer.from(
@@ -145,12 +148,17 @@ async function runVerification() {
   let targetUrl = process.env.TARGET_URL || '';
 
   if (!targetUrl) {
-    if (!existsSync(resolve(ROOT, 'dist', 'index.html'))) {
-      console.log('📦 Building dist/ before preview...');
-      await build({ root: ROOT, logLevel: 'error' });
-    }
+    // Compila su propio dist con el GitHub simulado: no depende de `.env.local` ni de `npm run build`.
+    process.env.VITE_CATALOG_REPO = TEST_CATALOG_REPO;
+    process.env.VITE_GITHUB_CLIENT_ID = TEST_CLIENT_ID;
+    process.env.VITE_GITHUB_OAUTH_URL = TEST_OAUTH_URL;
+    process.env.VITE_SKILLS_SH_PROXY_URL = '';
+    rmSync(OUT_DIR, { recursive: true, force: true });
+    console.log('📦 Building test dist before preview...');
+    await build({ root: ROOT, logLevel: 'error', build: { outDir: OUT_DIR, emptyOutDir: true } });
     previewServer = await preview({
       root: ROOT,
+      build: { outDir: OUT_DIR },
       preview: {
         port: PORT,
         host: '127.0.0.1',
