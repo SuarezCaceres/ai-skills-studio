@@ -4,6 +4,8 @@
 > Las funcionalidades completas viven en `docs/features.json`; aquí van tareas operativas, deuda técnica y pasos manuales.
 
 ## En curso
+- [ ] **006 · Efectos: estilos y animaciones en Componentes (`feat/006-efectos-estilos-animaciones`):** pestaña «Efectos» con 8 estilos y 10 animaciones, prompt en español copiable, «Repetir» y movimiento reducido; C1–C6 en verde (`test-effects-page.mjs` 139/139) y `check.sh` completo en verde. Revisión `revisor`: APPROVE (importantes y menores corregidos). Falta: revisión humana y fusión del PR · humano
+- [ ] **Añadir `test-effects-page.mjs` a la tabla de suites de `docs/rules/testing.md`** (E2E e interfaz). No se tocó por ser `docs/rules/` (requiere permiso) · humano + agente
 - [ ] **005 · Guía vs. sin guía en la portada (`feat/005-guia-vs-sin-guia`, worktree `ai-skills-studio-005`):** rediseño en espejo (C8–C12) integrado sobre la 004; criterios C1–C12 en verde (`test-guide-showcase.mjs` 356/356) y `check.sh` completo en verde. Revisión `revisor`: APPROVE (importantes corregidos en `84a93f5`). Falta: rebase sobre `main` cuando se fusione el PR #32 y PR de 5 secciones con **squash** (`180a2a9` usa el tipo `test`) · agente + humano
 - [ ] **`test-interactions-playwright.mjs` depende de `.env.local`:** compila con el `dist` de `npm run build` y, si `VITE_CATALOG_REPO` no está definida (p. ej. en un worktree sin `.env.local`), falla en «Nadie del equipo ha subido skills todavía». Debería fijar `TEST_CATALOG_REPO`/`TEST_CLIENT_ID` antes de compilar, como `test-guide-showcase.mjs`. Mientras tanto: `VITE_CATALOG_REPO=test/catalog VITE_GITHUB_CLIENT_ID=test-client-id VITE_GITHUB_OAUTH_URL=https://oauth.example.test/api/github-oauth ./scripts/check.sh` · agente
 
