@@ -1,19 +1,27 @@
 import { lazy, type ComponentType } from 'react';
 import { UI_COMPONENT_CATEGORIES, type UiComponentCategory, type UiComponentEntry, type UiComponentMeta } from '../types/uiComponents';
+import type { EffectMeta } from './effects/types';
+import { EFFECT_STYLES } from './effects/estilos';
+import { EFFECT_ANIMATIONS } from './effects/animaciones';
 
 /**
- * Registro de los componentes del kit. Para añadir uno:
+ * Registro de los componentes del kit y de los efectos. Para añadir un componente:
  *   1. crea `src/components/ui-kit/<Archivo>.tsx` y exporta una función `Demo` (la vista previa en vivo);
  *   2. añade una línea a `META` con su `file` (sin extensión).
+ * Para añadir un efecto (estilo o animación): crea `src/components/effects/<Archivo>.tsx` con su `Demo`
+ * y añade su entrada a `src/data/effects/estilos.ts` o `animaciones.ts` (con `nickname` y `prompt`).
  * La página Componentes, el código mostrado y las miniaturas salen de aquí: no hay que tocarlas.
  */
 
 type KitModule = { Demo: ComponentType };
 
-const previews = import.meta.glob<KitModule>('../components/ui-kit/*.tsx');
-const sources = import.meta.glob<string>('../components/ui-kit/*.tsx', { query: '?raw', import: 'default' });
+const previews = import.meta.glob<KitModule>(['../components/ui-kit/*.tsx', '../components/effects/*.tsx']);
+const sources = import.meta.glob<string>(['../components/ui-kit/*.tsx', '../components/effects/*.tsx'], {
+  query: '?raw',
+  import: 'default',
+});
 
-interface KitMeta extends Omit<UiComponentMeta, 'thumbnail'> {
+interface KitMeta extends Omit<UiComponentMeta, 'thumbnail' | 'kind' | 'nickname' | 'prompt'> {
   /** Nombre del archivo en `ui-kit/`, sin la extensión. */
   file: string;
 }
@@ -261,32 +269,41 @@ const META: KitMeta[] = [
   },
 ];
 
-function toEntry(meta: KitMeta): UiComponentEntry {
-  const path = `../components/ui-kit/${meta.file}.tsx`;
+function toEntry(meta: (KitMeta & { kind: 'componente' }) | EffectMeta): UiComponentEntry {
+  const folder = meta.kind === 'efecto' ? 'effects' : 'ui-kit';
+  const path = `../components/${folder}/${meta.file}.tsx`;
   const loadPreview = previews[path];
   const loadSource = sources[path];
   if (!loadPreview || !loadSource) {
-    throw new Error(`Falta el archivo ui-kit/${meta.file}.tsx del componente «${meta.id}».`);
+    throw new Error(`Falta el archivo ${folder}/${meta.file}.tsx de «${meta.id}».`);
   }
   const { file: _file, ...rest } = meta;
   return {
     ...rest,
     thumbnail: `components/${meta.id}.png`,
-    sourcePath: `src/components/ui-kit/${meta.file}.tsx`,
+    sourcePath: `src/components/${folder}/${meta.file}.tsx`,
     Preview: lazy(() => loadPreview().then((m) => ({ default: m.Demo }))),
     loadSource,
   };
 }
 
-/** Todos los componentes del kit, en el orden en que se declaran. */
-export const COMPONENT_REGISTRY: UiComponentEntry[] = META.map(toEntry);
+/** Todos los componentes del kit y después los efectos, en el orden en que se declaran. */
+export const COMPONENT_REGISTRY: UiComponentEntry[] = [
+  ...META.map((meta) => toEntry({ ...meta, kind: 'componente' as const })),
+  ...EFFECT_STYLES.map(toEntry),
+  ...EFFECT_ANIMATIONS.map(toEntry),
+];
 
 export function getComponentEntry(id: string | null | undefined): UiComponentEntry | undefined {
   return id ? COMPONENT_REGISTRY.find((entry) => entry.id === id) : undefined;
 }
 
-export function componentsByCategory(entries: UiComponentEntry[] = COMPONENT_REGISTRY): Array<{ category: UiComponentCategory; entries: UiComponentEntry[] }> {
-  return UI_COMPONENT_CATEGORIES.map((category) => ({
+/** Agrupa por categoría en el orden de `categories` (por defecto, las del kit); omite los grupos vacíos. */
+export function componentsByCategory(
+  entries: UiComponentEntry[] = COMPONENT_REGISTRY,
+  categories: UiComponentCategory[] = UI_COMPONENT_CATEGORIES
+): Array<{ category: UiComponentCategory; entries: UiComponentEntry[] }> {
+  return categories.map((category) => ({
     category,
     entries: entries.filter((entry) => entry.category === category),
   })).filter((group) => group.entries.length > 0);

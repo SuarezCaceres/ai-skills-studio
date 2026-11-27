@@ -11,6 +11,16 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-27 · Claude Code (`Orquestador General`) · `feat/006-efectos-estilos-animaciones`
+- **Hecho:**
+  - Spec y plan de la **006** aprobados por el humano (pestaña «Efectos» dentro de Componentes; 8 estilos + 10 animaciones; prompt en español copiable).
+  - **Fase 0 (`31f3be9`):** contrato `kind`/`nickname`/`prompt`, categorías `Estilos`/`Animaciones`, segundo `glob` sobre `src/components/effects/` y metadatos en `src/data/effects/`.
+  - **Fase 1 (4 subagentes en el mismo árbol, archivos disjuntos, sin worktrees):** 8 estilos (`913c8e3`), 10 animaciones + `ReplayFrame` (`457a87e`), pestañas/lista/detalle con «Prompt para tu IA» y selector de clases agrupado (`582ada9`), suite `test-effects-page.mjs` + alta en `check.sh` (`d5ce68f`).
+  - **Integración:** 18 miniaturas ≤ 40 KB (`0be3554`; Grain texture atenúa el grano solo en la captura). Revisión `revisor`: APPROVE; corregidos la espera superficial de C2, el avatar no redondo del Shimmer, la comprobación de remontaje de «Repetir», el código de demos fuera del chunk inicial, un botón «Pausar cinta» en el Marquee (WCAG 2.2.2) y nombres alineados con la spec.
+- **Verificación:** `./scripts/check.sh` completo en `exit 0`; `test-effects-page.mjs` 139/139. Chunk inicial idéntico a `main` (349 905 B, medido compilando `main` aparte).
+- **Pendiente:** revisión humana y fusión del PR; añadir la suite a la tabla de `docs/rules/testing.md` (requiere permiso).
+- **Problemas:** el agente de animaciones se cortó por el límite de uso y se retomó sin perder trabajo. Otra sesión trabaja en la portada en esta misma carpeta (`InformativeLandingSection.tsx`, `AiAgents3DStrip.tsx`, `aiAgents3D.css`, `src/assets/ai-icons/` sin commitear): no se incluyó en la 006.
+
 ## 2026-11-27 · Claude Code · `fix/test-interactions-env`
 - **Hecho:**
   - `test-interactions-playwright.mjs` fallaba en cualquier carpeta sin `.env.local` (worktrees, clones limpios): servía el `dist/` de `npm run build`, que sin `VITE_CATALOG_REPO` muestra «El catálogo no está configurado», y la suite espera «Nadie del equipo ha subido skills todavía».

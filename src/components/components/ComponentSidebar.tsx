@@ -1,14 +1,24 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { ChevronDown, Search, X } from 'lucide-react';
 import type { ComponentAssignment, UiComponentCategory, UiComponentEntry } from '../../types/uiComponents';
-import { UI_COMPONENT_CATEGORIES } from '../../types/uiComponents';
 import { componentsByCategory } from '../../data/componentRegistry';
 import { AssignmentBadge } from './AssignmentBadge';
 import { ComponentThumb } from './ComponentThumb';
 import { ASSIGNMENT_FILTERS, matchesAssignmentFilter, type AssignmentFilter } from './assignmentInfo';
 
+/** Cómo se nombra lo que hay en la lista: «componente/componentes/Componentes» o «efecto/efectos/Efectos». */
+export interface EntryNoun {
+  singular: string;
+  plural: string;
+  /** Nombre de la lista con mayúscula: `aria-label` de la `<nav>` (las pruebas buscan `nav[aria-label="Componentes"]`). */
+  label: string;
+}
+
 interface ComponentSidebarProps {
   entries: UiComponentEntry[];
+  /** Categorías del grupo, en el orden en que se muestran (selector y encabezados de la lista). */
+  categories: UiComponentCategory[];
+  noun: EntryNoun;
   assignments: Record<string, ComponentAssignment>;
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -16,12 +26,15 @@ interface ComponentSidebarProps {
 
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]';
 
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
 /**
- * Lista lateral de componentes agrupada por categoría, con buscador y filtros (asignación y categoría).
- * Las flechas arriba/abajo, Inicio y Fin recorren la lista y eligen el componente (`aria-current`).
- * En pantallas estrechas la lista se pliega tras un botón que muestra el componente elegido.
+ * Lista lateral de componentes (o de efectos) agrupada por categoría, con buscador y filtros
+ * (asignación y categoría). Las flechas arriba/abajo, Inicio y Fin recorren la lista y eligen la
+ * entrada (`aria-current`). En pantallas estrechas la lista se pliega tras un botón que muestra la
+ * entrada elegida. La página la remonta por pestaña (`key`), así los filtros se limpian al cambiar.
  */
-export function ComponentSidebar({ entries, assignments, selectedId, onSelect }: ComponentSidebarProps) {
+export function ComponentSidebar({ entries, categories, noun, assignments, selectedId, onSelect }: ComponentSidebarProps) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<AssignmentFilter>('todos');
   const [category, setCategory] = useState<UiComponentCategory | 'todas'>('todas');
@@ -37,11 +50,12 @@ export function ComponentSidebar({ entries, assignments, selectedId, onSelect }:
         (!q ||
           entry.name.toLowerCase().includes(q) ||
           entry.description.toLowerCase().includes(q) ||
-          entry.category.toLowerCase().includes(q))
+          entry.category.toLowerCase().includes(q) ||
+          (entry.nickname ?? '').toLowerCase().includes(q))
     );
   }, [entries, assignments, query, filter, category]);
 
-  const groups = useMemo(() => componentsByCategory(visible), [visible]);
+  const groups = useMemo(() => componentsByCategory(visible, categories), [visible, categories]);
   const selected = entries.find((entry) => entry.id === selectedId);
   const filtering = query.trim() !== '' || filter !== 'todos' || category !== 'todas';
 
@@ -65,7 +79,7 @@ export function ComponentSidebar({ entries, assignments, selectedId, onSelect }:
   };
 
   return (
-    <aside aria-label="Lista de componentes" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
+    <aside aria-label={`Lista de ${noun.plural}`} className="min-w-0 lg:sticky lg:top-24 lg:self-start">
       <button
         type="button"
         aria-expanded={mobileOpen}
@@ -74,7 +88,7 @@ export function ComponentSidebar({ entries, assignments, selectedId, onSelect }:
         className={`flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-slate-800 bg-[#121722] px-4 py-3 text-left text-sm text-slate-100 lg:hidden ${FOCUS}`}
       >
         <span className="min-w-0 truncate">
-          <span className="text-slate-500">Componente: </span>
+          <span className="text-slate-500">{capitalize(noun.singular)}: </span>
           <strong>{selected?.name ?? 'Elige uno'}</strong>
           <span className="text-slate-500"> · {entries.length} en total</span>
         </span>
@@ -91,8 +105,8 @@ export function ComponentSidebar({ entries, assignments, selectedId, onSelect }:
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar componente…"
-            aria-label="Buscar componente"
+            placeholder={`Buscar ${noun.singular}…`}
+            aria-label={`Buscar ${noun.singular}`}
             className="h-9 w-full rounded-lg border border-slate-800 bg-[#0a0d14] pl-9 pr-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-[#0ea5e9]"
           />
         </div>
@@ -126,7 +140,7 @@ export function ComponentSidebar({ entries, assignments, selectedId, onSelect }:
             className="h-9 w-full cursor-pointer rounded-lg border border-slate-800 bg-[#0a0d14] px-3 text-sm text-slate-200 outline-none focus:border-[#0ea5e9]"
           >
             <option value="todas">Todas las categorías</option>
-            {UI_COMPONENT_CATEGORIES.map((c) => (
+            {categories.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
@@ -136,7 +150,7 @@ export function ComponentSidebar({ entries, assignments, selectedId, onSelect }:
 
         <p role="status" className="m-0 flex items-center justify-between font-mono text-[11px] text-slate-500">
           <span>
-            {visible.length} {visible.length === 1 ? 'componente' : 'componentes'}
+            {visible.length} {visible.length === 1 ? noun.singular : noun.plural}
             {filtering && ` de ${entries.length}`}
           </span>
           {filtering && (
@@ -155,10 +169,10 @@ export function ComponentSidebar({ entries, assignments, selectedId, onSelect }:
           )}
         </p>
 
-        <nav aria-label="Componentes" className="-mr-1 min-h-0 flex-1 overflow-y-auto pr-1 [max-height:60dvh] lg:[max-height:none]">
+        <nav aria-label={noun.label} className="-mr-1 min-h-0 flex-1 overflow-y-auto pr-1 [max-height:60dvh] lg:[max-height:none]">
           {groups.length === 0 ? (
             <p className="m-0 rounded-lg border border-dashed border-slate-700 p-4 text-center text-sm text-slate-400">
-              Ningún componente coincide con los filtros.
+              Ningún {noun.singular} coincide con los filtros.
             </p>
           ) : (
             groups.map((group) => (

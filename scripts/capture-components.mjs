@@ -1,14 +1,17 @@
 /**
- * Genera las miniaturas de la página Componentes a partir de los PROPIOS componentes.
+ * Genera las miniaturas de la página Componentes a partir de los PROPIOS componentes y efectos.
  *
  * Arranca un servidor de Vite, abre la página Componentes en un Chromium sin cabeza, y por cada
  * componente del registro fotografía su vista previa en vivo sobre fondo carbón a 640 × 400 px
  * (si la demo es más grande, se reduce con `zoom` hasta que quepa). Guarda `public/components/<id>.png`;
  * si una imagen pasa de 40 KB la reduce a paleta indexada (sin dependencias) y, si aun así no cabe, falla. No añade código a la app: todo ocurre aquí, fuera del bundle.
  *
+ * Los efectos (`kind: 'efecto'`) se buscan en la pestaña «Efectos». El contexto usa movimiento reducido
+ * y CAPTURE_CSS quita animaciones y transiciones: las animaciones se fotografían en su estado final.
+ *
  * GitHub se intercepta (la cuota anónima es de 60 peticiones/h por IP): nunca se toca api.github.com.
  *
- * Uso:  node scripts/capture-components.mjs [--only=accordion,card]
+ * Uso:  node scripts/capture-components.mjs [--only=accordion,card,glassmorphism]
  */
 import { createServer } from 'vite';
 import { chromium } from 'playwright';
@@ -34,12 +37,35 @@ const PREPARE = {
   dropdowns: (stage) => stage.getByRole('button', { name: 'Acciones de la clase' }).click(),
   datepicker: (stage) => stage.getByRole('button', { name: 'Elegir fecha' }).first().click(),
   drawer: (stage) => stage.getByRole('button', { name: /Abrir filtros/ }).click(),
+  // El ruido no se comprime: solo en la miniatura se atenúa el grano para que quepa en 40 KB.
+  'grain-texture': (stage) =>
+    stage.page().addStyleTag({ content: '[data-effect="grain-texture"]::before,[data-effect="grain-texture"] *::before{opacity:.06!important}' }),
 };
 
 // Sin animaciones, y sin el fondo decorativo de la app (fijo y con z-index: se pintaría sobre la captura).
 const CAPTURE_CSS =
   '*,*::before,*::after{transition:none!important;animation:none!important;caret-color:transparent!important}' +
   'div.pointer-events-none.fixed.inset-0.z-0{display:none!important}';
+
+/** Escapa un texto para usarlo literal dentro de una expresión regular (nombres como «Shimmer / skeleton»). */
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Activa la pestaña del grupo de la entrada («Componentes» o «Efectos») y devuelve el selector de su
+ * lista lateral. Las entradas `kind: 'efecto'` viven en la pestaña «Efectos».
+ */
+async function openGroup(page, kind) {
+  const label = kind === 'efecto' ? 'Efectos' : 'Componentes';
+  const tab = page.getByRole('tab', { name: new RegExp(`^${label}`) });
+  if ((await tab.getAttribute('aria-selected')) !== 'true') {
+    await tab.click();
+    await page.waitForFunction(
+      (name) => document.querySelector(`nav[aria-label="${name}"]`) !== null,
+      label
+    );
+  }
+  return `nav[aria-label="${label}"]`;
+}
 
 async function fakeGithub(route) {
   const { pathname } = new URL(route.request().url());
@@ -81,9 +107,10 @@ async function main() {
     const { COMPONENT_REGISTRY } = await server.ssrLoadModule('/src/data/componentRegistry.ts');
     if (COMPONENT_REGISTRY.length === 0) throw new Error('El registro de componentes está vacío.');
 
-    for (const { id: finalId, name } of COMPONENT_REGISTRY) {
+    for (const { id: finalId, name, kind } of COMPONENT_REGISTRY) {
       if (only.length > 0 && !only.includes(finalId)) continue;
-      await page.locator('nav[aria-label="Componentes"] ul button', { hasText: new RegExp(`^${name}`) }).first().click();
+      const list = await openGroup(page, kind);
+      await page.locator(`${list} ul button`, { hasText: new RegExp(`^${escapeRegExp(name)}`) }).first().click();
       await page.locator('#component-name', { hasText: name }).waitFor();
 
       const stage = page.locator('[data-preview-stage]');
