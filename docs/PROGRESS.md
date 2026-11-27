@@ -11,6 +11,15 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-27 · Claude Code · `fix/test-interactions-env`
+- **Hecho:**
+  - `test-interactions-playwright.mjs` fallaba en cualquier carpeta sin `.env.local` (worktrees, clones limpios): servía el `dist/` de `npm run build`, que sin `VITE_CATALOG_REPO` muestra «El catálogo no está configurado», y la suite espera «Nadie del equipo ha subido skills todavía».
+  - Las cuatro suites que servían el `dist/` compartido (`test-interfaces-playwright`, `test-interactions-playwright`, `test-components-page` y `verify-laptop-showcase`, esta fuera de `check.sh`) compilan ahora su propio dist en un directorio temporal con las variables del simulador (`TEST_CATALOG_REPO`, `TEST_CLIENT_ID`, `TEST_OAUTH_URL` de `scripts/lib/github-fixture.mjs` y `VITE_SKILLS_SH_PROXY_URL` vacía), igual que `test-catalog-integration`, `test-components-assign`, `test-lessons`, `test-lessons-share` y `test-skills-sh-page`. `verify-laptop-showcase` ya no reutiliza un `dist/` antiguo ni compila en el `dist/` de producción.
+  - `npm run build` sigue en `check.sh` como verificación del build de producción; ninguna suite depende ya de él ni de `.env.local`.
+- **Verificación:** antes del arreglo, `npm run build && node scripts/test-interactions-playwright.mjs` fallaba en este worktree. Después, `./scripts/check.sh` completo en `exit 0` (328 s, sin variables `VITE_*` en el entorno ni `.env.local`); `verify-laptop-showcase.mjs` en `exit 0`. Cada suite suma un build de ~7,5 s.
+- **Pendiente:** revisión humana y fusión del PR.
+- **Problemas:** los directorios temporales de las suites (`%TEMP%/ai-skills-studio-*-e2e`) y los puertos son fijos, así que `check.sh` en paralelo en varios worktrees sigue chocando.
+
 ## 2026-11-27 · Claude Code · `feat/004-retiro-workspace-inspector-codigo` (seguimiento tras PR #31)
 - **Hecho:**
   - La 004 ya se fusionó en `main` con el PR #31 (merge `309be17`, sin *squash*, así que `0505bc5` con tipo `test` quedó en `main`). Estos cambios van en un PR de seguimiento.
