@@ -1,0 +1,133 @@
+/*
+ * Sistema unificado de portada:
+ * - Las secciones dejan respirar el fondo atmosférico WebGL2 fijo (.fg-light-layer--fixed en workshopLight.css).
+ * - Tipografía unificada con el Hero (Geist peso 680, tracking -0.04em, eyebrow mono con barra cian #0ea5e9).
+ * - Revelación escalonada al hacer scroll (IntersectionObserver + CSS 60 fps) respetando prefers-reduced-motion.
+ */
+
+/* Asegura que las secciones de portada dejen respirar el haz WebGL2 continuo sin bloques opacos abruptos. */
+main#top,
+footer#contact {
+  position: relative;
+  z-index: 1;
+}
+
+main#top > section,
+footer#contact.closing {
+  background: transparent;
+}
+
+main#top > section.ground-surface {
+  background: rgba(18, 23, 34, 0.42);
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+/* ---------- Tipografía unificada con el Hero ---------- */
+
+.ld-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0 0 0.9rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.ld-eyebrow--center {
+  justify-content: center;
+}
+
+.ld-eyebrow__bar {
+  width: 1.65rem;
+  height: 1px;
+  background: #0ea5e9;
+  flex-shrink: 0;
+}
+
+main#top h2.ld-heading,
+footer#contact h2.ld-heading {
+  font-family: var(--font-display, 'Geist', system-ui, sans-serif);
+  font-weight: 680;
+  letter-spacing: -0.04em;
+  line-height: 1.06;
+  color: #f1f5f9;
+}
+
+.ld-heading__mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.ld-heading__line {
+  display: block;
+}
+
+.ld-accent {
+  color: #0ea5e9;
+}
+
+/* ---------- Revelación escalonada al hacer scroll ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .ld-scroll-ready [data-reveal='up'] {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+    transition:
+      opacity 0.64s cubic-bezier(0.22, 1, 0.36, 1) var(--rv-delay, 0ms),
+      transform 0.68s cubic-bezier(0.22, 1, 0.36, 1) var(--rv-delay, 0ms);
+  }
+
+  .ld-scroll-ready [data-reveal='panel'] {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0) scale(0.985);
+    transition:
+      opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1) var(--rv-delay, 0ms),
+      transform 0.78s cubic-bezier(0.22, 1, 0.36, 1) var(--rv-delay, 0ms);
+  }
+
+  .ld-scroll-ready [data-reveal='mask'] .ld-heading__line {
+    opacity: 0;
+    transform: translate3d(0, 108%, 0);
+    transition:
+      opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1) var(--rv-delay, 0ms),
+      transform 0.72s cubic-bezier(0.22, 1, 0.36, 1) var(--rv-delay, 0ms);
+  }
+
+  .ld-scroll-ready [data-reveal='mask'] .ld-heading__mask:nth-child(2) .ld-heading__line {
+    transition-delay: calc(var(--rv-delay, 0ms) + 95ms);
+  }
+
+  .ld-scroll-ready [data-reveal='up'][data-revealed='true'],
+  .ld-scroll-ready [data-reveal='panel'][data-revealed='true'] {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .ld-scroll-ready [data-reveal='mask'][data-revealed='true'] .ld-heading__line {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  [data-reveal-delay='1'] { --rv-delay: 70ms; }
+  [data-reveal-delay='2'] { --rv-delay: 140ms; }
+  [data-reveal-delay='3'] { --rv-delay: 210ms; }
+  [data-reveal-delay='4'] { --rv-delay: 280ms; }
+  [data-reveal-delay='5'] { --rv-delay: 350ms; }
+  [data-reveal-delay='6'] { --rv-delay: 420ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal] .ld-heading__line {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

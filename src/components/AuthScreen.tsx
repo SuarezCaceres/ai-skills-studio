@@ -1,131 +1,138 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { Github, Lock, ShieldCheck, X } from 'lucide-react';
 import { useCatalog } from '../hooks/useCatalog';
-import {
-  ShieldCheck,
-  Flame,
-  Cpu,
-  FolderArchive,
-  BookOpen,
-  Github,
-} from 'lucide-react';
+import './authModal.css';
 
 interface AuthScreenProps {
   onContinueAsPublic?: () => void;
 }
 
 /**
- * Pantalla de acceso: solo existen el modo visitante y entrar con GitHub. La entrada como
- * colaborador al completarse el OAuth la gestiona `App` (observa la sesión de GitHub).
+ * Modal flotante de acceso con GitHub (estilo Forge con vidrio esmerilado y fondo difuminado).
+ * Se monta sobre la vista actual sin perder la posición de scroll ni desmontar el fondo WebGL2.
  */
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onContinueAsPublic }) => {
   const { oauthConfigured, signingIn, authError, signIn } = useCatalog();
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
 
-  return (
-    <div className="min-h-screen bg-transparent text-slate-100 flex flex-col justify-center items-center px-4 py-10 relative overflow-hidden">
-      <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center z-10">
-        {/* Columna izquierda: qué cambia al entrar */}
-        <div className="lg:col-span-6 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0F172A] border border-[#0EA5E9]/40 text-[#38BDF8] text-xs font-bold uppercase tracking-wider cyan-glow-sm">
-            <Flame className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
-            <span>Modo Visitante vs. Entrar con GitHub</span>
-          </div>
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeBtnRef.current?.focus();
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">
-            Entra con{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0EA5E9] to-[#38BDF8]">
-              tu cuenta de GitHub
-            </span>
-          </h1>
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && onContinueAsPublic) {
+        onContinueAsPublic();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
 
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            En <strong className="text-white">Modo Visitante</strong> cualquier persona puede explorar el catálogo y las skills
-            del equipo y montar carpetas o paquetes en memoria. Con <strong className="text-[#0EA5E9]">GitHub</strong> además
-            puedes subir skills, votar y contar con qué modelo te funcionaron; tu cuenta queda como autora de lo que subes.
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onContinueAsPublic]);
+
+  const modal = (
+    <div
+      className="auth-modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-heading"
+      onClick={(event) => {
+        if (event.target === event.currentTarget && onContinueAsPublic) {
+          onContinueAsPublic();
+        }
+      }}
+    >
+      <div className="auth-modal-card">
+        <div className="flex items-start justify-between gap-3">
+          <p className="m-0 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">
+            <span aria-hidden="true" className="h-px w-5 bg-[#0ea5e9]" />
+            <span>Acceso · GitHub OAuth</span>
           </p>
+          {onContinueAsPublic && (
+            <button
+              ref={closeBtnRef}
+              type="button"
+              onClick={onContinueAsPublic}
+              aria-label="Cerrar ventana de acceso"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-[#0ea5e9]/60 hover:bg-[#0ea5e9]/15 hover:text-white cursor-pointer"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-            <div className="p-4 rounded-2xl bg-[#0F172A]/90 border border-slate-800 flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#0EA5E9]/15 border border-[#0EA5E9]/40 flex items-center justify-center shrink-0">
-                <FolderArchive className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
-              </div>
-              <div>
-                <h2 className="text-xs font-bold text-white">Con GitHub</h2>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  Subir skills, votar, reportar resultados por modelo y firmar con tu cuenta.
-                </p>
-              </div>
-            </div>
+        <h1 id="auth-modal-heading" className="auth-modal-title">
+          Entra con <span className="text-[#0ea5e9]">tu cuenta de GitHub</span>
+        </h1>
 
-            <div className="p-4 rounded-2xl bg-[#0F172A]/90 border border-slate-800 flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center shrink-0">
-                <Cpu className="w-4 h-4 text-sky-400" aria-hidden="true" />
-              </div>
-              <div>
-                <h2 className="text-xs font-bold text-white">Modo Visitante</h2>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  Consulta libre del catálogo, del equipo y del estudio, sin guardar nada en GitHub.
-                </p>
-              </div>
+        <p className="mt-3 text-sm leading-relaxed text-slate-300">
+          Desbloquea el catálogo comunitario, Skills del equipo, Explorar, Componentes y Códice para publicar, votar y reportar resultados por modelo.
+        </p>
+
+        <div className="auth-modal-grid">
+          <div className="rounded-xl border border-slate-800/90 bg-[#0d1220]/80 p-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-100">
+              <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-[#0ea5e9]" aria-hidden="true" />
+              <span>Permiso public_repo</span>
             </div>
+            <p className="mt-1 text-[11px] leading-snug text-slate-400">
+              Solo para crear Issues y reacciones con tu firma en GitHub.
+            </p>
           </div>
+
+          <div className="rounded-xl border border-slate-800/90 bg-[#0d1220]/80 p-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-100">
+              <Lock className="h-3.5 w-3.5 shrink-0 text-[#0ea5e9]" aria-hidden="true" />
+              <span>Token en memoria</span>
+            </div>
+            <p className="mt-1 text-[11px] leading-snug text-slate-400">
+              Nunca se guarda en disco ni en servidor; caduca al recargar.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              void signIn();
+            }}
+            disabled={!oauthConfigured || signingIn}
+            className="auth-modal-cta"
+          >
+            <Github className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>{signingIn ? 'Esperando a GitHub…' : 'Entrar con GitHub'}</span>
+          </button>
+
+          {!oauthConfigured && (
+            <p className="text-center text-[11px] text-slate-400">
+              El inicio de sesión con GitHub aún no está configurado en este despliegue.
+            </p>
+          )}
+          {authError && (
+            <p role="alert" className="text-center text-[11px] text-rose-300">
+              {authError}
+            </p>
+          )}
 
           {onContinueAsPublic && (
             <button
               type="button"
               onClick={onContinueAsPublic}
-              className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-[#0F172A] px-5 py-3 text-xs font-bold text-slate-200 transition hover:border-[#0EA5E9] hover:text-white cursor-pointer"
+              className="auth-modal-secondary"
             >
-              <BookOpen className="h-4 w-4 text-[#0EA5E9]" />
-              Volver al Códice en Modo Visitante (Solo Lectura)
+              Volver al Códice en Modo Visitante
             </button>
           )}
-        </div>
-
-        {/* Columna derecha: entrar con GitHub */}
-        <div className="lg:col-span-6">
-          <div className="edu-floating-panel rounded-3xl p-6 sm:p-8 space-y-6">
-            <div className="space-y-2">
-              <h2 className="m-0 text-lg font-bold text-white">Acceso con GitHub</h2>
-              <p className="m-0 text-xs leading-relaxed text-slate-400">
-                Se abre una ventana de GitHub para autorizar la app. Pedimos el permiso <code className="font-mono">public_repo</code>{' '}
-                para crear Issues y reacciones en el catálogo. El token solo vive en memoria: al recargar la página tendrás
-                que entrar de nuevo.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => {
-                  void signIn();
-                }}
-                disabled={!oauthConfigured || signingIn}
-                className="w-full h-12 rounded-xl bg-[#0EA5E9] hover:brightness-110 text-[#0a0d14] font-extrabold text-sm flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Github className="w-4 h-4" aria-hidden="true" />
-                <span>{signingIn ? 'Esperando a GitHub…' : 'Entrar con GitHub'}</span>
-              </button>
-              {!oauthConfigured && (
-                <p className="text-[11px] text-slate-400">
-                  El inicio de sesión con GitHub aún no está configurado en este despliegue.
-                </p>
-              )}
-              {authError && (
-                <p role="alert" className="text-[11px] text-rose-300">
-                  {authError}
-                </p>
-              )}
-            </div>
-
-            <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <span className="text-slate-400 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#0EA5E9]" aria-hidden="true" />
-                Tu identidad es tu cuenta de GitHub
-              </span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   );
+
+  if (typeof document === 'undefined') return modal;
+  return createPortal(modal, document.body);
 };

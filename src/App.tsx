@@ -45,6 +45,9 @@ const SkillsShPage = lazy(() =>
     default: m.SkillsShPage,
   }))
 );
+const LandingWorkshopBackdrop = lazy(
+  () => import('./components/hero/LandingWorkshopBackdrop')
+);
 
 // Datos de versiones anteriores (cuentas locales con contraseña, su sesión y copias de trabajo). Ya no se usan.
 const LEGACY_AUTH_KEYS = ['ai_skills_studio_users_v2', 'ai_skills_studio_session_v1'];
@@ -273,22 +276,27 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
-  if (showAuthScreen) {
-    return (
-      <div className="relative min-h-screen bg-[#0a0d14] text-[#f1f5f9]">
-        <NeuralAtmosphereBackground />
-        <div className="relative z-10">
-          <AuthScreen onContinueAsPublic={() => setShowAuthScreen(false)} />
-        </div>
-      </div>
-    );
-  }
+  const scrollToTopSmooth = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const reduced =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+  };
+
+  const useWorkshopBackdrop = !isCollaboratorMode || activePage === 'inicio';
+  const authModal = showAuthScreen ? (
+    <AuthScreen onContinueAsPublic={() => setShowAuthScreen(false)} />
+  ) : null;
 
   /* MODO LANDING (activePage === 'inicio'): estructura estricta tasteskill 2.5.1 (header.nav + main#top + footer.closing) */
   if (activePage === 'inicio') {
     return (
       <>
-        <NeuralAtmosphereBackground />
+        {authModal}
+        <Suspense fallback={null}>
+          <LandingWorkshopBackdrop />
+        </Suspense>
         <TopStudioHeader
           activePage={activePage}
           onNavigatePage={setActivePage}
@@ -311,14 +319,27 @@ export function App() {
           <div className="wrap">
             <div className="closing__cta close--type">
               <div className="section-head">
-                <h2 id="close-h">Audita e inspecciona skills desde GitHub hoy</h2>
-                <p className="t-small muted">
+                <p className="ld-eyebrow ld-eyebrow--center" data-reveal="up">
+                  <span aria-hidden="true" className="ld-eyebrow__bar" />
+                  <span>Códice Studio · Sin servidor</span>
+                </p>
+                <h2 id="close-h" className="ld-heading" data-reveal="mask">
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line">Audita e inspecciona skills</span>
+                  </span>
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line ld-accent">desde GitHub hoy</span>
+                  </span>
+                </h2>
+                <p className="t-small muted" data-reveal="up" data-reveal-delay="1">
                   Lectura bajo demanda fijada a commitSha · Sin servidor ni registro previo
                 </p>
               </div>
               <a
                 className="btn btn--primary"
                 href="#inspector"
+                data-reveal="up"
+                data-reveal-delay="2"
                 onClick={(e) => openModuleFromFooter(e, 'boveda')}
               >
                 Explorar Catálogo
@@ -328,7 +349,7 @@ export function App() {
             <div className="closing__links">
               <div className="grid">
                 <div className="span-4 stack-4">
-                  <a className="nav__logo" href="#top">
+                  <a className="nav__logo" href="#top" onClick={scrollToTopSmooth}>
                     <span className="mark" data-mark="stack" aria-hidden="true" />
                     Códice Studio
                   </a>
@@ -453,7 +474,14 @@ export function App() {
   /* MODO IDE INTERNO (activePage !== 'inicio'): estación de trabajo de ancho completo sin restricciones 100svh */
   return (
     <>
-      <NeuralAtmosphereBackground />
+      {authModal}
+      {useWorkshopBackdrop ? (
+        <Suspense fallback={null}>
+          <LandingWorkshopBackdrop />
+        </Suspense>
+      ) : (
+        <NeuralAtmosphereBackground />
+      )}
       <TopStudioHeader
         activePage={activePage}
         onNavigatePage={setActivePage}
@@ -585,7 +613,7 @@ export function App() {
           </div>
         </main>
 
-        <footer className="border-t border-slate-800/80 bg-[#0a0d14] py-5 px-6 text-xs text-slate-400">
+        <footer className="border-t border-slate-800/80 bg-[#0a0d14]/80 backdrop-blur-sm py-5 px-6 text-xs text-slate-400">
           <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-3 sm:flex-row">
             <div className="flex items-center gap-2.5">
               <span className="h-2 w-2 rounded-full bg-[#0ea5e9]" />

@@ -19,7 +19,7 @@ export const CodiceStudio: React.FC<CodiceStudioProps> = ({
   onRequestLogin = () => undefined,
 }) => {
   return (
-    <div className="relative min-h-screen w-full bg-[#030712] text-[#94A3B8] font-sans antialiased selection:bg-[#0EA5E9] selection:text-white overflow-x-hidden">
+    <div className="relative min-h-screen w-full bg-transparent text-[#94A3B8] font-sans antialiased selection:bg-[#0EA5E9] selection:text-white overflow-x-hidden">
       {/* Atmósfera: luz cian/pizarra difuminada y cuadrícula sutil */}
       <div
         className="pointer-events-none fixed -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-sky-900/15 via-slate-900/10 to-transparent blur-[140px]"

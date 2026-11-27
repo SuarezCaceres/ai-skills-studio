@@ -111,47 +111,7 @@ main > :is(.hero, .section--hero) {
   margin: 0 auto;
 }
 
-@media (min-width: 1024px) {
-  .nav--centre .nav__bar {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 16px !important;
-  }
-
-  .nav__links {
-    display: flex !important;
-    align-items: center !important;
-    gap: clamp(8px, 1.4vw, 20px) !important;
-    white-space: nowrap !important;
-  }
-
-  .nav__item {
-    display: inline-flex !important;
-    white-space: nowrap !important;
-  }
-}
-
-/* Portátil pequeño (1024-1130): con la pestaña "Catálogo" la barra se ajusta para no salirse. */
-@media (min-width: 1024px) and (max-width: 1130px) {
-  .nav--centre .nav__bar {
-    gap: 8px !important;
-  }
-
-  .nav__link {
-    font-size: 14px !important;
-    padding: 0 6px !important;
-  }
-
-  .nav__actions {
-    gap: 8px !important;
-  }
-
-  .nav__actions .btn {
-    padding-inline: 12px !important;
-    font-size: 14px !important;
-  }
-}
+/* Los estilos responsivos del NotchNavbar en escritorio (>= 1024 px) viven en src/components/navbarNotch.css. */
 
 .hero--centred .hero__window {
   height: auto !important;

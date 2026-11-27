@@ -26,7 +26,6 @@ import claudeIcon from '../../assets/ai-icons/claude.png';
 import geminiIcon from '../../assets/ai-icons/gemini.png';
 import deepseekIcon from '../../assets/ai-icons/deepseek.png';
 import opencodeIcon from '../../assets/ai-icons/opencode.png';
-import { WorkshopLight } from './WorkshopLight';
 import './forgeHero.css';
 
 interface ForgeHeroShowcaseProps {
@@ -71,7 +70,6 @@ interface WorkflowPreset {
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const LIFT_SPRING = { type: 'spring', stiffness: 260, damping: 24, mass: 0.7 } as const;
-const RULER_MARKS = Array.from({ length: 11 }, (_, i) => i * 10);
 const LAMP_REST = { x: 24, y: 16 };
 const SHADOW_REACH = 26;
 
@@ -202,6 +200,7 @@ interface BoardToolTileProps {
 const BoardToolTile = memo<BoardToolTileProps>(({ tool, inKit, active, order, reduceMotion, onToggle, onActive }) => {
   const [left, top, width, height] = tool.box;
   const labelBelow = top < 20;
+  const tagAlignClass = left < 12 ? ' fg-tag--left' : left + width > 88 ? ' fg-tag--right' : '';
   const lifted = inKit && !reduceMotion;
   const delay = inKit && !reduceMotion ? Math.max(0, order) * 0.055 : 0;
   const ToolIcon = tool.icon;
@@ -265,7 +264,7 @@ const BoardToolTile = memo<BoardToolTileProps>(({ tool, inKit, active, order, re
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: EASE_OUT }}
-            className={`fg-tag ${labelBelow ? 'fg-tag--below' : 'fg-tag--above'}`}
+            className={`fg-tag ${labelBelow ? 'fg-tag--below' : 'fg-tag--above'}${tagAlignClass}`}
           >
             <span className={`fg-tag__badge${inKit ? ' fg-tag__badge--in' : ''}`} aria-hidden="true">
               {inKit ? <Check className="w-3 h-3" strokeWidth={3} /> : <Plus className="w-3 h-3" strokeWidth={3} />}
@@ -384,8 +383,6 @@ export const ForgeHeroShowcase: React.FC<ForgeHeroShowcaseProps> = ({ onNavigate
           data-enter
           aria-labelledby="hero-h"
         >
-          <WorkshopLight reduceMotion={reduceMotion} finePointer={finePointer} />
-
           <div className="fg-hero-wrap">
             <div className="fg-hero-grid">
               {/* Columna izquierda: copy con letras rodantes, CTAs y fila de garantías */}
@@ -501,89 +498,112 @@ export const ForgeHeroShowcase: React.FC<ForgeHeroShowcaseProps> = ({ onNavigate
                   </div>
                 </div>
 
-                {/* Tapete de corte con reglas y tablero knolling interactivo */}
-                <div className="fg-mat">
-                  <div aria-hidden="true" className="fg-ruler-x">
-                    {RULER_MARKS.map((mark) => (
-                      <span key={mark} style={{ left: `${mark}%` }}>
-                        {mark / 10}
-                      </span>
-                    ))}
-                  </div>
-                  <div aria-hidden="true" className="fg-ruler-y">
-                    {RULER_MARKS.filter((mark) => mark < 100).map((mark) => (
-                      <span key={mark} style={{ top: `${mark}%` }}>
-                        {mark / 10}
-                      </span>
-                    ))}
-                  </div>
+                {/* Marco de monitor profesional minimalista con barra de telemetría IDE y base metálica */}
+                <div className="fg-monitor">
+                  <div className="fg-monitor__chassis">
+                    <div aria-hidden="true" className="fg-monitor__camera">
+                      <span className="fg-monitor__lens" />
+                    </div>
 
-                  <div
-                    ref={boardRef}
-                    style={boardStyle}
-                    data-bright={bright ? 'true' : 'false'}
-                    onPointerMove={handleBoardPointerMove}
-                    onPointerLeave={() => moveLamp(LAMP_REST.x, LAMP_REST.y)}
-                    className="fg-board"
-                    role="group"
-                    aria-label="Tablero interactivo de módulos y agentes de IA"
-                  >
-                    <m.div
-                      aria-hidden="true"
-                      initial={false}
-                      animate={{ opacity: bright ? 0 : shownKit.length ? 0.42 : 0.1 }}
-                      transition={{ duration: 0.45, ease: EASE_OUT }}
-                      className="fg-board__scrim"
-                    />
-                    <div aria-hidden="true" className="fg-lamp" />
-
-                    {!reduceMotion && (
-                      <AnimatePresence initial={false}>
-                        <m.div
-                          key={workflowId}
-                          aria-hidden="true"
-                          initial={{ x: '-65%', opacity: 0.85 }}
-                          animate={{ x: '165%', opacity: 0 }}
-                          transition={{ duration: 0.95, ease: EASE_OUT }}
-                          className="fg-sweep"
-                        />
-                      </AnimatePresence>
-                    )}
-
-                    {BENCH_TOOLS.map((tool) => (
-                      <BoardToolTile
-                        key={tool.id}
-                        tool={tool}
-                        inKit={shownKit.includes(tool.id)}
-                        active={activeTool === tool.id}
-                        order={shownKit.indexOf(tool.id)}
-                        reduceMotion={reduceMotion}
-                        onToggle={handleToggleTool}
-                        onActive={setActiveTool}
-                      />
-                    ))}
-
-                    <AnimatePresence>
-                      {preview && (
-                        <m.p
-                          initial={{ opacity: 0, y: -6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -4 }}
-                          transition={{ duration: 0.18, ease: EASE_OUT }}
-                          className="fg-board-preview-pill"
-                        >
-                          <Eye className="w-3.5 h-3.5" aria-hidden="true" />
-                          <span>
-                            Vista previa · {preview.label} ({preview.tools.length})
+                    <div className="fg-monitor__screen">
+                      <div aria-hidden="true" className="fg-monitor__topbar">
+                        <div className="fg-monitor__topbar-left">
+                          <span className="fg-monitor__dots">
+                            <i />
+                            <i />
+                            <i />
                           </span>
-                        </m.p>
-                      )}
-                    </AnimatePresence>
+                          <span className="fg-monitor__path">
+                            codice-studio <b>/</b> {workflow.label.toLowerCase().replace(/\s+/g, '-')}.skill
+                          </span>
+                        </div>
+                        <div className="fg-monitor__topbar-right">
+                          <span className="fg-monitor__sha">commitSha</span>
+                          <span className="fg-monitor__live">
+                            <i className="fg-monitor__live-dot" />
+                            LIVE
+                          </span>
+                        </div>
+                      </div>
 
-                    <p className="fg-board-hint" aria-hidden="true">
-                      <MousePointerClick className="w-3.5 h-3.5 text-[#0ea5e9]" />
-                      <span>Haz clic en cada pieza para armar tu flujo</span>
-                    </p>
+                      <div
+                        ref={boardRef}
+                        style={boardStyle}
+                        data-bright={bright ? 'true' : 'false'}
+                        onPointerMove={handleBoardPointerMove}
+                        onPointerLeave={() => moveLamp(LAMP_REST.x, LAMP_REST.y)}
+                        className="fg-board"
+                        role="group"
+                        aria-label="Tablero interactivo de módulos y agentes de IA"
+                      >
+                        <m.div
+                          aria-hidden="true"
+                          initial={false}
+                          animate={{ opacity: bright ? 0 : shownKit.length ? 0.42 : 0.1 }}
+                          transition={{ duration: 0.45, ease: EASE_OUT }}
+                          className="fg-board__scrim"
+                        />
+                        <div aria-hidden="true" className="fg-lamp" />
+
+                        {!reduceMotion && (
+                          <AnimatePresence initial={false}>
+                            <m.div
+                              key={workflowId}
+                              aria-hidden="true"
+                              initial={{ x: '-65%', opacity: 0.85 }}
+                              animate={{ x: '165%', opacity: 0 }}
+                              transition={{ duration: 0.95, ease: EASE_OUT }}
+                              className="fg-sweep"
+                            />
+                          </AnimatePresence>
+                        )}
+
+                        {BENCH_TOOLS.map((tool) => (
+                          <BoardToolTile
+                            key={tool.id}
+                            tool={tool}
+                            inKit={shownKit.includes(tool.id)}
+                            active={activeTool === tool.id}
+                            order={shownKit.indexOf(tool.id)}
+                            reduceMotion={reduceMotion}
+                            onToggle={handleToggleTool}
+                            onActive={setActiveTool}
+                          />
+                        ))}
+
+                        <AnimatePresence>
+                          {preview && (
+                            <m.p
+                              initial={{ opacity: 0, y: -6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -4 }}
+                              transition={{ duration: 0.18, ease: EASE_OUT }}
+                              className="fg-board-preview-pill"
+                            >
+                              <Eye className="w-3.5 h-3.5" aria-hidden="true" />
+                              <span>
+                                Vista previa · {preview.label} ({preview.tools.length})
+                              </span>
+                            </m.p>
+                          )}
+                        </AnimatePresence>
+
+                        <p className="fg-board-hint" aria-hidden="true">
+                          <MousePointerClick className="w-3.5 h-3.5 text-[#0ea5e9]" />
+                          <span>Haz clic en cada pieza para armar tu flujo</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div aria-hidden="true" className="fg-monitor__chin">
+                      <span className="fg-monitor__brand">CÓDICE STUDIO · DISPLAY</span>
+                      <span className="fg-monitor__led" />
+                    </div>
+                  </div>
+
+                  <div aria-hidden="true" className="fg-monitor__stand">
+                    <span className="fg-monitor__neck" />
+                    <span className="fg-monitor__base" />
                   </div>
                 </div>
 

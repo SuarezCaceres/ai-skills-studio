@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { AppPageRoute } from '../types/workspace';
+import './landingScroll.css';
 // Hero interactivo estilo Forge (WebGL2 + motion/react) en chunk diferido para mantener el bundle inicial < 350 kB.
 const ForgeHeroShowcase = React.lazy(() => import('./hero/ForgeHeroShowcase'));
 // Sección de la spec 005 en un chunk aparte: no suma al bundle inicial (presupuesto < 350 kB).
@@ -8,6 +9,8 @@ const GuideContrastShowcase = React.lazy(() =>
 );
 // Órbita interactiva de agentes IA en chunk diferido para #capabilities (presupuesto < 350 kB).
 const CapabilitiesOrbitalShowcase = React.lazy(() => import('./CapabilitiesOrbitalShowcase'));
+// Selector interactivo de los 5 módulos con vistas previas autenticadas para #benchmarks (presupuesto < 350 kB).
+const EcosystemModulesShowcase = React.lazy(() => import('./EcosystemModulesShowcase'));
 
 interface InformativeLandingSectionProps {
   onNavigatePage: (page: AppPageRoute) => void;
@@ -30,6 +33,48 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         window.__tasteUi.startAll(document);
       } catch {}
     }
+
+    const reduced =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const targets = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+
+    if (reduced || typeof IntersectionObserver === 'undefined') {
+      targets.forEach((el) => el.setAttribute('data-revealed', 'true'));
+      return;
+    }
+
+    document.documentElement.classList.add('ld-scroll-ready');
+
+    const revealIfVisible = (el: HTMLElement) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.94) {
+        el.setAttribute('data-revealed', 'true');
+        return true;
+      }
+      return false;
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute('data-revealed', 'true');
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    targets.forEach((el) => {
+      if (!revealIfVisible(el)) observer.observe(el);
+    });
+
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove('ld-scroll-ready');
+    };
   }, []);
 
   const openModule = (
@@ -62,10 +107,21 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         <div className="wrap">
           <div className="grid">
             <div className="span-5">
-              <h2 id="inspector-h">Inspección bajo demanda fijada al commit exacto</h2>
+              <p className="ld-eyebrow" data-reveal="up">
+                <span aria-hidden="true" className="ld-eyebrow__bar" />
+                <span>Inspección bajo demanda · SHA</span>
+              </p>
+              <h2 id="inspector-h" className="ld-heading" data-reveal="mask">
+                <span className="ld-heading__mask">
+                  <span className="ld-heading__line">Inspección bajo demanda</span>
+                </span>
+                <span className="ld-heading__mask">
+                  <span className="ld-heading__line ld-accent">fijada al commit exacto</span>
+                </span>
+              </h2>
             </div>
             <div className="span-6 start-7 stack-4">
-              <p className="muted">
+              <p className="muted" data-reveal="up" data-reveal-delay="1">
                 Explora el catálogo del equipo o cualquier skill de GitHub en skills.sh,
                 descarga sus scripts bajo demanda desde su commitSha y verifica hallazgos
                 con AuditBadge antes de instalar.
@@ -73,6 +129,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
               <a
                 className="link"
                 href="#capabilities"
+                data-reveal="up"
+                data-reveal-delay="2"
                 onClick={(e) => openModule(e, 'boveda')}
               >
                 Explorar skills del equipo
@@ -85,6 +143,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
             role="img"
             aria-label="Lista de archivos auditados junto al inspector bajo demanda fijado a commitSha en FilesPanel.tsx"
             data-ui-pause-host
+            data-reveal="panel"
+            data-reveal-delay="2"
           >
             <div className="app__pane app__pane--list">
               <div
@@ -433,23 +493,36 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         </div>
       </section>
 
-      {/* 3. CAPACIDADES (Split-text-left + Diagrama de flujo con iconos reales) */}
+      {/* 3. CAPACIDADES (Split-text-left + Órbita radial interactiva de agentes IA) */}
       <section className="section" id="capabilities" aria-labelledby="capabilities-h">
         <div className="wrap">
           <div className="grid">
             <div className="span-5 split-col">
-              <h2 id="capabilities-h">Conecta directivas SKILL.md con todo tu flujo</h2>
-              <p>
+              <div>
+                <p className="ld-eyebrow" data-reveal="up">
+                  <span aria-hidden="true" className="ld-eyebrow__bar" />
+                  <span>Ecosistema abierto · Agentes IA</span>
+                </p>
+                <h2 id="capabilities-h" className="ld-heading" data-reveal="mask">
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line">Conecta directivas SKILL.md</span>
+                  </span>
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line ld-accent">con todo tu flujo</span>
+                  </span>
+                </h2>
+              </div>
+              <p data-reveal="up" data-reveal-delay="1">
                 Un único estándar sincroniza auditoría por commitSha, directorio
                 skills.sh, componentes UI accesibles y clases del equipo sin copias
                 locales.
               </p>
               <ul className="checks">
-                <li>Lectura bajo demanda desde GitHub fijada al commitSha auditado</li>
-                <li>Traducción fiel al español de documentación Markdown en un clic</li>
-                <li className="hidden sm:block">Componentes UI accesibles probados con navegación por teclado</li>
+                <li data-reveal="up" data-reveal-delay="2">Lectura bajo demanda desde GitHub fijada al commitSha auditado</li>
+                <li data-reveal="up" data-reveal-delay="3">Traducción fiel al español de documentación Markdown en un clic</li>
+                <li className="hidden sm:block" data-reveal="up" data-reveal-delay="4">Componentes UI accesibles probados con navegación por teclado</li>
               </ul>
-              <div className="split-col__end">
+              <div className="split-col__end" data-reveal="up" data-reveal-delay="4">
                 <a
                   className="link"
                   href="#benchmarks"
@@ -460,7 +533,12 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
               </div>
             </div>
 
-            <div className="span-6 start-7 panel" style={{ padding: 0 }}>
+            <div
+              className="span-6 start-7 panel"
+              style={{ padding: 0 }}
+              data-reveal="panel"
+              data-reveal-delay="2"
+            >
               <React.Suspense
                 fallback={<div style={{ minHeight: '480px' }} aria-hidden="true" />}
               >
@@ -471,82 +549,18 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         </div>
       </section>
 
-      {/* 4. ECOSISTEMA Y MÓDULOS ACTIVOS (Momento dealt: iris-opens sobre ground-surface) */}
+      {/* 4. ECOSISTEMA Y MÓDULOS ACTIVOS (Tab Switcher numerado 01–05 + vista previa real autenticada) */}
       <section
         className="section ground-surface"
         id="benchmarks"
-        data-moment="iris-opens"
-        data-moment-opts='{"from": "base"}'
         aria-labelledby="benchmarks-h"
       >
-        <div className="wrap">
-          <div className="grid">
-            <div className="span-5 split-col">
-              <h2 id="benchmarks-h">Cinco módulos integrados en Códice Studio</h2>
-              <p>
-                Cada módulo opera sobre repositorios reales de GitHub y componentes
-                accesibles del estudio, con votos, reportes por modelo e inspección bajo
-                demanda en cada ficha.
-              </p>
-              <dl className="stats">
-                <div>
-                  <dt className="t-small muted">Trazabilidad</dt>
-                  <dd className="t-stat">commitSha</dd>
-                </div>
-                <div>
-                  <dt className="t-small muted">Límite seguro</dt>
-                  <dd className="t-stat">512 KB</dd>
-                </div>
-              </dl>
-              <div className="split-col__end">
-                <a
-                  className="link"
-                  href="#faq"
-                  onClick={(e) => openModule(e, 'catalogo')}
-                >
-                  Abrir catálogo comunitario
-                </a>
-              </div>
-            </div>
-
-            <ul className="rows span-6 start-7">
-              <li>
-                <span className="rows__name">Skills del equipo</span>
-                <p>Publicación directa en GitHub, historial y perfiles · SKILL.md</p>
-                <span className="rows__value">Equipo</span>
-              </li>
-              <li>
-                <span className="rows__name">Catálogo comunitario</span>
-                <p>Votos, auditoría de seguridad y veredictos por modelo · Issue</p>
-                <span className="rows__value">Catálogo</span>
-              </li>
-              <li>
-                <span className="rows__name">Explorar skills.sh</span>
-                <p>Vista previa en solo lectura fijada a commitSha e importación · Live</p>
-                <span className="rows__value">skills.sh</span>
-              </li>
-              <li className="sm-row-hidden">
-                <span className="rows__name">Componentes UI</span>
-                <p>20 piezas accesibles con demostración en vivo y código real · A11y</p>
-                <span className="rows__value">Kit propio</span>
-              </li>
-              <li className="sm-row-hidden">
-                <span className="rows__name">Códice de clases</span>
-                <p>Lecciones en SafeMarkdown vinculadas a skills y componentes · Equipo</p>
-                <span className="rows__value">Obsidian</span>
-              </li>
-              <li className="sm-row-hidden">
-                <span className="rows__name">Inspector bajo demanda</span>
-                <p>Lectura inerte de scripts y re-auditoría automática · SHA</p>
-                <span className="rows__value">512 KB</span>
-              </li>
-              <li className="sm-row-hidden">
-                <span className="rows__name">Reportes por modelo</span>
-                <p>Evaluación práctica de modelos integrada en cada ficha · Veredicto</p>
-                <span className="rows__value">GitHub</span>
-              </li>
-            </ul>
-          </div>
+        <div className="wrap" data-reveal="panel">
+          <React.Suspense
+            fallback={<div style={{ minHeight: '560px' }} aria-hidden="true" />}
+          >
+            <EcosystemModulesShowcase />
+          </React.Suspense>
         </div>
       </section>
 
@@ -555,12 +569,25 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         <div className="wrap">
           <div className="grid">
             <div className="span-5 split-col">
-              <h2 id="faq-h">Preguntas sobre Códice Studio y tus skills</h2>
-              <p className="muted">
+              <div>
+                <p className="ld-eyebrow" data-reveal="up">
+                  <span aria-hidden="true" className="ld-eyebrow__bar" />
+                  <span>Seguridad y operación · Preguntas</span>
+                </p>
+                <h2 id="faq-h" className="ld-heading" data-reveal="mask">
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line">Preguntas sobre Códice</span>
+                  </span>
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line ld-accent">Studio y tus skills</span>
+                  </span>
+                </h2>
+              </div>
+              <p className="muted" data-reveal="up" data-reveal-delay="1">
                 Inspección segura por commitSha, vista previa de skills.sh, sesión OAuth
                 en memoria y permisos de publicación.
               </p>
-              <dl className="stats hidden sm:grid">
+              <dl className="stats hidden sm:grid" data-reveal="up" data-reveal-delay="2">
                 <div>
                   <dt className="t-small muted">Token OAuth</dt>
                   <dd className="t-stat">En memoria</dd>
@@ -570,7 +597,7 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
                   <dd className="t-stat">commitSha</dd>
                 </div>
               </dl>
-              <div className="split-col__end">
+              <div className="split-col__end" data-reveal="up" data-reveal-delay="3">
                 <svg
                   className="w-8 h-8 text-[#0ea5e9]"
                   viewBox="0 0 24 24"
@@ -588,35 +615,35 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
             </div>
 
             <div className="faq span-6 start-7">
-              <div className="faq__item">
+              <div className="faq__item" data-reveal="up" data-reveal-delay="1">
                 <h3>01. Seguridad de inspección: ¿se ejecutan los scripts en el navegador?</h3>
                 <p>
                   No. Cada archivo distinto de SKILL.md se descarga bajo demanda desde su
                   commitSha en GitHub y se muestra como texto plano inerte con re-auditoría.
                 </p>
               </div>
-              <div className="faq__item">
+              <div className="faq__item" data-reveal="up" data-reveal-delay="2">
                 <h3>02. Integridad por commit: ¿por qué se fija la lectura a un commitSha?</h3>
                 <p>
                   Para garantizar que los scripts leídos en Archivos y verificados por
                   AuditBadge coinciden exactamente con la revisión auditada antes de instalar.
                 </p>
               </div>
-              <div className="faq__item">
+              <div className="faq__item" data-reveal="up" data-reveal-delay="3">
                 <h3>03. Directorio externo: ¿cómo funciona Explorar (skills.sh)?</h3>
                 <p>
                   Las skills alojadas en GitHub se abren en vista previa de solo lectura con
                   traducción y archivos bajo demanda; las fuentes .well-known conservan npx.
                 </p>
               </div>
-              <div className="faq__item sm-faq-hidden">
+              <div className="faq__item sm-faq-hidden" data-reveal="up" data-reveal-delay="4">
                 <h3>04. Acceso de visitante: ¿necesito cuenta para consultar el estudio?</h3>
                 <p>
                   No. Puedes explorar Catálogo, Equipos, Explorar, Componentes y Códice sin
                   sesión; GitHub OAuth solo se pide al publicar, votar, reportar o importar.
                 </p>
               </div>
-              <div className="faq__item sm-faq-hidden">
+              <div className="faq__item sm-faq-hidden" data-reveal="up" data-reveal-delay="5">
                 <h3>05. Privacidad y Markdown: ¿dónde vive mi sesión de GitHub?</h3>
                 <p>
                   El token OAuth permanece únicamente en memoria durante la pestaña activa y
