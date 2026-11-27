@@ -288,8 +288,6 @@ export interface CatalogDetailRouteProps {
   onImportPreview?: (preview: CatalogSkillPreview) => Promise<void>;
   /** `true` mientras está en curso la importación de la vista previa. */
   importingPreview?: boolean;
-  /** @deprecated Compatibilidad temporal Fase 0/1; se retira en Fase 2. */
-  onOpenInStudio?: (skillId: string) => void;
   /** Abre la pantalla de acceso (el inicio de sesión con GitHub vive allí). */
   onRequestLogin: () => void;
 }

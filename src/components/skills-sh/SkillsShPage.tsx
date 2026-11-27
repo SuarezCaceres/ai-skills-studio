@@ -70,7 +70,6 @@ function formatSyncedDate(iso: string): string {
  */
 export function SkillsShPage({
   onInspectSkill,
-  onOpenInWorkspace,
   onImportToCatalog,
   onRequestLogin,
   busyAction = null,
@@ -491,7 +490,7 @@ export function SkillsShPage({
                     key={entry.id}
                     entry={entry}
                     rank={rank}
-                    onInspectSkill={onInspectSkill ?? onOpenInWorkspace}
+                    onInspectSkill={onInspectSkill}
                     onImportToCatalog={onImportToCatalog}
                     busyKind={busyAction && busyAction.entryId === entry.id ? busyAction.kind : null}
                     anyBusy={Boolean(busyAction)}

@@ -27,8 +27,6 @@ interface MemberProfilePageProps {
   onBack: () => void;
   backLabel?: string;
   onOpenSkill: (id: string) => void;
-  /** @deprecated Compatibilidad temporal Fase 0/1; se retira en Fase 2. */
-  onOpenInStudio?: (id: string) => void;
   onRequestLogin: () => void;
 }
 
@@ -60,7 +58,7 @@ function Meta({ icon: Icon, children }: { icon: React.ComponentType<{ className?
 }
 
 /** Perfil de un integrante: su GitHub, lo que ha subido, sus números y su actividad reciente. */
-export function MemberProfilePage({ login, onBack, backLabel = 'Skills del equipo', onOpenSkill, onOpenInStudio: _onOpenInStudio, onRequestLogin }: MemberProfilePageProps) {
+export function MemberProfilePage({ login, onBack, backLabel = 'Skills del equipo', onOpenSkill, onRequestLogin }: MemberProfilePageProps) {
   const { api, service, session } = useCatalog();
   const [profile, setProfile] = useState<GithubProfile | null | 'loading'>('loading');
   const [state, setState] = useState<SkillsState>({ status: 'loading' });

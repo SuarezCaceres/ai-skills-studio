@@ -6,8 +6,6 @@ import { safeHttpUrl } from './ResultsByModel';
 interface SkillCardProps {
   skill: CatalogSkill;
   onOpen: () => void;
-  /** @deprecated Compatibilidad temporal Fase 0/1; se retira en Fase 2. */
-  onOpenInStudio?: () => void;
   /** Si se pasa, el avatar de quien la subió abre su perfil dentro de la app. */
   onOpenProfile?: (login: string) => void;
 }
@@ -26,7 +24,7 @@ function shortDate(iso: string): string {
  * de qué repo viene. El título es el botón que cubre toda la tarjeta; los enlaces a GitHub
  * quedan por encima (`z-10`) para no anidar controles interactivos.
  */
-export function SkillCard({ skill, onOpen, onOpenInStudio: _onOpenInStudio, onOpenProfile }: SkillCardProps) {
+export function SkillCard({ skill, onOpen, onOpenProfile }: SkillCardProps) {
   const uploader = skill.uploadedBy;
   const profileUrl = safeHttpUrl(uploader.profileUrl);
   const when = shortDate(skill.registeredAt);

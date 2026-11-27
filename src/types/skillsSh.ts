@@ -77,22 +77,13 @@ export interface SkillsShSnapshotFile {
   views: Record<SkillsShView, SkillsShSnapshotView>;
 }
 
-/**
- * Estados posibles de una acción en curso sobre una tarjeta de `skills.sh`.
- * Nota Fase 0/1: `'workspace'` se conserva temporalmente hasta retirar `openSkillsShInWorkspace`
- * en `src/App.tsx` (Fase 2), momento en el que se estrecha a `'inspect' | 'import'`.
- */
-export type SkillsShBusyKind = 'inspect' | 'workspace' | 'import';
+/** Estados posibles de una acción en curso sobre una tarjeta de `skills.sh`. */
+export type SkillsShBusyKind = 'inspect' | 'import';
 
 /** Contrato de props entre `src/App.tsx` y `src/components/skills-sh/SkillsShPage.tsx`. */
 export interface SkillsShPageProps {
-  /**
-   * Resuelve la skill desde GitHub fijada a su `commitSha` y abre la vista previa en detalle.
-   * Opcional durante la transición Fase 0/1; pasa a ser obligatoria en Fase 2.
-   */
-  onInspectSkill?: (entry: SkillsShEntry) => Promise<void>;
-  /** @deprecated Compatibilidad temporal Fase 0/1; se retira en Fase 2 junto con Workspace. */
-  onOpenInWorkspace: (entry: SkillsShEntry) => Promise<void>;
+  /** Resuelve la skill desde GitHub fijada a su `commitSha` y abre la vista previa en detalle. */
+  onInspectSkill: (entry: SkillsShEntry) => Promise<void>;
   /** Registra la skill en el catálogo comunitario de Códice y abre su detalle. */
   onImportToCatalog: (entry: SkillsShEntry) => Promise<void>;
   /** Abre el modal/pantalla de inicio de sesión con GitHub. */

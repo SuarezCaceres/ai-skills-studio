@@ -95,8 +95,6 @@ export interface SkillDetailPageProps {
   onImportPreview?: (preview: CatalogSkillPreview) => Promise<void>;
   /** `true` mientras está en curso la importación de la vista previa. */
   importingPreview?: boolean;
-  /** @deprecated Compatibilidad temporal Fase 0/1; se retira en Fase 2. */
-  onOpenInStudio?: (skill: CatalogSkill) => void;
   /**
    * `api` es obligatoria: la ruta de integración (`CatalogDetailRoute`) inyecta el
    * servicio real de GitHub. El mock de desarrollo no se importa desde aquí para
@@ -132,7 +130,6 @@ export function SkillDetailPage({
   backLabel,
   onImportPreview,
   importingPreview = false,
-  onOpenInStudio: _onOpenInStudio,
   api,
   session = null,
   onRequestLogin,

@@ -17,7 +17,6 @@ export function CatalogDetailRoute({
   backLabel,
   onImportPreview,
   importingPreview,
-  onOpenInStudio: _onOpenInStudio,
   onRequestLogin,
 }: CatalogDetailRouteProps) {
   const { api, session } = useCatalog();

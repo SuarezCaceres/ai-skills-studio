@@ -1,4 +1,4 @@
-import { AIBenchmarkModel, VisualFeedbackReview } from '../types/workspace';
+import { AIBenchmarkModel } from '../types/workspace';
 
 export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
   {
@@ -250,6 +250,3 @@ export const AI_BENCHMARK_MODELS: AIBenchmarkModel[] = [
     ],
   },
 ];
-
-/** @deprecated Se retirará junto con VoiceVisualFeedback en la fase 2. */
-export const INITIAL_VISUAL_FEEDBACK_REVIEWS: VisualFeedbackReview[] = [];

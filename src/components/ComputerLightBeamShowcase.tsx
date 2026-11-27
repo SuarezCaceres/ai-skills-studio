@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppPageRoute, SpecificModelVersion } from '../types/workspace';
+import { AppPageRoute } from '../types/workspace';
 import {
   FileCode,
   ShieldCheck,
@@ -12,8 +12,6 @@ import {
 } from 'lucide-react';
 
 interface ComputerLightBeamShowcaseProps {
-  activeModel?: SpecificModelVersion;
-  onSelectModel?: (version: SpecificModelVersion) => void;
   onNavigatePage: (page: AppPageRoute) => void;
 }
 

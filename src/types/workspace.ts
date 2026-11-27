@@ -4,10 +4,7 @@ export type AppPageRoute =
   | 'boveda'
   | 'catalogo'
   | 'skills-sh'
-  | 'estudio'
   | 'preview'
-  | 'evidencias'
-  | 'modelos-ia'
   | 'skill-detalle'
   | 'perfil';
 
@@ -57,62 +54,4 @@ export interface AIBenchmarkModel {
   visualImpactNotes: string;
   strengths: string[];
   recommendedFor: string[];
-}
-
-export interface VisualFeedbackReview {
-  id: string;
-  modelVersion: SpecificModelVersion;
-  presetName?: string;
-  authorName: string;
-  authorRole: 'Modo Colaborador' | 'Modo Visitante';
-  rating: number;
-  comment: string;
-  usedVoiceDictation: boolean;
-  createdAt: string;
-}
-
-export type CodeLanguage =
-  | 'typescript'
-  | 'tsx'
-  | 'css'
-  | 'json'
-  | 'markdown'
-  | 'html';
-
-export interface LanguageBreakdownItem {
-  language: string;
-  extension: CodeLanguage;
-  percentage: number;
-  bytes: number;
-  color: string;
-}
-
-export interface ProjectMetadata {
-  aiModelId: string;
-  aiModelLabel: string;
-  appliedSkill: string;
-  predominantLanguages: LanguageBreakdownItem[];
-  colorPalette: string[];
-}
-
-export interface RarFileEntry {
-  id: string;
-  name: string;
-  path: string;
-  folder: string;
-  sizeBytes: number;
-  language: CodeLanguage;
-  content: string;
-  originalContent?: string;
-}
-
-export interface RarArchivePackage {
-  id: string;
-  archiveName: string;
-  uploadedAt: string;
-  totalSizeBytes: number;
-  signatureDetected: string;
-  sourceKind?: 'zip' | 'folder' | 'bundle' | 'rar-legacy';
-  files: RarFileEntry[];
-  metadata: ProjectMetadata;
 }

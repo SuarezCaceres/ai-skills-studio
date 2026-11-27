@@ -112,7 +112,7 @@ export function SkillsShCard({
   const skillsShUrl = safeHttpUrl(entry.skillsShUrl);
   const githubUrl = safeHttpUrl(entry.githubUrl);
   const hasPositiveChange = typeof entry.change === 'number' && entry.change > 0;
-  const isInspectBusy = busyKind === 'inspect' || busyKind === 'workspace';
+  const isInspectBusy = busyKind === 'inspect';
   const isImportBusy = busyKind === 'import';
 
   return (

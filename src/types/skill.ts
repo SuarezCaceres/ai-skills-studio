@@ -1,10 +1,3 @@
-import {
-  AIModelFamily,
-  LanguageBreakdownItem,
-  RarArchivePackage,
-  SpecificModelVersion,
-} from './workspace';
-
 export type LanguageCode = 'es' | 'en';
 
 export type SkillLevel = 'Principiante' | 'Intermedio' | 'Avanzado';
@@ -35,43 +28,6 @@ export interface UIComponentSpec {
   accentColors?: string[];
   styleLabel?: string;
   items: UIMenuItem[];
-}
-
-export type PresetAIModelName = SpecificModelVersion;
-
-export interface AppliedSkillDetail {
-  skillId: string;
-  description: string;
-}
-
-export interface PresetModelVariation {
-  modelName: PresetAIModelName;
-  family: AIModelFamily;
-  tier: string;
-  visualDifference: string;
-  structureDifference: string;
-  promptAdaptation: string;
-}
-
-export interface UIStylePreset {
-  id: string;
-  name: string;
-  category: string;
-  styleCategory: string;
-  mode: 'Light' | 'Dark';
-  colors: string[];
-  theme: 'indigo' | 'emerald' | 'cyan' | 'amber' | 'rose';
-  componentType: UIComponentType;
-  heroTitle: string;
-  heroAccent: string;
-  heroSubtitle: string;
-  badgeText: string;
-  metrics: string[];
-  menuItems: UIMenuItem[];
-  promptMarkdown: string;
-  defaultAiModel?: PresetAIModelName;
-  skillsApplied?: AppliedSkillDetail[];
-  modelVariations?: Record<PresetAIModelName, PresetModelVariation>;
 }
 
 export interface AIModelUsage {
@@ -107,20 +63,6 @@ export interface SkillFicha {
   collaborators: string[];
 }
 
-/** De dónde viene una copia de trabajo: la skill del equipo en el catálogo. */
-export interface SkillOrigin {
-  /** `CatalogSkill.id` (`owner/repo/ruta`). */
-  catalogId: string;
-  repo: string;
-  skillPath: string;
-  /** Commit del que se leyó el contenido. */
-  commitSha: string;
-  uploadedByLogin: string;
-  uploadedByAvatarUrl?: string;
-  uploadedByProfileUrl: string;
-  fetchedAt: string;
-}
-
 export interface SkillDocument {
   id: string;
   filename: string;
@@ -142,10 +84,5 @@ export interface SkillDocument {
   aiModelId?: string;
   aiModelLabel?: string;
   appliedSkill?: string;
-  appliedSkillsList?: AppliedSkillDetail[];
-  predominantLanguages?: LanguageBreakdownItem[];
   colorPalette?: string[];
-  rarPackage?: RarArchivePackage;
-  /** Presente en las copias de trabajo traídas desde el catálogo del equipo. */
-  origin?: SkillOrigin;
 }

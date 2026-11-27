@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
-import { AppPageRoute, SpecificModelVersion } from '../types/workspace';
+import { AppPageRoute } from '../types/workspace';
 import { ComputerLightBeamShowcase } from './ComputerLightBeamShowcase';
 
 interface InformativeLandingSectionProps {
   onNavigatePage: (page: AppPageRoute) => void;
-  onSelectModelVersion?: (version: SpecificModelVersion) => void;
-  onFilterByFramework?: (tag: string) => void;
 }
 
 const HUB_DIAGRAM_JSON = JSON.stringify({

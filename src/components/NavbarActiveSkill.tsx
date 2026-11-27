@@ -13,21 +13,16 @@ import {
   Globe,
   Users,
 } from 'lucide-react';
-import { SkillDocument } from '../types/skill';
 import { AppPageRoute, UserAccount } from '../types/workspace';
 import { ObsidianBrandIcon } from './BrandIcons';
 
 export interface StudioNavigationProps {
-  skills?: SkillDocument[];
-  activeSkillId?: string;
-  onSelectSkill?: (id: string) => void;
   activePage: AppPageRoute;
   onNavigatePage: (page: AppPageRoute) => void;
   currentUser: UserAccount | null;
   onRequestLogin: () => void;
   onLogout: () => void;
   onErasePersonalData?: () => void;
-  selectedModelName?: string;
   /** Avatar de la sesión de GitHub, si la hay. */
   githubAvatarUrl?: string;
 }
