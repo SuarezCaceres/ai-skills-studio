@@ -6,9 +6,14 @@ export type UiComponentCategory =
   | 'Datos'
   | 'Formularios'
   | 'Contenedores'
-  | 'Comunicación';
+  | 'Comunicación'
+  | 'Estilos'
+  | 'Animaciones';
 
-/** Orden en que se agrupan las categorías en la lista lateral. */
+/** Qué es una entrada del registro: una pieza del kit (`ui-kit/`) o un efecto visual (`effects/`). */
+export type UiEntryKind = 'componente' | 'efecto';
+
+/** Orden en que se agrupan las categorías del kit en la lista lateral (pestaña «Componentes»). */
 export const UI_COMPONENT_CATEGORIES: UiComponentCategory[] = [
   'Navegación',
   'Feedback',
@@ -18,13 +23,27 @@ export const UI_COMPONENT_CATEGORIES: UiComponentCategory[] = [
   'Comunicación',
 ];
 
+/** Orden de las categorías de la pestaña «Efectos». */
+export const UI_EFFECT_CATEGORIES: UiComponentCategory[] = ['Estilos', 'Animaciones'];
+
+/** Categorías de cada tipo de entrada, en el orden en que se muestran. */
+export const CATEGORIES_BY_KIND: Record<UiEntryKind, UiComponentCategory[]> = {
+  componente: UI_COMPONENT_CATEGORIES,
+  efecto: UI_EFFECT_CATEGORIES,
+};
+
 /** Datos descriptivos de un componente del kit (sin código ni vista previa). */
 export interface UiComponentMeta {
   /** Identificador estable, por ejemplo `accordion`. Lo usan las clases y las asignaciones. */
   id: string;
+  kind: UiEntryKind;
   name: string;
   category: UiComponentCategory;
   description: string;
+  /** Solo efectos: cómo se le dice en lenguaje llano, p. ej. «el efecto vidrio esmerilado». */
+  nickname?: string;
+  /** Solo efectos: prompt en español, listo para pegar en una IA. */
+  prompt?: string;
   /** Qué hace el componente por accesibilidad (teclado, ARIA, movimiento reducido…). */
   a11y: string[];
   /** Ruta de la miniatura generada a partir del propio componente (relativa a la base). */

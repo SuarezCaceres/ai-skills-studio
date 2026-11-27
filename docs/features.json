@@ -109,6 +109,20 @@
         { "id": "C11", "descripcion": "Tarjeta de barras: obstáculos atascados / 3 pasos que se llenan sincronizados con el avance, congelados al pausar y retomando el tiempo restante, con «Pausar guía» e «Ir al catálogo ›» dentro", "pasa": true },
         { "id": "C12", "descripcion": "Con prefers-reduced-motion: sin giro, sin latido, barras llenas sin animar, cambio instantáneo, 3 marcadores y píldora «Guiado · 3 pasos»", "pasa": true }
       ]
+    },
+    {
+      "id": "006",
+      "nombre": "efectos-estilos-animaciones",
+      "spec": "docs/specs/006-efectos-estilos-animaciones/spec.md",
+      "estado": "revision",
+      "criterios": [
+        { "id": "C1", "descripcion": "Selector «Componentes | Efectos» (clic y teclado): en Efectos la lista muestra solo Estilos (8) y Animaciones (10), cifras de cabecera de efectos, vuelta al kit sin mezclar, sin desbordamiento ni errores de consola/CSP en 1440/1024/768/390 px", "pasa": true },
+        { "id": "C2", "descripcion": "Cada uno de los 18 efectos muestra apodo, nombre, descripción, cuadro en vivo, prompt en español no vacío, código real, notas de accesibilidad y miniatura ≤ 40 KB", "pasa": true },
+        { "id": "C3", "descripcion": "El botón de copiar del prompt deja exactamente ese prompt en el portapapeles y anuncia la copia de forma accesible", "pasa": true },
+        { "id": "C4", "descripcion": "Las animaciones de una sola vez se reinician con «Repetir» y con prefers-reduced-motion ninguna animación se mueve y se ve su estado final", "pasa": true },
+        { "id": "C5", "descripcion": "Un efecto elegido desde fuera (p. ej. una clase) abre sola la pestaña Efectos con él marcado, y asignar/desasignar skills o modelos funciona igual que con un componente", "pasa": true },
+        { "id": "C6", "descripcion": "Sin dependencias nuevas ni peticiones externas, demos en chunks diferidos, chunk inicial sin crecer respecto a main (< 350 kB) y suites existentes de Componentes en verde", "pasa": true }
+      ]
     }
   ]
 }

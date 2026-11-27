@@ -1,5 +1,5 @@
 import { Component, Suspense, useEffect, useState, type ErrorInfo, type ReactNode } from 'react';
-import { Accessibility, BookOpen, Bot, Code2, Eye, ImageIcon, LogIn, Pencil, Plus, RotateCcw, Sparkles, X } from 'lucide-react';
+import { Accessibility, BookOpen, Bot, Code2, Eye, ImageIcon, LogIn, MessageSquareText, Pencil, Plus, RotateCcw, Sparkles, X } from 'lucide-react';
 import type { CatalogSkill } from '../../types/catalog';
 import type { Lesson } from '../../types/lessons';
 import type { ComponentAssignment, UiComponentEntry } from '../../types/uiComponents';
@@ -29,7 +29,7 @@ interface ComponentDetailProps {
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]';
 
 /** Evita que un fallo dentro de una demo tumbe toda la página. */
-class PreviewBoundary extends Component<{ children: ReactNode; onReset: () => void }, { failed: boolean }> {
+class PreviewBoundary extends Component<{ children: ReactNode; onReset: () => void; noun: string }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
@@ -41,7 +41,7 @@ class PreviewBoundary extends Component<{ children: ReactNode; onReset: () => vo
     if (!this.state.failed) return this.props.children;
     return (
       <div role="alert" className="max-w-sm rounded-lg border border-rose-500/40 bg-rose-950/30 p-4 text-sm text-rose-200">
-        <p className="m-0 font-semibold">No se pudo dibujar este componente.</p>
+        <p className="m-0 font-semibold">No se pudo dibujar este {this.props.noun}.</p>
         <button
           type="button"
           onClick={() => {
@@ -234,19 +234,30 @@ export function AssignmentPanel({
 }
 
 /**
- * Detalle de un componente: vista previa en vivo, imagen generada, asignación (skills y modelos),
- * código real con botón de copiar y notas de accesibilidad.
+ * Detalle de un componente o de un efecto: vista previa en vivo, prompt para la IA (solo efectos,
+ * con su apodo encima del nombre), imagen generada, asignación (skills y modelos), código real con
+ * botón de copiar y notas de accesibilidad.
  */
 export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed, onAssign, onUnassign, onOpenSkill, onRequestLogin, lessons, onOpenLesson }: ComponentDetailProps) {
   const [version, setVersion] = useState(0);
   const source = useSource(entry);
+  const isEffect = entry.kind === 'efecto';
+  // «componente» o «efecto», para los textos del detalle.
+  const noun = isEffect ? 'efecto' : 'componente';
   const lines = source.status === 'ready' ? source.code.split('\n').length : 0;
 
   return (
     <article aria-labelledby="component-name" className="flex min-w-0 flex-col gap-5">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1.5">
-          <p className="m-0 font-mono text-[11px] font-semibold uppercase tracking-wider text-[#38bdf8]">{entry.category}</p>
+          <p className="m-0 font-mono text-[11px] font-semibold uppercase tracking-wider text-[#38bdf8]">
+            {isEffect ? `Efecto · ${entry.category}` : entry.category}
+          </p>
+          {entry.nickname && (
+            <p data-testid="effect-nickname" className="m-0 font-mono text-xs text-[#7dd3fc]">
+              Le dicen: {entry.nickname}
+            </p>
+          )}
           <h2 id="component-name" tabIndex={-1} className="m-0 text-2xl font-bold tracking-tight text-white outline-none">
             {entry.name}
           </h2>
@@ -274,12 +285,12 @@ export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed
           style={{ backgroundImage: 'radial-gradient(rgb(148 163 184 / 0.12) 1px, transparent 1px)', backgroundSize: '18px 18px' }}
         >
           <div className="flex min-h-48 items-center justify-center">
-            <PreviewBoundary key={`${entry.id}-${version}`} onReset={() => setVersion((v) => v + 1)}>
+            <PreviewBoundary key={`${entry.id}-${version}`} noun={noun} onReset={() => setVersion((v) => v + 1)}>
               <Suspense
                 fallback={
                   <div role="status" className="flex items-center gap-2 text-xs text-slate-500">
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0ea5e9] border-t-transparent motion-reduce:animate-none" />
-                    Cargando componente…
+                    Cargando {noun}…
                   </div>
                 }
               >
@@ -290,6 +301,25 @@ export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed
         </div>
       </section>
 
+      {entry.prompt && (
+        <section
+          aria-labelledby="sec-prompt"
+          data-testid="effect-prompt"
+          className="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-800 bg-[#121722] p-4"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <SectionTitle id="sec-prompt" icon={<MessageSquareText className="h-4 w-4" />}>
+              Prompt para tu IA
+            </SectionTitle>
+            <CopyButton text={entry.prompt} label="Copiar prompt" />
+          </div>
+          <p className="m-0 whitespace-pre-wrap break-words rounded-lg border border-slate-800 bg-[#0a0d14] p-4 font-mono text-[13px] leading-relaxed text-slate-100">
+            {entry.prompt}
+          </p>
+          <p className="m-0 text-xs text-slate-400">Cópialo, pégalo en tu IA y listo.</p>
+        </section>
+      )}
+
       <div className="[display:grid] items-start gap-5 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
         <section aria-labelledby="sec-image" className="min-w-0 space-y-2 rounded-xl border border-slate-800 bg-[#121722] p-4">
           <SectionTitle id="sec-image" icon={<ImageIcon className="h-4 w-4" />}>
@@ -297,7 +327,7 @@ export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed
           </SectionTitle>
           <ComponentThumb key={entry.id} entry={entry} width={308} fluid />
           <p className="m-0 text-[11px] leading-relaxed text-slate-500">
-            Captura generada a partir del propio componente (640 × 400).
+            Captura generada a partir del propio {noun} (640 × 400).
           </p>
         </section>
 
@@ -324,7 +354,7 @@ export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed
           Clases que lo mencionan
         </SectionTitle>
         {lessons.length === 0 ? (
-          <p className="m-0 text-sm text-slate-500">Ninguna clase usa este componente todavía.</p>
+          <p className="m-0 text-sm text-slate-500">Ninguna clase usa este {noun} todavía.</p>
         ) : (
           <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {lessons.map((lesson) => (
@@ -364,7 +394,7 @@ export function ComponentDetail({ entry, assignment, skills, canEdit, saveFailed
           )}
           {source.status === 'error' && (
             <p role="alert" className="m-0 p-4 text-xs text-rose-300">
-              No se pudo cargar el código de este componente.
+              No se pudo cargar el código de este {noun}.
             </p>
           )}
           {source.status === 'ready' && (

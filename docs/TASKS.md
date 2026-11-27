@@ -4,6 +4,8 @@
 > Las funcionalidades completas viven en `docs/features.json`; aquí van tareas operativas, deuda técnica y pasos manuales.
 
 ## En curso
+- [ ] **006 · Efectos: estilos y animaciones en Componentes (`feat/006-efectos-estilos-animaciones`):** pestaña «Efectos» con 8 estilos y 10 animaciones, prompt en español copiable, «Repetir» y movimiento reducido; C1–C6 en verde (`test-effects-page.mjs` 139/139) y `check.sh` completo en verde. Revisión `revisor`: APPROVE (importantes y menores corregidos). Falta: revisión humana y fusión del PR · humano
+- [ ] **Añadir `test-effects-page.mjs` a la tabla de suites de `docs/rules/testing.md`** (E2E e interfaz). No se tocó por ser `docs/rules/` (requiere permiso) · humano + agente
 - [ ] **005 · Guía vs. sin guía en la portada (`feat/005-guia-vs-sin-guia`, worktree `ai-skills-studio-005`):** rediseño en espejo (C8–C12) integrado sobre la 004; criterios C1–C12 en verde (`test-guide-showcase.mjs` 356/356) y `check.sh` completo en verde. Revisión `revisor`: APPROVE (importantes corregidos en `84a93f5`). Falta: rebase sobre `main` cuando se fusione el PR #32 y PR de 5 secciones con **squash** (`180a2a9` usa el tipo `test`) · agente + humano
 
 ## Pendiente
@@ -26,6 +28,7 @@
 - [ ] **Calidad / Linter (`LINT_CMD`):** Evaluar si incorporar Biome o ESLint para activar `LINT_CMD` en `scripts/check.sh` (requiere aprobación antes de instalar dependencias; `api/github-oauth.ts` y `api/skills-sh.ts` ya están cubiertos en `TYPECHECK_CMD`) · humano + agente
 - [ ] **Presupuesto de bundle inicial (`vendor-react`):** Ajustar `manualChunks` en `vite.config.ts` (zona blindada, requiere autorización) para incluir `react-dom` completo en `vendor-react` y devolver el chunk `index-*.js` por debajo de `350 kB` (deuda preexistente detectada en la auditoría de `003`) · humano + agente
 - [ ] **Prueba intermitente (flaky) `Datepicker: Enter elige el día y cierra`** (`scripts/test-components-page.mjs:184`): falló 1 vez en `./scripts/check.sh` completo el 2026-11-27 (rama `004`, máquina con carga y otro worktree ejecutando pruebas) y pasó 3/3 aislada y en la ejecución completa siguiente. Sustituir la espera fija de 1,5 s por una espera determinista del estado visible del Datepicker (`src/components/ui-kit/`) · agente
+- [ ] **Prueba intermitente `test-lessons.mjs` · «Persistencia»** (`openCodice`, espera de `#lessons-heading`): agotó los 30 s una vez en `check.sh` completo el 2026-11-27 (rama `006`, copia limpia, máquina con varias sesiones y servidores Vite a la vez) y pasó al repetirla aislada. Sustituir por una espera determinista del estado tras recargar · agente
 - [ ] **Puertos fijos en suites Playwright (`5185`–`5190`):** ejecutar `check.sh` a la vez en varios worktrees provoca `Port ... is already in use` (visto con `5190` de `test-lessons.mjs`). Evaluar puertos libres dinámicos · agente
 - [ ] **Limpieza de ramas antiguas:** Evaluar borrar la rama local/remota no fusionada `chore/claude-init` (su `CLAUDE.md` ya fue absorbido en `AGENTS.md` y `docs/`) · humano
 

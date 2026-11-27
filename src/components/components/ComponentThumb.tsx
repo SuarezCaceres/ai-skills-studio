@@ -15,7 +15,7 @@ interface ComponentThumbProps {
 }
 
 /**
- * Miniatura del componente: la captura generada por `scripts/capture-components.mjs` a partir del
+ * Miniatura del componente o del efecto: la captura generada por `scripts/capture-components.mjs` a partir del
  * propio componente. Si el archivo no existe o falla, muestra un icono en su lugar.
  */
 export function ComponentThumb({ entry, width, className = '', decorative = false, fluid = false }: ComponentThumbProps) {
@@ -38,7 +38,7 @@ export function ComponentThumb({ entry, width, className = '', decorative = fals
   return (
     <img
       src={thumbnailUrl(entry)}
-      alt={decorative ? '' : `Captura generada del componente ${entry.name}`}
+      alt={decorative ? '' : `Captura generada del ${entry.kind === 'efecto' ? 'efecto' : 'componente'} ${entry.name}`}
       width={width}
       height={height}
       loading="lazy"
