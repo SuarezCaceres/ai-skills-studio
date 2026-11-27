@@ -177,7 +177,7 @@ async function main() {
     check('hay un selector «Páginas de referencia (0 de 5)»', (await pagesPicker.count()) === 1 && /^Páginas de referencia \(0 de 5\)$/.test(await pagesLegend()), await pagesLegend().catch(() => 'sin selector'));
     check('el selector de páginas va junto al de componentes (el siguiente fieldset del formulario)', await pagesPicker.evaluate((el) => {
       const sets = [...(el.closest('form') ?? document).querySelectorAll('fieldset')].filter((f) => !f.parentElement?.closest('fieldset'));
-      const comp = sets.findIndex((f) => f.querySelector('legend')?.textContent?.includes('Componentes usados'));
+      const comp = sets.findIndex((f) => f.querySelector('legend')?.textContent?.includes('Componentes y efectos usados'));
       return comp >= 0 && sets.indexOf(el) === comp + 1;
     }).catch(() => false));
     const pageBoxes = pagesPicker.getByRole('checkbox');
