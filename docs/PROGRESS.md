@@ -11,6 +11,15 @@
 - **Problemas:** errores, dudas o decisiones que necesitan al humano
 -->
 
+## 2026-11-27 · Claude Code · `feat/004-retiro-workspace-inspector-codigo` (seguimiento tras PR #31)
+- **Hecho:**
+  - La 004 ya se fusionó en `main` con el PR #31 (merge `309be17`, sin *squash*, así que `0505bc5` con tipo `test` quedó en `main`). Estos cambios van en un PR de seguimiento.
+  - `fix(landing)`: con la Geist Mono real, la fila de métricas de la ficha del portátil (`ComputerLightBeamShowcase.tsx`) llevaba la portada a `scrollWidth` 403 a 390 px; ahora envuelve y se limita al ancho (390 a 390 px, sin desbordes a 768/1024/1440). `test-interfaces-playwright.mjs` añade una comprobación con texto más ancho (las suites sirven Google Fonts vacías) que fallaba antes del arreglo.
+  - `.playwright-mcp/` ignorada en `.gitignore`.
+- **Verificación:** `./scripts/check.sh` completo en `exit 0`. Un intento falló porque otro proceso ocupaba el puerto `5190` de `test-lessons.mjs`, y otro por la prueba intermitente `Datepicker: Enter elige el día y cierra`, que pasa 3/3 aislada y queda registrada en `docs/TASKS.md`.
+- **Pendiente:** revisión humana y fusión del PR de seguimiento.
+- **Problemas:** ejecutar `check.sh` a la vez en varios worktrees provoca choques de puertos fijos (`5185`–`5190`).
+
 ## 2026-11-27 · Antigravity (`Orquestador General`) · `feat/004-retiro-workspace-inspector-codigo`
 - **Hecho:**
   - Ejecución de **Fases 0–3** de `004-retiro-workspace-inspector-codigo` (`docs/specs/004-retiro-workspace-inspector-codigo/{spec.md,plan.md}`):

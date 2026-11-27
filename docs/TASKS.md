@@ -25,6 +25,8 @@
 - [ ] **Paso manual externo (repo catálogo):** Actualizar `.github/workflows/codice-labeler.yml` en `codice-skills-catalog` para admitir `kind: class` (y `kind: team` al implementar `001`), según `docs/catalog-setup.md` · humano
 - [ ] **Calidad / Linter (`LINT_CMD`):** Evaluar si incorporar Biome o ESLint para activar `LINT_CMD` en `scripts/check.sh` (requiere aprobación antes de instalar dependencias; `api/github-oauth.ts` y `api/skills-sh.ts` ya están cubiertos en `TYPECHECK_CMD`) · humano + agente
 - [ ] **Presupuesto de bundle inicial (`vendor-react`):** Ajustar `manualChunks` en `vite.config.ts` (zona blindada, requiere autorización) para incluir `react-dom` completo en `vendor-react` y devolver el chunk `index-*.js` por debajo de `350 kB` (deuda preexistente detectada en la auditoría de `003`) · humano + agente
+- [ ] **Prueba intermitente (flaky) `Datepicker: Enter elige el día y cierra`** (`scripts/test-components-page.mjs:184`): falló 1 vez en `./scripts/check.sh` completo el 2026-11-27 (rama `004`, máquina con carga y otro worktree ejecutando pruebas) y pasó 3/3 aislada y en la ejecución completa siguiente. Sustituir la espera fija de 1,5 s por una espera determinista del estado visible del Datepicker (`src/components/ui-kit/`) · agente
+- [ ] **Puertos fijos en suites Playwright (`5185`–`5190`):** ejecutar `check.sh` a la vez en varios worktrees provoca `Port ... is already in use` (visto con `5190` de `test-lessons.mjs`). Evaluar puertos libres dinámicos · agente
 - [ ] **Limpieza de ramas antiguas:** Evaluar borrar la rama local/remota no fusionada `chore/claude-init` (su `CLAUDE.md` ya fue absorbido en `AGENTS.md` y `docs/`) · humano
 
 ## Bloqueado
