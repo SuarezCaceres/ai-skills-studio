@@ -357,7 +357,7 @@ test('los videos no cambian quién puede gestionar la clase: solo la autora', ()
   assert.equal(m.canManageLesson(l, null), false);
 });
 
-console.log('Páginas de referencia (spec 006, C7 y C9)');
+console.log('Páginas de referencia (spec 007, C7 y C9)');
 const SIX_PAGES = ['landing-saas', 'tienda-online', 'dashboard', 'login-registro', 'precios', 'blog-articulo'];
 test('LIMITS.pages es 5', () => assert.equal(m.LIMITS.pages, 5));
 test('validateDraft: 5 páginas no dan error y 6 dan errors.pageIds en español', () => {

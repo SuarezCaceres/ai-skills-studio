@@ -29,7 +29,7 @@ const PORT = 5190;
 const OUT_DIR = join(tmpdir(), 'ai-skills-studio-lessons-e2e');
 const SHOTS_DIR = resolve(ROOT, 'shots', 'lessons');
 
-/* Páginas de referencia (spec 006): nombres e ids del catálogo real, compilado con esbuild. */
+/* Páginas de referencia (spec 007): nombres e ids del catálogo real, compilado con esbuild. */
 const catalogDir = mkdtempSync(join(tmpdir(), 'codice-lessons-pages-'));
 await esbuild({
   entryPoints: [join(ROOT, 'src/data/pageCatalog.ts')],
@@ -170,7 +170,7 @@ async function main() {
     await page.getByRole('checkbox', { name: /Accordion/ }).check();
     check('el selector de skills lista la skill del equipo con su autor', (await page.getByText(`@${TEAM_LOGIN}`).count()) >= 1);
 
-    console.log('\nPáginas de referencia en el editor (spec 006, C7)');
+    console.log('\nPáginas de referencia en el editor (spec 007, C7)');
     const pagesPicker = page.locator('fieldset#picker-pages');
     const pagesLegend = async () => (await pagesPicker.locator('legend').innerText()).replace(/\s+/g, ' ').trim();
     check('hay un selector «Páginas de referencia (0 de 5)»', (await pagesPicker.count()) === 1 && /^Páginas de referencia \(0 de 5\)$/.test(await pagesLegend()), await pagesLegend().catch(() => 'sin selector'));
@@ -344,7 +344,7 @@ async function main() {
       return !!box && Math.abs(box.width / box.height - 16 / 9) < 0.03;
     }));
 
-    console.log('\nPágina de referencia encima de la clase con el video en marcha (spec 006, C8)');
+    console.log('\nPágina de referencia encima de la clase con el video en marcha (spec 007, C8)');
     const playerFrame = await page.locator('section[aria-labelledby="lesson-videos"] iframe').elementHandle();
     const playerSrc = await page.locator('section[aria-labelledby="lesson-videos"] iframe').getAttribute('src');
     const firstChip = page.locator('section[aria-labelledby="lesson-pages"] button[data-testid="clase-pagina-chip"]').first();

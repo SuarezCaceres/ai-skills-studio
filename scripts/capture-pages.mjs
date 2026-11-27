@@ -19,7 +19,7 @@ import { quantizePng } from './lib/png-quantize.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = resolve(ROOT, 'public', 'pages');
-const PORT = 5192;
+const PORT = 5198;
 const CANVAS = { width: 1280, height: 800 };
 const MAX_BYTES = 40 * 1024;
 

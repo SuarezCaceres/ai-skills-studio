@@ -340,7 +340,7 @@ test('updateLesson conserva el estado de compartida y shareStatus pasa a dirty',
   assert.equal(m.shareStatus(edited), 'dirty');
 });
 
-console.log('Páginas de referencia (spec 006, C9 y C10)');
+console.log('Páginas de referencia (spec 007, C9 y C10)');
 /** Clase fija: su huella `307991d6` se calculó con el código de `main` antes de la 006 y no puede cambiar. */
 const REFERENCE = {
   title: 'Clase de referencia',

@@ -48,7 +48,7 @@ const lesson = (login, title, over = {}) =>
   );
 
 const HOSTILE = '## Qué es un hook\n\nTexto de Ana.\n\n<img src="x" onerror="window.__pwned = 1">\n<script>window.__pwned = 2</script>';
-// La primera clase propia enlaza una página de referencia (spec 006, C10): debe viajar en clase.json y en el marcador.
+// La primera clase propia enlaza una página de referencia (spec 007, C10): debe viajar en clase.json y en el marcador.
 const OWN = [lesson(ME, 'Mis hooks de Claude Code', { updatedAt: '2026-11-13T10:00:00.000Z', pageIds: ['dashboard'] }), lesson(ME, 'Segunda clase privada')];
 const ANA_HOOKS = lesson('ana-dev', 'Hooks de Claude Code desde cero', { bodyMarkdown: HOSTILE, tags: ['hooks', 'ana'], videos: [{ id: 'v1', kind: 'video', youtubeId: 'jNQXAC9IVRw', title: 'Introducción' }] });
 const ANA_WT = lesson('ana-dev', 'Worktrees paso a paso', { level: 'Avanzado', tags: ['git'] });
@@ -313,7 +313,7 @@ async function main() {
     await page.locator('#lesson-videos').waitFor({ timeout: 15000 });
     check('una clase de otra persona con tres partes muestra la lista de partes (video y lista de reproducción)', (await page.getByRole('list', { name: 'Partes del video' }).getByRole('button').count()) === 3);
 
-    console.log('\nPáginas de referencia en una clase de Comunidad (spec 006, C8 y C10)');
+    console.log('\nPáginas de referencia en una clase de Comunidad (spec 007, C8 y C10)');
     const communityPages = page.locator('section[aria-labelledby="lesson-pages"]');
     await communityPages.waitFor({ timeout: 10000 }).catch(() => {});
     const communityChips = communityPages.locator('button[data-testid="clase-pagina-chip"][data-page-id]');

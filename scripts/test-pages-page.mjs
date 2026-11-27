@@ -1,5 +1,5 @@
 /**
- * Prueba de la página «Páginas» (spec 006 · C1–C6, C11 y C12): navegación, galería con chips, modal
+ * Prueba de la página «Páginas» (spec 007 · C1–C6, C11 y C12): navegación, galería con chips, modal
  * accesible con la plantilla en vivo, Escritorio/Móvil, «Usar esta página» (prompt y código reales,
  * portapapeles), «Clases que la usan», «Componentes que usa», presupuesto del build y miniaturas.
  *
@@ -523,26 +523,46 @@ async function main() {
 
     });
     await section(page, origin, 'Plantillas inertes: enlaces y formularios', async () => {
-      await card(page, 'login-registro').click();
+      for (const meta of PAGE_CATALOG) {
+        await card(page, meta.id).click();
+        await modal(page).waitFor();
+        await waitTemplate(page).catch(() => {});
+        const urlBefore = page.url();
+        // Escucha en document (fase bubble): ahí ya corrió el preventDefault de React.
+        const inert = await frame(page).evaluate(async (el) => {
+          const seen = [];
+          const record = (e) => seen.push({ type: e.type, prevented: e.defaultPrevented });
+          document.addEventListener('click', record);
+          document.addEventListener('submit', record);
+          const anchors = [...el.querySelectorAll('a')];
+          const bad = anchors.filter((a) => a.getAttribute('href') !== '#').map((a) => a.getAttribute('href'));
+          anchors.forEach((a) => a.click());
+          const forms = [...el.querySelectorAll('form')];
+          forms.forEach((f) => f.requestSubmit?.());
+          await new Promise((r) => setTimeout(r, 50));
+          document.removeEventListener('click', record);
+          document.removeEventListener('submit', record);
+          const notPrevented = seen.filter((s) => !s.prevented).map((s) => s.type);
+          return { anchors: anchors.length, bad, forms: forms.length, submits: seen.filter((s) => s.type === 'submit').length, notPrevented };
+        });
+        check(`${meta.id}: los enlaces de la plantilla son href="#"`, inert.bad.length === 0, inert.bad.join(', '));
+        check(`${meta.id}: enlaces y formularios cancelan su acción por defecto (${inert.anchors} enlaces, ${inert.forms} formularios)`, inert.notPrevented.length === 0 && inert.submits === inert.forms, inert.notPrevented.join(', '));
+        check(`${meta.id}: no navega ni cierra la modal`, page.url() === urlBefore && (await modal(page).count()) === 1 && (await modalTitle(page)) === meta.name, page.url());
+        await closeModal(page);
+      }
+    });
+    await section(page, origin, '↑/↓ dentro de la vista previa desplazan, no cambian de página (C3)', async () => {
+      await card(page, 'landing-saas').click();
       await modal(page).waitFor();
       await waitTemplate(page).catch(() => {});
-      const urlBefore = page.url();
-      const inert = await frame(page).evaluate((el) => {
-        const anchors = [...el.querySelectorAll('a')];
-        const bad = anchors.filter((a) => a.getAttribute('href') !== '#').map((a) => a.getAttribute('href'));
-        anchors.slice(0, 3).forEach((a) => a.click());
-        let submitted = 0;
-        for (const form of el.querySelectorAll('form')) {
-          form.addEventListener('submit', (e) => e.defaultPrevented || submitted++, { once: true });
-          form.requestSubmit?.();
-        }
-        return { anchors: anchors.length, bad, forms: el.querySelectorAll('form').length, submitted };
-      });
-      await page.waitForTimeout(200);
-      check('los enlaces de la plantilla son href="#"', inert.bad.length === 0, inert.bad.join(', '));
-      check('pulsar enlaces o enviar formularios no navega ni cierra la modal', page.url() === urlBefore && (await modal(page).count()) === 1 && (await modalTitle(page)) === byId('login-registro').name, page.url());
+      const region = modal(page).getByRole('region', { name: `Vista previa de ${byId('landing-saas').name}` });
+      await region.focus();
+      await page.keyboard.press('ArrowDown');
+      await page.keyboard.press('ArrowDown');
+      await page.waitForTimeout(250);
+      const scrolled = await region.evaluate((el) => el.scrollTop);
+      check('con el foco en la vista previa, ↓ la desplaza y la página sigue siendo la misma', (await modalTitle(page)) === byId('landing-saas').name && scrolled > 0, `${await modalTitle(page)} · scrollTop ${scrolled}`);
       await closeModal(page);
-
     });
     await section(page, origin, 'Clases que la usan: vacío (C6)', async () => {
       await card(page, 'dashboard').click();
