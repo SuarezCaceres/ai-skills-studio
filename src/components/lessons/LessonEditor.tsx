@@ -43,6 +43,7 @@ function toDraft(lesson?: Lesson): LessonDraft {
     bodyMarkdown: lesson?.bodyMarkdown ?? STARTER,
     skillIds: lesson?.skillIds ?? [],
     componentIds: lesson?.componentIds ?? [],
+    pageIds: lesson?.pageIds ?? [],
     videos: lesson?.videos ?? [],
   };
 }
