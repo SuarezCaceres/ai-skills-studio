@@ -4,7 +4,7 @@
 > Las funcionalidades completas viven en `docs/features.json`; aquí van tareas operativas, deuda técnica y pasos manuales.
 
 ## En curso
-- [ ] **005 · Guía vs. sin guía en la portada (`feat/005-guia-vs-sin-guia`, worktree `ai-skills-studio-005`):** rediseño en espejo (C8–C12) integrado sobre la 004; criterios C1–C12 en verde (`test-guide-showcase.mjs` 337/337) y `check.sh` completo en verde. Falta: revisión `revisor`, rebase sobre `main` cuando se fusione el PR #32 y PR de 5 secciones con **squash** (`180a2a9` usa el tipo `test`) · agente + humano
+- [ ] **005 · Guía vs. sin guía en la portada (`feat/005-guia-vs-sin-guia`, worktree `ai-skills-studio-005`):** rediseño en espejo (C8–C12) integrado sobre la 004; criterios C1–C12 en verde (`test-guide-showcase.mjs` 356/356) y `check.sh` completo en verde. Revisión `revisor`: APPROVE (importantes corregidos en `84a93f5`). Falta: rebase sobre `main` cuando se fusione el PR #32 y PR de 5 secciones con **squash** (`180a2a9` usa el tipo `test`) · agente + humano
 - [ ] **`test-interactions-playwright.mjs` depende de `.env.local`:** compila con el `dist` de `npm run build` y, si `VITE_CATALOG_REPO` no está definida (p. ej. en un worktree sin `.env.local`), falla en «Nadie del equipo ha subido skills todavía». Debería fijar `TEST_CATALOG_REPO`/`TEST_CLIENT_ID` antes de compilar, como `test-guide-showcase.mjs`. Mientras tanto: `VITE_CATALOG_REPO=test/catalog VITE_GITHUB_CLIENT_ID=test-client-id VITE_GITHUB_OAUTH_URL=https://oauth.example.test/api/github-oauth ./scripts/check.sh` · agente
 
 ## Pendiente
