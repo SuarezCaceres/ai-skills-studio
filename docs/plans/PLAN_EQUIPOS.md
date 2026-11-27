@@ -60,7 +60,7 @@ Resultado de la entrevista `/grill-me` con el usuario. Es un plan, no está impl
 1. Selector "¿Dónde?" en `PublishSkillDialog` (personal o equipo): publica en el repo común y registra la skill con el equipo.
 2. Edición entre miembros: `commitSkillChanges` ya existe, pero hoy exige repo propio; ampliar a repos de equipo donde se es colaborador.
 3. Autores por commits en el detalle y las tarjetas de la skill; contribuyentes en el perfil de cada miembro.
-4. El estudio ("Abrir en estudio") y las asignaciones de Componentes / Clases siguen funcionando con skills de equipo.
+4. La inspección bajo demanda fijada a `commitSha`, la edición colaborativa y las asignaciones de Componentes / Clases siguen funcionando con skills de equipo.
 
 ## Riesgos y cosas a verificar al empezar
 

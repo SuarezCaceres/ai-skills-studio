@@ -4,7 +4,7 @@
 > Las funcionalidades completas viven en `docs/features.json`; aquí van tareas operativas, deuda técnica y pasos manuales.
 
 ## En curso
-- [ ] **004 · Retiro de Workspace e inspección real de código (`feat/004-retiro-workspace-inspector-codigo`):** `spec.md` aprobada; `plan.md` dividido en 5 fases Zero-Conflict (`Fase 0` contratos → `Oleada 1` 3 worktrees → `Fase 2` integración `App.tsx` + retiro → `Oleada 2` 4 ámbitos de prueba + docs → `Fase 4` `revisor`), esperando aprobación humana para ejecutar (nota: este retiro elimina los hallazgos de auditoría asociados a `UnifiedProjectStudio.tsx`, `rarParserService.ts` y `workingCopy` / `VoiceVisualFeedback`) · humano + agente
+<!-- - [ ] Descripción · responsable -->
 
 ## Pendiente
 - [ ] **🔴 PRIORIDAD ALTA · Remediar auditoría de seguridad (`security-audit`, run-1, perfil `quick`):** 8 hallazgos `needs_validation` verificados en código + 2 brechas diferidas. Reporte: `reporte-auditoria-seguridad.md` (artefacto de la conversación) y `scratch/security-audit/ai-skills-studio/run-1/` (`REPORT.md`, `NEEDS-VALIDATION.md`, `findings.json`). Abrir rama `fix/security-hardening` vía `spec-plan-code`; varias correcciones tocan zonas blindadas (requieren autorización) · humano + agente
@@ -32,4 +32,5 @@
 <!-- - [ ] Descripción · por qué está bloqueado · qué se necesita -->
 
 ## Hecho
+- [x] 2026-11-27 · **004 · Retiro de Workspace e inspección real de código (`feat/004-retiro-workspace-inspector-codigo`):** completadas Fases 0–3 (retiro de Workspace/`estudio`, `modelos-ia`, `evidencias`, `StylePresetCatalog`, `workingCopy`, `rarParserService` y 13 archivos obsoletos; inspector bajo demanda fijado a `commitSha` en `FilesPanel` con re-auditoría automática; vista previa de `skills.sh` en `SkillDetailPage`/`CatalogDetailRoute`; actualización de portada/navbar, suites Node + Playwright y documentación). Pendiente Fase 4 (`revisor` + PR local de 5 secciones)
 - [x] 2026-11-23 · Instalar `harness-template` en `chore/adoptar-harness`, rellenar `AGENTS.md` + `docs/` + skills (incluida `orquestador-general`) y configurar sensores en `scripts/check.sh` e `init.sh`
