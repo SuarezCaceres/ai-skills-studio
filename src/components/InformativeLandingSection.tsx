@@ -5,39 +5,17 @@ import { ComputerLightBeamShowcase } from './ComputerLightBeamShowcase';
 const GuideContrastShowcase = React.lazy(() =>
   import('./GuideContrastShowcase').then((m) => ({ default: m.GuideContrastShowcase }))
 );
+// Órbita interactiva de agentes IA en chunk diferido para #capabilities (presupuesto < 350 kB).
+const CapabilitiesOrbitalShowcase = React.lazy(() => import('./CapabilitiesOrbitalShowcase'));
 
 interface InformativeLandingSectionProps {
   onNavigatePage: (page: AppPageRoute) => void;
 }
 
-const HUB_DIAGRAM_JSON = JSON.stringify({
-  layout: 'hub',
-  ground: 'dots',
-  alt: 'Códice Studio conecta directivas SKILL.md y repositorios de GitHub con Obsidian, Claude, Gemini y Cursor.',
-  center: {
-    label: 'Códice Studio',
-    icon: 'ui:layers',
-  },
-  spokes: [
-    { label: 'SKILL.md', icon: 'skill' },
-    { label: 'GitHub', icon: 'github' },
-    { label: 'Obsidian', icon: 'obsidian' },
-    { label: 'Claude', icon: 'claude' },
-    { label: 'Gemini', icon: 'gemini' },
-    { label: 'Cursor', icon: 'cursor' },
-  ],
-});
-
 declare global {
   interface Window {
     __tasteUi?: {
       startAll: (doc: Document) => void;
-    };
-    TPDiagram?: {
-      mount: (el: HTMLElement, spec: any, opts?: any) => any;
-      auto: (root?: Document | HTMLElement, opts?: any) => Promise<any[]>;
-      presets: (custom?: string) => Promise<any>;
-      ready: () => Promise<void>;
     };
   }
 }
@@ -45,52 +23,12 @@ declare global {
 export const InformativeLandingSection: React.FC<InformativeLandingSectionProps> = ({
   onNavigatePage,
 }) => {
-  const diagramRef = React.useRef<HTMLDivElement | null>(null);
-  const diagramInstanceRef = React.useRef<{ destroy?: () => void } | null>(null);
-
   useEffect(() => {
     if (window.__tasteUi) {
       try {
         window.__tasteUi.startAll(document);
       } catch {}
     }
-
-    let isMounted = true;
-    let timerId: ReturnType<typeof setTimeout> | null = null;
-    let attempts = 0;
-
-    const setupDiagram = () => {
-      if (!isMounted || !diagramRef.current) return;
-      if (window.TPDiagram) {
-        try {
-          if (diagramInstanceRef.current?.destroy) {
-            diagramInstanceRef.current.destroy();
-          }
-          const parsedSpec = JSON.parse(HUB_DIAGRAM_JSON);
-          diagramInstanceRef.current = window.TPDiagram.mount(
-            diagramRef.current,
-            parsedSpec
-          );
-        } catch (e) {
-          console.error('Error mounting TPDiagram:', e);
-        }
-      } else if (attempts < 20) {
-        attempts++;
-        timerId = setTimeout(setupDiagram, 60);
-      }
-    };
-
-    setupDiagram();
-
-    return () => {
-      isMounted = false;
-      if (timerId) clearTimeout(timerId);
-      if (diagramInstanceRef.current?.destroy) {
-        try {
-          diagramInstanceRef.current.destroy();
-        } catch {}
-      }
-    };
   }, []);
 
   const openModule = (
@@ -557,13 +495,12 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
               </div>
             </div>
 
-            <div className="span-6 start-7 panel">
-              <div ref={diagramRef} className="dg" data-diagram>
-                <script
-                  type="application/json"
-                  dangerouslySetInnerHTML={{ __html: HUB_DIAGRAM_JSON }}
-                />
-              </div>
+            <div className="span-6 start-7 panel" style={{ padding: 0 }}>
+              <React.Suspense
+                fallback={<div style={{ minHeight: '480px' }} aria-hidden="true" />}
+              >
+                <CapabilitiesOrbitalShowcase />
+              </React.Suspense>
             </div>
           </div>
         </div>
