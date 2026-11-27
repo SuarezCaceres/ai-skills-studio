@@ -27,13 +27,19 @@ const BarFill: React.FC<{ initialElapsedMs: number; paused: boolean }> = ({ init
   );
 };
 
+/** Marca de estado a la derecha de cada fila: «?» atascada, aro pendiente, aro con punto activa y ✓ completa. */
+const RowMark: React.FC<{ state: GuideRowState }> = ({ state }) => (
+  <span className={`guia-fila__marca guia-fila__marca--${state}`} aria-hidden="true">
+    {state === 'atascada' && <CircleHelp size={18} strokeWidth={2} />}
+    {state === 'completa' && <Check size={13} strokeWidth={3} />}
+  </span>
+);
+
 /**
  * Bloque de texto del modo + tarjeta de barras (spec 005, C8, C11, C12).
- * - «Sin guía»: 3 obstáculos con barras «atascadas».
+ * - «Sin guía»: 3 obstáculos con barras «atascadas» (gris, casi vacías, sobre un carril discontinuo).
  * - «Con guía»: 3 pasos; la barra del paso activo se llena durante `GUIDE_STEP_INTERVAL_MS` (cronómetro visible
- *   del avance automático) y se congela al pausar.
- *
- * ESQUELETO DE LA FASE 0: cumple el contrato de DOM; el diseño visual lo completa wt2.
+ *   del avance automático) y se congela al pausar. Las completadas quedan llenas con ✓; las pendientes, vacías.
  */
 export const GuideModePanel: React.FC<GuideModePanelProps> = ({
   mode,
@@ -59,9 +65,14 @@ export const GuideModePanel: React.FC<GuideModePanelProps> = ({
 
   return (
     <div data-testid="guia-panel" data-mode={mode} className="guia-panel">
-      <span className="guia-panel__etiqueta">{GUIDE_COPY.modes[mode]}</span>
-      <h3 className="guia-panel__titulo">{GUIDE_COPY.listLabels[mode]}</h3>
-      <p className="guia-panel__descripcion">{GUIDE_COPY.captions[mode]}</p>
+      <div className="guia-panel__texto">
+        <span className="guia-panel__etiqueta">
+          <span className="guia-panel__punto" aria-hidden="true" />
+          {GUIDE_COPY.modes[mode]}
+        </span>
+        <h3 className="guia-panel__titulo">{GUIDE_COPY.listLabels[mode]}</h3>
+        <p className="guia-panel__descripcion">{GUIDE_COPY.captions[mode]}</p>
+      </div>
 
       <div data-testid="guia-tarjeta" className="guia-tarjeta">
         <ul data-testid="guia-lista" aria-label={GUIDE_COPY.listLabels[mode]} className="guia-tarjeta__lista">
@@ -77,14 +88,13 @@ export const GuideModePanel: React.FC<GuideModePanelProps> = ({
                 data-testid="guia-fila"
                 data-estado={state}
                 className="guia-fila"
+                style={{ '--guia-orden': index } as React.CSSProperties}
               >
                 <div className="guia-fila__cabecera">
                   <span className="guia-fila__texto">{label}</span>
-                  <span className="guia-fila__icono" aria-hidden="true">
-                    {state === 'atascada' && <CircleHelp size={16} />}
-                    {state === 'completa' && <Check size={16} />}
-                  </span>
+                  <RowMark state={state} />
                 </div>
+                {detail && <span className="guia-fila__detalle">{detail}</span>}
                 <span data-testid="guia-barra" aria-hidden="true" className="guia-barra">
                   <BarFill
                     key={state === 'activa' ? `activa-${cycleKey}` : state}
@@ -92,7 +102,6 @@ export const GuideModePanel: React.FC<GuideModePanelProps> = ({
                     paused={paused}
                   />
                 </span>
-                {detail && <span className="guia-fila__detalle">{detail}</span>}
               </li>
             );
           })}
@@ -114,7 +123,7 @@ export const GuideModePanel: React.FC<GuideModePanelProps> = ({
           )}
           <button type="button" onClick={onOpenCatalog} className="guia-tarjeta__cta">
             {GUIDE_COPY.cta}
-            <ChevronRight size={16} aria-hidden="true" />
+            <ChevronRight size={16} aria-hidden="true" className="guia-tarjeta__flecha" />
           </button>
         </div>
       </div>
