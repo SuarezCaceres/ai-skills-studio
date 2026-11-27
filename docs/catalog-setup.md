@@ -78,9 +78,9 @@ Notas: solo reacciona a `opened` (no a ediciones) y nunca interpola el contenido
 
 ## 2. OAuth App / GitHub App (GitHub)
 
-1. GitHub → *Settings → Developer settings → GitHub Apps / OAuth Apps*.
+1. GitHub → *Settings → Developer settings → OAuth Apps* (o *GitHub Apps*).
 2. **Homepage URL**: la URL pública del sitio en Vercel, p. ej. `https://codice-oauth.vercel.app/`.
-3. **Authorization callback URL**: la **misma URL del sitio** (la app vuelve a su propia página con `?code=...&state=...`). Las GitHub Apps (`Ov23li...`) admiten varias *Callback URLs*: registra `https://codice-oauth.vercel.app/` para producción y `http://localhost:5173/` para desarrollo local (y `ALLOWED_ORIGINS` en Vercel debe incluir ambos orígenes).
+3. **Redirect URIs / Authorization callback URL**: la **misma URL del sitio** (la app vuelve a su propia página con `?code=...&state=...`). La *OAuth App* (`Ov23li...`) permite registrar hasta 10 *Redirect URIs* mediante *Add redirect URI*: incluye `https://codice-oauth.vercel.app/` para producción y `http://localhost:5173/` para desarrollo local (y `ALLOWED_ORIGINS` en Vercel debe incluir ambos orígenes).
 4. Copia el **Client ID** (público) y genera un **Client secret** (privado: solo irá a Vercel).
 5. Permisos: la app pide el alcance `public_repo`, necesario para crear Issues y reacciones en un repo público. Es un alcance amplio (escritura en los repos públicos de quien entra); está documentado para que los usuarios lo sepan. Pueden revocarlo en *GitHub → Settings → Applications*.
 
