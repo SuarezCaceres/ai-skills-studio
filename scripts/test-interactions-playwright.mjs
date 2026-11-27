@@ -1,8 +1,9 @@
 /**
  * Prueba E2E de interacciones de navegación en Códice Studio (C1, C4).
  *
- * Verifica los recorridos reales entre Portada, Navbar (`.nav__actions a.btn--primary` -> Catálogo),
- * Pie de página, Pantalla de acceso, Drawer móvil (390px) y todos los módulos vigentes
+ * Verifica los recorridos reales entre la Portada (hero estilo Forge de `feat/hero-forge`), la barra
+ * Notch (secciones sin sesión, módulos dentro de la app), el pie de página, el modal de acceso con
+ * GitHub, el menú móvil (390px) y todos los módulos vigentes
  * (`boveda`, `catalogo`, `skills-sh`, `preview`, `codice-studio`), comprobando ausencia de
  * rutas muertas (`estudio`, `modelos-ia`, `evidencias`) y de UI retirada de Workspace/Modelos.
  *
@@ -187,9 +188,11 @@ async function testInteractions() {
     await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' });
     await page.locator('#hero-h').waitFor({ timeout: 8000 });
     const heroTitle = await page.locator('#hero-h').innerText();
+    assert(heroTitle.includes('Clases en video'), `Título inesperado en hero: "${heroTitle}"`);
+    const sectionLinks = (await page.locator('header.nav nav[aria-label="Principal"] a').allInnerTexts()).map((t) => t.trim());
     assert(
-      heroTitle.includes('Catálogo e inspector de skills'),
-      `Título inesperado en hero: "${heroTitle}"`
+      sectionLinks.join('|') === 'Guía|Inspector|Capacidades|Ecosistema|Preguntas',
+      `Secciones de la barra sin sesión inesperadas: [${sectionLinks.join(', ')}]`
     );
     console.log('1️⃣ Landing loaded');
 
@@ -210,14 +213,15 @@ async function testInteractions() {
       );
     }
 
-    // 2. CTA primario de la barra superior (.nav__actions a.btn--primary) -> Catálogo del equipo (`boveda`)
+    // 2. Sin sesión, el CTA primario de la barra es «Entrar con GitHub»; a los módulos se entra desde
+    //    la portada: «Skills del equipo» del pie lleva al Catálogo del equipo (`boveda`).
     const navPrimaryCta = page.locator('.nav__actions a.btn--primary');
-    const ctaText = (await navPrimaryCta.innerText()).trim();
-    assert(ctaText.includes('Abrir'), `CTA primario inesperado: "${ctaText}"`);
-    await navPrimaryCta.click();
+    const ctaLabel = ((await navPrimaryCta.getAttribute('aria-label')) || (await navPrimaryCta.innerText())).trim();
+    assert(ctaLabel === 'Entrar con GitHub', `CTA primario sin sesión inesperado: "${ctaLabel}"`);
+    await page.locator('footer#contact a', { hasText: 'Skills del equipo' }).click();
     await page.locator('#team-heading').waitFor({ timeout: 8000 });
     const headingText = await page.locator('#team-heading').innerText();
-    console.log(`2️⃣ Navbar primary CTA opened Skills del equipo (boveda): "${headingText}"`);
+    console.log(`2️⃣ Footer «Skills del equipo» opened Skills del equipo (boveda): "${headingText}"`);
 
     assert(
       (await page.locator('aside[aria-label="Explorador de archivos del workspace"]').count()) === 0,
@@ -297,7 +301,11 @@ async function testInteractions() {
     await page.locator('#hero-h').waitFor({ timeout: 8000 });
 
     // 4. Navegación desde enlaces de Portada y Pie de página (`#contact`)
-    await page.locator('.hero a.btn--primary').click();
+    await page.locator('a.fg-cta-primary', { hasText: 'Ver el ecosistema' }).click();
+    await page.waitForFunction(() => location.hash === '#benchmarks', null, { timeout: 8000 });
+    assert((await page.locator('#hero-h').count()) === 1, '«Ver el ecosistema» debe quedarse en la portada');
+
+    await page.locator('footer#contact a', { hasText: 'Catálogo comunitario' }).click();
     await page.locator('#catalog-page-heading').waitFor({ timeout: 8000 });
     await returnToLanding();
 
@@ -309,8 +317,15 @@ async function testInteractions() {
     await page.locator('#lessons-heading').waitFor({ timeout: 8000 });
     await returnToLanding();
 
+    // El CTA del pie abre el modal de acceso encima de la portada (sin desmontarla).
     await page.locator('footer#contact a.btn--primary').click();
-    await page.locator('#team-heading').waitFor({ timeout: 8000 });
+    await page.locator('#auth-modal-heading').waitFor({ timeout: 8000 });
+    assert((await page.locator('#hero-h').count()) === 1, 'El modal de acceso no debe desmontar la portada');
+    await page.getByRole('button', { name: 'Cerrar ventana de acceso' }).click();
+    await page.locator('#auth-modal-heading').waitFor({ state: 'detached', timeout: 5000 });
+
+    await page.locator('footer#contact a', { hasText: 'Códice de clases' }).click();
+    await page.locator('#lessons-heading').waitFor({ timeout: 8000 });
     await returnToLanding();
 
     await page.locator('footer#contact a', { hasText: 'Explorar skills.sh' }).click();
@@ -326,8 +341,13 @@ async function testInteractions() {
     await page.locator('header.nav a[aria-label="Entrar con GitHub"]').click();
     await page.getByRole('heading', { name: /Entra con tu cuenta de GitHub/i }).waitFor({ timeout: 8000 });
     await page.getByRole('button', { name: /Volver al Códice en Modo Visitante/i }).click();
+    await page.locator('#auth-modal-heading').waitFor({ state: 'detached', timeout: 5000 });
     await page.locator('#hero-h').waitFor({ timeout: 8000 });
-    console.log('8️⃣ Auth screen opens and returns to visitor mode');
+    await page.locator('header.nav a[aria-label="Entrar con GitHub"]').click();
+    await page.locator('#auth-modal-heading').waitFor({ timeout: 8000 });
+    await page.keyboard.press('Escape');
+    await page.locator('#auth-modal-heading').waitFor({ state: 'detached', timeout: 5000 });
+    console.log('8️⃣ Auth modal opens over the landing and closes (visitor mode, Esc)');
 
     // 6. Menú móvil en 390px (.nav__toggle -> .nav.is-open)
     await page.setViewportSize({ width: 390, height: 844 });
@@ -335,12 +355,16 @@ async function testInteractions() {
     await navToggle.waitFor({ state: 'visible', timeout: 5000 });
     await navToggle.click();
     await page.locator('.nav.is-open').waitFor({ timeout: 3000 });
-    await page.locator('.nav.is-open .nav__actions a.btn--primary').click();
-    await page.locator('#team-heading').waitFor({ timeout: 8000 });
+    const mobileSections = (await page.locator('.nav.is-open nav[aria-label="Principal"] a').allInnerTexts()).map((t) => t.trim());
+    assert(mobileSections.includes('Capacidades'), `Menú móvil sin sesión inesperado: [${mobileSections.join(', ')}]`);
+    await page.locator('.nav.is-open nav[aria-label="Principal"] a', { hasText: /^Capacidades$/ }).click();
+    await page.waitForFunction(() => location.hash === '#capabilities', null, { timeout: 5000 });
     assert(
       (await page.locator('.nav.is-open').count()) === 0,
       'El menú móvil debe cerrarse tras navegar'
     );
+    await page.locator('footer#contact a', { hasText: 'Skills del equipo' }).click();
+    await page.locator('#team-heading').waitFor({ timeout: 8000 });
     await navToggle.click();
     await page.locator('.nav.is-open').waitFor({ timeout: 3000 });
     await page
