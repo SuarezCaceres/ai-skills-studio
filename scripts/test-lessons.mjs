@@ -9,11 +9,12 @@
  * Uso: node scripts/test-lessons.mjs
  */
 import { build, preview } from 'vite';
+import { build as esbuild } from 'esbuild';
 import { chromium } from 'playwright';
-import { mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   SKILL_NAME,
   TEAM_LOGIN,
@@ -27,6 +28,24 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 5190;
 const OUT_DIR = join(tmpdir(), 'ai-skills-studio-lessons-e2e');
 const SHOTS_DIR = resolve(ROOT, 'shots', 'lessons');
+
+/* Páginas de referencia (spec 006): nombres e ids del catálogo real, compilado con esbuild. */
+const catalogDir = mkdtempSync(join(tmpdir(), 'codice-lessons-pages-'));
+await esbuild({
+  entryPoints: [join(ROOT, 'src/data/pageCatalog.ts')],
+  outfile: join(catalogDir, 'catalog.mjs'),
+  bundle: true,
+  format: 'esm',
+  platform: 'node',
+  logLevel: 'error',
+});
+const { PAGE_CATALOG } = await import(pathToFileURL(join(catalogDir, 'catalog.mjs')).href);
+rmSync(catalogDir, { recursive: true, force: true });
+const PAGE_NAMES = PAGE_CATALOG.map((p) => p.name);
+/** Las dos páginas que se guardan en la clase: la primera y la tercera del catálogo. */
+const CHOSEN = [PAGE_CATALOG[0], PAGE_CATALOG[2]];
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+const pageBox = (picker, name) => picker.getByRole('checkbox', { name: new RegExp(`^${escapeRe(name)}`) });
 
 const failures = [];
 function check(name, ok, detail = '') {
@@ -150,6 +169,29 @@ async function main() {
     await page.getByRole('checkbox', { name: new RegExp(SKILL_NAME) }).check();
     await page.getByRole('checkbox', { name: /Accordion/ }).check();
     check('el selector de skills lista la skill del equipo con su autor', (await page.getByText(`@${TEAM_LOGIN}`).count()) >= 1);
+
+    console.log('\nPáginas de referencia en el editor (spec 006, C7)');
+    const pagesPicker = page.locator('fieldset#picker-pages');
+    const pagesLegend = async () => (await pagesPicker.locator('legend').innerText()).replace(/\s+/g, ' ').trim();
+    check('hay un selector «Páginas de referencia (0 de 5)»', (await pagesPicker.count()) === 1 && /^Páginas de referencia \(0 de 5\)$/.test(await pagesLegend()), await pagesLegend().catch(() => 'sin selector'));
+    check('el selector de páginas va junto al de componentes (el siguiente fieldset del formulario)', await pagesPicker.evaluate((el) => {
+      const sets = [...(el.closest('form') ?? document).querySelectorAll('fieldset')].filter((f) => !f.parentElement?.closest('fieldset'));
+      const comp = sets.findIndex((f) => f.querySelector('legend')?.textContent?.includes('Componentes usados'));
+      return comp >= 0 && sets.indexOf(el) === comp + 1;
+    }).catch(() => false));
+    const pageBoxes = pagesPicker.getByRole('checkbox');
+    check('el selector ofrece las 6 páginas del registro', (await pageBoxes.count()) === PAGE_NAMES.length, String(await pageBoxes.count()));
+    const searchPage = pagesPicker.getByLabel('Buscar página');
+    await searchPage.fill(PAGE_CATALOG[1].name.slice(0, 6));
+    check('«Buscar página» filtra las casillas', (await pageBoxes.count()) === 1 && (await pageBox(pagesPicker, PAGE_CATALOG[1].name).count()) === 1);
+    await searchPage.fill('');
+    for (const name of PAGE_NAMES) await pageBox(pagesPicker, name).check();
+    check('con las 6 marcadas el contador dice «6 de 5»', /\(6 de 5\)/.test(await pagesLegend()), await pagesLegend());
+    await page.getByRole('button', { name: 'Subir clase' }).last().click();
+    await page.waitForTimeout(300);
+    check('con 6 páginas se muestra el error y no se guarda', (await page.getByText(/Como máximo 5 páginas de referencia/).count()) >= 1 && (await page.locator('#editor-heading').count()) === 1 && (await page.locator('#lesson-title').count()) === 0);
+    for (const meta of PAGE_CATALOG) if (!CHOSEN.includes(meta)) await pageBox(pagesPicker, meta.name).uncheck();
+    check('al dejar 2 páginas el contador dice «2 de 5»', /^Páginas de referencia \(2 de 5\)$/.test(await pagesLegend()), await pagesLegend());
     await page.screenshot({ path: resolve(SHOTS_DIR, 'editor-1440.png'), fullPage: true });
 
     await page.getByRole('button', { name: 'Cancelar' }).click();
@@ -165,6 +207,14 @@ async function main() {
     const liCount = await page.locator('section[aria-label="Explicación"] li').count();
     check('el Markdown se renderiza con SafeMarkdown (encabezado y lista)', hCount === 1 && liCount >= 2, `h=${hCount} li=${liCount}`);
     check('el detalle no inyecta HTML del usuario', (await page.locator('section[aria-label="Explicación"] img, section[aria-label="Explicación"] script').count()) === 0 && (await page.evaluate(() => window.__pwned)) === undefined);
+    const pagesSection = page.locator('section[aria-labelledby="lesson-pages"]');
+    const detailChips = pagesSection.locator('button[data-testid="clase-pagina-chip"][data-page-id]');
+    const chipIds = await detailChips.evaluateAll((els) => els.map((el) => el.getAttribute('data-page-id')));
+    check('el detalle muestra la sección «Páginas de referencia» (h2)', (await pagesSection.count()) === 1 && (await pagesSection.locator('h2').innerText().catch(() => '')).trim() === 'Páginas de referencia');
+    check('la clase guardó las 2 páginas y se ven como chips', [...chipIds].sort().join() === CHOSEN.map((p) => p.id).sort().join(), chipIds.join(', '));
+    check('cada chip dice el nombre de su página y anuncia que abre un diálogo', (await detailChips.evaluateAll((els) => els.map((el) => [el.getAttribute('data-page-id'), el.textContent, el.getAttribute('aria-haspopup')]))).every(([id, text, popup]) => popup === 'dialog' && text.includes(CHOSEN.find((p) => p.id === id)?.name ?? '¿?')));
+    const storedPages = await page.evaluate(() => JSON.parse(localStorage.getItem('ai_skills_studio_lessons_v1') || '[]')[0]?.pageIds ?? null);
+    check('la clase guardada en el almacén conserva pageIds', JSON.stringify([...(storedPages ?? [])].sort()) === JSON.stringify(CHOSEN.map((p) => p.id).sort()), JSON.stringify(storedPages));
     await page.screenshot({ path: resolve(SHOTS_DIR, 'detalle-1440.png'), fullPage: true });
 
     console.log('\nEnlaces a la skill y al componente');
@@ -220,6 +270,10 @@ async function main() {
     await page.locator('#editor-heading').waitFor();
     check('editar precarga el formulario', (await page.locator('#lesson-title-input').inputValue()) === TITLE && (await page.locator('#lesson-level-input').inputValue()) === 'Intermedio');
     check('editar precarga las selecciones de skill y componente', (await page.getByRole('checkbox', { name: new RegExp(SKILL_NAME) }).isChecked()) && (await page.getByRole('checkbox', { name: /Accordion/ }).isChecked()));
+    const editPicker = page.locator('fieldset#picker-pages');
+    const preChecked = [];
+    for (const meta of PAGE_CATALOG) if (await pageBox(editPicker, meta.name).isChecked().catch(() => false)) preChecked.push(meta.id);
+    check('editar precarga las páginas de referencia elegidas', preChecked.sort().join() === CHOSEN.map((p) => p.id).sort().join(), preChecked.join(', '));
     await page.locator('#lesson-title-input').fill('Hooks explicados desde cero');
     await page.getByRole('button', { name: 'Guardar cambios' }).click();
     await page.locator('#lesson-title').waitFor();
@@ -289,6 +343,26 @@ async function main() {
       const box = document.querySelector('section[aria-labelledby="lesson-videos"] .aspect-video')?.getBoundingClientRect();
       return !!box && Math.abs(box.width / box.height - 16 / 9) < 0.03;
     }));
+
+    console.log('\nPágina de referencia encima de la clase con el video en marcha (spec 006, C8)');
+    const playerFrame = await page.locator('section[aria-labelledby="lesson-videos"] iframe').elementHandle();
+    const playerSrc = await page.locator('section[aria-labelledby="lesson-videos"] iframe').getAttribute('src');
+    const firstChip = page.locator('section[aria-labelledby="lesson-pages"] button[data-testid="clase-pagina-chip"]').first();
+    const chipId = await firstChip.getAttribute('data-page-id', { timeout: 5000 }).catch(() => null);
+    const chipMeta = PAGE_CATALOG.find((p) => p.id === chipId);
+    await firstChip.click({ timeout: 5000 }).catch(() => {});
+    const pageModal = page.locator('[role="dialog"][aria-modal="true"][data-testid="pagina-modal"]');
+    const modalOpened = await pageModal.waitFor({ timeout: 8000 }).then(() => true, () => false);
+    check('el chip abre la modal de la página encima de la clase', modalOpened && (await page.locator('#lesson-title').count()) === 1);
+    check('la modal se nombra con la página del chip', !!chipMeta && (await page.getByRole('dialog', { name: chipMeta.name, exact: true }).count()) === 1, chipId ?? '');
+    check('la modal navega solo por las páginas de la clase («1 / 2»)', (await pageModal.locator('[data-testid="pagina-posicion"]').innerText().catch(() => '')).replace(/\s+/g, ' ').trim() === '1 / 2');
+    check('con la modal abierta, el reproductor sigue montado (mismo nodo)', await page.evaluate((el) => el.isConnected && el === document.querySelector('section[aria-labelledby="lesson-videos"] iframe'), playerFrame));
+    await page.keyboard.press('Escape');
+    await pageModal.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+    check('Esc cierra la modal y se sigue en la clase', (await pageModal.count()) === 0 && (await page.locator('#lesson-title').innerText()) === 'Hooks explicados desde cero');
+    check('al cerrar, el foco vuelve al chip', (await page.evaluate(() => document.activeElement?.getAttribute('data-testid') === 'clase-pagina-chip' ? document.activeElement.getAttribute('data-page-id') : null)) === chipId);
+    check('el reproductor no se recargó: es el MISMO iframe con el mismo src', (await page.evaluate((el) => el.isConnected && el === document.querySelector('section[aria-labelledby="lesson-videos"] iframe'), playerFrame)) && (await page.locator('section[aria-labelledby="lesson-videos"] iframe').getAttribute('src')) === playerSrc);
+    await playerFrame.dispose();
 
     await page.getByRole('button', { name: 'Clases', exact: true }).click();
     await page.locator('#lessons-heading').waitFor();
