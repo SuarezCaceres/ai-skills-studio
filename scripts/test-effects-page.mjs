@@ -212,16 +212,19 @@ async function pickEffect(page, name) {
   await page.locator('#component-name', { hasText: new RegExp(`^\\s*${escapeRe(name)}\\s*$`) }).waitFor();
 }
 
-/** Espera a que la demo diferida esté montada (sin «Cargando…»; en animaciones, con su `[data-effect]`). */
+/** Espera a que la demo diferida esté montada: sin «Cargando…» y con su raíz `[data-effect]` dibujada. */
 async function waitDemo(page, effect, timeout = 10000) {
   return page
     .waitForFunction(
-      ({ id, animated }) => {
+      (id) => {
         const s = document.querySelector('[data-preview-stage]');
-        if (!s || s.textContent.includes('Cargando componente')) return false;
-        return animated ? s.querySelector(`[data-effect="${id}"]`) !== null : s.querySelectorAll('*').length > 2;
+        if (!s || /Cargando (componente|efecto)/.test(s.textContent)) return false;
+        const root = s.querySelector(`[data-effect="${id}"]`);
+        if (!root) return false;
+        const r = root.getBoundingClientRect();
+        return r.width * r.height > 0;
       },
-      { id: effect.id, animated: effect.category === 'Animaciones' },
+      effect.id,
       { timeout }
     )
     .then(() => true, () => false);
@@ -432,10 +435,11 @@ async function phaseA(browser, effects, errors, stray) {
         const article = norm(await detail(page).innerText());
         if (!norm(effect.description) || pending(effect.description) || !article.includes(norm(effect.description))) problems.push('descripción');
 
-        const stageInfo = await stage(page).evaluate((el) => ({
-          text: el.innerText,
-          drawn: [...el.querySelectorAll('*')].some((n) => n !== el.firstElementChild && n.getBoundingClientRect().width * n.getBoundingClientRect().height > 0),
-        }));
+        const stageInfo = await stage(page).evaluate((el, id) => {
+          const root = el.querySelector(`[data-effect="${id}"]`);
+          const r = root?.getBoundingClientRect();
+          return { text: el.innerText, drawn: Boolean(r && r.width * r.height > 0 && root.children.length > 0) };
+        }, effect.id);
         if (!stageInfo.drawn) problems.push('cuadro en vivo vacío');
         if (/No se pudo dibujar/.test(stageInfo.text)) problems.push('la demo falló («No se pudo dibujar»)');
 
@@ -502,6 +506,8 @@ async function phaseA(browser, effects, errors, stray) {
       if (effect.id === 'count-up') before = finals.count = await waitStable(() => countText(page));
 
       const run0 = await runAttr();
+      // Se marca el nodo actual: si «Repetir» remonta la demo, el nodo marcado desaparece del documento.
+      await page.evaluate(() => document.querySelector('[data-preview-stage] [data-replay-run]')?.setAttribute('data-old-run', ''));
       if (hasReplay) await replay.click();
       const restarted =
         effect.id === 'typewriter'
@@ -513,6 +519,11 @@ async function phaseA(browser, effects, errors, stray) {
 
       check(`${effect.name}: tiene el botón «Repetir animación»`, hasReplay);
       check(`${effect.name}: «Repetir» incrementa data-replay-run`, incremented, `${run0} → ${run1}`);
+      const remounted = await page.evaluate(() => {
+        const s = document.querySelector('[data-preview-stage]');
+        return s.querySelector('[data-old-run]') === null && s.querySelector('[data-replay-run]') !== null;
+      });
+      check(`${effect.name}: «Repetir» remonta la demo (el nodo anterior se sustituye)`, remounted);
       if (effect.id === 'typewriter') {
         check('Typewriter: tras «Repetir» vuelve a escribir desde el principio (texto más corto)', Boolean(restarted?.ok), `antes «${before}», después «${restarted?.value}»`);
       }
@@ -529,6 +540,27 @@ async function phaseA(browser, effects, errors, stray) {
       await waitDemo(page, effect);
       const moving = await pollUntil(() => runningAnimations(page), (list) => list.length > 0, 1500);
       check(`control: sin movimiento reducido, ${effect.name} tiene animaciones en marcha`, moving.ok, 'getAnimations() no ve ninguna');
+    }
+
+    // Pausa persistente del Marquee (WCAG 2.2.2): el botón detiene la cinta y la reanuda.
+    const marquee = animations.find((e) => e.id === 'marquee');
+    if (marquee) {
+      await pickEffect(page, marquee.name);
+      await waitDemo(page, marquee);
+      const toggle = stage(page).getByRole('button', { name: /Pausar cinta/ });
+      check('Marquee: tiene el botón «Pausar cinta»', (await toggle.count()) === 1);
+      if ((await toggle.count()) === 1) {
+        await toggle.click();
+        await page.mouse.move(0, 0);
+        const stopped = await pollUntil(() => runningAnimations(page), (list) => list.length === 0, 1500);
+        const pressed = await stage(page).getByRole('button', { name: /Reanudar cinta/ }).getAttribute('aria-pressed');
+        check('Marquee: «Pausar cinta» detiene la cinta (aria-pressed="true")', stopped.ok && pressed === 'true', `${stopped.value?.length ?? '?'} en marcha, aria-pressed=${pressed}`);
+        await stage(page).getByRole('button', { name: /Reanudar cinta/ }).click();
+        await page.mouse.move(0, 0);
+        await page.evaluate(() => document.activeElement?.blur());
+        const resumed = await pollUntil(() => runningAnimations(page), (list) => list.length > 0, 1500);
+        check('Marquee: «Reanudar cinta» la pone en marcha otra vez', resumed.ok);
+      }
     }
   });
 
@@ -700,6 +732,11 @@ function staticChecks(effects) {
   const lazyText = chunks.map((f) => readFileSync(resolve(DIST, 'bundle', f), 'utf8')).join('\n');
   const found = phrases.filter((p) => lazyText.includes(p.phrase)).length;
   check('los prompts viven en chunks diferidos (la búsqueda los encuentra fuera del de entrada)', phrases.length > 0 && found === phrases.length, `${found} de ${phrases.length}`);
+  // El código de las demos (su raíz data-effect y su CSS fx-…) tampoco debe colarse en el chunk de entrada.
+  const demoMarkers = ['"data-effect"', 'fx-marquee-scroll', 'fx-shimmer-sweep'];
+  const leaked = demoMarkers.filter((m) => entry.includes(m));
+  check('el chunk de entrada no contiene el código de las demos (data-effect ni CSS fx-)', leaked.length === 0, leaked.join(', '));
+  check('el código de las demos sí está en chunks diferidos', demoMarkers.every((m) => lazyText.includes(m)), 'no se encontraron los marcadores');
 }
 
 /* ---------------- Principal ---------------- */
