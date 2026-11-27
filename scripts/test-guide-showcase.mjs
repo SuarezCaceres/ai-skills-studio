@@ -1199,8 +1199,12 @@ async function main() {
         await guarded('C6a dependencias', async () => {
           const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
           const names = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies });
-          const banned = names.filter((n) => /^(framer-motion|motion|class-variance-authority|@radix-ui\/.+)$/.test(n));
+          // motion (motion/react) fue autorizado por el humano el 2026-11-27 para chunks diferidos (docs/rules/frontend.md);
+          // framer-motion y shadcn/Radix siguen bloqueados, y GuideContrastShowcase no debe importar motion.
+          const banned = names.filter((n) => /^(framer-motion|class-variance-authority|@radix-ui\/.+)$/.test(n));
           check('C6a package.json no incorpora framer-motion ni shadcn/Radix', banned.length === 0, banned.join(', '));
+          const guideSrc = readFileSync(resolve(ROOT, 'src', 'components', 'GuideContrastShowcase.tsx'), 'utf8');
+          check('C6a #guia no importa motion ni framer-motion', !/from\s+['"](?:motion|framer-motion)/.test(guideSrc));
         });
 
         await guarded('C6a paleta', async () => {

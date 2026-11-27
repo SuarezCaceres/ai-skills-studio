@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { AppPageRoute } from '../types/workspace';
-import { ComputerLightBeamShowcase } from './ComputerLightBeamShowcase';
+// Hero interactivo estilo Forge (WebGL2 + motion/react) en chunk diferido para mantener el bundle inicial < 350 kB.
+const ForgeHeroShowcase = React.lazy(() => import('./hero/ForgeHeroShowcase'));
 // Sección de la spec 005 en un chunk aparte: no suma al bundle inicial (presupuesto < 350 kB).
 const GuideContrastShowcase = React.lazy(() =>
   import('./GuideContrastShowcase').then((m) => ({ default: m.GuideContrastShowcase }))
@@ -42,48 +43,12 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
 
   return (
     <>
-      {/* 1. HERO CENTRADO (100svh · laptop interactiva con los 4 flujos vigentes) */}
-      <section className="hero hero--centred" data-enter aria-labelledby="hero-h">
-        <div className="wrap">
-          <div className="hero-text">
-            <div className="hero__c">
-              <span className="pill" role="status">
-                <span>Inspección GitHub</span>
-                <span className="muted hidden sm:inline">Fijada a commitSha</span>
-              </span>
-
-              <h1 id="hero-h">Catálogo e inspector de skills para equipos IA</h1>
-
-              <p className="hero__lead">
-                Audita directivas SKILL.md y su código fuente fijados a commitSha en
-                GitHub, descubre skills en skills.sh, prueba componentes UI accesibles y
-                documenta clases en Códice.
-              </p>
-
-              <div className="btn-row">
-                <a
-                  className="btn btn--primary"
-                  href="#inspector"
-                  onClick={(e) => openModule(e, 'catalogo')}
-                >
-                  Explorar catálogo
-                </a>
-                <a className="btn btn--secondary" href="#capabilities">
-                  Ver capacidades
-                </a>
-              </div>
-            </div>
-
-            <div
-              className="hero__window"
-              role="region"
-              aria-label="Laptop 3D interactiva con vista previa de inspección por commitSha y módulos de Códice Studio"
-            >
-              <ComputerLightBeamShowcase onNavigatePage={onNavigatePage} />
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 1. HERO ESTILO FORGE (100svh · haz WebGL2 + tablero interactivo de módulos y agentes IA) */}
+      <React.Suspense
+        fallback={<section className="hero" aria-hidden="true" style={{ minHeight: '100svh' }} />}
+      >
+        <ForgeHeroShowcase onNavigatePage={onNavigatePage} />
+      </React.Suspense>
 
       {/* 1b. GUÍA VS. SIN GUÍA (spec 005 · ilustrativa, tras el hero) */}
       <React.Suspense
