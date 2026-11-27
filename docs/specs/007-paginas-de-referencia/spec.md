@@ -20,7 +20,7 @@ Además, quien graba una clase en Códice no puede decir «para este video usé 
   - Ventana modal accesible: vista en vivo de la plantilla dentro de un marco, selector **Escritorio / Móvil** (las plantillas reaccionan al ancho del marco con *container queries*), título, apodo y descripción en español, «Componentes que usa», «Clases que la usan», navegación a la anterior/siguiente y botón **«Usar esta página»** con dos pestañas:
     - **Prompt:** texto en inglés para pegar en una IA, con botón de copiar.
     - **Código:** el TSX real de la plantilla (importado con `?raw`, nunca difiere de lo que se ve), con botón de copiar.
-  - Miniaturas generadas desde la propia plantilla (WebP `≤ 40 KB`), como las del kit.
+  - Miniaturas generadas desde la propia plantilla (PNG `≤ 40 KB` en `public/pages/<id>.png`), como las del kit.
   - **Clases:** campo `pageIds` (máximo 5). Selector «Páginas de referencia» en el editor, junto al de componentes. En el detalle de la clase, chips que abren la misma modal encima de la clase. Funciona igual en las clases propias y en las de la pestaña Comunidad.
   - Compatibilidad: las clases guardadas, importadas por JSON o compartidas en GitHub sin `pageIds` se leen como `pageIds: []`. Los ids desconocidos se descartan al sanear.
   - Suite Playwright nueva en 4 anchos y casos nuevos en las suites de clases, conectados a `./scripts/check.sh`.
@@ -54,7 +54,7 @@ Cada criterio debe poder comprobarse con una prueba. Se copian a `docs/features.
 - **C9 · Compatibilidad y saneo:** Dada una clase sin `pageIds` (guardada antes de esta funcionalidad, importada por JSON o leída de GitHub), entonces se lee como `pageIds: []` sin errores. Los ids que no están en el registro, repetidos o por encima del máximo se descartan. Exportar e importar por JSON conserva `pageIds`. La huella `contentHash` de una clase con `pageIds` vacío es idéntica a la que tenía antes de esta funcionalidad, así que las clases ya compartidas no aparecen con «cambios sin compartir».
 - **C10 · Compartir:** Dada una clase con `pageIds` compartida en GitHub (simulado), cuando se lee desde Comunidad, entonces conserva sus `pageIds` y su detalle los muestra como en C8.
 - **C11 · Presupuesto y seguridad:** Dado el build de producción, entonces `package.json` no gana dependencias, la página y las plantillas van en chunks diferidos, el chunk inicial sigue `< 350 kB` (o no crece más de `1 kB` respecto a la base si la base ya lo supera), las miniaturas pesan `≤ 40 KB` cada una y abrir la galería y las 6 plantillas no hace ninguna petición a dominios externos.
-- **C12 · Miniaturas reproducibles:** Dado el script de capturas, cuando se ejecuta, entonces regenera las 6 miniaturas de `src/assets/pages/` (o la ruta que fije el plan) a partir de las propias plantillas, sin red externa.
+- **C12 · Miniaturas reproducibles:** Dado el script de capturas, cuando se ejecuta, entonces regenera las 6 miniaturas de `public/pages/` a partir de las propias plantillas, sin red externa.
 
 ## Casos límite y errores
 - **Id de página desconocido en una clase** (por ejemplo, una plantilla retirada): no se muestra el chip y no se rompe el detalle. El editor lo quita al guardar.
