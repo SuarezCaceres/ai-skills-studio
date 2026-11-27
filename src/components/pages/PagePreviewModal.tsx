@@ -150,7 +150,10 @@ export function PagePreviewModal({ pages, initialId, onClose, onOpenComponent, o
     <div
       className="fixed inset-0 z-[80] overflow-y-auto overscroll-contain bg-black/75 px-2 py-3 sm:px-6 sm:py-8"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target !== event.currentTarget) return;
+        // Sin esto, la acción por defecto del mousedown lleva el foco al body después de devolverlo.
+        event.preventDefault();
+        onClose();
       }}
     >
       <div

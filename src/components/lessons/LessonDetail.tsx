@@ -53,8 +53,8 @@ export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDele
   const pageTrigger = useRef<HTMLButtonElement | null>(null);
   const closePage = useCallback(() => {
     setOpenPageId(null);
-    // Tras desmontar la modal, el foco vuelve al chip que la abrió.
-    window.requestAnimationFrame(() => pageTrigger.current?.focus());
+    // El foco vuelve ya al chip que la abrió: sigue montado (la modal es un portal hermano).
+    pageTrigger.current?.focus();
   }, []);
 
   return (
