@@ -295,6 +295,20 @@ async function runAudit() {
         strictWorkspaceWord: true,
       });
 
+      // Las suites sirven Google Fonts vacías, así que la portada se mide con fuentes de sistema más
+      // estrechas que Geist/Geist Mono reales (con ellas la ficha del portátil llegó a 403 px a 390).
+      // Se ensancha el texto para que el desbordamiento con la fuente real no pase inadvertido.
+      const wideFontStyle = await page.addStyleTag({ content: 'html *{letter-spacing:0.08em !important}' });
+      const wideFontOverflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+      );
+      if (wideFontOverflow > 0) {
+        results.failures.push(
+          `[${vp.name}] Portada con métricas de fuente web más anchas desborda ${wideFontOverflow}px`
+        );
+      }
+      await wideFontStyle.evaluate((el) => el.remove());
+
       if (vp.width < 1024) {
         await openMobileMenuIfCollapsed(page);
         const drawerOverflow = await page.evaluate(
