@@ -21,6 +21,7 @@ function toEntry(meta: PageTemplateMeta): PageTemplateEntry {
     ...meta,
     sourcePath: `src/components/page-templates/${meta.file}.tsx`,
     Preview: lazy(() => loadPreview().then((m) => ({ default: m.Template }))),
+    loadPreview,
     loadSource,
   };
 }

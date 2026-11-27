@@ -34,6 +34,11 @@ export interface PageTemplateEntry extends PageTemplateMeta {
   sourcePath: string;
   /** Export `Template` del archivo (carga diferida). */
   Preview: LazyExoticComponent<ComponentType>;
+  /**
+   * Cargador del módulo de la plantilla. `React.lazy` recuerda un fallo para siempre: para «Reintentar»
+   * se crea un `lazy` nuevo a partir de este cargador.
+   */
+  loadPreview: () => Promise<{ Template: ComponentType }>;
   /** Código TSX del archivo, importado con `?raw` para que nunca difiera de lo que se ve. */
   loadSource: () => Promise<string>;
 }
