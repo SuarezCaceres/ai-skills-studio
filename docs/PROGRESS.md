@@ -27,6 +27,15 @@
 - **Pendiente:** Dar seguimiento a los ítems previos de auditoría de seguridad y deuda técnica registrados en `docs/TASKS.md`.
 - **Problemas:** Ninguno.
 
+## 2026-11-26 · Antigravity (`Orquestador General` / `skill-sh`) · `chore/cierre-skill-sh`
+- **Hecho:**
+  - Cierre operativo de la sesión `skill-sh` (PR #25 al PR #29) tras confirmarse en navegador real el inicio de sesión con GitHub (`OAuth App` `Ov23lii7kOK3ajmx8d1u`) tanto en `https://codice-oauth.vercel.app/` como en `http://localhost:5173/`.
+  - Comprobación en vivo de producción (`https://codice-oauth.vercel.app/` y `/api/skills-sh` en `200`, autorización OAuth en `302`) y verificación de las 4 corridas programadas en verde de `.github/workflows/sync-skills-sh.yml` actualizando `main`.
+  - Ajuste documental en `docs/catalog-setup.md` (aclarando *OAuth App* y múltiples *Redirect URIs*), cierre de la tarea operativa de `003` en `docs/TASKS.md`, y limpieza de ramas ya fusionadas y archivos temporales locales de la sesión.
+- **Verificación:** `./scripts/check.sh` completo en **`exit 0`** en la rama de cierre `chore/cierre-skill-sh`.
+- **Pendiente:** Sin pendientes abiertos de `003-directorio-skills-sh` ni de producción en Vercel; continuar en `docs/TASKS.md` con `001-equipos-y-miembros`.
+- **Problemas:** Ninguno.
+
 ## 2026-11-24 · Antigravity (`Orquestador General`) · `chore/vercel-primary-deploy`
 - **Hecho:**
   - Adopción de Vercel (`https://codice-oauth.vercel.app`) como despliegue principal de frontend + funciones serverless (`api/github-oauth.ts`, `api/skills-sh.ts`), retirando `.github/workflows/deploy.yml` (con aprobación explícita del dueño).

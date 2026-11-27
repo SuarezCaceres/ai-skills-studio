@@ -16,10 +16,9 @@
   - [ ] Cabeceras anti-framing en Pages (verificar cabeceras reales; `frame-ancestors` no aplica en `<meta>`) · `index.html` (zona blindada) / hosting
   - [ ] Borrado GDPR incompleto e inaccesible sin sesión · `securityHardening.ts` (zona blindada) / `App.tsx` / `NavbarActiveSkill.tsx`
   - [ ] Importación JSON de clases sobrescribe clases propias · `lessonsStore.ts`
-  - [ ] Crash persistente por carpetas `constructor/` etc. + falta Error Boundary · `UnifiedProjectStudio.tsx:346`, `App.tsx`/`main.tsx`
+  - [ ] Crash persistente por carpetas `constructor/` etc. + falta Error Boundary · `UnifiedProjectStudio.tsx:346` (ya retirado en `004`), `App.tsx`/`main.tsx`
   - [ ] Verificar en producción (solo lectura): `ALLOWED_ORIGINS` en Vercel, cabeceras HTTP de Pages y `codice-labeler.yml` · humano
   - [ ] Auditoría incremental de `feat/003-directorio-skills-sh` (`api/skills-sh.ts`, `skillsShService.ts`, `sync-skills-sh.yml`) · agente
-- [ ] **Despliegue de `api/skills-sh.ts` en Vercel (`003`):** Tras fusionar el PR de `feat/003-directorio-skills-sh`, confirmar que Vercel despliega la nueva función `/api/skills-sh` compartiendo `ALLOWED_ORIGINS` con `api/github-oauth.ts` (y verificar que `.github/workflows/sync-skills-sh.yml` puede actualizar el snapshot si `main` tiene protección de rama) · humano
 - [ ] **Siguiente funcionalidad prioritaria (`001`):** Ejecutar la skill `spec-plan-code` para `001-equipos-y-miembros` (tomando como base las decisiones de `docs/plans/PLAN_EQUIPOS.md`, Fase 5) · agente + humano
 - [ ] **Verificar alcance OAuth para equipos:** Comprobar con cuenta real de GitHub si el scope `public_repo` alcanza para invitar colaboradores, dar rol `admin` y aceptar invitaciones por API antes de cerrar el plan de `001-equipos-y-miembros` · humano + agente
 - [ ] **Integración de ramas en curso:** Revisar/fusionar PR #21 (`feat/codice-mejoras-y-limpieza`) y `feat/codice-clases-compartidas` en `testing`/`main` · humano
@@ -32,5 +31,6 @@
 <!-- - [ ] Descripción · por qué está bloqueado · qué se necesita -->
 
 ## Hecho
-- [x] 2026-11-27 · **004 · Retiro de Workspace e inspección real de código (`feat/004-retiro-workspace-inspector-codigo`):** completadas Fases 0–4 (`C1`–`C5`: retiro de Workspace/`estudio`, `modelos-ia`, `evidencias`, `StylePresetCatalog`, `workingCopy`, `rarParserService` y 13 archivos obsoletos; inspector bajo demanda fijado a `commitSha` en `FilesPanel` con re-auditoría automática; vista previa de `skills.sh` en `SkillDetailPage`/`CatalogDetailRoute`; actualización de portada/navbar, suites Node + Playwright y documentación; auditorías `revisor` `APPROVE`, `teamwork_challenger` `CONFIRMED` y `teamwork_auditor` `CLEAN`; descripción local del PR de 5 secciones redactada sin push)
+- [x] 2026-11-27 · **004 · Retiro de Workspace e inspección real de código (`feat/004-retiro-workspace-inspector-codigo`):** completadas Fases 0–4 (`C1`–`C5`: retiro de Workspace/`estudio`, `modelos-ia`, `evidencias`, `StylePresetCatalog`, `workingCopy`, `rarParserService` y 13 archivos obsoletos; inspector bajo demanda fijado a `commitSha` en `FilesPanel` con re-auditoría automática; vista previa de `skills.sh` en `SkillDetailPage`/`CatalogDetailRoute`; actualización de portada/navbar, suites Node + Playwright y documentación; auditorías `revisor` `APPROVE`, `teamwork_challenger` `CONFIRMED` y `teamwork_auditor` `CLEAN`; descripción local del PR de 5 secciones redactada)
+- [x] 2026-11-26 · Confirmar despliegue en producción de `api/skills-sh.ts` compartiendo `ALLOWED_ORIGINS`, login GitHub PKCE (`OAuth App` `Ov23lii7kOK3ajmx8d1u`) en `https://codice-oauth.vercel.app/` + `http://localhost:5173/` y cron `.github/workflows/sync-skills-sh.yml` operativo en `main` (PRs #28, #29 y cierre `chore/cierre-skill-sh`)
 - [x] 2026-11-23 · Instalar `harness-template` en `chore/adoptar-harness`, rellenar `AGENTS.md` + `docs/` + skills (incluida `orquestador-general`) y configurar sensores en `scripts/check.sh` e `init.sh`
