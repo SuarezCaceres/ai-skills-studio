@@ -10,6 +10,7 @@ Estas reglas son obligatorias para toda la interfaz de Códice Studio (`src/`, `
   - **Único color de acento interactivo:** cian `#0ea5e9` (`--p-accent` / `--p-action`).
 - **Prohibiciones visuales estrictas:**
   - Prohibido introducir degradados decorativos, brillos neón arbitrarios o superficies violeta/púrpura o naranja en el cromo de la aplicación.
+    - **Excepción acotada (autorizada por el humano el 2026-11-26, spec 005 C9):** en la sección «Guía vs. sin guía» de la portada (`#guia`, `src/components/guide/`) se permite un único halo radial cian `#0ea5e9` detrás del escenario, con opacidad `≤ 15 %` y solo en el modo «Con guía». No se extiende a ninguna otra pieza.
   - Prohibido usar emojis como iconos de botones, pestañas o controles interactivos; usa exclusivamente iconos de `lucide-react` o SVGs propios con atributos accesibles.
 
 ## Dos mundos de assets (Zona blindada)
