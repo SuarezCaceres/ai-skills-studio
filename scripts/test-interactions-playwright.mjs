@@ -23,7 +23,7 @@ const ROOT = resolve(__dirname, '..');
 const PORT = 5186;
 const OUT_DIR = join(tmpdir(), 'ai-skills-studio-interactions-e2e');
 
-const EXPECTED_NAV_LABELS = ['Inicio', 'Skills', 'Catálogo', 'Explorar', 'Componentes', 'Códice'];
+const EXPECTED_NAV_LABELS = ['Inicio', 'Skills', 'Catálogo', 'Explorar', 'Componentes', 'Páginas', 'Códice'];
 
 const PNG_1X1 = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',

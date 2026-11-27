@@ -42,3 +42,4 @@ Estas reglas son obligatorias para toda la interfaz de Códice Studio (`src/`, `
 - 2026-11 · Colisión de .grid con el kit estático → En Tailwind dentro de este proyecto, usar [display:grid] en lugar de la clase grid cuando el stylesheet de public/assets/ esté presente.
 - 2026-11 · Capas superpuestas bajo la cabecera fija (z-50) → Renderizar Drawer, visores y diálogos modales mediante createPortal sobre document.body.
 - 2026-11 · Montaje del diagrama estático en React → Inicializar window.TPDiagram.mount() dentro de useEffect con limpieza destroy(), nunca depender de DOMContentLoaded.
+- 2026-11 · `main > section` del kit estático (`public/assets/system.css`) gana a Tailwind → Sus reglas no van en ninguna capa CSS y fijan altura de pantalla y relleno a toda sección hija directa de `<main>`. En plantillas y vistas propias, envolver el contenido de `<main>` en un `<div>` en vez de colgar `<section>` directamente de `<main>`.

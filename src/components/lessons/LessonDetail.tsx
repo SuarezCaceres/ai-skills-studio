@@ -1,7 +1,10 @@
-import { useState, type ReactNode } from 'react';
-import { ArrowLeft, Boxes, Pencil, Sparkles, Trash2 } from 'lucide-react';
+import { lazy, Suspense, useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
+import { ArrowLeft, Boxes, LayoutTemplate, Pencil, Sparkles, Trash2 } from 'lucide-react';
 import type { Lesson } from '../../types/lessons';
+import type { PageId, PageTemplateMeta } from '../../types/pages';
 import { getComponentEntry } from '../../data/componentRegistry';
+import { getPageMeta } from '../../data/pageCatalog';
+import { pageThumbnailUrl } from '../../data/pageRegistry';
 import { PersonAvatar } from '../catalog/PersonAvatar';
 import { SafeMarkdown } from '../catalog/SafeMarkdown';
 import { safeHttpUrl } from '../catalog/ResultsByModel';
@@ -9,6 +12,9 @@ import { ComponentThumb } from '../components/ComponentThumb';
 import { LessonVideos } from './LessonVideos';
 import { LEVEL_STYLE, shortDate } from './LessonCard';
 import type { UseSkillOptionsResult } from './useLessons';
+
+// La modal (y con ella las plantillas) solo se descarga al abrir una página de referencia.
+const PagePreviewModal = lazy(() => import('../pages/PagePreviewModal'));
 
 interface LessonDetailProps {
   lesson: Lesson;
@@ -31,10 +37,25 @@ const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visi
 const CARD =
   'flex w-full min-w-0 cursor-pointer items-center gap-3 rounded-xl border border-slate-800 bg-[#121722] p-3 text-left transition-colors hover:border-[#0ea5e9]/70 hover:bg-[#141b29]';
 
-/** Detalle de una clase: Markdown seguro y tarjetas que llevan a cada skill y componente vinculados. */
+/**
+ * Detalle de una clase: Markdown seguro y tarjetas que llevan a cada skill, componente y página de
+ * referencia vinculados. Las páginas se abren en una modal encima de la clase (spec 007 · C8).
+ */
 export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDelete, onOpenSkill, onOpenComponent, backLabel = 'Clases', byline = 'Subida por', extra }: LessonDetailProps) {
   const [confirming, setConfirming] = useState(false);
   const profile = safeHttpUrl(lesson.author.profileUrl);
+  // Las páginas que ya no están en el catálogo se ignoran en silencio.
+  const pages = useMemo(
+    () => lesson.pageIds.map((id) => getPageMeta(id)).filter((p): p is PageTemplateMeta => Boolean(p)),
+    [lesson.pageIds]
+  );
+  const [openPageId, setOpenPageId] = useState<PageId | null>(null);
+  const pageTrigger = useRef<HTMLButtonElement | null>(null);
+  const closePage = useCallback(() => {
+    setOpenPageId(null);
+    // El foco vuelve ya al chip que la abrió: sigue montado (la modal es un portal hermano).
+    pageTrigger.current?.focus();
+  }, []);
 
   return (
     <article aria-labelledby="lesson-title" className="mx-auto w-full max-w-[1100px] min-w-0 space-y-6 text-slate-300">
@@ -184,8 +205,50 @@ export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDele
               </ul>
             )}
           </section>
+
+          <section aria-labelledby="lesson-pages" className="space-y-2">
+            <h2 id="lesson-pages" className="m-0 flex items-center gap-2 text-sm font-semibold text-white">
+              <LayoutTemplate aria-hidden="true" className="h-4 w-4 text-[#38bdf8]" />
+              Páginas de referencia
+            </h2>
+            {pages.length === 0 ? (
+              <p className="m-0 text-xs text-slate-500">Esta clase no vincula ninguna página de referencia.</p>
+            ) : (
+              <ul className="m-0 flex list-none flex-col gap-2 p-0">
+                {pages.map((page) => (
+                  <li key={page.id}>
+                    <button
+                      type="button"
+                      data-testid="clase-pagina-chip"
+                      data-page-id={page.id}
+                      aria-haspopup="dialog"
+                      onClick={(event) => {
+                        pageTrigger.current = event.currentTarget;
+                        setOpenPageId(page.id);
+                      }}
+                      className={`${CARD} ${FOCUS}`}
+                    >
+                      <span aria-hidden="true" className="block h-10 w-16 shrink-0 overflow-hidden rounded-md border border-slate-800 bg-[#0a0d14]">
+                        <img src={pageThumbnailUrl(page)} alt="" loading="lazy" decoding="async" className="block h-full w-full object-cover object-top" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold text-white">{page.name}</span>
+                        <span className="block truncate text-[11px] text-slate-500">{page.nickname ? `Le dicen: ${page.nickname}` : page.category}</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </aside>
       </div>
+
+      {openPageId && (
+        <Suspense fallback={null}>
+          <PagePreviewModal pages={pages} initialId={openPageId} onClose={closePage} onOpenComponent={onOpenComponent} />
+        </Suspense>
+      )}
     </article>
   );
 }

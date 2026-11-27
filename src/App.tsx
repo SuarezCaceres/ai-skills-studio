@@ -3,7 +3,6 @@ import type { CatalogSkillPreview } from './types/catalog';
 import type { SkillsShBusyKind, SkillsShEntry } from './types/skillsSh';
 import { AppPageRoute, UserAccount } from './types/workspace';
 import { eraseAllPersonalData } from './utils/securityHardening';
-import { buildNpxInstallCommand, buildSkillsShUrl } from './services/skillsShService';
 import { AuthScreen } from './components/AuthScreen';
 import { TopStudioHeader } from './components/NavbarActiveSkill';
 import { InformativeLandingSection } from './components/InformativeLandingSection';
@@ -23,6 +22,11 @@ const TeamSkillsPage = lazy(() =>
 const ComponentsPage = lazy(() =>
   import('./components/components/ComponentsPage').then((m) => ({
     default: m.ComponentsPage,
+  }))
+);
+const PagesPage = lazy(() =>
+  import('./components/pages/PagesPage').then((m) => ({
+    default: m.PagesPage,
   }))
 );
 const CatalogPage = lazy(() =>
@@ -176,6 +180,8 @@ export function App() {
         entry.source,
         entry.skillId
       );
+      // Import diferido: estas utilidades solo hacen falta aquí y así no pesan en el chunk inicial.
+      const { buildNpxInstallCommand, buildSkillsShUrl } = await import('./services/skillsShService');
       const npxCommand = buildNpxInstallCommand(entry.source, entry.skillId) || undefined;
       setPreviewSkill({
         skill,
@@ -575,6 +581,19 @@ export function App() {
                   onSelect={setSelectedComponentId}
                   onOpenSkill={(id) => openCatalogSkill(id, 'preview')}
                   onRequestLogin={() => setShowAuthScreen(true)}
+                  onOpenLesson={(id) => {
+                    setOpenLessonId(id);
+                    setActivePage('codice-studio');
+                  }}
+                />
+              )}
+
+              {activePage === 'paginas' && (
+                <PagesPage
+                  onOpenComponent={(id) => {
+                    setSelectedComponentId(id);
+                    setActivePage('preview');
+                  }}
                   onOpenLesson={(id) => {
                     setOpenLessonId(id);
                     setActivePage('codice-studio');

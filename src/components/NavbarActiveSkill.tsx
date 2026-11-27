@@ -7,6 +7,7 @@ import {
   LogOut,
   ShieldCheck,
   Layers,
+  LayoutTemplate,
   X,
   Trash2,
   Github,
@@ -69,6 +70,13 @@ export const PAGE_NAV_ITEMS: {
     subtitle: 'Catálogo de componentes UI accesibles y código real',
     shortLabel: 'Componentes',
     icon: Layers,
+  },
+  {
+    id: 'paginas',
+    label: 'Páginas',
+    subtitle: 'Páginas de referencia hechas con el kit, con su prompt y su código',
+    shortLabel: 'Páginas',
+    icon: LayoutTemplate,
   },
   {
     id: 'codice-studio',
