@@ -41,7 +41,7 @@ function Chip({ label, count, pressed, onClick }: { label: string; count: number
 }
 
 /**
- * Página «Páginas» (spec 006): galería de páginas de referencia hechas con el kit. Los chips filtran
+ * Página «Páginas» (spec 007): galería de páginas de referencia hechas con el kit. Los chips filtran
  * por categoría y cada tarjeta abre la modal con la página en vivo, su prompt y su código.
  */
 export function PagesPage({ onOpenComponent, onOpenLesson }: PagesPageProps) {

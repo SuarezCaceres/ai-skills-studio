@@ -74,6 +74,9 @@ export function PageUsePanel({ entry, id }: PageUsePanelProps) {
   };
 
   const copy = async (value: string) => {
+    // Se vacía el aviso y se espera un fotograma: así «Copiado» se vuelve a anunciar al repetir.
+    setNotice('');
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
     try {
       if (!navigator.clipboard?.writeText) throw new Error('Sin portapapeles');
       await navigator.clipboard.writeText(value);

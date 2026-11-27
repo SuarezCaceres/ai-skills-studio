@@ -10,7 +10,7 @@ import { PageUsePanel } from './PageUsePanel';
 import { BUTTON, FOCUS, ICON_BUTTON, focusableIn, keepsVerticalArrows } from './pageUi';
 
 /**
- * Ventana con una página de referencia en vivo (spec 006). La usan la página «Páginas» y el detalle
+ * Ventana con una página de referencia en vivo (spec 007). La usan la página «Páginas» y el detalle
  * de una clase. Firma congelada en la Fase 0: no cambiarla sin pasar por el orquestador.
  */
 export interface PagePreviewModalProps {

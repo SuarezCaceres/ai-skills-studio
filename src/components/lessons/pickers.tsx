@@ -130,7 +130,7 @@ export function ComponentPicker({ value, onChange, max, error }: PickerProps) {
 }
 
 /**
- * Selector de páginas de referencia (spec 006 · C7), con miniatura y buscador. No impide marcar más
+ * Selector de páginas de referencia (spec 007 · C7), con miniatura y buscador. No impide marcar más
  * de `max`: el límite lo valida `validateDraft` para que el error se vea y no se guarde.
  */
 export function PagePicker({ value, onChange, max, error }: PickerProps) {

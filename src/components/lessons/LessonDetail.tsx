@@ -39,7 +39,7 @@ const CARD =
 
 /**
  * Detalle de una clase: Markdown seguro y tarjetas que llevan a cada skill, componente y página de
- * referencia vinculados. Las páginas se abren en una modal encima de la clase (spec 006 · C8).
+ * referencia vinculados. Las páginas se abren en una modal encima de la clase (spec 007 · C8).
  */
 export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDelete, onOpenSkill, onOpenComponent, backLabel = 'Clases', byline = 'Subida por', extra }: LessonDetailProps) {
   const [confirming, setConfirming] = useState(false);
@@ -208,7 +208,7 @@ export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDele
 
           <section aria-labelledby="lesson-pages" className="space-y-2">
             <h2 id="lesson-pages" className="m-0 flex items-center gap-2 text-sm font-semibold text-white">
-              <LayoutTemplate aria-hidden="true" className="h-4 w-4 text-violet-300" />
+              <LayoutTemplate aria-hidden="true" className="h-4 w-4 text-[#38bdf8]" />
               Páginas de referencia
             </h2>
             {pages.length === 0 ? (

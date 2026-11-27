@@ -1,4 +1,4 @@
-/** Clases y utilidades compartidas por la galería y la modal de páginas de referencia (spec 006). */
+/** Clases y utilidades compartidas por la galería y la modal de páginas de referencia (spec 007). */
 
 /** Anillo de foco visible con el acento cian. */
 export const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0ea5e9]';
@@ -26,7 +26,19 @@ export function keepsVerticalArrows(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
   if (target.matches('input, textarea, select')) return true;
-  return Boolean(
+  if (
     target.closest('[role="radiogroup"], [role="listbox"], [role="menu"], [role="menubar"], [role="slider"], [role="spinbutton"], [role="combobox"], [role="tree"], [role="grid"]')
-  );
+  ) {
+    return true;
+  }
+  // Dentro de una zona con desplazamiento vertical (vista previa, prompt, código), ↑/↓ la recorren.
+  for (let el: HTMLElement | null = target; el && el.getAttribute('role') !== 'dialog'; el = el.parentElement) {
+    if (scrollsVertically(el)) return true;
+  }
+  return false;
+}
+
+function scrollsVertically(el: HTMLElement): boolean {
+  const { overflowY } = window.getComputedStyle(el);
+  return (overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight + 1;
 }
