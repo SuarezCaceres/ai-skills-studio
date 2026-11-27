@@ -46,10 +46,10 @@ export const EFFECT_ANIMATIONS: EffectMeta[] = [
     description:
       'Una banda de palabras o logotipos que se desliza en bucle sin fin. Va bien para enseñar clientes, tecnologías o etiquetas sin ocupar mucho espacio.',
     prompt:
-      'Crea una cinta horizontal que se desplace en bucle infinito: duplica el contenido dentro de un carril con width: max-content y anímalo de translateX(0) a translateX(-50%) en 24 s con timing lineal, para que no se note la costura. Desvanece los extremos con mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent) y pausa la animación con animation-play-state: paused en :hover y :focus-within. Marca la copia con aria-hidden="true" y, con prefers-reduced-motion: reduce, deja la cinta quieta mostrando la primera tanda.',
+      'Crea una cinta horizontal que se desplace en bucle infinito: duplica el contenido dentro de un carril con width: max-content y anímalo de translateX(0) a translateX(-50%) en 24 s con timing lineal, para que no se note la costura. Desvanece los extremos con mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent) y pausa la animación con animation-play-state: paused en :hover y :focus-within, y añade un botón «Pausar» que la detenga de forma persistente. Marca la copia con aria-hidden="true" y, con prefers-reduced-motion: reduce, deja la cinta quieta mostrando la primera tanda.',
     a11y: [
       'La copia duplicada lleva aria-hidden: los lectores de pantalla oyen cada palabra una sola vez.',
-      'La cinta se puede enfocar con Tab y se detiene con el foco o con el ratón encima.',
+      'La cinta se puede enfocar con Tab y se detiene con el foco o con el ratón encima, y el botón «Pausar cinta» (aria-pressed) la para de forma persistente.',
       'Con movimiento reducido no se mueve: queda fija mostrando la primera tanda.',
     ],
   },
@@ -57,7 +57,7 @@ export const EFFECT_ANIMATIONS: EffectMeta[] = [
     id: 'shimmer',
     kind: 'efecto',
     file: 'Shimmer',
-    name: 'Shimmer',
+    name: 'Shimmer / skeleton',
     category: 'Animaciones',
     nickname: 'el brillo de carga',
     description:

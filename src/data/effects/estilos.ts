@@ -93,7 +93,7 @@ export const EFFECT_STYLES: EffectMeta[] = [
     file: 'DarkPremium',
     name: 'Dark mode premium',
     category: 'Estilos',
-    nickname: 'oscuro y elegante',
+    nickname: 'el estilo oscuro y elegante',
     description:
       'Modo oscuro sobrio con superficies casi negras en varios niveles, bordes finos y tipografía ligera. Es el aspecto típico de paneles y productos de gama alta.',
     prompt:

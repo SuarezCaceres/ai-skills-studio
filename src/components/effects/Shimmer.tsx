@@ -30,6 +30,10 @@ const css = `
   background-position: 100% 0;
   animation: fx-shimmer-sweep 1.6s linear infinite;
 }
+/* El avatar es redondo: va en el CSS propio porque este <style> pisa a las utilidades de Tailwind. */
+.fx-shimmer-bone.is-round {
+  border-radius: 50%;
+}
 @keyframes fx-shimmer-sweep {
   from { background-position: 100% 0; }
   to { background-position: 0% 0; }
@@ -46,7 +50,7 @@ function SkeletonCard() {
   return (
     <div className="fx-shimmer-card" aria-hidden="true">
       <div className="flex items-center gap-3">
-        <div className="fx-shimmer-bone h-10 w-10 shrink-0 rounded-full" />
+        <div className="fx-shimmer-bone is-round h-10 w-10 shrink-0" />
         <div className="flex flex-1 flex-col gap-2">
           <div className="fx-shimmer-bone h-3 w-3/5" />
           <div className="fx-shimmer-bone h-3 w-2/5" />

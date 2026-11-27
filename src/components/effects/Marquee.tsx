@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { Pause, Play } from 'lucide-react';
+
 const css = `
 .fx-marquee {
   border: 1px solid #1e293b;
@@ -28,8 +31,31 @@ const css = `
   animation-duration: 30s;
 }
 .fx-marquee:hover .fx-marquee-track,
-.fx-marquee:focus-within .fx-marquee-track {
+.fx-marquee:focus-within .fx-marquee-track,
+.fx-marquee.is-paused .fx-marquee-track {
   animation-play-state: paused;
+}
+/* Pausa persistente (WCAG 2.2.2): el movimiento continuo siempre se puede detener. */
+.fx-marquee-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  border: 1px solid #1e293b;
+  border-radius: 999px;
+  background: #121722;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+.fx-marquee-toggle:hover {
+  border-color: #334155;
+}
+.fx-marquee-toggle:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
 }
 .fx-marquee-group {
   display: flex;
@@ -89,8 +115,12 @@ function Group({ words, copy }: { words: string[]; copy?: boolean }) {
   );
 }
 
-/** Demo de «Marquee»: dos cintas de palabras en bucle infinito que se paran con el ratón encima o con el foco. */
+/**
+ * Demo de «Marquee»: dos cintas de palabras en bucle infinito que se paran con el ratón encima, con el foco
+ * o, de forma persistente, con el botón «Pausar».
+ */
 export function Demo() {
+  const [paused, setPaused] = useState(false);
   return (
     <div data-effect="marquee" className="w-full min-w-0 max-w-[560px]">
       <style>{css}</style>
@@ -98,7 +128,7 @@ export function Demo() {
         role="region"
         aria-label="Conceptos del equipo (se detiene al pasar el ratón o al enfocar)"
         tabIndex={0}
-        className="fx-marquee"
+        className={`fx-marquee${paused ? ' is-paused' : ''}`}
       >
         <div className="fx-marquee-mask">
           {ROWS.map((words, i) => (
@@ -109,6 +139,10 @@ export function Demo() {
           ))}
         </div>
       </div>
+      <button type="button" aria-pressed={paused} onClick={() => setPaused((p) => !p)} className="fx-marquee-toggle">
+        {paused ? <Play aria-hidden="true" size={14} /> : <Pause aria-hidden="true" size={14} />}
+        {paused ? 'Reanudar cinta' : 'Pausar cinta'}
+      </button>
     </div>
   );
 }
