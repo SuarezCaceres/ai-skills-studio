@@ -340,5 +340,106 @@ test('updateLesson conserva el estado de compartida y shareStatus pasa a dirty',
   assert.equal(m.shareStatus(edited), 'dirty');
 });
 
+console.log('Páginas de referencia (spec 006, C9 y C10)');
+/** Clase fija: su huella `307991d6` se calculó con el código de `main` antes de la 006 y no puede cambiar. */
+const REFERENCE = {
+  title: 'Clase de referencia',
+  summary: 'Resumen fijo de la clase',
+  level: 'Intermedio',
+  tags: ['react', 'ui'],
+  skillIds: ['acme/codice-skills/skills/demo'],
+  componentIds: ['card', 'buttons'],
+  videos: [{ id: 'v1', kind: 'video', youtubeId: 'dQw4w9WgXcQ', title: 'Parte uno' }],
+  bodyMarkdown: '# Hola\n\nCuerpo fijo de la clase de referencia.',
+};
+const REFERENCE_HASH = '307991d6';
+test('huella fija: una clase sin pageIds conserva la huella que tenía antes de la 006', () => {
+  assert.equal(m.contentHash(REFERENCE), REFERENCE_HASH);
+});
+test('huella fija: con pageIds [] la huella es idéntica (las clases ya compartidas no salen «con cambios»)', () => {
+  assert.equal(m.contentHash({ ...REFERENCE, pageIds: [] }), REFERENCE_HASH);
+});
+test('huella: con pageIds no vacío cambia, y depende de qué páginas y en qué orden', () => {
+  const one = m.contentHash({ ...REFERENCE, pageIds: ['dashboard'] });
+  assert.match(one, /^[0-9a-f]{8}$/);
+  assert.notEqual(one, REFERENCE_HASH);
+  assert.notEqual(m.contentHash({ ...REFERENCE, pageIds: ['precios'] }), one);
+  assert.notEqual(m.contentHash({ ...REFERENCE, pageIds: ['dashboard', 'precios'] }), m.contentHash({ ...REFERENCE, pageIds: ['precios', 'dashboard'] }));
+  assert.equal(m.contentHash({ ...REFERENCE, pageIds: ['dashboard'] }), one, 'estable');
+});
+test('una clase compartida antes de la 006 sigue «shared» tras leerse con pageIds []', () => {
+  const l = lesson();
+  const old = { ...l };
+  delete old.pageIds;
+  const shared = { ...old, shared: { repo: WHERE.repo, slug: l.id, issueNumber: 7, sha: SHA, sharedAt: NOW.toISOString(), contentHash: m.contentHash(old) } };
+  const reread = m.sanitizeLesson(shared, NOW);
+  assert.deepEqual(reread.pageIds, []);
+  assert.equal(m.shareStatus(reread), 'shared');
+  assert.equal(m.shareStatus({ ...reread, pageIds: ['dashboard'] }), 'dirty');
+});
+test('buildSharedFiles incluye pageIds en clase.json (también vacío)', () => {
+  const withPages = JSON.parse(m.buildSharedFiles(lesson({ pageIds: ['dashboard', 'precios'] }))[0].content);
+  assert.deepEqual(withPages.pageIds, ['dashboard', 'precios']);
+  const without = JSON.parse(m.buildSharedFiles(lesson())[0].content);
+  assert.deepEqual(without.pageIds, []);
+});
+test('el marcador va y vuelve con pageIds y su huella los incluye', () => {
+  const l = lesson({ pageIds: ['tienda-online', 'blog-articulo'] });
+  const marker = m.readClassMarker(m.buildClassMarker(l, WHERE));
+  assert.deepEqual(marker.data.pageIds, ['tienda-online', 'blog-articulo']);
+  assert.equal(marker.data.contentHash, m.contentHash(l));
+  const c = m.toCommunityLesson(issueFor(l), NOW);
+  assert.deepEqual(c.pageIds, ['tienda-online', 'blog-articulo']);
+  assert.equal(c.contentHash, m.contentHash(l));
+});
+test('toCommunityLesson de un marcador antiguo (sin pageIds) da pageIds []', () => {
+  const l = lesson();
+  const marker = m.readClassMarker(issueFor(l).body);
+  const { pageIds: _drop, ...oldData } = marker.data;
+  assert.equal('pageIds' in oldData, false);
+  const body = `<!-- codice:v1 ${JSON.stringify({ ...marker, data: oldData })} -->`;
+  const c = m.toCommunityLesson(issueFor(l, { body }), NOW);
+  assert.ok(c);
+  assert.deepEqual(c.pageIds, []);
+});
+test('toCommunityLesson sanea pageIds hostiles del marcador (desconocidos, no-string, repetidos y más de 5)', () => {
+  const l = lesson();
+  const hostile = ['javascript:alert(1)', 'precios', { id: 'dashboard' }, 42, 'precios', 'landing-saas', 'tienda-online', 'dashboard', 'login-registro', 'blog-articulo', '../x'];
+  const c = m.toCommunityLesson(issueFor(l, { body: tamper(l, { pageIds: hostile }) }), NOW);
+  assert.ok(c);
+  assert.deepEqual(c.pageIds, ['precios', 'landing-saas', 'tienda-online', 'dashboard', 'login-registro']);
+  const notArray = m.toCommunityLesson(issueFor(l, { body: tamper(l, { pageIds: 'dashboard' }) }), NOW);
+  assert.deepEqual(notArray.pageIds, []);
+});
+test('withSharedFiles toma pageIds de clase.json (no del marcador) y recalcula la huella', () => {
+  const l = lesson({ pageIds: ['dashboard'] });
+  const base = m.toCommunityLesson(issueFor(l), NOW);
+  assert.deepEqual(base.pageIds, ['dashboard']);
+  const files = m.buildSharedFiles({ ...l, pageIds: ['precios', 'blog-articulo'] });
+  const full = m.withSharedFiles(base, { json: files[0].content, markdown: files[1].content }, NOW);
+  assert.deepEqual(full.pageIds, ['precios', 'blog-articulo']);
+  assert.equal(full.contentHash, m.contentHash({ ...l, pageIds: ['precios', 'blog-articulo'], bodyMarkdown: full.bodyMarkdown }));
+  assert.notEqual(full.contentHash, base.contentHash);
+});
+test('withSharedFiles con un clase.json antiguo (sin pageIds) da [] y la huella de antes', () => {
+  const l = lesson();
+  const base = m.toCommunityLesson(issueFor(l), NOW);
+  const meta = JSON.parse(m.buildSharedFiles(l)[0].content);
+  delete meta.pageIds;
+  const full = m.withSharedFiles(base, { json: JSON.stringify(meta), markdown: `${l.bodyMarkdown}\n` }, NOW);
+  assert.ok(full);
+  assert.deepEqual(full.pageIds, []);
+  const old = { ...l, bodyMarkdown: full.bodyMarkdown };
+  delete old.pageIds;
+  assert.equal(full.contentHash, m.contentHash(old));
+});
+test('withSharedFiles sanea pageIds hostiles de clase.json', () => {
+  const l = lesson();
+  const base = m.toCommunityLesson(issueFor(l), NOW);
+  const meta = { ...JSON.parse(m.buildSharedFiles(l)[0].content), pageIds: ['dashboard', '<img>', 'dashboard', null, 'precios'] };
+  const full = m.withSharedFiles(base, { json: JSON.stringify(meta), markdown: l.bodyMarkdown }, NOW);
+  assert.deepEqual(full.pageIds, ['dashboard', 'precios']);
+});
+
 rmSync(dir, { recursive: true, force: true });
 console.log(`\n${passed} pruebas de clases compartidas OK`);

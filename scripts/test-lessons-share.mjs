@@ -48,7 +48,8 @@ const lesson = (login, title, over = {}) =>
   );
 
 const HOSTILE = '## Qué es un hook\n\nTexto de Ana.\n\n<img src="x" onerror="window.__pwned = 1">\n<script>window.__pwned = 2</script>';
-const OWN = [lesson(ME, 'Mis hooks de Claude Code', { updatedAt: '2026-11-13T10:00:00.000Z' }), lesson(ME, 'Segunda clase privada')];
+// La primera clase propia enlaza una página de referencia (spec 006, C10): debe viajar en clase.json y en el marcador.
+const OWN = [lesson(ME, 'Mis hooks de Claude Code', { updatedAt: '2026-11-13T10:00:00.000Z', pageIds: ['dashboard'] }), lesson(ME, 'Segunda clase privada')];
 const ANA_HOOKS = lesson('ana-dev', 'Hooks de Claude Code desde cero', { bodyMarkdown: HOSTILE, tags: ['hooks', 'ana'], videos: [{ id: 'v1', kind: 'video', youtubeId: 'jNQXAC9IVRw', title: 'Introducción' }] });
 const ANA_WT = lesson('ana-dev', 'Worktrees paso a paso', { level: 'Avanzado', tags: ['git'] });
 const ANA_OLD = lesson('ana-dev', 'Clase que Ana retiró');
@@ -62,6 +63,12 @@ const LUIS = lesson('luis-ia', 'Clase en tres partes', {
   ],
 });
 const PEPE = lesson('pepe', 'Esta se borrará de GitHub');
+/**
+ * Lo que Luis publicó en GitHub: dos páginas de referencia y un id que ya no existe (una plantilla retirada).
+ * Se escribe tal cual en clase.json y en el marcador; la app debe descartar el desconocido al leerlo.
+ */
+const LUIS_PAGES = ['precios', 'pagina-retirada', 'blog-articulo'];
+const LUIS_SHOWN = ['precios', 'blog-articulo'];
 
 /** Un repo `<login>/codice-skills` con las clases dadas y un Issue `[class]` por cada una. */
 function seedUser(machine, login, lessons, { closed = [], withoutFiles = [] } = {}) {
@@ -86,7 +93,8 @@ function seedUser(machine, login, lessons, { closed = [], withoutFiles = [] } = 
 
 function seedCommunity(machine) {
   const anaSha = seedUser(machine, 'ana-dev', [ANA_HOOKS, ANA_WT, ANA_OLD], { closed: [ANA_OLD.id] });
-  seedUser(machine, 'luis-ia', [LUIS]);
+  // buildSharedFiles y buildClassMarker no sanean: así se simula una clase con un id de página desconocido.
+  seedUser(machine, 'luis-ia', [{ ...LUIS, pageIds: LUIS_PAGES }]);
   seedUser(machine, 'pepe', [PEPE], { withoutFiles: [PEPE.id] });
   // Suplantación: otra cuenta copia el marcador de Ana apuntando a su repo.
   machine.seedIssue({
@@ -222,8 +230,16 @@ async function main() {
     const files = machine.repoFiles(`${ME}/codice-skills`) ?? {};
     check('en GitHub quedan clase.json y CLASE.md en classes/<id>/', `classes/${OWN[0].id}/clase.json` in files && `classes/${OWN[0].id}/CLASE.md` in files, Object.keys(files).join(', '));
     check('CLASE.md es la explicación y clase.json no lleva autor ni cuerpo', files[`classes/${OWN[0].id}/CLASE.md`]?.includes('Un hook es un comando') && !/author|bodyMarkdown/.test(files[`classes/${OWN[0].id}/clase.json`] ?? ''));
+    let sharedJson = null;
+    try {
+      sharedJson = JSON.parse(files[`classes/${OWN[0].id}/clase.json`] ?? 'null');
+    } catch {
+      /* se informa abajo */
+    }
+    check('clase.json publicado lleva las páginas de referencia (pageIds)', JSON.stringify(sharedJson?.pageIds) === JSON.stringify(['dashboard']), JSON.stringify(sharedJson?.pageIds));
     const mine = ownIssues(machine);
     check('hay exactamente un Issue [class] propio, con las etiquetas class y class:<id>', mine.length === 1 && mine[0].title === `[class] ${ME}/${OWN[0].id}` && mine[0].labels.some((l) => l.name === 'class') && mine[0].labels.some((l) => l.name === m.classLabel(OWN[0].id)), JSON.stringify(mine.map((i) => [i.title, i.labels])));
+    check('el marcador del Issue lleva pageIds', JSON.stringify(m.readClassMarker(mine[0]?.body)?.data?.pageIds) === JSON.stringify(['dashboard']));
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('ai_skills_studio_lessons_v1') || '[]'));
     const sharedInfo = stored.find((l) => l.id === OWN[0].id)?.shared;
     check('la clase local guarda su estado compartido (repo, issue, commit y huella)', sharedInfo?.repo === `${ME}/codice-skills` && sharedInfo.issueNumber === mine[0].number && sharedInfo.sha === machine.head(`${ME}/codice-skills`) && /^[0-9a-f]{8}$/.test(sharedInfo.contentHash));
@@ -296,6 +312,27 @@ async function main() {
     await cards(page).filter({ hasText: 'Clase en tres partes' }).getByRole('button', { name: 'Clase en tres partes' }).click();
     await page.locator('#lesson-videos').waitFor({ timeout: 15000 });
     check('una clase de otra persona con tres partes muestra la lista de partes (video y lista de reproducción)', (await page.getByRole('list', { name: 'Partes del video' }).getByRole('button').count()) === 3);
+
+    console.log('\nPáginas de referencia en una clase de Comunidad (spec 006, C8 y C10)');
+    const communityPages = page.locator('section[aria-labelledby="lesson-pages"]');
+    await communityPages.waitFor({ timeout: 10000 }).catch(() => {});
+    const communityChips = communityPages.locator('button[data-testid="clase-pagina-chip"][data-page-id]');
+    const shownIds = await communityChips.evaluateAll((els) => els.map((el) => el.getAttribute('data-page-id')));
+    check('el detalle de Comunidad muestra «Páginas de referencia» con los pageIds compartidos', (await communityPages.locator('h2').innerText().catch(() => '')).trim() === 'Páginas de referencia' && [...shownIds].sort().join() === [...LUIS_SHOWN].sort().join(), shownIds.join(', '));
+    check('el id de página desconocido no aparece como chip ni rompe el detalle', !shownIds.includes('pagina-retirada') && (await page.locator('#lesson-title').count()) === 1);
+    await page.getByRole('button', { name: 'Reproducir: Instalación' }).click().catch(() => {});
+    const communityFrame = await page.locator('section[aria-labelledby="lesson-videos"] iframe').elementHandle({ timeout: 5000 }).catch(() => null);
+    const firstCommunityChip = communityChips.first();
+    const communityChipId = await firstCommunityChip.getAttribute('data-page-id', { timeout: 5000 }).catch(() => null);
+    await firstCommunityChip.click({ timeout: 5000 }).catch(() => {});
+    const communityModal = page.locator('[role="dialog"][aria-modal="true"][data-testid="pagina-modal"]');
+    check('el chip abre la modal de la página encima de la clase de Comunidad', await communityModal.waitFor({ timeout: 8000 }).then(() => true, () => false));
+    check('la modal navega solo por las páginas de esa clase («1 / 2»)', (await communityModal.locator('[data-testid="pagina-posicion"]').innerText({ timeout: 3000 }).catch(() => '')).replace(/\s+/g, ' ').trim() === '1 / 2');
+    await page.keyboard.press('Escape');
+    await communityModal.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+    check('al cerrarla se sigue en la clase con el foco en el chip', (await communityModal.count()) === 0 && (await page.getByTestId('community-readonly').count()) === 1 && !!communityChipId && (await page.evaluate(() => document.activeElement?.getAttribute('data-page-id') ?? null)) === communityChipId);
+    check('el reproductor de la clase de Comunidad sigue siendo el mismo nodo', !!communityFrame && (await page.evaluate((el) => !!el && el.isConnected && el === document.querySelector('section[aria-labelledby="lesson-videos"] iframe'), communityFrame)));
+    await communityFrame?.dispose();
     await page.getByRole('button', { name: 'Comunidad', exact: true }).click();
 
     console.log('\nClase que ya no está en GitHub');
