@@ -173,10 +173,14 @@ export const GuideContrastShowcase: React.FC<GuideContrastShowcaseProps> = ({ on
     >
       <div className="wrap">
         <header className="guia__cabecera">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-[#0ea5e9]">
-            {GUIDE_COPY.label}
+          <span className="ld-eyebrow ld-eyebrow--center" style={{ marginBottom: 0 }}>
+            <span aria-hidden="true" className="ld-eyebrow__bar" />
+            <span>{GUIDE_COPY.label}</span>
           </span>
-          <h2 id="guia-h">{GUIDE_COPY.title}</h2>
+          <h2 id="guia-h" className="ld-heading">
+            La misma página, con y sin{' '}
+            <span className="ld-accent">alguien que te guíe</span>
+          </h2>
           <p className="muted measure">{GUIDE_COPY.subtitle}</p>
         </header>
 

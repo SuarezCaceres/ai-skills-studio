@@ -20,6 +20,7 @@ Estas reglas son obligatorias para toda la interfaz de Códice Studio (`src/`, `
 ## Navegación y presupuesto de bundle (`< 350 kB`)
 - **Sin router externo:** no instales `react-router` ni librerías equivalentes. Las vistas se declaran en `AppPageRoute` (`src/types/workspace.ts`) y se montan de forma diferida con `React.lazy` + `Suspense` desde `src/App.tsx`.
 - **Presupuesto de carga:** el bundle inicial de aplicación debe mantenerse por debajo de `350 kB` sin comprimir. Conserva la separación manual de chunks `vendor-react` (`react`, `react-dom`) y `vendor-icons` (`lucide-react`) configurada en `vite.config.ts`, y pide permiso antes de plantear cualquier dependencia nueva (`AGENTS.md`).
+  - **Dependencia de animación autorizada (2026-11-27, rama `feat/hero-forge`):** se autoriza el uso de `motion` (`motion/react` con `LazyMotion` + `domMax`) exclusivamente dentro de componentes cargados con `React.lazy` para no superar el presupuesto inicial de `350 kB`, manteniendo obligatoriamente la paleta Cyber Dark (`#0a0d14` / `#121722`) y el acento único cian `#0ea5e9` junto con el respeto a `prefers-reduced-motion`.
 
 ## Componentes, datos y estado
 - Componentes enfocados, cohesivos y con una sola responsabilidad; reutiliza las piezas existentes antes de crear variantes duplicadas.

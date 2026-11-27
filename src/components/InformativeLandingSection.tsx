@@ -1,43 +1,25 @@
 import React, { useEffect } from 'react';
 import { AppPageRoute } from '../types/workspace';
-import { ComputerLightBeamShowcase } from './ComputerLightBeamShowcase';
+import './landingScroll.css';
+// Hero interactivo estilo Forge (WebGL2 + motion/react) en chunk diferido para mantener el bundle inicial < 350 kB.
+const ForgeHeroShowcase = React.lazy(() => import('./hero/ForgeHeroShowcase'));
 // Sección de la spec 005 en un chunk aparte: no suma al bundle inicial (presupuesto < 350 kB).
 const GuideContrastShowcase = React.lazy(() =>
   import('./GuideContrastShowcase').then((m) => ({ default: m.GuideContrastShowcase }))
 );
+// Órbita interactiva de agentes IA en chunk diferido para #capabilities (presupuesto < 350 kB).
+const CapabilitiesOrbitalShowcase = React.lazy(() => import('./CapabilitiesOrbitalShowcase'));
+// Selector interactivo de los 5 módulos con vistas previas autenticadas para #benchmarks (presupuesto < 350 kB).
+const EcosystemModulesShowcase = React.lazy(() => import('./EcosystemModulesShowcase'));
 
 interface InformativeLandingSectionProps {
   onNavigatePage: (page: AppPageRoute) => void;
 }
 
-const HUB_DIAGRAM_JSON = JSON.stringify({
-  layout: 'hub',
-  ground: 'dots',
-  alt: 'Códice Studio conecta directivas SKILL.md y repositorios de GitHub con Obsidian, Claude, Gemini y Cursor.',
-  center: {
-    label: 'Códice Studio',
-    icon: 'ui:layers',
-  },
-  spokes: [
-    { label: 'SKILL.md', icon: 'skill' },
-    { label: 'GitHub', icon: 'github' },
-    { label: 'Obsidian', icon: 'obsidian' },
-    { label: 'Claude', icon: 'claude' },
-    { label: 'Gemini', icon: 'gemini' },
-    { label: 'Cursor', icon: 'cursor' },
-  ],
-});
-
 declare global {
   interface Window {
     __tasteUi?: {
       startAll: (doc: Document) => void;
-    };
-    TPDiagram?: {
-      mount: (el: HTMLElement, spec: any, opts?: any) => any;
-      auto: (root?: Document | HTMLElement, opts?: any) => Promise<any[]>;
-      presets: (custom?: string) => Promise<any>;
-      ready: () => Promise<void>;
     };
   }
 }
@@ -45,9 +27,6 @@ declare global {
 export const InformativeLandingSection: React.FC<InformativeLandingSectionProps> = ({
   onNavigatePage,
 }) => {
-  const diagramRef = React.useRef<HTMLDivElement | null>(null);
-  const diagramInstanceRef = React.useRef<{ destroy?: () => void } | null>(null);
-
   useEffect(() => {
     if (window.__tasteUi) {
       try {
@@ -55,41 +34,46 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
       } catch {}
     }
 
-    let isMounted = true;
-    let timerId: ReturnType<typeof setTimeout> | null = null;
-    let attempts = 0;
+    const reduced =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const targets = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
 
-    const setupDiagram = () => {
-      if (!isMounted || !diagramRef.current) return;
-      if (window.TPDiagram) {
-        try {
-          if (diagramInstanceRef.current?.destroy) {
-            diagramInstanceRef.current.destroy();
-          }
-          const parsedSpec = JSON.parse(HUB_DIAGRAM_JSON);
-          diagramInstanceRef.current = window.TPDiagram.mount(
-            diagramRef.current,
-            parsedSpec
-          );
-        } catch (e) {
-          console.error('Error mounting TPDiagram:', e);
-        }
-      } else if (attempts < 20) {
-        attempts++;
-        timerId = setTimeout(setupDiagram, 60);
+    if (reduced || typeof IntersectionObserver === 'undefined') {
+      targets.forEach((el) => el.setAttribute('data-revealed', 'true'));
+      return;
+    }
+
+    document.documentElement.classList.add('ld-scroll-ready');
+
+    const revealIfVisible = (el: HTMLElement) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.94) {
+        el.setAttribute('data-revealed', 'true');
+        return true;
       }
+      return false;
     };
 
-    setupDiagram();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute('data-revealed', 'true');
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.04, rootMargin: '0px 0px 40px 0px' }
+    );
+
+    targets.forEach((el) => {
+      if (!revealIfVisible(el)) observer.observe(el);
+    });
 
     return () => {
-      isMounted = false;
-      if (timerId) clearTimeout(timerId);
-      if (diagramInstanceRef.current?.destroy) {
-        try {
-          diagramInstanceRef.current.destroy();
-        } catch {}
-      }
+      observer.disconnect();
+      document.documentElement.classList.remove('ld-scroll-ready');
     };
   }, []);
 
@@ -104,48 +88,12 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
 
   return (
     <>
-      {/* 1. HERO CENTRADO (100svh · laptop interactiva con los 4 flujos vigentes) */}
-      <section className="hero hero--centred" data-enter aria-labelledby="hero-h">
-        <div className="wrap">
-          <div className="hero-text">
-            <div className="hero__c">
-              <span className="pill" role="status">
-                <span>Inspección GitHub</span>
-                <span className="muted hidden sm:inline">Fijada a commitSha</span>
-              </span>
-
-              <h1 id="hero-h">Catálogo e inspector de skills para equipos IA</h1>
-
-              <p className="hero__lead">
-                Audita directivas SKILL.md y su código fuente fijados a commitSha en
-                GitHub, descubre skills en skills.sh, prueba componentes UI accesibles y
-                documenta clases en Códice.
-              </p>
-
-              <div className="btn-row">
-                <a
-                  className="btn btn--primary"
-                  href="#inspector"
-                  onClick={(e) => openModule(e, 'catalogo')}
-                >
-                  Explorar catálogo
-                </a>
-                <a className="btn btn--secondary" href="#capabilities">
-                  Ver capacidades
-                </a>
-              </div>
-            </div>
-
-            <div
-              className="hero__window"
-              role="region"
-              aria-label="Laptop 3D interactiva con vista previa de inspección por commitSha y módulos de Códice Studio"
-            >
-              <ComputerLightBeamShowcase onNavigatePage={onNavigatePage} />
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 1. HERO ESTILO FORGE (100svh · haz WebGL2 + tablero interactivo de módulos y agentes IA) */}
+      <React.Suspense
+        fallback={<section className="hero" aria-hidden="true" style={{ minHeight: '100svh' }} />}
+      >
+        <ForgeHeroShowcase onNavigatePage={onNavigatePage} />
+      </React.Suspense>
 
       {/* 1b. GUÍA VS. SIN GUÍA (spec 005 · ilustrativa, tras el hero) */}
       <React.Suspense
@@ -159,17 +107,30 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         <div className="wrap">
           <div className="grid">
             <div className="span-5">
-              <h2 id="inspector-h">Inspección bajo demanda fijada al commit exacto</h2>
+              <p className="ld-eyebrow" data-reveal="up">
+                <span aria-hidden="true" className="ld-eyebrow__bar" />
+                <span>Auditoría de material real · SHA</span>
+              </p>
+              <h2 id="inspector-h" className="ld-heading" data-reveal="mask">
+                <span className="ld-heading__mask">
+                  <span className="ld-heading__line">Inspecciona cada skill</span>
+                </span>
+                <span className="ld-heading__mask">
+                  <span className="ld-heading__line ld-accent">antes de usarla en clase</span>
+                </span>
+              </h2>
             </div>
             <div className="span-6 start-7 stack-4">
-              <p className="muted">
-                Explora el catálogo del equipo o cualquier skill de GitHub en skills.sh,
-                descarga sus scripts bajo demanda desde su commitSha y verifica hallazgos
-                con AuditBadge antes de instalar.
+              <p className="muted" data-reveal="up" data-reveal-delay="1">
+                Cada directiva SKILL.md, script o referencia vinculada a una clase se lee bajo
+                demanda desde su commitSha en GitHub en texto inerte y se verifica con AuditBadge
+                antes de aplicarla en tus proyectos.
               </p>
               <a
                 className="link"
                 href="#capabilities"
+                data-reveal="up"
+                data-reveal-delay="2"
                 onClick={(e) => openModule(e, 'boveda')}
               >
                 Explorar skills del equipo
@@ -182,6 +143,8 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
             role="img"
             aria-label="Lista de archivos auditados junto al inspector bajo demanda fijado a commitSha en FilesPanel.tsx"
             data-ui-pause-host
+            data-reveal="panel"
+            data-reveal-delay="2"
           >
             <div className="app__pane app__pane--list">
               <div
@@ -530,121 +493,74 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         </div>
       </section>
 
-      {/* 3. CAPACIDADES (Split-text-left + Diagrama de flujo con iconos reales) */}
+      {/* 3. CAPACIDADES (Split-text-left + Órbita radial interactiva de agentes IA) */}
       <section className="section" id="capabilities" aria-labelledby="capabilities-h">
         <div className="wrap">
           <div className="grid">
             <div className="span-5 split-col">
-              <h2 id="capabilities-h">Conecta directivas SKILL.md con todo tu flujo</h2>
-              <p>
-                Un único estándar sincroniza auditoría por commitSha, directorio
-                skills.sh, componentes UI accesibles y clases del equipo sin copias
-                locales.
+              <div>
+                <p className="ld-eyebrow" data-reveal="up">
+                  <span aria-hidden="true" className="ld-eyebrow__bar" />
+                  <span>Harness multi-agente · Ahorro de tokens</span>
+                </p>
+                <h2 id="capabilities-h" className="ld-heading" data-reveal="mask">
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line">Cambia de agente IA</span>
+                  </span>
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line ld-accent">sin perder el contexto</span>
+                  </span>
+                </h2>
+              </div>
+              <p data-reveal="up" data-reveal-delay="1">
+                Aprende a armar tu harness (AGENTS.md, docs/ y SKILL.md) para gastar menos tokens
+                y saltar de Claude a Gemini, DeepSeek, ChatGPT u OpenCode cuando se acaben tus
+                créditos, continuando exactamente donde te quedaste.
               </p>
               <ul className="checks">
-                <li>Lectura bajo demanda desde GitHub fijada al commitSha auditado</li>
-                <li>Traducción fiel al español de documentación Markdown en un clic</li>
-                <li className="hidden sm:block">Componentes UI accesibles probados con navegación por teclado</li>
+                <li data-reveal="up" data-reveal-delay="2">Consume menos tokens cargando solo el contexto exacto por tarea</li>
+                <li data-reveal="up" data-reveal-delay="3">Salto sin fricción entre Claude, Gemini, DeepSeek, ChatGPT y OpenCode</li>
+                <li className="hidden sm:block" data-reveal="up" data-reveal-delay="4">Comparte el mismo harness, skills y reglas con todo tu equipo</li>
               </ul>
-              <div className="split-col__end">
+              <div className="split-col__end" data-reveal="up" data-reveal-delay="4">
                 <a
                   className="link"
                   href="#benchmarks"
                   onClick={(e) => openModule(e, 'codice-studio')}
                 >
-                  Explorar clases en Códice
+                  Ver clases y harness en Códice
                 </a>
               </div>
             </div>
 
-            <div className="span-6 start-7 panel">
-              <div ref={diagramRef} className="dg" data-diagram>
-                <script
-                  type="application/json"
-                  dangerouslySetInnerHTML={{ __html: HUB_DIAGRAM_JSON }}
-                />
-              </div>
+            <div
+              className="span-6 start-7 panel"
+              style={{ padding: 0 }}
+              data-reveal="panel"
+              data-reveal-delay="2"
+            >
+              <React.Suspense
+                fallback={<div style={{ minHeight: '480px' }} aria-hidden="true" />}
+              >
+                <CapabilitiesOrbitalShowcase />
+              </React.Suspense>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. ECOSISTEMA Y MÓDULOS ACTIVOS (Momento dealt: iris-opens sobre ground-surface) */}
+      {/* 4. ECOSISTEMA Y MÓDULOS ACTIVOS (Tab Switcher numerado 01–05 + vista previa real autenticada) */}
       <section
         className="section ground-surface"
         id="benchmarks"
-        data-moment="iris-opens"
-        data-moment-opts='{"from": "base"}'
         aria-labelledby="benchmarks-h"
       >
-        <div className="wrap">
-          <div className="grid">
-            <div className="span-5 split-col">
-              <h2 id="benchmarks-h">Cinco módulos integrados en Códice Studio</h2>
-              <p>
-                Cada módulo opera sobre repositorios reales de GitHub y componentes
-                accesibles del estudio, con votos, reportes por modelo e inspección bajo
-                demanda en cada ficha.
-              </p>
-              <dl className="stats">
-                <div>
-                  <dt className="t-small muted">Trazabilidad</dt>
-                  <dd className="t-stat">commitSha</dd>
-                </div>
-                <div>
-                  <dt className="t-small muted">Límite seguro</dt>
-                  <dd className="t-stat">512 KB</dd>
-                </div>
-              </dl>
-              <div className="split-col__end">
-                <a
-                  className="link"
-                  href="#faq"
-                  onClick={(e) => openModule(e, 'catalogo')}
-                >
-                  Abrir catálogo comunitario
-                </a>
-              </div>
-            </div>
-
-            <ul className="rows span-6 start-7">
-              <li>
-                <span className="rows__name">Skills del equipo</span>
-                <p>Publicación directa en GitHub, historial y perfiles · SKILL.md</p>
-                <span className="rows__value">Equipo</span>
-              </li>
-              <li>
-                <span className="rows__name">Catálogo comunitario</span>
-                <p>Votos, auditoría de seguridad y veredictos por modelo · Issue</p>
-                <span className="rows__value">Catálogo</span>
-              </li>
-              <li>
-                <span className="rows__name">Explorar skills.sh</span>
-                <p>Vista previa en solo lectura fijada a commitSha e importación · Live</p>
-                <span className="rows__value">skills.sh</span>
-              </li>
-              <li className="sm-row-hidden">
-                <span className="rows__name">Componentes UI</span>
-                <p>20 piezas accesibles con demostración en vivo y código real · A11y</p>
-                <span className="rows__value">Kit propio</span>
-              </li>
-              <li className="sm-row-hidden">
-                <span className="rows__name">Códice de clases</span>
-                <p>Lecciones en SafeMarkdown vinculadas a skills y componentes · Equipo</p>
-                <span className="rows__value">Obsidian</span>
-              </li>
-              <li className="sm-row-hidden">
-                <span className="rows__name">Inspector bajo demanda</span>
-                <p>Lectura inerte de scripts y re-auditoría automática · SHA</p>
-                <span className="rows__value">512 KB</span>
-              </li>
-              <li className="sm-row-hidden">
-                <span className="rows__name">Reportes por modelo</span>
-                <p>Evaluación práctica de modelos integrada en cada ficha · Veredicto</p>
-                <span className="rows__value">GitHub</span>
-              </li>
-            </ul>
-          </div>
+        <div className="wrap" data-reveal="panel">
+          <React.Suspense
+            fallback={<div style={{ minHeight: '560px' }} aria-hidden="true" />}
+          >
+            <EcosystemModulesShowcase />
+          </React.Suspense>
         </div>
       </section>
 
@@ -653,22 +569,35 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
         <div className="wrap">
           <div className="grid">
             <div className="span-5 split-col">
-              <h2 id="faq-h">Preguntas sobre Códice Studio y tus skills</h2>
-              <p className="muted">
-                Inspección segura por commitSha, vista previa de skills.sh, sesión OAuth
-                en memoria y permisos de publicación.
+              <div>
+                <p className="ld-eyebrow" data-reveal="up">
+                  <span aria-hidden="true" className="ld-eyebrow__bar" />
+                  <span>Preguntas clave · Códice Studio</span>
+                </p>
+                <h2 id="faq-h" className="ld-heading" data-reveal="mask">
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line">Preguntas sobre clases,</span>
+                  </span>
+                  <span className="ld-heading__mask">
+                    <span className="ld-heading__line ld-accent">equipos y harness IA</span>
+                  </span>
+                </h2>
+              </div>
+              <p className="muted" data-reveal="up" data-reveal-delay="1">
+                Cómo funcionan los videos con kit desplegable, el harness multi-agente para
+                ahorrar tokens, los equipos en GitHub y la auditoría por commitSha.
               </p>
-              <dl className="stats hidden sm:grid">
+              <dl className="stats hidden sm:grid" data-reveal="up" data-reveal-delay="2">
                 <div>
-                  <dt className="t-small muted">Token OAuth</dt>
-                  <dd className="t-stat">En memoria</dd>
+                  <dt className="t-small muted">Infraestructura</dt>
+                  <dd className="t-stat">GitHub $0</dd>
                 </div>
                 <div>
-                  <dt className="t-small muted">Lectura</dt>
-                  <dd className="t-stat">commitSha</dd>
+                  <dt className="t-small muted">Agentes IA</dt>
+                  <dd className="t-stat">Multi-IA</dd>
                 </div>
               </dl>
-              <div className="split-col__end">
+              <div className="split-col__end" data-reveal="up" data-reveal-delay="3">
                 <svg
                   className="w-8 h-8 text-[#0ea5e9]"
                   viewBox="0 0 24 24"
@@ -686,39 +615,39 @@ export const InformativeLandingSection: React.FC<InformativeLandingSectionProps>
             </div>
 
             <div className="faq span-6 start-7">
-              <div className="faq__item">
-                <h3>01. Seguridad de inspección: ¿se ejecutan los scripts en el navegador?</h3>
+              <div className="faq__item" data-reveal="up" data-reveal-delay="1">
+                <h3>01. ¿Qué diferencia a las clases de un tutorial tradicional?</h3>
                 <p>
-                  No. Cada archivo distinto de SKILL.md se descarga bajo demanda desde su
-                  commitSha en GitHub y se muestra como texto plano inerte con re-auditoría.
+                  Cada video trae su menú desplegable listo: componentes UI, efectos, skills
+                  SKILL.md, modelo IA, nivel, referencias y proyectos enlazados.
                 </p>
               </div>
-              <div className="faq__item">
-                <h3>02. Integridad por commit: ¿por qué se fija la lectura a un commitSha?</h3>
+              <div className="faq__item" data-reveal="up" data-reveal-delay="2">
+                <h3>02. ¿Cómo ahorra tokens y créditos el harness multi-agente?</h3>
                 <p>
-                  Para garantizar que los scripts leídos en Archivos y verificados por
-                  AuditBadge coinciden exactamente con la revisión auditada antes de instalar.
+                  Ordena reglas y progreso en AGENTS.md y docs/: si agotas créditos en Claude,
+                  sigues en Gemini, DeepSeek, ChatGPT u OpenCode sin perder contexto.
                 </p>
               </div>
-              <div className="faq__item">
-                <h3>03. Directorio externo: ¿cómo funciona Explorar (skills.sh)?</h3>
+              <div className="faq__item" data-reveal="up" data-reveal-delay="3">
+                <h3>03. ¿Puedo crear equipo y subir mis skills y páginas hechas?</h3>
                 <p>
-                  Las skills alojadas en GitHub se abren en vista previa de solo lectura con
-                  traducción y archivos bajo demanda; las fuentes .well-known conservan npx.
+                  Sí. Organiza secciones para tu equipo, publica tus SKILL.md y comparte webs o
+                  apps hechas con IA enlazadas al video explicativo donde se construyeron.
                 </p>
               </div>
-              <div className="faq__item sm-faq-hidden">
-                <h3>04. Acceso de visitante: ¿necesito cuenta para consultar el estudio?</h3>
+              <div className="faq__item sm-faq-hidden" data-reveal="up" data-reveal-delay="4">
+                <h3>04. ¿Qué costo o servidor necesita para funcionar en comunidad?</h3>
                 <p>
-                  No. Puedes explorar Catálogo, Equipos, Explorar, Componentes y Códice sin
-                  sesión; GitHub OAuth solo se pide al publicar, votar, reportar o importar.
+                  Arquitectura ligera con costo base $0 sobre GitHub y videos embebidos
+                  (youtube-nocookie), sin servidores cerrados ni bases de datos pesadas.
                 </p>
               </div>
-              <div className="faq__item sm-faq-hidden">
-                <h3>05. Privacidad y Markdown: ¿dónde vive mi sesión de GitHub?</h3>
+              <div className="faq__item sm-faq-hidden" data-reveal="up" data-reveal-delay="5">
+                <h3>05. ¿Es seguro revisar skills y código externo antes de usarlo?</h3>
                 <p>
-                  El token OAuth permanece únicamente en memoria durante la pestaña activa y
-                  todo Markdown externo se sanea con SafeMarkdown antes de mostrarse.
+                  Sí. Cada archivo se lee bajo demanda desde su commitSha en texto inerte
+                  (≤ 512 KB) con AuditBadge, OAuth en memoria y SafeMarkdown.
                 </p>
               </div>
             </div>

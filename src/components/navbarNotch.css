@@ -1,0 +1,398 @@
+/*
+ * Forge NotchNavbar:
+ * - Escritorio (>= 1024 px): cabecera transparente sobre el haz WebGL2, logo flotando a la izquierda,
+ *   cápsula Notch central pegada al borde superior (rounded-b-3xl) para enlaces con indicador cian
+ *   deslizante + ScrollSpy en portada, y botones GitHub / Catálogo flotando a la derecha.
+ * - Tablet / móvil (< 1024 px): barra superior glass con bordes inferiores redondeados + drawer móvil.
+ */
+
+/* ---------- Base compartida ---------- */
+
+header.nav.nav--notch {
+  --notch-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  background: rgba(8, 11, 18, 0.88);
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 0 0 18px 18px;
+  transition:
+    background-color 260ms var(--notch-ease),
+    border-color 260ms var(--notch-ease),
+    box-shadow 260ms var(--notch-ease);
+}
+
+header.nav.nav--notch.is-open {
+  background: #0a0d14;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+header.nav.nav--notch .nav__logo {
+  font-family: var(--font-display, 'Geist', system-ui, sans-serif);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: #f1f5f9;
+}
+
+header.nav.nav--notch .nav__toggle {
+  border-radius: 10px;
+  border-color: rgba(148, 163, 184, 0.26);
+  background: rgba(12, 17, 27, 0.72);
+  transition: border-color 180ms var(--notch-ease), background-color 180ms var(--notch-ease);
+}
+
+header.nav.nav--notch .nav__toggle:hover {
+  border-color: rgba(14, 165, 233, 0.55);
+  background: rgba(14, 165, 233, 0.12);
+}
+
+.nav-notch__slider {
+  display: none;
+}
+
+/* ---------- Escritorio (>= 1024 px): Logo izq · Notch central · Acciones der ---------- */
+
+@media (min-width: 1024px) {
+  header.nav.nav--notch {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 0;
+    border-radius: 0;
+    pointer-events: none;
+  }
+
+  header.nav.nav--notch .nav__bar {
+    position: relative;
+    width: min(100% - 48px, 1380px);
+    height: var(--nav, 72px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    pointer-events: none;
+  }
+
+  /* Logo flotante a la izquierda sobre el haz WebGL2 */
+  header.nav.nav--notch .nav__logo {
+    pointer-events: auto;
+    font-size: 18px;
+    padding: 7px 14px 7px 11px;
+    border-radius: 9999px;
+    background: rgba(8, 11, 18, 0.42);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition:
+      background-color 240ms var(--notch-ease),
+      border-color 240ms var(--notch-ease),
+      box-shadow 240ms var(--notch-ease),
+      transform 240ms var(--notch-ease);
+  }
+
+  header.nav.nav--notch.is-scrolled .nav__logo {
+    background: rgba(8, 11, 18, 0.86);
+    border-color: rgba(148, 163, 184, 0.24);
+    box-shadow: 0 14px 30px -18px rgba(2, 6, 23, 0.92);
+  }
+
+  header.nav.nav--notch .nav__logo:hover {
+    border-color: rgba(14, 165, 233, 0.48);
+    background: rgba(12, 18, 30, 0.88);
+  }
+
+  /* Cápsula Notch central pegada al borde superior */
+  header.nav.nav--notch .nav__links {
+    position: fixed;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    pointer-events: auto;
+    flex: none;
+    align-self: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 9px 14px 10px;
+    border-radius: 0 0 24px 24px;
+    background: rgba(8, 11, 18, 0.86);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-top: 0;
+    box-shadow:
+      0 20px 44px -20px rgba(2, 6, 23, 0.95),
+      inset 0 -1px 0 rgba(14, 165, 233, 0.14);
+    transition:
+      padding 260ms var(--notch-ease),
+      background-color 260ms var(--notch-ease),
+      border-color 260ms var(--notch-ease),
+      box-shadow 260ms var(--notch-ease);
+  }
+
+  /* Borde inferior con brillo cian sutil característico del Notch */
+  header.nav.nav--notch .nav__links::after {
+    content: '';
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(14, 165, 233, 0.65) 50%,
+      transparent 100%
+    );
+    pointer-events: none;
+    opacity: 0.75;
+    transition: opacity 260ms var(--notch-ease);
+  }
+
+  header.nav.nav--notch.is-scrolled .nav__links {
+    padding: 7px 14px 8px;
+    background: rgba(8, 11, 18, 0.94);
+    border-color: rgba(14, 165, 233, 0.26);
+    box-shadow:
+      0 22px 48px -18px rgba(2, 6, 23, 0.98),
+      0 0 28px -14px rgba(14, 165, 233, 0.35),
+      inset 0 -1px 0 rgba(14, 165, 233, 0.22);
+  }
+
+  header.nav.nav--notch.is-scrolled .nav__links::after {
+    opacity: 1;
+  }
+
+  /* Indicador activo/hover deslizante dentro del Notch */
+  header.nav.nav--notch .nav-notch__slider {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 34px;
+    border-radius: 9999px;
+    background: rgba(14, 165, 233, 0.14);
+    border: 1px solid rgba(14, 165, 233, 0.38);
+    box-shadow: 0 0 20px -8px rgba(14, 165, 233, 0.65);
+    pointer-events: none;
+    z-index: 0;
+    transform-origin: left center;
+    transition:
+      transform 320ms var(--notch-ease),
+      width 320ms var(--notch-ease),
+      opacity 220ms var(--notch-ease);
+  }
+
+  header.nav.nav--notch .nav-notch__slider::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    width: 18px;
+    height: 2px;
+    transform: translateX(-50%);
+    border-radius: 9999px;
+    background: #0ea5e9;
+    box-shadow: 0 0 8px rgba(14, 165, 233, 0.9);
+  }
+
+  header.nav.nav--notch .nav__item {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    height: auto;
+    white-space: nowrap;
+  }
+
+  header.nav.nav--notch .nav__links .nav__link {
+    height: 34px;
+    padding: 0 13px;
+    border-radius: 9999px;
+    font-family: var(--font-display, 'Geist', system-ui, sans-serif);
+    font-size: 13.5px;
+    font-weight: 560;
+    letter-spacing: -0.015em;
+    color: rgba(241, 245, 249, 0.72);
+    background: transparent;
+    transition: color 200ms var(--notch-ease);
+  }
+
+  /* Desactiva las líneas dobles clásicas de system.css dentro del Notch (usa el indicador deslizante) */
+  header.nav.nav--notch .nav__links .nav__link::before,
+  header.nav.nav--notch .nav__links .nav__link[aria-current='page']::after {
+    display: none;
+  }
+
+  header.nav.nav--notch .nav__links .nav__link:hover,
+  header.nav.nav--notch .nav__links .nav__link:focus-visible,
+  header.nav.nav--notch .nav__links .nav__link[aria-current='page'],
+  header.nav.nav--notch .nav__links .nav__link[data-active='true'] {
+    color: #f8fafc;
+  }
+
+  header.nav.nav--notch .nav__links .nav__link[aria-current='page'] .chev,
+  header.nav.nav--notch .nav__links .nav__link:hover .chev {
+    color: #38bdf8;
+    opacity: 1;
+  }
+
+  /* Acciones flotantes a la derecha */
+  header.nav.nav--notch .nav__actions {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  header.nav.nav--notch .nav__actions .btn {
+    height: 38px;
+    padding-inline: 16px;
+    font-family: var(--font-display, 'Geist', system-ui, sans-serif);
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  header.nav.nav--notch .nav__actions .btn--secondary {
+    background: rgba(8, 11, 18, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.26);
+    color: #f1f5f9;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  header.nav.nav--notch .nav__actions .btn--secondary:hover {
+    background: rgba(15, 23, 38, 0.92);
+    border-color: rgba(14, 165, 233, 0.55);
+  }
+
+  /* CTA primario con efecto sheen estilo Hero Forge */
+  header.nav.nav--notch .nav__actions .btn--primary {
+    position: relative;
+    overflow: hidden;
+    background: #0ea5e9;
+    color: #0a0d14;
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    box-shadow: 0 10px 24px -12px rgba(14, 165, 233, 0.75);
+    transition:
+      background-color 220ms var(--notch-ease),
+      color 220ms var(--notch-ease),
+      transform 220ms var(--notch-ease),
+      box-shadow 220ms var(--notch-ease);
+  }
+
+  header.nav.nav--notch .nav__actions .btn--primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.36) 50%,
+      transparent 70%
+    );
+    transform: translateX(-125%);
+    pointer-events: none;
+  }
+
+  header.nav.nav--notch .nav__actions .btn--primary:hover {
+    background: #0284c7;
+    color: #f8fafc;
+    box-shadow: 0 14px 30px -12px rgba(14, 165, 233, 0.8);
+  }
+
+  header.nav.nav--notch .nav__actions .btn--primary:hover::before {
+    transform: translateX(125%);
+    transition: transform 620ms var(--notch-ease);
+  }
+
+  /* Usuario autenticado flotante en cristal oscuro */
+  header.nav.nav--notch .nav__actions > .nav__link {
+    height: 38px;
+    padding-inline: 12px;
+    border-radius: 9999px;
+    background: rgba(8, 11, 18, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 13.5px;
+    font-weight: 560;
+    color: #f1f5f9;
+  }
+
+  header.nav.nav--notch .nav__actions > .nav__link::before {
+    display: none;
+  }
+
+  header.nav.nav--notch .nav__actions > .nav__link:hover {
+    border-color: rgba(14, 165, 233, 0.55);
+    background: rgba(15, 23, 38, 0.9);
+  }
+}
+
+/* Portátil compacto (1024–1279 px): evita cualquier solape entre logo, Notch y acciones */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  header.nav.nav--notch .nav__bar {
+    width: calc(100% - 32px);
+  }
+
+  header.nav.nav--notch .nav__logo {
+    font-size: 16px;
+    padding: 6px 11px 6px 9px;
+  }
+
+  header.nav.nav--notch .nav__links {
+    padding: 7px 10px 8px;
+    gap: 2px;
+    border-radius: 0 0 18px 18px;
+  }
+
+  header.nav.nav--notch .nav__links .nav__link {
+    height: 32px;
+    padding: 0 9px;
+    font-size: 12.5px;
+  }
+
+  header.nav.nav--notch .nav-notch__slider {
+    height: 32px;
+  }
+
+  header.nav.nav--notch .nav__actions {
+    gap: 8px;
+  }
+
+  header.nav.nav--notch .nav__actions .btn {
+    height: 36px;
+    padding-inline: 12px;
+    font-size: 13px;
+  }
+}
+
+/* Pantallas muy anchas (>= 1280 px): Notch generoso y aireado */
+@media (min-width: 1280px) {
+  header.nav.nav--notch .nav__links {
+    gap: 6px;
+    padding: 10px 18px 11px;
+  }
+
+  header.nav.nav--notch .nav__links .nav__link {
+    padding: 0 14px;
+    font-size: 14px;
+  }
+}
+
+/* ---------- Movimiento reducido ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  header.nav.nav--notch,
+  header.nav.nav--notch .nav__logo,
+  header.nav.nav--notch .nav__links,
+  header.nav.nav--notch .nav-notch__slider,
+  header.nav.nav--notch .nav__actions .btn--primary,
+  header.nav.nav--notch .nav__actions .btn--primary::before {
+    transition: none !important;
+    animation: none !important;
+  }
+}
