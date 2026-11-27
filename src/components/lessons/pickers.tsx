@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { COMPONENT_REGISTRY } from '../../data/componentRegistry';
+import { PAGE_CATALOG } from '../../data/pageCatalog';
+import { pageThumbnailUrl } from '../../data/pageRegistry';
 import { PersonAvatar } from '../catalog/PersonAvatar';
 import { ComponentThumb } from '../components/ComponentThumb';
 import type { SkillOption, UseSkillOptionsResult } from './useLessons';
@@ -120,6 +122,49 @@ export function ComponentPicker({ value, onChange, max, error }: PickerProps) {
       </ul>
       {error && (
         <p id="picker-components-error" className="m-0 mt-1.5 text-xs text-rose-300">
+          {error}
+        </p>
+      )}
+    </fieldset>
+  );
+}
+
+/**
+ * Selector de páginas de referencia (spec 006 · C7), con miniatura y buscador. No impide marcar más
+ * de `max`: el límite lo valida `validateDraft` para que el error se vea y no se guarde.
+ */
+export function PagePicker({ value, onChange, max, error }: PickerProps) {
+  const [query, setQuery] = useState('');
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return PAGE_CATALOG.filter((p) => !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+  }, [query]);
+
+  return (
+    <fieldset id="picker-pages" className="m-0 min-w-0 border-0 p-0" aria-describedby={error ? 'picker-pages-error' : undefined}>
+      <legend className="mb-1.5 p-0 text-sm font-semibold text-white">
+        Páginas de referencia <span className="font-normal text-slate-500">({value.length} de {max})</span>
+      </legend>
+      <SearchBox value={query} onChange={setQuery} label="Buscar página" />
+      <ul className="m-0 flex max-h-64 list-none flex-col gap-1 overflow-y-auto p-0 pr-1">
+        {visible.map((p) => (
+          <li key={p.id}>
+            <label className={ROW}>
+              <input type="checkbox" checked={value.includes(p.id)} onChange={() => onChange(toggle(value, p.id))} className="h-4 w-4 shrink-0 accent-[#0ea5e9]" />
+              <span aria-hidden="true" className="block h-8 w-12 shrink-0 overflow-hidden rounded border border-slate-800 bg-[#121722]">
+                <img src={pageThumbnailUrl(p)} alt="" loading="lazy" decoding="async" className="block h-full w-full object-cover object-top" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-semibold text-white">{p.name}</span>
+                <span className="block truncate text-[11px] text-slate-500">{p.category}</span>
+              </span>
+            </label>
+          </li>
+        ))}
+        {visible.length === 0 && <li className="text-xs text-slate-500">Ninguna página coincide.</li>}
+      </ul>
+      {error && (
+        <p id="picker-pages-error" className="m-0 mt-1.5 text-xs text-rose-300">
           {error}
         </p>
       )}
