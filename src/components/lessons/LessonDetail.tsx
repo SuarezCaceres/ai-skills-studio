@@ -175,7 +175,7 @@ export function LessonDetail({ lesson, skills, canManage, onBack, onEdit, onDele
                         <ComponentThumb entry={entry} width={64} decorative />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-semibold text-white">{entry.name}</span>
-                          <span className="block truncate text-[11px] text-slate-500">{entry.category} · Ver en Componentes</span>
+                          <span className="block truncate text-[11px] text-slate-500">{entry.kind === 'efecto' ? `Efecto · ${entry.category}` : entry.category} · Ver en Componentes</span>
                         </span>
                       </button>
                     </li>
