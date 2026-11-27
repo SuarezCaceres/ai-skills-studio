@@ -13,10 +13,10 @@ const INPUT: CatalogInput[] = [
     name: 'Landing SaaS',
     nickname: 'la portada de un producto',
     category: 'Landing',
-    description: 'Portada de un producto digital: promesa, prueba social, funciones y una llamada a la acción.',
+    description: 'Portada de un producto digital: promesa con dos llamadas a la acción, logos de clientes, tres funciones, un testimonio y el pie.',
     prompt:
-      'SaaS landing page: sticky nav, hero with headline, subcopy and two CTAs, logo strip, three feature cards, testimonial and footer.',
-    componentIds: ['buttons', 'card', 'footer'],
+      'SaaS landing page: sticky top nav with logo, links and a sign-up button; a two-column hero with headline, subcopy, primary and secondary CTAs next to a product screenshot; a strip of six client logos; three feature cards with icons; a customer testimonial with avatar; and a multi-column footer.',
+    componentIds: ['avatar', 'buttons', 'card', 'footer'],
   },
   {
     id: 'tienda-online',
@@ -24,10 +24,10 @@ const INPUT: CatalogInput[] = [
     name: 'Tienda online',
     nickname: 'el listado de productos',
     category: 'Tienda online',
-    description: 'Listado de productos con filtros, tarjetas con precio y valoración, y botón para añadir al carrito.',
+    description: 'Listado de productos con buscador, categorías y orden, y una rejilla de tarjetas con precio, valoración y botón para añadir al carrito.',
     prompt:
-      'Product listing page: store header, filter and sort bar, responsive grid of product cards with image, name, price, rating stars and an add-to-cart button.',
-    componentIds: ['card', 'buttons', 'badge'],
+      'Product listing page: store header with logo, search field and cart button; a filter and sort bar with category chips and a sort select; a responsive grid of eight product cards (1–2 columns on mobile, 4 on desktop), each with an illustration, optional badge, name, price, star rating and an add-to-cart button that updates the cart count.',
+    componentIds: ['badge', 'buttons', 'card'],
   },
   {
     id: 'dashboard',
@@ -35,10 +35,10 @@ const INPUT: CatalogInput[] = [
     name: 'Dashboard',
     nickname: 'el panel de control',
     category: 'Dashboard',
-    description: 'Panel con navegación lateral, métricas clave, un gráfico y una tabla de actividad reciente.',
+    description: 'Panel de administración con navegación lateral, buscador, cuatro indicadores, un gráfico de barras y una tabla de actividad con estados.',
     prompt:
-      'Admin dashboard: sidebar navigation, top bar with search and avatar, four KPI cards, a bar chart and a recent activity table.',
-    componentIds: ['avatar', 'badge', 'card'],
+      'Admin dashboard: left sidebar navigation that becomes a horizontal scrollable bar on mobile; top bar with search, notifications button and user avatar; four KPI cards with month-over-month change; an accessible monthly revenue bar chart; and a recent orders table with status badges.',
+    componentIds: ['avatar', 'badge', 'buttons'],
   },
   {
     id: 'login-registro',
@@ -46,10 +46,10 @@ const INPUT: CatalogInput[] = [
     name: 'Login / registro',
     nickname: 'la pantalla de entrar',
     category: 'Autenticación',
-    description: 'Pantalla dividida para entrar o crear cuenta, con formulario accesible y acceso con un proveedor.',
+    description: 'Pantalla dividida para entrar o crear cuenta: panel de marca a un lado y, al otro, un formulario accesible con acceso mediante un proveedor externo.',
     prompt:
-      'Split-screen sign-in page: brand panel on one side, form with email, password, remember me, primary button and a social sign-in option on the other.',
-    componentIds: ['forms', 'buttons'],
+      'Split-screen sign-in page: brand panel with illustration and tagline on the left (hidden on mobile); on the right a form with a sign-in/sign-up switch, a "Continue with GitHub" button, email and password fields with show-password toggle, a remember-me checkbox, a forgot-password link and a full-width submit button.',
+    componentIds: ['buttons', 'forms'],
   },
   {
     id: 'precios',
@@ -57,10 +57,10 @@ const INPUT: CatalogInput[] = [
     name: 'Precios',
     nickname: 'la tabla de planes',
     category: 'Precios',
-    description: 'Tres planes con el recomendado destacado, cambio mensual o anual y preguntas frecuentes.',
+    description: 'Tres planes con el recomendado destacado, cambio entre pago mensual y anual, y preguntas frecuentes en un acordeón.',
     prompt:
-      'Pricing page: monthly/yearly toggle, three plan cards with the middle one highlighted, feature checklists, CTA buttons and an FAQ accordion.',
-    componentIds: ['buttons', 'badge', 'accordion'],
+      'Pricing page: centered header; a monthly/yearly segmented toggle that recalculates prices with a 17% yearly discount; three plan cards with the middle one highlighted and a "Recommended" badge, each with price, billing note, CTA button and feature checklist; and an FAQ accordion.',
+    componentIds: ['accordion', 'badge', 'buttons'],
   },
   {
     id: 'blog-articulo',
@@ -68,10 +68,10 @@ const INPUT: CatalogInput[] = [
     name: 'Blog / artículo',
     nickname: 'la página de un artículo',
     category: 'Blog',
-    description: 'Artículo con migas de pan, autor, cuerpo legible y artículos relacionados.',
+    description: 'Artículo de blog con migas de pan, autor y tiempo de lectura, portada ilustrada, cuerpo a 65 caracteres por línea y tres artículos relacionados.',
     prompt:
-      'Blog article page: breadcrumb, title, author with avatar and reading time, cover block, readable body column and related article cards.',
-    componentIds: ['breadcrumb', 'avatar', 'card'],
+      'Blog article page: simple header; breadcrumb, title, lead paragraph and author row with avatar, date and reading time; a wide SVG cover; a readable ~65ch body with subheadings, a pull quote and inline code; and three related article cards.',
+    componentIds: ['avatar', 'breadcrumb', 'card'],
   },
 ];
 
