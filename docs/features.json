@@ -130,7 +130,7 @@
       "spec": "docs/specs/007-paginas-de-referencia/spec.md",
       "estado": "en_curso",
       "criterios": [
-        { "id": "C1", "descripcion": "Ruta paginas con entrada «Páginas» tras Componentes en la barra y en el menú «UI y conocimiento», sin desbordamiento ni errores de consola/CSP en 1440/1024/768/390 px", "pasa": false },
+        { "id": "C1", "descripcion": "Ruta paginas con entrada «Páginas» tras Componentes en la barra de módulos (el desplegable de la portada lo retiró hero-forge), sin desbordamiento ni errores de consola/CSP en 1440/1024/768/390 px", "pasa": false },
         { "id": "C2", "descripcion": "Galería de 6 plantillas (Landing SaaS, Tienda online, Dashboard, Login/registro, Precios, Blog) con miniatura local, nombre, apodo y categoría, y chips de categoría con recuento y filtro", "pasa": false },
         { "id": "C3", "descripcion": "Modal role=dialog aria-modal con plantilla en vivo, apodo, descripción y Componentes que usa; foco atrapado, Esc devuelve el foco a la tarjeta y ↑/↓ o anterior/siguiente con posición N / M", "pasa": false },
         { "id": "C4", "descripcion": "Selector Escritorio/Móvil que estrecha el marco a ~390 px y recompone la plantilla con container queries sin desbordar, también en una ventana de 390 px", "pasa": false },

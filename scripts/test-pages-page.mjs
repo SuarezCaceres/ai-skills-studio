@@ -19,12 +19,12 @@
 import { build, preview } from 'vite';
 import { build as esbuild } from 'esbuild';
 import { chromium } from 'playwright';
-import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { TEST_CATALOG_REPO, TEST_CLIENT_ID, TEST_OAUTH_URL, installFakeGithub } from './lib/github-fixture.mjs';
+import { enterApp } from './lib/enter-app.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 5197;
@@ -161,7 +161,7 @@ async function gotoLanding(page, origin) {
 /** Desde la portada, entra al estudio y elige un módulo de la barra «Módulos del estudio». */
 async function openModule(page, origin, label) {
   await gotoLanding(page, origin);
-  await page.evaluate(() => document.querySelector('.nav__actions a.btn--primary')?.click());
+  await enterApp(page);
   await page.waitForTimeout(300);
   await page.evaluate((text) => {
     const links = [...document.querySelectorAll('nav[aria-label="Módulos del estudio"] a')];
@@ -248,20 +248,22 @@ function checkBuild() {
   const leakedPrompt = PAGE_CATALOG.find((p) => initialCode.includes(p.prompt.slice(0, 60)));
   check('los prompts del catálogo no viajan en el chunk inicial', !leakedPrompt, leakedPrompt?.id ?? '');
 
-  let mainPkg = null;
-  try {
-    mainPkg = JSON.parse(execFileSync('git', ['show', 'main:package.json'], { cwd: ROOT, encoding: 'utf8' }));
-  } catch (err) {
-    check('se puede leer package.json de main para comparar', false, String(err).slice(0, 200));
-  }
-  if (mainPkg) {
-    const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
-    const added = [];
-    for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
-      for (const name of Object.keys(pkg[field] ?? {})) if (!(name in (mainPkg[field] ?? {}))) added.push(`${field}:${name}`);
+  // La 007 no añade dependencias: su código solo importa React, lucide-react y archivos propios.
+  // (No se compara package.json con main: otras ramas integradas, como hero-forge, añaden las suyas.)
+  const OWN_DIRS = ['src/components/pages', 'src/components/page-templates'];
+  const OWN_FILES = ['src/data/pageIds.ts', 'src/data/pageCatalog.ts', 'src/data/pageRegistry.ts', 'src/types/pages.ts'];
+  const ALLOWED = new Set(['react', 'react-dom', 'lucide-react']);
+  const ownFiles = [...OWN_FILES, ...OWN_DIRS.flatMap((d) => readdirSync(resolve(ROOT, d)).map((n) => `${d}/${n}`))].filter((p) => /.(tsx?|css)$/.test(p));
+  const foreign = [];
+  for (const rel of ownFiles) {
+    for (const m of readFileSync(resolve(ROOT, rel), 'utf8').matchAll(/froms+['"]([^'"]+)['"]/g)) {
+      const spec = m[1];
+      if (spec.startsWith('.')) continue;
+      const pkgName = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
+      if (!ALLOWED.has(pkgName)) foreign.push(`${rel}: ${spec}`);
     }
-    check('package.json no gana dependencias respecto a main', added.length === 0, added.join(', '));
   }
+  check('el código de la 007 no usa dependencias nuevas (solo react, react-dom y lucide-react)', ownFiles.length > 10 && foreign.length === 0, foreign.join(', ') || `${ownFiles.length} archivos`);
 
   for (const id of PAGE_IDS) {
     const meta = byId(id);
@@ -296,16 +298,6 @@ async function main() {
     const [first, second, third] = PAGE_CATALOG;
     await section(page, origin, 'Ruta y navegación (C1)', async () => {
       await gotoLanding(page, origin);
-      const menuLink = await page.evaluate(() => {
-        const link = [...document.querySelectorAll('.nav__menu a')].find((a) => a.textContent.trim().startsWith('Páginas de referencia'));
-        const col = link?.closest('.menu-col');
-        const label = col?.querySelector('.t-label')?.textContent?.trim() ?? '';
-        link?.click();
-        return { found: !!link, label };
-      });
-      check('el menú de la portada tiene «Páginas de referencia» en «UI y conocimiento»', menuLink.found && menuLink.label === 'UI y conocimiento', JSON.stringify(menuLink));
-      const fromMenu = await page.locator('#pages-heading').waitFor({ timeout: 8000 }).then(() => true, () => false);
-      check('el enlace del menú de la portada abre la página «Páginas»', fromMenu);
 
       await openPages(page, origin);
       const navLabels = (await page.locator('nav[aria-label="Módulos del estudio"] a').allInnerTexts()).map((t) => t.trim());

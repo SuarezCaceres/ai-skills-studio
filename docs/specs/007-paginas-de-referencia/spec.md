@@ -43,7 +43,7 @@ Además, quien graba una clase en Códice no puede decir «para este video usé 
 
 ## Criterios de aceptación
 Cada criterio debe poder comprobarse con una prueba. Se copian a `docs/features.json`.
-- **C1 · Ruta y navegación:** Dada la aplicación, cuando se elige «Páginas» en la barra de módulos (después de «Componentes») o en el menú «UI y conocimiento» de la portada, entonces se muestra la página «Páginas» en `1440`, `1024`, `768` y `390` px, sin desbordamiento horizontal ni errores de consola o CSP.
+- **C1 · Ruta y navegación:** Dada la aplicación, cuando se elige «Páginas» en la barra de módulos (después de «Componentes»), entonces se muestra la página «Páginas» en `1440`, `1024`, `768` y `390` px, sin desbordamiento horizontal ni errores de consola o CSP.
 - **C2 · Galería:** Dada la página «Páginas», entonces hay 6 tarjetas, una por categoría (Landing SaaS, Tienda online, Dashboard, Login/registro, Precios, Blog/artículo), cada una con miniatura local, nombre, apodo y categoría. Los chips de categoría muestran cuántas páginas tiene cada una, y al elegir uno solo quedan sus tarjetas («Todas» las vuelve a mostrar todas).
 - **C3 · Modal accesible:** Dada la galería, cuando se activa una tarjeta con clic, Enter o Espacio, entonces se abre un `role="dialog"` con `aria-modal="true"`, nombrado por el título de la página, que muestra la plantilla en vivo, el apodo, la descripción y «Componentes que usa» con enlaces a Componentes. El foco queda atrapado dentro, Esc o el botón de cerrar la cierran y el foco vuelve a la tarjeta que la abrió. Las flechas ↑/↓ y los botones anterior/siguiente pasan a la página vecina dentro de la categoría filtrada, y aparece la posición («2 / 6»).
 - **C4 · Escritorio y móvil:** Dada la modal abierta, cuando se elige «Móvil», entonces el marco se estrecha a unos 390 px y la plantilla cambia su composición (por ejemplo, la rejilla pasa a una columna) sin desbordar el marco. «Escritorio» la devuelve. En `390` px de ventana, el marco ocupa todo el ancho disponible sin desbordar.
@@ -55,6 +55,8 @@ Cada criterio debe poder comprobarse con una prueba. Se copian a `docs/features.
 - **C10 · Compartir:** Dada una clase con `pageIds` compartida en GitHub (simulado), cuando se lee desde Comunidad, entonces conserva sus `pageIds` y su detalle los muestra como en C8.
 - **C11 · Presupuesto y seguridad:** Dado el build de producción, entonces `package.json` no gana dependencias, la página y las plantillas van en chunks diferidos, el chunk inicial sigue `< 350 kB` (o no crece más de `1 kB` respecto a la base si la base ya lo supera), las miniaturas pesan `≤ 40 KB` cada una y abrir la galería y las 6 plantillas no hace ninguna petición a dominios externos.
 - **C12 · Miniaturas reproducibles:** Dado el script de capturas, cuando se ejecuta, entonces regenera las 6 miniaturas de `public/pages/` a partir de las propias plantillas, sin red externa.
+
+> **Ajuste de C1 (2026-11-27, aprobado por el humano):** al integrar `feat/hero-forge` desaparece el desplegable «Módulos» de la portada, donde estaba el enlace «Páginas de referencia» del menú «UI y conocimiento». La entrada queda solo en la barra de módulos. C11 deja de comparar `package.json` con `main` (hero-forge añade `motion`) y comprueba en su lugar que el código de la 007 solo importa `react`, `react-dom` y `lucide-react`.
 
 ## Casos límite y errores
 - **Id de página desconocido en una clase** (por ejemplo, una plantilla retirada): no se muestra el chip y no se rompe el detalle. El editor lo quita al guardar.
