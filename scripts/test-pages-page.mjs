@@ -322,7 +322,7 @@ async function main() {
       check('hay 6 tarjetas, una por página del registro', ids.length === 6 && [...ids].sort().join() === [...PAGE_IDS].sort().join(), ids.join(', '));
       for (const meta of PAGE_CATALOG) {
         const text = squash(await card(page, meta.id).innerText().catch(() => ''));
-        check(`tarjeta ${meta.id}: nombre, «Le dicen: ${meta.nickname}» y categoría`, text.includes(meta.name) && text.includes(`Le dicen: ${meta.nickname}`) && text.includes(meta.category), text);
+        check(`tarjeta ${meta.id}: nombre, «Le dicen: ${meta.nickname}» y categoría`, text.includes(meta.name) && text.includes(`Le dicen: ${meta.nickname}`) && text.toLocaleLowerCase('es').includes(meta.category.toLocaleLowerCase('es')), text);
       }
       const thumbsOk = await page
         .waitForFunction(
